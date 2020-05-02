@@ -69,7 +69,8 @@ def stx_to_image(f, output=None, verbose=False):
 
         img.save(output)
 
-    assert f.tell() == filesize
+    # verify that we have reached end of the file
+    assert len(f.read(1)) == 0
 
 if __name__ == "__main__":
     import argparse
