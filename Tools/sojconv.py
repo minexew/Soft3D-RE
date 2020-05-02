@@ -25,6 +25,7 @@ def soj_to_obj(f, output):
             unk = stuff[6:]
         else:
             stuff = struct.unpack("<iiiiiiiii", f.read(36))
+            # stuff[0] might be bone ID for animation
             x, y, z = stuff[1:4]
             nx, ny, nz = stuff[4:7]
             unk = stuff[0:1] + stuff[7:]

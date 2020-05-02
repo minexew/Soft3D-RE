@@ -1,14 +1,17 @@
 from enum import Enum
+from pathlib import Path
 import os
 import struct
 import sys
+
+from PIL import Image
 
 class ImageType(Enum):
     IMPLICIT_PALETTE = 0x12
     PALETTE_32x = 0x52
     PALETTE = 0x91
 
-def stx_to_image(f, output=None, verbose=False):
+def load(f, verbose=False):
     palsiz, type, unk3, unk4, width, height = struct.unpack("<BBBBII", f.read(12))
 
     if verbose:
@@ -57,27 +60,25 @@ def stx_to_image(f, output=None, verbose=False):
 
     assert len(image_data) == width * height
 
-    if output is not None:
-        from PIL import Image
+    img = Image.new("RGB", (width, height))
 
-        img = Image.new("RGB", (width, height))
-
-        for y in range(height):
-            for x in range(width):
-                pixel_data = image_data[y * width + x]
-                img.putpixel((x, y), palette[pixel_data])
-
-        img.save(output)
+    for y in range(height):
+        for x in range(width):
+            pixel_data = image_data[y * width + x]
+            img.putpixel((x, y), palette[pixel_data])
 
     # verify that we have reached end of the file
     assert len(f.read(1)) == 0
 
+    return img
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Convert STX textures")
-    parser.add_argument("input")
-    parser.add_argument("output", nargs="?")
+    parser.add_argument("input", type=Path)
+    parser.add_argument("output", type=Path)
     args = parser.parse_args()
 
     with open(args.input, "rb") as f:
-        stx_to_image(f, args.output)
+        image = load(f)
+        image.save(args.output)

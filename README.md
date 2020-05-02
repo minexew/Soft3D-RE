@@ -4,19 +4,19 @@
 
 ## File formats
 
-- S3DTEX = textures (16-byte header + raw RGB565 data)
-- S3DSTY = ?
-- SAI = probably 3D model animations
-- SAU = audio
-- SBP = maps (Bsp)
-- SDT = ?; contains technical strings
-- SPL = ?
-- SOJ = 3D objects
+- ✔️ S3DTEX = images/textures, well-understood
+- ❌ S3DSTY = ?
+- ❌ SAI = probably 3D model animations
+- ❌ SAU = audio
+- ❌ SBP = maps (Bsp)
+- ❌ SDT = ?; contains technical strings
+- ❌ SPL = ?
+- 🔧 SOJ = 3D objects, partially understood
   - How are textures mapped?
   - How are UV coordinates encoded?
   - Skinning? Animations?
-- SST = “simple script”
-- STX = textures, fully understood
+- ❌ SST = “simple script”
+- ✔️ STX = images/textures, well-understood
 
 ## Some links
 
