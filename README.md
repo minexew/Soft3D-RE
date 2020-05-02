@@ -1,13 +1,4 @@
-# 7 Days: Salvation archeology
-
-## Some links
-
-- http://legendsworld.net/adventure/game/2455
-- http://www.legendsworld.net/phpBB3/viewtopic.php?f=5&t=9745
-- https://imgur.com/a/3IMWR7r
-- https://sourceforge.net/projects/spkextractor/
-
-## Soft3D engine (S3D)
+# Soft3D engine archaeology
 
 - written in C++
 
@@ -27,7 +18,24 @@
 - SST = “simple script”
 - STX = textures, fully understood
 
-## Other known games using the same engine
+## Some links
 
-- 天地道 aka Hellstriker II (ships on GA330)
+### 7 Days
+
+- http://legendsworld.net/adventure/game/2455
+- http://www.legendsworld.net/phpBB3/viewtopic.php?f=5&t=9745
+- https://imgur.com/a/3IMWR7r
+- https://sourceforge.net/projects/spkextractor/
+
+## Games known to use the engine
+
+- 7 Days: Salvation
+- [天地道 aka Hellstriker II](https://www.google.com/search?q=天地道+dingoo&tbm=isch) (ships on GA330)
 - 斗地主 (ships on GA330)
+
+## Platforms
+
+- Symbian S60
+- Dingoo A320
+- Gemei A330
+- Win32
