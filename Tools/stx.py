@@ -7,15 +7,18 @@ import sys
 from PIL import Image
 
 class ImageType(Enum):
+    PALETTE_RGB444 = 0x00
     IMPLICIT_PALETTE = 0x12
+    IMPLICIT_PALETTE_2 = 0x80
     PALETTE_32x = 0x52
+    PALETTE_32x_2 = 0x02
     PALETTE = 0x91
 
 def load(f, verbose=False):
-    palsiz, type, unk3, unk4, width, height = struct.unpack("<BBBBII", f.read(12))
+    palsiz, type, transcol, unk4, width, height = struct.unpack("<BBBBII", f.read(12))
 
     if verbose:
-        print(f"{palsiz=} {type=:02x}h {unk3=:02x}h {unk4=:02x}h {width=} {height=}")
+        print(f"{palsiz=} {type=:02x}h {transcol=:02x}h {unk4=:02x}h {width=} {height=}")
 
     if palsiz == 0:
         palsiz = 0x100
@@ -33,7 +36,7 @@ def load(f, verbose=False):
             g = ((rgb565 >> 5) & 0x3f) << 2
             r = ((rgb565 >> 11) & 0x1f) << 3
             palette.append((r, g, b))
-    elif type == ImageType.PALETTE_32x:
+    elif type == ImageType.PALETTE_32x or type == ImageType.PALETTE_32x_2:
         # 32 entries (64 bytes) per palette entry
         palette = []
 
@@ -46,7 +49,7 @@ def load(f, verbose=False):
 
             # skip alternative palettes
             f.read(31 * 2)
-    elif type == ImageType.IMPLICIT_PALETTE:
+    elif type == ImageType.IMPLICIT_PALETTE or type == ImageType.IMPLICIT_PALETTE_2:
         # unclear if mapping correct (this type is used for alpha maps)
         palette = [(i, i, i) for i in range(palsiz)]
     else:
