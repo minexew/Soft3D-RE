@@ -33,6 +33,10 @@
 - https://imgur.com/a/3IMWR7r
 - https://sourceforge.net/projects/spkextractor/
 
+### Misc
+
+- [Domestic "Silent Hill" IMGA award-winning mobile game-"7 Nights", can not afford the award](http://web.archive.org/web/20200709200829/http://www.1b2g.com/newsyx/1246.html) (story of the demise of Dingoo Games, in Chinese)
+
 ## Games known to use the engine
 
 - 7 Days: Salvation
