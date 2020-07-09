@@ -1,0 +1,907 @@
+commandlist
+{
+
+///////////////////////////////////////////////////////
+// 固有指令（不可更改）
+///////////////////////////////////////////////////////
+// 运行脚本
+(int)runScript(string);
+
+// 使一个触发器生效
+(int)enableTask(string);
+
+// 使一个触发器失效
+(int)disableTask(string);
+
+// 运行一个事件
+(int)runTask(string);
+
+// 中断脚本
+(int)intermitTask(string);
+
+// 设置变量
+// 1:变量索引
+// 2:值
+(int)setVar(short,int);
+
+// 获取变量
+// 1:变量索引
+(int)getVar(short);
+
+///////////////////////////////////////////////////////
+// 系统控制
+///////////////////////////////////////////////////////
+/// 获取按键
+(int)IsKeyFirstDown(byte);
+(int)IsKeyDown(byte);
+(int)IsKeyPress(byte);
+(int)IsKeyUp(byte);
+(int)IsKeyClick(byte);
+
+(int)IsAnyKeyDown();
+(int)IsAnyKeyClick();
+
+/// 输出日志
+(int)Log( string );
+
+/// 淡入
+// 1 红色
+// 2 绿色
+// 3 蓝色
+// 4 帧数
+(int)FadeIn( byte,byte,byte,byte );
+
+/// 淡入
+// 1 红色
+// 2 绿色
+// 3 蓝色
+// 4 帧数
+(int)FadeOut( byte,byte,byte,byte );
+
+// 读取下一天
+(int)LoadNextDay();
+
+// 设置LoadMap的参数（在进入下一个场景之前设置）
+// 1: 门索引
+// 2,3,4: 出生点
+// 5,6,7: 出生方向
+// 8,9,10: 淡入淡出颜色
+(int)SetLoadMapParams( short, float,float,float, float,float,float, short,short,short);
+
+// 读取下一关
+// 1: 地图索引
+// 2: 脚本索引
+(int)LoadNextLevel( short, short );
+
+// 读地图
+// 1: 地图索引
+(int)LoadMap(short);
+
+// 地图是否加载完毕
+(int)IsMapLoadOK();
+
+// 设置某件事已经发生
+// 1: 事件ID
+(int)SetEventHappen( short );
+
+// 返回某件事是否已经发生
+// 1: 事件ID
+(int)IsEventHappen( short );
+
+// 结束游戏
+(int)GameOver();
+
+// 保存游戏
+(int)Save();
+
+// 暂停/取消暂停所有游戏对象，包括玩家及敌人
+// 1: 是否暂停
+(int)PauseAllUnits(bool);
+
+// 冻结/取消冻结摄像机触发，一般在播放过场动画时使用
+// 1: true:冻结 false:取消冻结
+(int)FreezeCameraTrigger(bool);
+
+// 设置镜头（必须先暂停玩家操作；玩家恢复操作后镜头自动恢复）
+// 1,2,3: 镜头位置
+// 4,5,6: 镜头注视位置
+(int)SetCamera(float,float,float,float,float,float);
+
+// 移动镜头到某点（必须先暂停玩家操作；玩家恢复操作后镜头自动恢复）
+// 1,2,3: 镜头位置
+// 4,5,6: 镜头注视位置
+(int)CameraMoveTo(float,float,float,float,float,float,float);
+
+// 详细设置镜头（提示：大部分参数可以从关编camera实体中取到）
+// 1: camera类型 1-8
+// 2,3,4: camera位置，当camera类型为1或4时有效，不使用时随便填
+// 5,6,7: camera注视点
+// 8: camera到人物的距离
+// 9: camera曲线文件名，当camera类型为5时有效，不使用时填""
+// 10: camera总时间，当camera类型为5时有效
+// 11: camera切换是否插值，true表示插值
+// 12: 对于曲线模式：0看向切线方向，1看向主角，2看向固定方向，3看固定点  对于Type1：0看固定点，1看主角  对于其他模式该参数无效
+(int)SetCameraDetail( byte, float,float,float, float,float,float, float, string, float, bool, short );
+
+// 当摄像机曲线播放完后返回true（注意：当摄像机不是曲线模式时，不要使用这个指令！）
+(int)IsCameraCurveOver();
+
+// 把镜头绑定到玩家
+(int)BindCameraToPlayer();
+
+// 把镜头绑定到某个敌人
+// 1: 敌人ID
+(int)BindCameraToEnemy(short);
+
+// 取消镜头绑定（此时镜头不动）
+(int)UnBindCamera();
+
+// 镜头震动
+// 1: 帧数（一般为8）
+// 2: 幅度（一般为0.5）
+(int)CameraShake(int,float);
+
+// 设置镜头是否线性插值
+/// 1: 是否开启线性插值
+/// 2: 速度
+(int)EnableLinearLerp(bool, float );
+
+// 弹出对话框
+// 1: 字符串ID（即txt文件中字符串的行数）
+(int)OpenDialog(short);
+
+// 添加选择对话框条目
+// 1: 条目序号(只能是0，1，2，3)
+// 2: 条目字符串ID
+(int)AddSeleDlgItem( byte, short);
+
+// 弹出选择对话框
+// 1: 正文字符串ID
+// 2: 可以选择的条目数量
+// 3: 选择后是否关闭对话框
+(int)OpenSeleDialog( short, byte, bool );
+
+// 弹出简单对话框（没有头像，可以换行，需要按键确认）
+// 1.文字索引
+(int)OpenSimpleDialog( int );
+
+// 弹出教学框（没有头像，无法换行，时间到才关闭）
+// 1.文字索引
+// 2 持续帧数
+(int)OpenTurtDialog( int, int );
+
+// 获取选择值
+(int)GetSeleDlgValue();
+
+// 关闭对话框
+(int)CloseDialog();
+
+// 对话框是否已关闭
+(int)IsDialogClose();
+
+// 清除评价
+(int)ClearRank();
+
+// 计算评价
+// 1: 关卡号
+(int)CalcRank(short);
+
+// 播放音乐
+// 1: 音乐名
+// 2: 是否循环播放
+(int)PlayMusic(string,bool);
+
+// 停止音乐
+(int)StopMusic();
+
+// 添加环境音效
+// 1: 音效ID
+// 2: 音效名
+// 3: 循环播放间隔(最小值)
+// 4: 循环播放间隔(最大值)
+(int)AddEnviAudio( byte, string, int, int );
+
+// 删除环境音效
+// 1: 音效ID
+(int)RemoveEnviAudio( byte );
+
+// 播放音效
+// 1: 音效名
+(int)PlaySound(string);
+
+// 播放3D音效
+// 1: 音效名
+// 2,3,4: 位置
+(int)Play3DSound(string,float,float,float);
+
+// 停止所有3D音效
+(int)StopAll3DSound();
+
+// 开始计时
+// 1: 计时器ID
+(int)StartTimer(byte);
+
+// 获得时间（从开始计时到现在为止的帧数）
+// 1: 计时器ID
+(int)GetTime(byte);
+
+// 停止计时
+// 1: 计时器ID
+(int)StopTimer(byte);
+
+// 显示提示文字
+// 1.文字索引
+// 2 持续帧数
+(int)EnablePrompt( int,int );
+
+// 关闭提示文字
+(int)DisablePrompt();
+
+// 开关场景光照
+// 1: style索引
+// 2: true表示开，false表示关
+(int)SwitchSceneLight( short, bool );
+
+// 返回场景某一组光源是否开启
+// 1: style索引
+(int)IsSceneLightOn( short );
+
+// 设置场景雾化
+// 1,2,3: 雾化颜色
+// 4: 雾化开始距离
+// 5: 雾化结束距离
+(int)SetSceneFog( short,short,short, float, float );
+
+// 设置电影字幕
+// 1.是否开启
+// 2.字符串索引
+(int)SetMovieSub( bool, short );
+
+// 设置按键屏蔽，true表示屏蔽，false解除屏蔽
+// 1: 动作键
+// 2: 地图键
+// 3: 菜单键
+// 4: 方向键
+(int)SetKeyMask( bool, bool, bool, bool );
+
+// 设置屏幕特效
+// 1: 特效类型（0无特效，1黑白，2运动模糊，3噪音，4波纹，5红外，6浮雕，7盲视，8扭曲）
+(int)SetScreenShader( byte );
+
+
+// 设置地图标记
+// 1: 标记ID（0-7）
+// 2: 标记楼层（1-2）
+// 3: 坐标X (小地图坐标)
+// 4: 坐标Y(小地图坐标)
+(int)AddMapMarker( byte, byte, int, int );
+
+// 移除地图标记
+// 1: 标记ID（0-7）
+(int)RemoveMapMarker( byte );
+
+///////////////////////////////////////////////////////
+// 玩家
+///////////////////////////////////////////////////////
+
+// 设置玩家出生点
+// 1,2,3: 坐标
+// 4,5,6: 方向
+(int)SetPlayerGenerationPos(float,float,float,float,float,float);
+
+// 设置是否显示玩家
+// 1: 是否显示，true = 显示
+(int)SetPlayerVisible(bool);
+
+// 取消/授予玩家控制权（取消中玩家输入无响应）
+// 1: 是否取消
+(int)IgnorePlayerInput(bool);
+
+// 暂停/取消暂停玩家（玩家角色将完全暂停，与取消玩家控制权不同）
+// 1: 是否暂停
+(int)PausePlayer(bool);
+
+// 设置玩家面向方向
+// 1,2,3: 方向
+(int)SetPlayerDir(float,float,float);
+
+// 设置玩家是否裁减
+// 1: true裁减 false不裁减
+(int)SetPlayerClip( bool );
+
+// 设置玩家的动画
+// 1: 动画文件名（不包括后缀）
+// 2: 是否循环，true表示循环
+(int)SetPlayerAnim( string, bool );
+
+// 返回玩家的动画是否播放完
+(int)IsPlayerAnimOver();
+
+// 瞬间移动玩家到指定坐标
+// 1,2,3: 坐标
+(int)TeleportPlayer(float,float,float);
+
+// 命令玩家移动到指定坐标
+// 1,2,3: 坐标
+(int)PlayerMoveTo(float,float,float);
+
+// 返回玩家是否接近某坐标
+// 1,2,3: 坐标
+// 4 : 最大距离
+(int)IsPlayerNearPos(float,float,float,float);
+
+// 返回玩家是否进入一个外接盒
+// 1,2,3,4,5,6: AABB
+(int)IsPlayerEnterBox( float,float,float,float,float,float );
+
+// 返回玩家是否离开了一个外接盒
+// 1,2,3,4,5,6: AABB
+(int)IsPlayerLeaveBox( float,float,float,float,float,float );
+
+// 返回玩家是否接近某敌人
+// 1: 敌人ID
+(int)IsPlayerNearEnemy(short);
+
+// 返回玩家是否接近某物件
+// 1: 物件ID
+// 2: 最大距离
+(int)IsPlayerNearThing(short,float);
+
+// 命令玩家攻击一下
+(int)PlayerAttack();
+
+// 返回玩家是否已死
+(int)IsPlayerDead();
+
+// 返回玩家的HP
+(int)GetPlayerHP();
+
+// 设置玩家的HP
+// 1: HP值（设为-1表示满血）
+(int)SetPlayerHP(short);
+
+// 修改玩家的HP
+// 1: HP改变值（正数表示加血，负数表示减血）
+(int)AddPlayerHP(short);
+
+// 设置玩家剑的型号
+(int)SetSwordType(byte);
+
+// 获取玩家剑的型号
+(int)GetSwordType();
+
+// 玩家是否正在攻击
+(int)IsPlayerAttack();
+
+// 玩家是否正在躲藏
+(int)IsPlayerHide();
+
+// 开始QTE（按键在1-9键之间随机产生）
+// 1: QTE出现前等待帧数
+// 2: QTE允许按键输入的帧数
+// 3: 需要正确输入按键的次数
+(int)BeginQTE( short, short, short );
+
+// 获得QTE结果
+(int)GetQTEResult();
+
+// 获得玩家使用的道具ID
+(int)GetPlayerUsedItem();
+
+// 爬行，不能在init task中调用，只需要调用一次
+(int)PlayerCrawl();
+
+///////////////////////////////////////////////////////
+// 事件
+///////////////////////////////////////////////////////
+
+// 添加事件触发
+// 1: ID号（大于零；必须唯一）
+// 2: 触发次数（-1表示无限次，0表示触发无效）
+// 3: 字符串ID（即txt文件中字符串的行数）
+// 4,5,6,7,8,9: 范围盒
+(int)AddEventTrigger(short,byte,short,float,float,float,float,float,float);
+
+// 设置事件触发次数
+// 1: ID号
+// 2: 触发次数（-1表示无限次，0表示触发无效）
+(int)SetEventTriggerCnt(short,byte);
+
+// 设置事件字符串
+// 1: ID号
+// 2: 字符串ID（即txt文件中字符串的行数）
+(int)SetEventTriggerString(short,short);
+
+// 返回事件是否被触发
+// 1: ID号
+(int)IsEventStarted(short);
+
+// 添加调查物体触发
+// 1: ID号（大于零；必须唯一）
+// 2: 该物体的ID
+// 3: 提示文字的字符串索引（不包括Yes No）
+// 4,5,6,7,8,9: 范围盒
+(int)AddPickTrigger( short, short, short, float,float,float,float,float,float );
+
+// 是否启用调查物体触发
+// 1: ID
+// 2: true启用，false不启用
+(int)EnablePickTrigger( short, bool );
+
+// 添加门触发
+// 1: ID（大于零；必须唯一）
+// 2: 关联道具ID，例如钥匙。填0，表示门总是打开。填-1，表示门暂时打不开。
+// 3: 提示文字的字符串索引（不包括Yes No）
+// 4: 门索引
+// 5: 下一个场景的ID
+// 6: 下一个EP的ID
+// 7,8,9: 出生点
+// 10,11,12: 出生方向
+// 13,14,15,16,17,18: 范围盒
+(int)AddDoorTrigger( short, short, short, short, short, short, float,float,float, float,float,float, float,float,float,float,float,float );
+
+// 设置门触发关联道具
+// 1: 门ID
+// 2: 关联道具ID，例如钥匙。填0，表示门总是打开。填-1，表示门暂时打不开。
+(int)SetDoorTriggerItem( short, short );
+
+// 设置门触发提示字符串
+// 1: 门ID
+// 2: 提示文字的字符串索引（不包括Yes No）
+(int)SetDoorTriggerString( short, short );
+
+// 是否启用门触发
+// 1: ID
+// 2: true启用，false不启用
+(int)EnableDoorTrigger( short, bool );
+
+// 添加机关触发（必须再设置选项个数和字符串以后再使用）
+// 1: ID号（大于零；必须唯一）
+// 2,3,4,5,6,7: 范围盒
+(int)AddActTrigger( short, float,float,float,float,float,float );
+
+// 设置机关触发的选项个数
+// 1: ID号
+// 2: 个数（1-4）
+(int)SetActTrigSelCnt( short, byte );
+
+// 设置机关触发的字符串
+// 1: ID号
+// 2: 要设置哪一项（0表示中央字符串，1-4表示选项字符串）
+// 3: 要设置的字符串索引
+(int)SetActTrigString( short, byte, short );
+
+// 当机关触发并且玩家选择后返回选择值（1-4）
+// 1: ID号
+(int)GetActTrigValue( short );
+
+// 清除机关触发的选择值
+// 1: ID
+(int)ClearActTrigValue( short );
+
+// 是否启用机关触发
+// 1: ID
+// 2: true启用，false不启用
+(int)EnableActTrigger( short, bool );
+
+// 添加躲藏触发
+// 1: ID号（大于零；必须唯一）
+// 2: 躲藏Mask的类型
+// 3,4,5: 躲藏点
+// 6,7,8: 躲藏面向方向
+// 9,10,11,12,13,14: 范围盒
+(int)AddHideTrigger( short, short, float,float,float, float,float,float, float,float,float,float,float,float );
+
+// 是否启用躲藏触发
+// 1: ID
+// 2: true启用，false不启用
+(int)EnableHideTrigger( short, bool );
+
+// 添加道具触发
+// 1: ID号（大于零；必须唯一）
+// 2: 关联道具的ID号
+// 3,4,5,6,7,8: 范围盒
+(int)AddItemTrigger( short, short, float,float,float,float,float,float );
+
+// 添加道具触发的关联道具（最多8个）
+// 1: 道具触发ID
+// 2: 道具ID
+(int)AddItemToIT( short, short );
+
+// 是否启用道具触发
+// 1: ID
+// 2: true启用，false不启用
+(int)EnableItemTrigger( short, bool );
+
+// 添加对话触发
+// 1: ID号（大于零；必须唯一）
+// 2,3,4,5,6,7: 范围盒
+(int)AddTalkTrigger( short, float,float,float,float,float,float );
+
+// 设置对话触发的摄像机位置
+// 1: ID
+// 2,3,4: 摄像机位置
+(int)SetTalkTriggerCameraPos( short, float,float,float );
+
+// 添加对话触发的对话者位置
+// 1: ID
+// 2,3,4: 对话者位置
+(int)AddTalkTiggerTalkerPos( short, float,float,float );
+
+// 添加对话触发的对话内容
+// 1: ID
+// 2: 文字索引
+// 3: 持续帧数（最大255）
+// 4: 对话者ID（-1表示玩家）
+(int)AddTalkTriggerInfo( short, short, short, short );
+
+// 返回对话是否已经说完
+// 1: ID
+(int)IsTalkFinished( short );
+
+// 是否启用对话触发
+// 1: ID
+// 2: true启用，false不启用
+(int)EnableTalkTrigger( short, bool );
+
+// 删除触发（所有类型的触发通用）
+// 1: ID号
+(int)RemoveTrigger(short);
+
+///////////////////////////////////////////////////////
+// 敌人
+///////////////////////////////////////////////////////
+
+// 手动刷一个敌人
+// 1: ID号（大于零；必须唯一）
+// 2: 敌人类型
+// 3: 敌人生命（设为-1表示满血）
+// 4,5,6: 坐标
+(int)AddEnemy(short,byte,short,float,float,float);
+
+// 设置敌人是否裁减
+// 1: ID
+// 2: true裁减 false不裁减
+(int)SetEnemyClip( short, bool );
+
+// 设置敌人的动画
+// 1: ID
+// 2: 动画文件名（不包括后缀）
+// 3: 是否循环，true表示循环
+(int)SetEnemyAnim( short, string, bool );
+
+// 返回敌人的动画是否播放完
+// 1: ID
+(int)IsEnemyAnimOver( short );
+
+// 返回某个敌人是否已死
+// 1: ID号
+(int)IsEnemyDead(short);
+
+// 返回某个敌人的HP
+// 1: ID号
+(int)GetEnemyHP(short);
+
+// 设置某个敌人的HP
+// 1: ID号
+// 2: HP值（设为-1表示满血）
+(int)SetEnemyHP(short,short);
+
+// 返回某个敌人的攻击
+// 1: ID号
+(int)GetEnemyATK(short);
+
+// 设置某个敌人的攻击
+// 1: ID号
+// 2: 攻击值
+(int)SetEnemyATK(short,byte);
+
+// 设置一个敌人面向方向
+// 1: ID号
+// 2,3,4: 方向
+(int)SetEnemyDir(short,float,float,float);
+
+// 瞬间移动一个敌人到指定坐标
+// 1: ID号
+// 2,3,4: 坐标
+(int)TeleportEnemy(short,float,float,float);
+
+// 命令一个敌人移动到指定坐标
+// 1: ID号
+// 2,3,4: 坐标
+(int)EnemyMoveTo(short,float,float,float);
+
+// 返回一个敌人是否接近某坐标
+// 1: ID号
+// 2,3,4: 坐标
+(int)IsEnemyNearPos(short,float,float,float);
+
+// 命令一个敌人向走向玩家
+// 1: ID号
+(int)EnemyFollowPlayer(short);
+
+// 命令一个敌人攻击玩家
+// 1: ID号
+(int)EnemyAttackPlayer(short);
+
+// 移除一个敌人（直接消失）
+// 1: ID号
+(int)RemoveEnemy(short);
+
+// 移除一类敌人
+// 1: 敌人类型
+(int)RemoveEnemyType(short);
+
+// 移除所有敌人
+(int)RemoveAllEnemy();
+
+// 暂停/取消暂停一个敌人
+// 1: ID号
+// 2: 是否暂停
+(int)PauseEnemy(short,bool);
+
+// 暂停/取消暂停一类敌人
+// 1: 敌人类型
+// 2: 是否暂停
+(int)PauseEnemyType(short,bool);
+
+// 暂停/取消暂停所有敌人
+// 1: 是否暂停
+(int)PauseAllEnemy(bool);
+
+// 使一个敌人站在原地不动，或取消这个状态
+// 1: ID号（大于零；必须唯一）
+// 2: 是否站着不动
+(int)ForceEnemyStop(short,bool);
+
+// 添加限制区
+// 1: ID号（大于零；必须唯一）
+// 2,3,4,5,6,7: 范围盒
+(int)AddStayBox(short,float,float,float,float,float,float);
+
+// 设置限制区删除敌人触发区
+// 1: ID号（大于零；必须唯一）
+// 2,3,4,5,6,7: 范围盒
+(int)SetStayBoxLeave(short,float,float,float,float,float,float);
+
+// 设置限制区刷新敌人触发区
+// 1: ID号（大于零；必须唯一）
+// 2,3,4,5,6,7: 范围盒
+(int)SetStayBoxEnter(short,float,float,float,float,float,float);
+
+// 设置敌人限制区
+// 1: 敌人ID号（大于零；必须唯一）
+// 2: 限制区ID号（大于零；必须唯一）
+(int)SetEnemyStayBox(short,short);
+
+// 设置敌人限制区返回点
+// 1: ID号（大于零；必须唯一）
+// 2,3,4: 坐标
+(int)SetEnemyMoveBackPt(short,float,float,float);
+
+// 添加敌人路点
+// 1: ID号
+// 2,3,4: 坐标
+(int)  AddEnemyWayPoint(short,float,float,float);
+
+// 设置敌人路点是否封闭，默认不封闭
+// 1: ID号
+// 2: 是否封闭，true封闭，false不封闭
+(int)  SetEnemyWayPointClosed(short,bool);
+
+// 设置敌人警戒范围
+// 1: ID号
+// 2: 警戒范围
+(int)  SetEnemyAlertRange( short, float );
+
+///////////////////////////////////////////////////////
+// 物件
+///////////////////////////////////////////////////////
+
+// 添加阻挡（不可见）
+// 1: ID号（大于零；必须唯一）
+// 2,3,4,5,6,7: 范围盒
+(int)  AddColi(short,float,float,float,float,float,float);
+
+// 移除一个阻挡
+// 1: ID号
+(int)  RemoveColi(short);
+
+// 添加陷阱（不可见）
+// 1: ID号（大于零；必须唯一）
+// 2,3,4,5,6,7: 范围盒
+// 8,9,10: 叠加的速度
+(int)  AddTrap(short,float,float,float,float,float,float,float,float,float);
+
+// 移除一个陷阱
+// 1: ID号
+(int)  RemoveTrap(short);
+
+// 添加物件
+// 1: ID号（大于零；必须唯一）
+// 2: 0 不可击破物体 1 可以被击破物体 2 可以被主角推动 3 可调查捡取
+// 3:  当是可以被击破物体时表示 会被剑几击破？（0-3：能被剑1-4击破，-1：不可被剑击破） 当是可以掉道具物体时表示 掉的道具类型
+// 4: 模型文件名
+// 5,6,7: 坐标
+// 8,9,10,11,12,13,14,15,16: 方向
+// 17: 是否需要裁减（默认为true，表示需要）
+(int)  AddThing(short,byte,byte,string,float,float,float,float,float,float,float,float,float,float,float,float,bool);
+
+// 设置物件的方向
+// 1: 物体ID
+// 2,3,4: 方向
+(int) SetThingDir( short, float,float,float );
+
+
+// 设置物体关联的道具（只对类型3的Thing有效）
+// 1: 物体ID
+// 2: 道具ID
+(int)  SetThingItem(short,short);
+
+// 设置物件是否阻挡
+// 1: ID号（大于零；必须唯一）
+// 2: 是否有阻挡
+(int)  SetThingColi(short,bool);
+
+// 设置某个物件开始闪烁
+// 1: 物件ID
+// 2: 最低亮度
+// 3: 最高亮度
+// 4: 持续帧数
+(int)  SetThingShin(short,float,float,short);
+
+// 设置物件是否显示
+// 1: 物件ID
+// 2: 是否显示
+(int)  ShowThing(short,bool);
+
+// 返回该物件是否显示
+// 1: 物件ID
+(int)  IsShowThing(short);
+
+// 设置某个物件的动画
+// 1: 物件ID
+// 2: 动画文件名
+// 3: 播放速度
+// 4: 播放方向
+// 5：是否循环
+(int)  SetThingAnim(short,string,int,byte,byte);
+
+// 暂停/取消暂停某个物件的动画
+// 1: 物件ID
+// 2: 是否暂停
+(int)  PauseThingAnim(short,bool);
+
+// 返回某个物件的动画是否被暂停
+// 1: 物件ID
+(int)  IsThingAnimPaused(short);
+
+// 设置某个物件的动画的当前帧数
+// 1: 物件ID
+// 2: 当前帧数
+(int)  SetThingAnimFrame(short,short);
+
+// 返回某个物件的动画的当前帧数
+// 1: 物件ID
+(int)  GetThingAnimFrame(short);
+
+// 返回某个物件的动画是否已经播放完
+// 1: 物件ID
+(int)  IsThingAnimOver(short);
+
+// 设置某个物件的破碎模型
+// 1: 物件ID
+// 2: 模型文件名
+// 3: 动画文件名
+(int)  SetThingBreakModel(short,string,string);
+
+// 设置某个物件的破碎动画
+// 1: 物件ID
+// 2: 动画文件名
+(int)  SetThingBreakAnim(short,string);
+
+// 设置某个物件的破碎音效
+// 1: 物件ID
+// 2: 音效文件名
+(int)  SetThingBreakSound(short,string);
+
+// 设置某个物件的推动音效
+// 1: 物件ID
+// 2: 音效文件名
+(int)  SetThingPushSound(short,string);
+
+// 以世界坐标系的X/Y/Z轴旋转一个物体（瞬间旋转）
+// 1: 物件ID
+// 2: 角度（以360度为单位）
+(int)  RotateThingX( short, short );
+(int)  RotateThingY( short, short );
+(int)  RotateThingZ( short, short );
+
+// 移动一个物件（瞬间移动）
+// 1: ID号
+// 2,3,4: 坐标
+(int)  SetThingPos(short,float,float,float);
+
+// 移动一个物件（相对坐标，瞬间移动）
+// 1: ID号
+// 2,3,4: 相对坐标
+(int)  AddThingPos(short,float,float,float);
+
+// 移动一个物件（非瞬间移动）
+// 1: ID号
+// 2,3,4: 坐标
+// 5: 移动速度
+(int)  MoveThingTo(short, float,float,float, float);
+
+// 破坏一个物件
+// 1: ID号
+// 2: 破坏后维持的帧数（此后物件消失）
+(int)  BreakThing(short,short);
+
+// 设置物件的Z偏移量（用于紧贴地面的片，避免显示错误）
+// 1: ID号
+// 2: Z偏移量（推荐设为100）
+(int)  SetThingZBias(short,float);
+
+// 移除一个物件（直接消失）
+// 1: ID号
+(int)  RemoveThing(short);
+
+// 返回某物件是否存在
+// 1: ID号
+(int)  IsThingExist(short);
+
+// 物件是否被击中
+// 1: ID号
+(int)  IsHitThing(short);
+
+// 物体是否进入某区域
+// 1: ID号
+// 2,3,4,5,6,7: 范围盒
+(int)  IsThingEnterBox( short, float,float,float,float,float,float );
+
+// 物体是否离开某区域
+// 1: ID号
+// 2,3,4,5,6,7: 范围盒
+(int)  IsThingLeaveBox( short, float,float,float,float,float,float );
+
+// 物体是否开启光照
+// 1: ID号
+// 2: 是否开启
+(int)  EnableThingLight( short, bool );
+
+// 设置物体是否可以被推动
+// 1: ID号
+// 2: 是否可以被推动
+(int)  SetThingPushable( short, bool );
+
+// 获得魔方当前哪一面朝上（返回0-5分别对应：右左上下后前）
+// 1: ID号
+(int)  GetMagicCubeColor( short );
+
+// 玩家获得道具
+// 1: ID号
+// 注意：该条指令不能放在init中，如果一开始就必须调用的话需要单独开一个TASK，在TASK中调用该指令的前需要等待约1秒的时间，在init中enable该TASK
+(int)  PlayerGetItem(short);
+
+// 返回玩家是否有某道具
+// 1: ID号
+(int)  IsPlayerHaveItem(short);
+
+// 玩家失去道具
+// 1: ID号
+(int)  PlayerLoseItem(short);
+}
+
+VarName // 变量定义
+{
+	//(int) iEventID;	
+	(bool) bRuning;
+}
+
+ConstVarName  // 常量定义
+{
+	//(int) temp1 = 120;
+	//(float) temp2 = 124.5345624;
+}
+}
