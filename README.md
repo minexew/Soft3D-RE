@@ -8,8 +8,14 @@
 - ❌ S3DSTY = ?
 - ❌ SAI = probably 3D model animations
 - ❌ SAU = audio
+- 🔧 SBN = font (glyphs) + text data, mostly understood
+  - Why is the header length not always the same?
+  - How to calculate glyph indexes?
 - ❌ SBP = maps (Bsp)
-- ❌ SDT = ?; contains technical strings
+- ❌ SDT = various _data tables_ without a common format?
+  - `config.sdt`
+  - `ui/state.sdt`
+  - `ui/str.std` = table of textures to load for UI
 - ❌ SPL = ?
 - 🔧 SOJ = 3D objects, partially understood
   - How are textures mapped?
