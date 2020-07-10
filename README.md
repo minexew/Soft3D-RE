@@ -28,6 +28,7 @@
 
 ### 7 Days
 
+- [Table of known versions of the game](http://web.archive.org/web/20200710065823/https://vitawiki.xyz/doku.php?id=7ds:versions)
 - http://legendsworld.net/adventure/game/2455
 - http://www.legendsworld.net/phpBB3/viewtopic.php?f=5&t=9745
 - https://imgur.com/a/3IMWR7r
