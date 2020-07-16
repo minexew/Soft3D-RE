@@ -11,7 +11,12 @@
 - 🔧 SBN = font (glyphs) + text data, mostly understood
   - Why is the header length not always the same?
   - How to calculate glyph indexes?
-- ❌ SBP = maps (Bsp)
+- 🔧 SBP = maps, using [binary space partitioning](https://en.wikipedia.org/wiki/Binary_space_partitioning)
+  - How to interpret all the chunks?
+  - Which geometry is used by the game?
+  - How are textures referenced?
+  - How are UV coordinates encoded?
+  - How are lightmaps applied?
 - ❌ SDT = various _data tables_ without a common format?
   - `config.sdt`
   - `ui/state.sdt`
