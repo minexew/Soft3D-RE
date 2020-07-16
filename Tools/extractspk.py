@@ -22,7 +22,15 @@ def read_c_string(fo):
             break
         readbytes.append(inchar)
     return b''.join(readbytes).decode('utf-8')
-    
+
+
+def path_redelimit(basepath, path):
+    split_path = path.replace('\\', '/').split('/')
+    tpath = basepath
+    while split_path:
+        tpath = tpath / split_path.pop(0)
+    return tpath
+
 
 def read_file_headers(fo, english=True):
     if not english:
@@ -46,7 +54,8 @@ headers = []
 for _ in range(file_count):
     headers.append(read_file_headers(arc, english=(args.variant == "eng")))
 for i in range(len(headers)):
-    tpath = args.dir / headers[i][PATH]
+    tpath = path_redelimit(args.dir, headers[i][PATH])
+    tpath.parent.mkdir(parents=True, exist_ok=True)
     dest = open(tpath, "wb")
     arc.seek(headers[i][1]+1)
     if i == len(headers) - 1:
