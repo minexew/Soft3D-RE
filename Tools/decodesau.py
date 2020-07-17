@@ -27,6 +27,7 @@ TABLE1 = (0x00000007, 0x00000008, 0x00000009, 0x0000000A, 0x0000000B,
 parser = argparse.ArgumentParser(description="Decode sau audio")
 parser.add_argument("sau", type=Path)
 parser.add_argument("wav", type=Path)
+parser.add_argument("--byteswap", action="store_true", default=False)
 args = parser.parse_args()
 
 
@@ -48,9 +49,9 @@ def decode_sau(in_adpcm):
         y = x & 7
         w = (TABLE1[z]*y // 4) + (TABLE1[z] // 8)
         z += TABLE2[y]
-        if z<0:
+        if z < 0:
             z = 0
-        elif z>88:
+        elif z > 88:
             z = 88
         if (x & 8) > 0:
             w = -w
@@ -63,18 +64,34 @@ def decode_sau(in_adpcm):
     return output
 
 
-# TODO: It's painfully slow right now. I didn't to profile it yet,
-# but there might be still a room for improvement (read a DWORD,
-# rather than working at byte level?).
+def nibbleswap_data(byte):
+    return ((byte & 15)<<4 | (byte & 240)>>4)
+
+
+def byteswap_data(in_adpcm):
+    # In-place nibble order swap
+    for i in range(len(in_adpcm)):
+        in_adpcm[i] = nibbleswap_data(in_adpcm[i])
+
+
+print("Reading input file...")
 sau = open(args.sau, 'rb')
 in_data = bytearray(sau.read())
 sau.close()
+if args.byteswap:
+    print("Byteswapping the input (WAR -> SAU)...")
+    byteswap_data(in_data)
+print("Decoding SAU input...")
 out_data = decode_sau(in_data)
 # str() because wave.open doesn't seem to accept Path
+print(f"Writing the output ({len(out_data)} PCM frames)...")
 wav = wave.open(str(args.wav), 'wb')
 wav.setnchannels(1)
 wav.setsampwidth(2)
 wav.setframerate(16000)
+packed_frames = []
 for i in out_data:
-   wav.writeframes(struct.pack("<h", i))
+    packed_frames.append(struct.pack("<h", i))
+wav.writeframes(b"".join(packed_frames))
 wav.close()
+print("Finished!")
