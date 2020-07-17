@@ -27,7 +27,8 @@ TABLE1 = (0x00000007, 0x00000008, 0x00000009, 0x0000000A, 0x0000000B,
 parser = argparse.ArgumentParser(description="Decode sau audio")
 parser.add_argument("sau", type=Path)
 parser.add_argument("wav", type=Path)
-parser.add_argument("--byteswap", action="store_true", default=False)
+parser.add_argument("-s", "--byteswap", action="store_true", default=False)
+parser.add_argument("-n", "--no-byteswap", action="store_true", default=False)
 args = parser.parse_args()
 
 
@@ -74,11 +75,37 @@ def byteswap_data(in_adpcm):
         in_adpcm[i] = nibbleswap_data(in_adpcm[i])
 
 
+byteswap = None
+# Args preprocess
+assert not (args.byteswap and args.no_byteswap),\
+    "Only one of --byteswap or --no-byteswap is allowed!"
+s = str(args.sau).lower()
+if s.endswith('sau'):
+    byteswap = False
+    print("Guessed nibble order (12) from extension: no byteswap needed")
+elif s.endswith('war'):
+    byteswap = True
+    print("Guessed nibble order (21) from extension: byteswap required")
+else:
+    print("Unknown extension, nibble order cannot be inferred automatically")
+    if args.byteswap != args.no_byteswap:  # Logical XOR
+        if args.byteswap:
+            byteswap = True
+        else:
+            byteswap = False
+        print(f"Byteswap is {'enabled' if byteswap else 'disabled'} by flag")
+    else:
+        print("Please, specify nibble order with either"
+              " --no-byteswap (direct order) or --byteswap (reverse order)")
+        print("Exiting, cannot continue")
+        exit(1)
+
+
 print("Reading input file...")
 sau = open(args.sau, 'rb')
 in_data = bytearray(sau.read())
 sau.close()
-if args.byteswap:
+if byteswap:
     print("Byteswapping the input (WAR -> SAU)...")
     byteswap_data(in_data)
 print("Decoding SAU input...")
