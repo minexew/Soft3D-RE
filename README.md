@@ -1,33 +1,26 @@
 # Soft3D engine archaeology
 
-- written in C++
+- Engine written in C++, at least some builds include RTTI
 
-## File formats
+## File formats overview
 
-- ✔️ S3DTEX = images/textures, well-understood
-- ❌ S3DSTY = ?
-- ❌ SAI = probably 3D model animations
-- ❌ SAU = audio
-- 🔧 SBN = font (glyphs) + text data, mostly understood
-  - Why is the header length not always the same?
-  - How to calculate glyph indexes?
-- 🔧 SBP = maps, using [binary space partitioning](https://en.wikipedia.org/wiki/Binary_space_partitioning)
-  - How to interpret all the chunks?
-  - Which geometry is used by the game?
-  - How are textures referenced?
-  - How are UV coordinates encoded?
-  - How are lightmaps applied?
-- ❌ SDT = various _data tables_ without a common format?
-  - `config.sdt`
-  - `ui/state.sdt`
-  - `ui/str.std` = table of textures to load for UI
-- ❌ SPL = ?
-- 🔧 SOJ = 3D objects, partially understood
-  - How are textures mapped?
-  - How are UV coordinates encoded?
-  - Skinning? Animations?
-- ❌ SST = “simple script”
-- ✔️ STX = images/textures, well-understood
+|  | File extension | Platform(s) | Notes & open questions |
+|--|----------------|-------------|------------------------|
+|✔️|S3DTEX|GA330|images/textures, well-understood
+|❌|S3DSTY||
+|❌|SAI||probably 3D model animations
+|✔️|SAU|A320|AMI ADPCM audio, well-understood
+|🔧|SBN|GA330|<p>font (glyphs) + text data (32-bit encoding), mostly understood</p><ul><li>Why is the header length not always the same?</li><li>How to calculate glyph indexes across SBNs?</li></ul>
+|🔧|SBN|Win32|font (glyphs) + text data (7-bit encoding), mostly understood
+|🔧|SBP|GA330|<p>maps, using [binary space partitioning](https://en.wikipedia.org/wiki/Binary_space_partitioning)</p><ul><li>How to interpret all the chunks?</li><li>Which geometry is used by the game?</li><li>How are textures referenced?</li><li>How are UV coordinates encoded?</li><li>How are lightmaps applied?</li></ul>
+|❌|SDT||various _data tables_ without a common format?
+|❌|SPL||
+|🔧|SOJ||<p>3D objects, partially understood</p><ul><li>How are textures mapped?</li><li>How are UV coordinates encoded?</li><li>Skinning? Animations?</li></ul>
+|🔧|SST|GA330|“simple script”, partially understood, but overall structure uncertain
+|✔️|STX|GA330|images/textures, well-understood
+|✔️|WAR|Win32|AMI ADPCM audio, well-understood
+
+_Let us know if you have had success parsing files from platforms not listed in the table!_
 
 ## Some links
 
