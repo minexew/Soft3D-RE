@@ -1,6 +1,4 @@
 import argparse
-import struct
-import wave
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description="IMA ADPCM -> SAU nibbleswapper")
