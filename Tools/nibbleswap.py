@@ -18,13 +18,13 @@ def byteswap_data(in_adpcm):
 
 
 print("Reading input file...")
-ima = open(args.ima, 'rb')
+ima = open(str(args.ima), 'rb')
 in_data = bytearray(ima.read())
 ima.close()
 print("Byteswapping the input (IMA -> SAU)...")
 byteswap_data(in_data)
 print("Writing the output...")
-sau = open(args.sau, 'wb')
+sau = open(str(args.sau), 'wb')
 sau.write(in_data)  # Write nibbleswapped data
 sau.close()
 print("Finished!")
