@@ -1,0 +1,50 @@
+#FOR WIN32 REV, FUNC NAMES FOR 7 Days Salvation Demo (English)
+
+1:enableTask
+2:disableTask
+12:FadeIn
+13:FadeOut
+16:LoadMap
+17:IsMapLoadOK
+18:SetEventHappen
+19:IsEventHappen
+
+#not sure
+23:FreezeCameraTrigger
+
+26:SetCameraDetail
+42:PlayMusic
+43:StopMusic
+44:AddEnviAudio
+45:RemoveEnviAudio
+46:PlaySound
+47:StartTimer
+48:GetTime
+56:SetPlayerDir
+58:SetPlayerAnim
+60:TeleportPlayer
+
+#not sure
+#61:PlayerMoveTo
+#62:IsPlayerNearPos
+#63:IsPlayerEnterBox
+#64:IsPlayerLeaveBox
+
+
+
+92:AddDoorTrigger
+96:AddActTrigger
+
+#not sure
+97:SetActTrigSelCnt
+
+98:SetActTrigString
+
+#not sure
+104:RemoveTrigger
+105:AddEnemy
+
+138:AddThing
+142:ShowThing
+144:SetThingAnim
+150:SetThingBreakModel
