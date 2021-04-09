@@ -1,0 +1,58 @@
+#FOR WIN32 REV, FUNC NAMES FOR 7 Days Salvation Demo (English)
+
+1:enableTask(string);
+2:disableTask(string);
+5:setVar(short,int);
+12:FadeIn(byte,byte,byte,byte);
+13:FadeOut(byte,byte,byte,byte);
+16:LoadMap(short);
+17:IsMapLoadOK();
+18:SetEventHappen(short);
+19:IsEventHappen(short);
+
+#not sure
+23:FreezeCameraTrigger(bool);
+
+26:SetCameraDetail(byte,float,float,float,float,float,float,float,string,float,bool,short);
+39:IsDialogClose();
+42:PlayMusic(string,bool);
+43:StopMusic();
+44:AddEnviAudio(byte,string,int,int);
+45:RemoveEnviAudio(byte);
+46:PlaySound(string);
+47:StartTimer(byte);
+48:GetTime(byte);
+
+
+57:IgnorePlayerInput(bool);
+#check this
+58:PausePlayer(bool);
+
+59:SetPlayerDir(float,float,float);
+60:SetPlayerClip(bool);
+61:SetPlayerAnim(string,bool);
+62:IsPlayerAnimOver();
+63:TeleportPlayer(float,float,float);
+
+
+
+
+
+#92:AddDoorTrigger
+96:AddActTrigger(short,float,float,float,float,float,float);
+
+##not sure
+#97:SetActTrigSelCnt
+
+98:SetActTrigString(short,byte,short);
+
+101:EnableActTrigger(short,bool);
+
+#not sure
+#104:RemoveTrigger
+#105:AddEnemy
+
+138:AddThing(short,byte,byte,string,float,float,float,float,float,float,float,float,float,float,float,float,bool);
+#142:ShowThing
+#144:SetThingAnim
+#150:SetThingBreakModel
