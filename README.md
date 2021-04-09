@@ -16,7 +16,7 @@
 |❌|SDT||various _data tables_ without a common format?
 |🔧|SPL||Camera settings|
 |🔧|SOJ||<p>3D objects, partially understood</p><ul><li>How are textures mapped?</li><li>How are UV coordinates encoded?</li><li>Skinning? Animations?</li></ul>
-|🔧|SST||“simple script”
+|🔧|SST||“simple script”, mostly understood
 |✔️|STX|GA330|images/textures, well-understood
 |✔️|WAR|Win32|AMI ADPCM audio, well-understood
 
