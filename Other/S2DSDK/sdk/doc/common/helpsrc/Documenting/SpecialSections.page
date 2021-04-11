@@ -1,0 +1,27 @@
+/**
+\page "Special Sections"
+!!! Special sections (Notes, Todo, etc.)
+Special section are used to document return values, author notes etc. Common 
+to all section commands is the fact that the section continues until a blank 
+line or another section command is encountered.
+
+!Multiple use of these makes a bulleted list
+| #Syntax# | #Reference manual # | #Example# 
+|| $\\bug ... text ...$ | bugCmd | HowToDocument::Bug
+|| $\\deprecated ... text ...$ | deprecatedCmd | HowToDocument::Deprecated
+|| $\\throw \<exception_name\> ... text ...$ | throwCmd | HowToDocument::ExceptionsThrown
+|| $\\internal ... text ...$ | internalCmd | HowToDocument::Internal
+|| $\\note ... text ...$ | noteCmd | HowToDocument::Note
+|| $\\param ... text ...$ | paramCmd | HowToDocument::ParametersJavaStyle
+|| $\\remark ... text ...$ | remarkCmd | HowToDocument::Remark
+|| $\\sa ... text ...$ | saCmd | HowToDocument::SeeAlso
+|| $\\todo ... text ...$ | todoCmd | HowToDocument::Todo
+|| $\\warning ... text ...$ | warningCmd | HowToDocument::Warning
+
+! Only intended to be used once per entity (multiples are concatenated)
+| #Syntax# | #Reference manual # | #Example# 
+|| $\\author ... text ...$ | authorCmd | HowToDocument::Author
+|| $\\brief ... text ...$ | briefCmd | HowToDocument::BriefCmd
+|| $\\return ... text ...$ | returnCmd | HowToDocument::ReturnValue
+|| $\\version ... text ...$ | versionCmd | HowToDocument::Version
+*/

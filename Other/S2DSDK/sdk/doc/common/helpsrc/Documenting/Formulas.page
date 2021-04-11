@@ -1,0 +1,86 @@
+/** \page Formulas
+!!! Including formulas
+Doxygen allows you to put \f$ \mbox{LaTeX} \f$ formulas in the output. You will need to have the 
+following tools installed:
+- $latex$: The Latex compiler, needed to parse the formulas.
+- $dvips$: A tool to convert DVI files to PostScript files.
+- $gs$: The GhostScript interpreter for converting PostScript files to bitmaps.
+
+!! Windows install
+You can download the ProTeXt (http://www.tug.org/protext) package from 
+http://mirrors.dotsrc.org/ctan/systems/windows/protext. 
+
+You also need to make sure that #C:\\Program Files\\gs\\gs8.54\\bin# and 
+#C:\\Program Files\\MiKTeX 2.5\\miktex\\bin# are in your $PATH$ variable. Note that 
+your exact version numbers may vary. The important thing is that all 3 $latex.exe$ 
+$dvips.exe$ $gswin32.exe$ are in your $PATH$. 
+
+!! Examples
+
+There are three ways to include formulas in the documentation.
+
+1. Using in-text formulas that appear in the running text. These formulas should be put between a pair 
+of #\\f\$# commands, so that
+
+\code
+The distance between \f$(x_1,y_1)\f$ and \f$(x_2,y_2)\f$ is: \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$.
+\endcode
+results in:
+
+The distance between \f$(x_1,y_1)\f$ and \f$(x_2,y_2)\f$ is: \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$.
+
+2. Unnumbered displayed formulas that are centered on a separate line. These formulas should be 
+put between #\\f[# and #\\f]# commands. An example:
+\code
+\f[
+  |I_2|=\left| \int_{0}^T \psi(t) 
+            \left\{ 
+              u(a,t)-
+              \int_{\gamma(t)}^a 
+              \frac{d\theta}{k(\theta,t)}
+              \int_{a}^\theta c(\xi)u_t(\xi,t)\,d\xi
+            \right\} dt
+        \right|
+\f]
+\endcode
+results in:
+
+\f[
+  |I_2|=\left| \int_{0}^T \psi(t) 
+            \left\{ 
+              u(a,t)-
+              \int_{\gamma(t)}^a 
+              \frac{d\theta}{k(\theta,t)}
+              \int_{a}^\theta c(\xi)u_t(\xi,t)\,d\xi
+            \right\} dt
+        \right|
+\f]
+
+3. Formulas or other latex elements that are not in a math environment can be specified 
+using #\\f\{environment\}#, where environment is the name of the Latex environment, 
+the corresponding end command is #\\f\}#. Here is an example for an equation array
+\code
+\f{eqnarray*}
+    g &=& \frac{Gm_2}{r^2} \\ 
+      &=& \frac{(6.673 \times 10^{-11}\,\mbox{m}^3\,\mbox{kg}^{-1}\,
+          \mbox{s}^{-2})(5.9736 \times 10^{24}\,\mbox{kg})}{(6371.01\,\mbox{km})^2} \\ 
+      &=& 9.82066032\,\mbox{m/s}^2
+\f}
+\endcode
+which results in:
+
+\f{eqnarray*}
+    g &=& \frac{Gm_2}{r^2} \\ 
+      &=& \frac{(6.673 \times 10^{-11}\,\mbox{m}^3\,\mbox{kg}^{-1}\,
+          \mbox{s}^{-2})(5.9736 \times 10^{24}\,\mbox{kg})}{(6371.01\,\mbox{km})^2} \\ 
+      &=& 9.82066032\,\mbox{m/s}^2
+\f}
+
+For the first two commands one should make sure formulas contain valid commands in Latex's math-mode. For the 
+third command the section should contain valid command for the specific environment.
+
+!Warning:
+Currently, DoxyS is not very fault tolerant in recovering from typos in formulas. It may 
+be necessary to remove the file $doxys_formulas/formula.repository$ that is written to 
+the html directory to get rid of an incorrect formula.
+*/

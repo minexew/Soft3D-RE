@@ -1,0 +1,17 @@
+/**
+\page todoCmd
+!!! Making a "Todo" section ( todo ).
+For making a bullet entry in the "Todo" section on the bottom of the page. The 
+todo sections are mainly meant for the developpers of the code and therefore 
+they can be turned ON or OFF in the generated output by setting TODO_DOCS in the 
+configuration file (see OutputCustomization).
+!Syntax
+\code
+\todo We have stuff todo.
+\endcode
+!Output
+See below in the #Todo# section.
+\include section_commands.inc
+\todo We have stuff todo.
+\sa internalCmd for making another kind of developer only comment.
+*/

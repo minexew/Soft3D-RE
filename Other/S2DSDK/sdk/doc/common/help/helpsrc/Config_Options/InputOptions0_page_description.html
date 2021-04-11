@@ -1,0 +1,72 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - InputOptions</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - InputOptions</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">InputOptions</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1728","aID1728","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','InputOptions0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Configuration options related to the input files.</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">IGNORE_FILE_NAME</td><td class="userPaddingNormal2">The IGNORE_FILE_NAME tag can be used to specify a possible textfile in each directory which is searched for files/subdirs to exclude. The default value is 'DoxyS.ignore'. It works like '.cvsignore'. The file is a simple textfile listing one file/subdir per line relative to the directory of the 'DoxyS.ignore' file. Like this: <b><code>file_to_ignore.cpp</code></b> <br>
+ <b>Default value:</b><br>
+ <code>DoxyS.ignore</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">FILE_PATTERNS</td><td class="userPaddingNormal2">If the value of the INPUT tag contains directories, you can use the FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and *.h) to filter out the source-files in the directories. If left blank the following patterns are tested: *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp *.h++ *.idl *.odl *.cs *.page *.dir *.dxd *.doc<br>
+ <b>Default value:</b><br>
+ <code>*.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp *.h++ *.idl *.odl *.cs *.page *.dir *.dxd *.doc</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">RECURSIVE</td><td class="userPaddingNormal2">The RECURSIVE tag can be used to turn specify whether or not subdirectories should be searched for input files as well. Possible values are YES and NO. If left blank YES is used. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXCLUDE</td><td class="userPaddingNormal2">The EXCLUDE tag can be used to specify files and/or directories that should excluded from the INPUT source files. This way you can easily exclude a subdirectory from a directory tree whose root is specified with the INPUT tag. <br>
+ <b>Default value:</b><br>
+ <code>doxys_docs/</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXCLUDE_SYMLINKS</td><td class="userPaddingNormal2">The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories that are symbolic links (a Unix filesystem feature) are excluded from the input. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXCLUDE_PATTERNS</td><td class="userPaddingNormal2">If the value of the INPUT tag contains directories, you can use the EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude certain files from those directories. </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXAMPLE_PATH</td><td class="userPaddingNormal2">If the example is not found relatively to current directory, then try to prepend the EXAMPLE_PATH to see if the example is found here! </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">IMAGE_PATH</td><td class="userPaddingNormal2">If the image is not found relatively to current directory, then try to prepend the IMAGE_PATH to see if the image is found here! </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">INPUT_FILTER</td><td class="userPaddingNormal2">The INPUT_FILTER tag can be used to specify a program that DoxyS should invoke to filter for each input file. DoxyS will invoke the filter program by executing (via popen()) the command: <code>filter input-file</code>, where <code>filter</code> is the value of the INPUT_FILTER tag, and <code>input-file</code> is the name of an input file. DoxyS will then use the output that the filter program writes to standard output. </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">FILTER_SOURCE_FILES</td><td class="userPaddingNormal2">If the FILTER_SOURCE_FILES tag is set to YES, the input filter (if set using INPUT_FILTER) will be used to filter the input files when producing source files to browse. <br>
+ <b>Default value:</b><br>
+ <code>NO</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

@@ -1,0 +1,48 @@
+<HTML>
+<HEAD>
+<TITLE>DefaultProjectName - MouseDown</TITLE>
+<script type="text/javascript" src="../../../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../../../common/";
+ var relPathToHelpDir = "../../../../common/help/";
+ var toSearchPage     = "_search','../../../../search";
+ Body1();
+</script>
+<div class="headerPage">MouseDown</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../../../index',this)" class="pathLink">Default mainpage</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../../s2d0',this)" class="pathLink">s2d</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../engine0',this)" class="pathLink">engine</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','inc0',this)" class="pathLink">inc</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_class','Input115',this)" class="pathLink">Input</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">MouseDown</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_member','MouseDown3757037052','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_member','MouseDown3757037052','_source',this)" class="tabLinkActive">Source</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Call Graph</span></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<div class="paragraph2NoTopPadding">Start Line: 20</div>
+<pre class="codeExamples">
+void <a href="#" onMouseOver="link('_member','MouseDown3757037052',this); ">s2d::Input::MouseDown</a>(MouseButton mb,s32 x, s32 y)
+{
+    if( !(<a href="#" onMouseOver="link('_member','m_MouseTbl235303736',this); ">m_MouseTbl</a>[ mb ] &amp; <a href="#" onMouseOver="link('_member','MS_DOWN1623',this); ">MS_DOWN</a>) ) {
+        <a href="#" onMouseOver="link('_member','m_MouseTbl235303736',this); ">m_MouseTbl</a>[ mb ] = <a href="#" onMouseOver="link('_member','MS_DOWN1623',this); ">MS_DOWN</a>;
+        <a href="#" onMouseOver="link('_member','m_MouseTbl235303736',this); ">m_MouseTbl</a>[ mb ] |= <a href="#" onMouseOver="link('_member','MS_FIRSTDOWN1623',this); ">MS_FIRSTDOWN</a>;
+    } else {
+        <a href="#" onMouseOver="link('_member','m_MouseTbl235303736',this); ">m_MouseTbl</a>[ mb ] = <a href="#" onMouseOver="link('_member','MS_DOWN1623',this); ">MS_DOWN</a>;
+    }
+    <a href="#" onMouseOver="link('_member','m_MouseX235303736',this); ">m_MouseX</a>=x;
+    <a href="#" onMouseOver="link('_member','m_MouseY235303736',this); ">m_MouseY</a>=y;
+    //m_bIsAnyKeyDown = true;
+}
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_member','_source');
+</script>

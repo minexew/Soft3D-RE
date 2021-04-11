@@ -1,0 +1,14 @@
+/**
+\page defCmd
+!!!Documenting a define ( def )
+Indicates that a comment block contains documentation for a \#define macro.
+!Syntax
+\code
+\def MAX(x,y)
+Computes the maximum of x and y.
+\endcode
+!Output
+The def command does not produce any output of its own, but ensures that the 
+documentation comment block is used to document the define specified.
+\include separate_docs.inc
+*/

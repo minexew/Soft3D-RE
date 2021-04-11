@@ -1,0 +1,91 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Documenting</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Documenting</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Documenting</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1780","aID1780","headerLeftMenuActive","leftMenuLinkHeadActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_dir','Documenting0','_description',this)" class="tabLinkActive">Description</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_dir','Documenting0','_overview',this)" class="tabLinkInActive">Overview</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Globals</span></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_dir','Documenting0','_info',this)" class="tabLinkInActive">Info</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_dir','Documenting0','_dirgraph',this)" class="tabLinkInActive">Graph</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Documenting</div>
+This page decribes the basics and concepts of DoxyS.<br>
+<br>
+DoxyS is primarily a C++/C documentation tool and secondly a tool for making general online documentation of any kind.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> For the impatient</div>
+If you just want to see what DoxyS can do to your code just run the <code>doxys</code> executable from the root of your code directory, or perhaps a subdirectory if You have a large code base. DoxyS will make a default DoxySFile (configuration file) and use it. If You want to learn how to document classes functions etc. please go to <a href="#" OnMouseOver="link('_page','Documentingthecode0',this)">"Documenting the code"</a> or to <a href="#" OnMouseOver="link('_class','../Example_Code/HowToDocument0',this)">HowToDocument</a> example code.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Introduction</div>
+The basic idea is to reuse the the directory <em>structure</em> (hence the S in DoxyS) in the generated output. Each subdirectory <em>should</em> have a directory file documenting the contents in general terms giving the reader an introduction and basic idea of how to use the code. The directory documentation files were invented because we found that it often was the first kind of information we would like when trying to familiarize ourselves with a new code library, but that no documentation tools offered a logical place to put this documentation.<br>
+<br>
+For this directory structure approach to work optimally we advise organizing Your code in directories and subdirectories each containing only classes, functions etc. that belongs together. <a href="#" OnMouseOver="link('_page','Directories0',this)">Directories</a> should then have a <code>.dir</code> file which explains the intent of the code found there.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Basics</div>
+The basic entities in the DoxyS documentation are <a href="#" OnMouseOver="link('_page','Directories0',this)">Directories</a>, Classes, <a href="#" OnMouseOver="link('_page','Units0',this)">Units</a> and <a href="#" OnMouseOver="link('_page','Pages0',this)">Pages</a>. These entities together form the navigation menu, which you find to the left of all DoxyS generated documentation pages. So when You are navigating the documentation You are also navigating the code!<br>
+<br>
+</div>
+<div class="padding"><a href="#" OnMouseOver="link('_page','Units0',this)">Units</a> serve as a way to document realated free functions as a group assuming that free functions declared in the same header file do have something in common. In most cases You probably don't need units, but when You do they come in quite handy.<br>
+<br>
+</div>
+<div class="padding"><a href="#" OnMouseOver="link('_page','Pages0',this)">Pages</a> on the other hand serve as the perfect place to put any kind of code related documentation. For example code related documentation that does not really fit into the directory description file (see also <a href="#" OnMouseOver="link('_page','../Command_Reference/dirCmd0',this)">dirCmd</a>). <a href="#" OnMouseOver="link('_page','Pages0',this)">Pages</a> and directories together can also be used together without any code inside the directories to form general documentation or design documents.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Documentation blocks</div>
+In order for DoxyS to reconize a block of text as something that contains documentation one should enclose the text in <code>/** .. */</code>, or see the following table for all the ways to designate a documentation block.<br>
+<br>
+</div>
+<div class="padding"><table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingNormal1">&nbsp;<b>Documentation Style</b> </td><td class="userPaddingNormal2">&nbsp;<b>Syntax to use</b> </td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;Multi line </td><td class="userPaddingHeadMultiColumn2">&nbsp;<code>/** <br>
+... text block ... <br>
+ */</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;C++ single line style </td><td class="userPaddingHeadMultiColumn2"><code>/// ... lines are ... <br>
+/// ... concatenated to ... <br>
+/// ... one single block ... <br>
+</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;Multi line <b>'!'</b> </td><td class="userPaddingHeadMultiColumn2">&nbsp;<code>/*! <br>
+... text block ... <br>
+ */</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;C++ single line style <b>'!'</b> </td><td class="userPaddingHeadMultiColumn2"><code>//! ... lines are ... <br>
+//! ... concatenated to ... <br>
+//! ... one single block ... <br>
+</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_dir','_description');
+</script>

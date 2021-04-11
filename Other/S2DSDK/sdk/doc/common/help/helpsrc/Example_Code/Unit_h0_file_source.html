@@ -1,0 +1,112 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Unit.h</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Unit.h</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ExampleCode0',this)" class="pathLink">Example Code</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Unit.h</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1787","aID1787","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','Unit_h0','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','Unit_h0','_overview',this)" class="tabLinkInActive">Overview</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','Unit_h0','_includedfiles',this)" class="tabLinkInActive">Included files</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included by</span></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_file','Unit_h0','_source',this)" class="tabLinkActive">Source</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<pre class="codeExamples">
+#ifndef _UNIT_H_
+#define _UNIT_H_
+
+
+// standard headers
+//#include &lt;stdio.h&gt;
+#include &lt;math.h&gt;
+
+//tmath headers
+#include "tmath.h"
+#include "c.hpp"
+
+
+
+/** \unit "UnitGert"
+!Unit: A place to describe and list related free functions.
+From time to time functions or enums or other symbols need to be accessible in 
+the global namespace. Sometimes these symbols are needed by a single class and 
+should therefore be defined in the header file of the class. In this case the 
+symbols will be reflected in the class documentation on the "Related" tab.
+
+Sometimes however, symbols form a logical unit, offering functionality used by a 
+number of classes in or even outside the library. In this case, the symbols should 
+be defined in their own header file, and this file }could} be documented using the 
+$\\unit$ tag. 
+
+This will cause an entry to be created in the Units section of the 
+navigation bar and separate pages containing description, lists of the various symbol 
+types and pages for each symbol in the unit to be created and reachable through the 
+Unit entry. }#This is also very useful for ANSI C programs!}#
+
+
+!Here is how to do it:
+\code
+/*
+\unit
+!Headline introducing the unit.
+This unit contains  ... etc.
+*/
+
+/// Typedef in a unit
+typedef std::vec&lt;int&gt;   TypedefInUnit;
+ 
+/// Function in a unit 1
+void UnitFunction1();
+
+/// Function in a unit 2
+void UnitFunction2();
+
+
+/// Class in a unit, also on normal classlist
+class ClassInUnit
+{};
+\endcode
+
+
+\note Members belonging to a unit is still shown on the "Globals"-tab as well as
+      on the units "Overview"-tab.
+\note A unit may even contain classes, in which case the classes will still 
+      appear in the classes list and on the navigation menu to the right.
+*/
+
+/// Typedef in a unit
+typedef std::vec&lt;int&gt;   <a href="#" onMouseOver="link('_member','TypedefInUnit0',this); ">TypedefInUnit</a>;
+ 
+/// Function in a unit 1, also on directorys "Global"-tab
+void <a href="#" onMouseOver="link('_member','UnitFunction1122',this); ">UnitFunction1</a>();
+
+/// Function in a unit 2, also on directorys "Global"-tab
+void <a href="#" onMouseOver="link('_member','UnitFunction2122',this); ">UnitFunction2</a>();
+
+
+/// Class in a unit, also on normal directorys nav.-bar and "Overview"-tab
+class <a href="#" onMouseOver="link('_class','ClassInUnit0',this); ">ClassInUnit</a>
+{};
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_file','_source');
+</script>

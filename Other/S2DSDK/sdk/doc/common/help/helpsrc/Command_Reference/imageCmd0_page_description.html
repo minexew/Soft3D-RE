@@ -1,0 +1,100 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - imageCmd</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - imageCmd</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">imageCmd</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1757","aID1757","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','imageCmd0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1">Adding an image to the documentation ( image )</div>
+<a href="#" OnMouseOver="link('_page','../Documenting/Images0',this)">Images</a> can be included in the documentation using the \image tag.<br>
+<br>
+</div>
+<div class="padding">The filename should be relative either to the current directory or relative to the root of the IMAGE_PATH (see <a href="#" OnMouseOver="link('_page','../Config_Options/InputOptions0',this)">InputOptions</a>), or it can be an absolute path. <em>Note that this is different from the original Doxygen behaviour</em><br>
+<br>
+</div>
+<div class="padding">Image types supported are:<ul>
+<li>.png</li>
+<li>.jpg</li>
+<li>.gif</li>
+<li>.svg (Provided uour browser supports it, natively or via fx. the plugin from Adobe)</li>
+<li><em>.dia (Dia drawings support are on our wish list) </em></li>
+<li><em>.psd (Adobe Photoshop drawings support are on our wish list)</em></li>
+</ul>
+
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\image [path]&lt;image_name&gt;  ["Caption text"]
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<div class="userParagraph3">Example</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\image cpplogo.jpg "This a C++ Logo"
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<div class="userParagraph3">Output</div>
+<div align="center">
+<img src="cpplogo.jpg" alt="cpplogo.jpg">
+<strong><br>This a C++ Logo</strong></div>
+<br>
+<br>
+</div>
+<div class="padding">If the user has an SVG browser plug-in installed or native browser support for SVG, it is even possible to include svg images. SVG images may be sized.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Syntax SVG</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\image [path]&lt;image_name&gt; sizeXinpixels sizeYinpixels ["Caption text"]
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<div class="userParagraph3">Example</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\image ./images/canvas.svg 300 400 "Caption text"
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

@@ -1,0 +1,16 @@
+/**
+\page enumCmd
+!!!Attaching comment block to a specific enum ( enum )
+The enum command is used to explicitly link a documentation comment block to the 
+specified enum.
+!Syntax
+\code
+/**
+\enum Enum
+Normal way of documenting goes here ....
+\endds_doc \endcode
+!Output
+The enum command does not produce any output of its own, but secures that the comment 
+block as a whole is used to produce the documentation of the specified enum.
+\include separate_docs.inc
+*/

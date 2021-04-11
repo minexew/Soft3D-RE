@@ -1,0 +1,87 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - fnCmd</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - fnCmd</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">fnCmd</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1754","aID1754","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','fnCmd0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Attaching comment block to a specific function ( fn )</div>
+The var command is used to explicitly link a documentation comment block to the specified function. When documenting functions it's necessary to specify the return type (also if it's void) of the function along with the parameter types.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/**
+\fn &lt;return_type&gt; [scope]&lt;fun_name&gt;[(param_type, param_type ..)]
+Normal way of documenting goes here ....
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Example</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/**
+\fn int FreeFunction(int)
+Normal way of documenting goes here ....
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Output</div>
+The var command does not produce any output of its own, but secures that the comment block as a whole is used to produce the documentation of the specified class. But see <a href="#" OnMouseOver="link('_member','../Example_Code/Separate_Docs/FreeFunction60979',this)">FreeFunction()</a>.<br>
+<div class="userParagraph2">About putting the documentation in separate files</div>
+This command is used for documenting an entity away from it's definition in the code. See SeparateDocs for some examples.<br>
+<br>
+The commands for making separate documentation are:<br>
+<br>
+<code>\class, \def, \enum, (\file), \fn, \namespace, \struct, \typedef, \union \var</code><br>
+<div class="userParagraph3">Qualify with scope (class, namepace) if inside a scope like this:</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\enum <a href="#" onMouseOver="link('_member','../Example_Code/Separate_Docs/ClassEnum179590647',this); ">SepDocClass::ClassEnum</a>
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+</div>
+<div class="paragraph2">See also</div>
+<div id="descSee" class="paddingMembers"><LI><a href="#" OnMouseOver="link('_member','../Example_Code/Separate_Docs/NamespaceFunction163696211',this)">SepDocNamespace::NamespaceFunction()</a> <br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

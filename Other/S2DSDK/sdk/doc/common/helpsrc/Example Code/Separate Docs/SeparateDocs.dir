@@ -1,0 +1,23 @@
+/**
+\dir 
+!!! Place documentation in separate files.
+This directory contains example code showing how you can place documentation
+in separate files, instead of the standard way, next to the documented entities. 
+
+
+
+
+!The topics covered in this example code are:
+
+|| Entity to doc || Command || Example(s) || Reference Manual
+| class | \\class | SepDocClass | classCmd
+| define | \\def | DEFINE | defCmd
+| enum | \\enum| SepDocClass::ClassEnum | enumCmd
+| function | \\fn | FreeFunction, NamespaceFunction(), ClassFunction() | fnCmd
+| makro(\#define)| \\def | MACRO | defCmd
+| namespace | \\namespace | SepDocNamespace | namespaceCmd
+| typedef | \\typedef | TypeDef | typedefCmd
+| union | \\union | SepDocClass::ClassUnion | unionCmd
+| variable | \\var | SepDocClass::m_iClassVariable | varCmd
+
+*/

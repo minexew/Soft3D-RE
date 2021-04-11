@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - ExcludingInput.page</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - ExcludingInput.page</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','Documenting0',this)" class="pathLink">Documenting</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">ExcludingInput.page</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','ExcludingInput_page0','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Overview</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included files</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included by</span></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_file','ExcludingInput_page0','_source',this)" class="tabLinkActive">Source</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<pre class="codeExamples">
+/**
+\page "Excluding Input"
+!!! Excluding certain input (DoxyS.ignore, DOXYS_OFF, exclude)
+To facilitate cutomisation of what's included in the generated output DoxyS supports 
+ways of excluding files, sections of files or individual entities.
+
+! Excluding files (DoxyS.ignore)
+This works similar the CVS counterpart $.cvsignore$ file except that currently 
+the $DoxyS.ignore$ file does not support wildcards in filenames, ie. You need to 
+list all files and directories that you want to exclude in the directory of the 
+$DoxyS.ignore$ file. The name of this file can be configured via the IGNORE_FILE_NAME 
+in the config file, see InputOptions.
+
+It's quite simple to use. In every directory where You need to exclude certain files 
+or subdirectories simple create a $DoxyS.ignore$ file listing the files and directories 
+to be excluded like this:
+
+\code
+some_directory_to_exclude
+some_file_to_exclude.h
+some_file_to_exclude.cpp
+\endcode
+
+! Excluding sections in files (DOXYS_OFF)
+To turn of DoxyS parsing (text is skipped completely by pre-processor) 
+type this on a single line in the source file outside any (other) 
+documentation blocks.
+
+!To turn OFF:
+||/// DOXYS_OFF
+
+
+!To turn ON:
+||/// DOXYS_ON
+
+When DoxyS is turned off, this state continues until the $/// DOXYS_ON$
+statement is encountered or until the end of the file is reached. Ie. there
+is an implicit "turn on" statement at the end of a file.
+
+
+
+! Using the preprocessor to exclude sections of a file
+XXX 
+\todo Write doc "Using the preprocessor to exclude sections of a file"
+
+! Using the exclude command
+A single entity can be excluded by using the \\exclude command, see excludeCmd.
+
+*/
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_file','_source');
+</script>

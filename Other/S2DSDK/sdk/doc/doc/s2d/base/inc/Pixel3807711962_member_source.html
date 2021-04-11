@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+<TITLE>DefaultProjectName - Pixel</TITLE>
+<script type="text/javascript" src="../../../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../../../common/";
+ var relPathToHelpDir = "../../../../common/help/";
+ var toSearchPage     = "_search','../../../../search";
+ Body1();
+</script>
+<div class="headerPage">Pixel</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../../../index',this)" class="pathLink">Default mainpage</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../../s2d0',this)" class="pathLink">s2d</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../base0',this)" class="pathLink">base</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','inc0',this)" class="pathLink">inc</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_class','Pixel115',this)" class="pathLink">Pixel</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Pixel</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_member','Pixel3807711962','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_member','Pixel3807711962','_source',this)" class="tabLinkActive">Source</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Call Graph</span></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<div class="paragraph2NoTopPadding">Start Line: 34</div>
+<pre class="codeExamples">
+ <a href="#" onMouseOver="link('_member','Pixel1301164171',this); ">s2d::Pixel::Pixel</a>(u8 _r, u8 _g, u8 _b)
+    : m_r(_r), m_g(_g), m_b(_b)
+#endif
+{
+#if (COLOR_FORMAT==RGB666)
+    m_r = _r &gt;&gt; 2;
+    m_g = _g &gt;&gt; 2;
+    m_b = _b &gt;&gt; 2;
+#elif (COLOR_FORMAT==RGB332)
+    m_rgb = ((_r&gt;&gt;5)&lt;&lt;5) | ((_g&gt;&gt;5)&lt;&lt;2) | (_b&gt;&gt;6);
+#elif (COLOR_FORMAT==RGB444)
+    m_rgb = ((_r&gt;&gt;4)&lt;&lt;8) | ((_g&gt;&gt;4)&lt;&lt;4) | (_b&gt;&gt;4);
+#elif (COLOR_FORMAT==RGB555)
+    m_rgb = ((_r&gt;&gt;3)&lt;&lt;10) | ((_g&gt;&gt;3)&lt;&lt;5) | (_b&gt;&gt;3);
+#elif (COLOR_FORMAT==RGB565)
+    m_rgb = ((_r&gt;&gt;3)&lt;&lt;11) | ((_g&gt;&gt;2)&lt;&lt;5) | (_b&gt;&gt;3);
+#endif
+}
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_member','_source');
+</script>

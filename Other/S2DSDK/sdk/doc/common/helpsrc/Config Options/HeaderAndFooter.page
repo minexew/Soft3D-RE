@@ -1,0 +1,13 @@
+/** \page HeaderAndFooter
+
+!!! Configuration options related to header and footer layout.
+
+
+
+||HIDE_HEADER_ON_DIRS_AND_PAGES|Mainly for projects that contains no source code, but only pages and directories. The header part of pages and directories will be disabled if set to true. This setting can also be used in projects containing code as it's not  dependent on PAGE_DOCUMENTATION_MODE. \n #Default value:#\n $NO$
+||HIDE_FOOTER_ON_DIRS_AND_PAGES|Mainly for projects that contains no source code, but only pages and directories. The footer part of pages and directories will be disabled if set to true. This setting can also be used in projects containing code as it's not  dependent on PAGE_DOCUMENTATION_MODE. \n #Default value:#\n $NO$
+||HIDE_HEADER_ON_CLASS_AND_MEMBERS|The header part will be disabled if set to true. If set to yes you may also whant to set HIDE_HEADER_ON_DIRS_AND_PAGES to yes\n #Default value:#\n $NO$
+||HIDE_FOOTER_ON_CLASS_AND_MEMBERS|The footer part will be disabled if set to true. If set to yes you may also whant to set HIDE_FOOTER_ON_DIRS_AND_PAGES to yes\n #Default value:#\n $NO$
+||HIDE_HEADER_ON_UNITS|The header part will be disabled if set to true. If set to yes you may also whant to set HIDE_HEADER_ON_DIRS_AND_PAGES to yes\n #Default value:#\n $NO$
+||HIDE_FOOTER_ON_UNITS|The footer part will be disabled if set to true. If set to yes you may also whant to set HIDE_FOOTER_ON_DIRS_AND_PAGES to yes\n #Default value:#\n $NO$
+*/

@@ -1,0 +1,308 @@
+
+/** 
+\def DEFINE 
+DEFINE brief SEPARATE DOC.
+DEFINE More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\def DEFINE 
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+*/
+
+/** 
+\def MACRO(x,y) 
+MACRO brief SEPARATE DOC.
+MACRO More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\def MACRO(x,y) 
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+\param x MACRO Param x SEPARATE DOC description
+\param y MACRO Param y SEPARATE DOC description
+\return  MACRO return value SEPARATE DOC description
+*/
+
+
+/** 
+\typedef TypeDef 
+TypeDef brief SEPARATE DOC.
+TypeDef More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\typedef TypeDef 
+Normal way of documenting goes here ....
+\endds_doc \endcode
+\include separated_documentation.inc
+*/
+
+
+
+/** 
+\fn int FreeFunction(int)
+FreeFunction brief SEPARATE DOC.
+FreeFunction More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\fn int FreeFunction(int)
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+\param iInt FreeFunction  SEPARATE DOC param description.
+\return FreeFunction return value SEPARATE DOC description
+*/
+
+/** 
+\namespace SepDocNamespace
+SepDocNamespace brief SEPARATE DOC.
+SepDocNamespace More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\namespace SepDocNamespace
+Normal way of documenting goes here ....
+\endds_doc \endcode
+\include separated_documentation.inc
+*/
+
+
+/** 
+\fn void SepDocNamespace::NamespaceFunction(int)
+SepDocNamespace::NamespaceFunction function brief SEPARATE DOC.
+SepDocNamespace::NamespaceFunction More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\fn void SepDocNamespace::NamespaceFunction(int)
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+\param iInt SepDocNamespace::NamespaceFunction SEPARATE DOC param description.
+*/
+
+/** 
+\class SepDocNamespace::NamespaceClass
+SepDocNamespace::Class brief SEPARATE DOC.
+SepDocNamespace::Class More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\class SepDocNamespace::NamespaceClass
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+*/
+
+
+
+/** 
+\fn int SepDocNamespace::NamespaceClass::ClassFunction(int) const
+SepDocNamespace::NamespaceClass::ClassFunction brief SEPARATE DOC.
+SepDocNamespace::NamespaceClass::ClassFunction More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\fn int SepDocNamespace::NamespaceClass::ClassFunction(int) const
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+\param iInt SepDocNamespace::NamespaceClass::ClassFunction SEPARATE DOC param description.
+*/
+
+
+/** 
+\class SepDocClass
+SepDocClass brief SEPARATE DOC.
+SepDocClass More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\class SepDocClass
+Normal way of documenting goes here ....
+\endds_doc \endcode
+
+\include separated_documentation.inc
+*/
+
+
+/** 
+\fn void SepDocClass::ClassFunction(int) const
+SepDocClass::ClassFunction brief SEPARATE DOC.
+SepDocClass::ClassFunction More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\fn void SepDocClass::ClassFunction(int) const
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+\param iInt SepDocClass::ClassFunction SEPARATE DOC param description.
+*/
+
+
+/** 
+\fn void SepDocClass::ClassTemplateFunction(int)
+SepDocClass::ClassTemplateFunction brief SEPARATE DOC.
+SepDocClass::ClassTemplateFunction More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\fn void SepDocClass::ClassTemplateFunction(int)
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+\param T1 SepDocClass::ClassTemplateFunction SEPARATE DOC T1 template_param description.
+\param T2 SepDocClass::ClassTemplateFunction SEPARATE DOC T2 template_param description.
+\param iInt SepDocClass::ClassTemplateFunction SEPARATE DOC iInt param description 
+*/
+
+/**
+\var int SepDocClass::m_iClassVariable
+SepDocClass::m_iClassVariable brief SEPARATE DOC.
+SepDocClass::m_iClassVariable More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\var int SepDocClass::m_iClassVariable
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+*/
+
+
+
+/** 
+\enum SepDocClass::ClassEnum
+SepDocClass::ClassEnum brief SEPARATE DOC.
+SepDocClass::ClassEnum More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\enum SepDocClass::ClassEnum
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+*/
+
+/**
+\var SepDocClass::ClassEnum SepDocClass::eClassEnumVal1
+SepDocClass::eClassEnumVal1 brief SEPARATE DOC.
+SepDocClass::eClassEnumVal1 More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\var SepDocClass::ClassEnum SepDocClass::eClassEnumVal1
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+*/
+
+/**
+\var SepDocClass::ClassEnum SepDocClass::eClassEnumVal2
+SepDocClass::eClassEnumVal2 brief SEPARATE DOC.
+SepDocClass::eClassEnumVal2 More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\var SepDocClass::ClassEnum SepDocClass::eClassEnumVal2
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+*/
+
+
+/** 
+\union SepDocClass::ClassUnion
+SepDocClass::ClassUnion brief SEPARATE DOC.
+SepDocClass::ClassUnion More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\union SepDocClass::ClassUnion
+Normal way of documenting goes here ....
+\endds_doc \endcode
+\include separated_documentation.inc
+*/
+
+/**
+\var int SepDocClass::ClassUnion::m_iClassUnionIntMember
+SepDocClass::ClassUnion::m_iClassUnionIntMember brief SEPARATE DOC.
+SepDocClass::ClassUnion::m_iClassUnionIntMember More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\var int SepDocClass::ClassUnion::m_iClassUnionIntMember
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+*/
+
+/**
+\var int SepDocClass::ClassUnion::m_iClassUnionFloatMember
+SepDocClass::ClassUnion::m_iClassUnionFloatMember brief SEPARATE DOC.
+SepDocClass::ClassUnion::m_iClassUnionFloatMember More SEPARATE DOC description here.
+
+!This is how it looks in the code:
+\code
+/**
+\var int SepDocClass::ClassUnion::m_iClassUnionFloatMember
+Normal way of documenting goes here ....
+\endds_doc
+\endcode
+
+\include separated_documentation.inc
+*/
+
+
+
+

@@ -1,0 +1,80 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - PreprocessorOptions</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - PreprocessorOptions</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">PreprocessorOptions</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1735","aID1735","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','PreprocessorOptions0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Configuration options related to the preprocessor.</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">ENABLE_PREPROCESSING</td><td class="userPaddingNormal2">If the ENABLE_PREPROCESSING tag is set to YES (the default) DoxyS will evaluate all C-preprocessor directives found in the sources and include files. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">MACRO_EXPANSION</td><td class="userPaddingNormal2">If the MACRO_EXPANSION tag is set to YES DoxyS will expand all macro names in the source code. If set to NO only conditional compilation will be performed. Macro expansion can be done in a controlled way by setting EXPAND_ONLY_PREDEF to YES (the default). <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXPAND_ONLY_PREDEF</td><td class="userPaddingNormal2">If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES then the macro expansion is limited to the macros specified with the PREDEFINED and EXPAND_AS_PREDEFINED tags. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">SEARCH_INCLUDES</td><td class="userPaddingNormal2">If the SEARCH_INCLUDES tag is set to YES (the default) the includes files in the INCLUDE_PATH (see below) will be search if a <code>include</code> command is found. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">INCLUDE_PATH</td><td class="userPaddingNormal2">The INCLUDE_PATH tag can be used to specify one or more directories that contain include files that are not input files but should be processed by the preprocessor.<br>
+<b>Example:</b><br>
+<code>INCLUDE_PATH = ./include ./moreinclude/here .</code><br>
+( <em>last dot is root of DoxyS project i.e. where your DoxySfile is</em>)<br>
+But it depends on where you have your DoySfile located relative to the compiler include directories. You only need include paths to your own project stuff not to standard C library files...<br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">INCLUDE_FILE_PATTERNS</td><td class="userPaddingNormal2">You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard patterns (like *.h and *.hpp) to filter out the header-files in the directories. If left blank, the patterns specified with FILE_PATTERNS will be used. </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">PREDEFINED</td><td class="userPaddingNormal2">The PREDEFINED tag can be used to specify one or more macro names that are defined before the preprocessor is started (similar to the -D option of gcc). The argument of the tag is a list of macros of the form: name or name=definition (no spaces). If the definition and the = are omitted =1 is assumed.<br>
+<b>Example:</b><br>
+<code>PREDEFINED = DOXYGEN_RUN </code><br>
+<code> COMPILER_GCC </code><br>
+<code> "USE_CONST_METHOD=1" </code><br>
+<code> "VERSION(a,b,c,d)=" </code><br>
+<code> "MY_MACRO(K)=template &lt;class K&gt;" </code><br>
+<br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXPAND_AS_DEFINED</td><td class="userPaddingNormal2">If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this tag can be used to specify a list of macro names that should be expanded. The macro definition that is found in the sources will be used. Use the PREDEFINED tag if you want to use a different macro definition. </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">SKIP_FUNCTION_MACROS</td><td class="userPaddingNormal2">If the SKIP_FUNCTION_MACROS tag is set to YES (the default) then DoxyS's preprocessor will remove all function-like macros that are alone on a line, have an all uppercase name, and do not end with a semicolon. Such function macros are typically used for boiler-plate code, and will confuse the parser if not removed. <br>
+ <b>Default value:</b><br>
+ <code>YES</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

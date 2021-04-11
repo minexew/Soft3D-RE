@@ -1,0 +1,65 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - codeCmd</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - codeCmd</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">codeCmd</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1743","aID1743","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','codeCmd0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1">Illustrating code in the documentation (code, endcode )</div>
+The <code>\code</code> and <code>\endcode</code> tags enclose a section that is to be formatted as code, similar to the <code>\example, \endexample</code> tags. The code is parsed with DoxyS codeparser and if possible links are made to classes, functions etc.<br>
+<div class="userParagraph3">Syntax</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn2"><pre>
+\code
+int main()
+{
+  printf("Hello world!\n");
+}
+\endcode</pre></td></tr>
+</table>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Output</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+int main()
+{
+  printf("Hello world!\n");
+}
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+</div>
+<div class="paragraph2">See also</div>
+<div id="descSee" class="paddingMembers"><LI><a href="#" OnMouseOver="link('_page','preCmd0',this)">preCmd</a> for raw formatting of text.<br>
+<LI><a href="#" OnMouseOver="link('_page','EscapeSpecialCharsCmd0',this)">EscapeSpecialCharsCmd</a> for writing the special */.<br>
+<LI><a href="#" OnMouseOver="link('_member','../Example_Code/InlineFormattedCode2587069908',this)">HowToDocument::InlineFormattedCode</a> <br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

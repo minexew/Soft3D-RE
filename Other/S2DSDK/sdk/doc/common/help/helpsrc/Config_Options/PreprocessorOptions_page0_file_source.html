@@ -1,0 +1,53 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - PreprocessorOptions.page</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - PreprocessorOptions.page</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">PreprocessorOptions.page</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','PreprocessorOptions_page0','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Overview</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included files</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included by</span></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_file','PreprocessorOptions_page0','_source',this)" class="tabLinkActive">Source</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<pre class="codeExamples">
+/** \page PreprocessorOptions
+
+!!! Configuration options related to the preprocessor   .
+
+
+
+||ENABLE_PREPROCESSING|If the ENABLE_PREPROCESSING tag is set to YES (the default) DoxyS will evaluate all C-preprocessor directives found in the sources and include files. \n #Default value:#\n $YES$
+||MACRO_EXPANSION|If the MACRO_EXPANSION tag is set to YES DoxyS will expand all macro names in the source code. If set to NO only conditional compilation will be performed. Macro expansion can be done in a controlled way by setting EXPAND_ONLY_PREDEF to YES (the default). \n #Default value:#\n $YES$
+||EXPAND_ONLY_PREDEF|If the EXPAND_ONLY_PREDEF and MACRO_EXPANSION tags are both set to YES then the macro expansion is limited to the macros specified with the PREDEFINED and EXPAND_AS_PREDEFINED tags. \n #Default value:#\n $NO$
+||SEARCH_INCLUDES|If the SEARCH_INCLUDES tag is set to YES (the default) the includes files in the INCLUDE_PATH (see below) will be search if a $include$ command is found. \n #Default value:#\n $YES$
+||INCLUDE_PATH|The INCLUDE_PATH tag can be used to specify one or more directories that contain include files that are not input files but should be processed by the preprocessor.<br>#Example:#<br>$INCLUDE_PATH  = ./include ./moreinclude/here .$<br>( }last dot is root of DoxyS project i.e. where your DoxySfile is})<br>But it depends on where you have your DoySfile located relative to the compiler include directories. You only need include paths to your own project stuff not to standard C library files...
+||INCLUDE_FILE_PATTERNS|You can use the INCLUDE_FILE_PATTERNS tag to specify one or more wildcard patterns (like *.h and *.hpp) to filter out the header-files in the directories. If left blank, the patterns specified with FILE_PATTERNS will be used. 
+||PREDEFINED|The PREDEFINED tag can be used to specify one or more macro names that are defined before the preprocessor is started (similar to the -D option of gcc). The argument of the tag is a list of macros of the form: name or name=definition (no spaces). If the definition and the = are omitted =1 is assumed.<br>#Example:#<br>$PREDEFINED             = DOXYGEN_RUN $<br>$                         COMPILER_GCC $<br>$                         "USE_CONST_METHOD=1" $<br>$                         "VERSION(a,b,c,d)=" $<br>$                         "MY_MACRO(K)=template <class K>" $<br>
+||EXPAND_AS_DEFINED|If the MACRO_EXPANSION and EXPAND_ONLY_PREDEF tags are set to YES then this tag can be used to specify a list of macro names that should be expanded. The macro definition that is found in the sources will be used. Use the PREDEFINED tag if you want to use a different macro definition. 
+||SKIP_FUNCTION_MACROS|If the SKIP_FUNCTION_MACROS tag is set to YES (the default) then DoxyS's preprocessor will remove all function-like macros that are alone on a line, have an all uppercase name, and do not end with a semicolon. Such function macros are typically used for boiler-plate code, and will confuse the parser if not removed. \n #Default value:#\n $YES$
+*/
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_file','_source');
+</script>

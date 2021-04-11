@@ -1,0 +1,12 @@
+11
+paopao,42,-23
+paopao,42,-23
+paopao,42,17
+paopao,42,17
+paopao,42,37
+paopao,42,37
+paopao,42,47
+paopao,42,47
+paopao,42,27
+paopao,42,27
+paopao,42,37

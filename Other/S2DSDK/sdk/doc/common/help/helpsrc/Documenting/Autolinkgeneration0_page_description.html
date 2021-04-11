@@ -1,0 +1,86 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Auto link generation</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Auto link generation</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','Documenting0',this)" class="pathLink">Documenting</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Auto link generation</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1710","aID1710","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','Autolinkgeneration0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Automatic link generation</div>
+Most documentation systems have special `see also' sections where links to other pieces of documentation can be inserted. Although DoxyS also has a command to start such a section (see <a href="#" OnMouseOver="link('_page','../Command_Reference/saCmd0',this)">saCmd</a>), it does allow you to put these kind of links anywhere in the documentation.<br>
+<br>
+</div>
+<div class="padding">The next sections show how to generate links to the various documented entities in a source file.<br>
+ <b>Note:</b> <em>The auto link system is not working exactly as we would like it to in this beta version of DoxyS, but this will be corrected after the beta.</em><br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Links to web pages and mail addresses</div>
+DoxyS will automatically replace any URLs and mail addresses found in the documentation by links.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Links to classes, directories, units and pages.</div>
+All words in the documentation that correspond to a documented class, directory, page or unit (use header file name) will automatically be replaced by a link to the corresponding HTML-page containing the documentation of the entity. If you want to prevent that a word that corresponds to a documented class is replaced by a link you should put a '%' in front of the word.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Links to files.</div>
+All words that contain a dot (.) that is not the last character in the word are considered to be file names. If the word is indeed the name of a documented input file, a link will automatically be created to the documentation of that file. If a documented units exists with the same name, then that will take precedence over linking to the file.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Links to functions.</div>
+Links to functions are created if one of the following patterns is encountered:<br>
+<br>
+</div>
+<div class="padding"><ol>
+<li>&lt;functionName&gt;"("&lt;argument-list&gt;")"</li>
+<li>&lt;functionName&gt;"()"</li>
+<li>"::"&lt;functionName&gt;</li>
+<li>(&lt;className&gt;"::")n&lt;functionName&gt;"("&lt;argument-list&gt;")"</li>
+<li>(&lt;className&gt;"::")n&lt;functionName&gt;"()"</li>
+<li>(&lt;className&gt;"::")n&lt;functionName&gt;</li>
+</ol>
+
+<br>
+</div>
+<div class="padding">where n&gt;0.<br>
+<br>
+For non overloaded members the argument list may be omitted.<br>
+<br>
+</div>
+<div class="padding"><b>Important:</b> The patterns above should not contain spaces, tabs or newlines.<br>
+<br>
+</div>
+<div class="padding">If a function is overloaded and no matching argument list is specified (i.e. pattern 2 or 5 is used), a link will be created to the documentation of one of the overloaded members.<br>
+<br>
+</div>
+<div class="padding">For member functions the class scope (as used in patterns 4 to 6) may be omitted, if:<br>
+<br>
+</div>
+<div class="padding"><ol>
+<li>The pattern points to a documented member that belongs to the same class as the documentation block that contains the pattern.</li>
+<li>The class that corresponds to the documentation blocks that contains the pattern has a base class that contains a documented member that matches the pattern.</li>
+</ol>
+
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

@@ -1,0 +1,52 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - DocParser</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - DocParser</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">DocParser</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1722","aID1722","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','DocParser0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Controlling the DocParser (wiki style parser).</div>
+Options for controlling the docparser (wiki style parser).<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Customize layout for pure text projects (ie containing no code)</div>
+If your project mainly (or purely) contains pages and directories it is recommended to set PAGE_DOCUMENTATION_MODE, HIDE_HEADER_ON_DIRS_AND_PAGES, HIDE_FOOTER_ON_DIRS_AND_PAGES all to true in order to make the output look more like conventional homepages etc.<br>
+This setting is used for the DoxyS homepage.<br>
+<br>
+</div>
+<div class="padding"><table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">PAGE_DOCUMENTATION_MODE</td><td class="userPaddingNormal2">Mainly for projects that contains no source code, but only pages and directories. The overview, info classes etc. tabs on mainpage and directories will be disabled. Other tabs are not affected, so it's still possible to have source code in the project, but mainpage and directories have only Description tabs displayed. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">ENABLE_HARD_SOFT_LINE_BREAKS</td><td class="userPaddingNormal2">More natural formatting than before when it comes to newlines. If you break a line immediately after the normal text (i.e. no space or tab before the linebreak); Then you will get that break in the output. If there is a space or tab after the text but before the linebreak then it behaves as before and just a space is inserted. <br>
+ <b>Default value:</b><br>
+ <code>YES</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

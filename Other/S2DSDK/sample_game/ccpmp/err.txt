@@ -1,0 +1,119 @@
+mipsel-linux-gcc -g -c -O -IC:\S2D_SDK\s2dsdk\inc -Ic:/cygwin/mipseltools/include -I -mips32 -Wall -finline-functions -fomit-frame-pointer -msoft-float -fno-builtin -fno-exceptions -mno-abicalls -fno-pic -pipe -G 0 -o interface.o main/interface.c
+In file included from main/interface.c:10:
+c:/cygwin/mipseltools/include/stdlib.h:92:9: warning: extra tokens at end of #endif directive
+c:/cygwin/mipseltools/include/stdlib.h:92:18: warning: no newline at end of file
+In file included from main/interface.c:11:
+c:/cygwin/mipseltools/include/string.h:44:7: warning: no newline at end of file
+main/interface.c: In function `lcd_get_frame':
+main/interface.c:202: warning: return from incompatible pointer type
+main/interface.c: In function `lcd_set_frame':
+main/interface.c:208: warning: unused variable `pLcdBuf'
+main/interface.c:209: warning: unused variable `pTmp'
+main/interface.c: In function `kbd_get_key':
+main/interface.c:314: warning: implicit declaration of function `printf'
+main/interface.c:312: warning: unused variable `i'
+main/interface.c: In function `sys_judge_event':
+main/interface.c:379: warning: unused variable `r'
+mipsel-linux-g++ -g -c -O -IC:\S2D_SDK\s2dsdk\inc -Ic:/cygwin/mipseltools/include -I -mips32 -Wall -finline-functions -fomit-frame-pointer -msoft-float -fno-builtin -fno-exceptions -mno-abicalls -fno-pic -pipe -G 0 -D_DEBUG  -DMPU_JZ4740 -o Animation.o ./../Source/src/Animation.cpp
+In file included from ../Source/inc/Animation.h:37,
+                 from ../Source/src/Animation.cpp:32:
+../Source/inc/Common.h:37:21: s2d/s2d.h: No such file or directory
+In file included from ../Source/inc/Animation.h:37,
+                 from ../Source/src/Animation.cpp:32:
+../Source/inc/Common.h:39: error: namespace `s2d' undeclared
+../Source/inc/Common.h:45: error: syntax error before `*' token
+../Source/inc/Common.h:46: error: 's32' is used as a type, but is not defined 
+   as a type.
+../Source/inc/Common.h:47: error: 's32' is used as a type, but is not defined 
+   as a type.
+../Source/inc/Common.h:51: error: 's32' is used as a type, but is not defined 
+   as a type.
+../Source/inc/Common.h:141:21: warning: no newline at end of file
+In file included from ../Source/src/Animation.cpp:32:
+../Source/inc/Animation.h:48: error: `Draw2D' was not declared in this scope
+../Source/inc/Animation.h:48: error: `pDraw2D' was not declared in this scope
+../Source/inc/Animation.h:48: error: `s32' was not declared in this scope
+../Source/inc/Animation.h:48: error: parse error before `,' token
+../Source/inc/Animation.h:50: error: `Draw2D' was not declared in this scope
+../Source/inc/Animation.h:50: error: `pDraw2D' was not declared in this scope
+../Source/inc/Animation.h:50: error: `s32' was not declared in this scope
+../Source/inc/Animation.h:50: error: parse error before `,' token
+../Source/inc/Animation.h:62: error: 's32' is used as a type, but is not 
+   defined as a type.
+../Source/inc/Animation.h:64: error: 's32' is used as a type, but is not 
+   defined as a type.
+../Source/src/Animation.cpp: In constructor `Animation::Animation()':
+../Source/src/Animation.cpp:34: error: `NULL' undeclared (first use this 
+   function)
+../Source/src/Animation.cpp:34: error: (Each undeclared identifier is reported 
+   only once for each function it appears in.)
+../Source/src/Animation.cpp:34: error: class `Animation' does not have any 
+   field named `m_iCurFrame'
+../Source/src/Animation.cpp:34: error: class `Animation' does not have any 
+   field named `m_bLoop'
+../Source/src/Animation.cpp: At global scope:
+../Source/src/Animation.cpp:43: error: `Draw2D' was not declared in this scope
+../Source/src/Animation.cpp:43: error: `pDraw2D' was not declared in this scope
+../Source/src/Animation.cpp:43: error: `s32' was not declared in this scope
+../Source/src/Animation.cpp:43: error: parse error before `,' token
+../Source/src/Animation.cpp: In member function `void Animation::Draw(...)':
+../Source/src/Animation.cpp:45: error: `m_iCurFrame' undeclared (first use this 
+   function)
+../Source/src/Animation.cpp:45: error: 'struct AniData' has no member named '
+   m_nFramCnt'
+../Source/src/Animation.cpp:45: error: `assert' undeclared (first use this 
+   function)
+../Source/src/Animation.cpp:48: error: `x' undeclared (first use this function)
+../Source/src/Animation.cpp:48: error: 'struct SingleAni' has no member named '
+   m_iOffsetX'
+../Source/src/Animation.cpp:49: error: `y' undeclared (first use this function)
+../Source/src/Animation.cpp:49: error: 'struct SingleAni' has no member named '
+   m_iOffsetY'
+../Source/src/Animation.cpp:52: error: 'struct SingleAni' has no member named '
+   m_pTex'
+../Source/src/Animation.cpp:53: error: 'struct SingleAni' has no member named '
+   m_pTex'
+../Source/src/Animation.cpp:55: error: `pDraw2D' undeclared (first use this 
+   function)
+../Source/src/Animation.cpp:55: error: 'struct SingleAni' has no member named '
+   m_pTex'
+../Source/src/Animation.cpp: At global scope:
+../Source/src/Animation.cpp:60: error: `Draw2D' was not declared in this scope
+../Source/src/Animation.cpp:60: error: parse error before `,' token
+../Source/src/Animation.cpp: In member function `void Animation::DrawLF(...)':
+../Source/src/Animation.cpp:63: error: 'struct AniData' has no member named '
+   m_nFramCnt'
+../Source/src/Animation.cpp:63: error: `assert' undeclared (first use this 
+   function)
+../Source/src/Animation.cpp:65: error: `s32' undeclared (first use this 
+   function)
+../Source/src/Animation.cpp:65: error: parse error before `=' token
+../Source/src/Animation.cpp:65: error: `i' undeclared (first use this function)
+../Source/src/Animation.cpp:65: error: 'struct AniData' has no member named '
+   m_nFramCnt'
+../Source/src/Animation.cpp:68: error: 'struct SingleAni' has no member named '
+   m_pTex'
+../Source/src/Animation.cpp:69: error: 'struct SingleAni' has no member named '
+   m_pTex'
+../Source/src/Animation.cpp:70: error: 'struct SingleAni' has no member named '
+   m_iOffsetX'
+../Source/src/Animation.cpp:70: error: 'struct SingleAni' has no member named '
+   m_iOffsetY'
+../Source/src/Animation.cpp: In member function `void Animation::Exec()':
+../Source/src/Animation.cpp:78: error: 'struct AniData' has no member named '
+   m_nFramCnt'
+../Source/src/Animation.cpp:79: error: `m_bLoop' undeclared (first use this 
+   function)
+../Source/src/Animation.cpp:82: error: 'struct AniData' has no member named '
+   m_nFramCnt'
+../Source/src/Animation.cpp: In member function `bool Animation::IsAnimOver()':
+../Source/src/Animation.cpp:89: error: 'struct AniData' has no member named '
+   m_nFramCnt'
+../Source/src/Animation.cpp: In member function `void 
+   Animation::Clone(Animation&)':
+../Source/src/Animation.cpp:103: error: 'class Animation' has no member named '
+   m_iCurFrame'
+../Source/src/Animation.cpp:105: error: 'class Animation' has no member named '
+   m_bLoop'
+../Source/src/Animation.cpp:106:2: warning: no newline at end of file
+make: *** [Animation.o] Error 1

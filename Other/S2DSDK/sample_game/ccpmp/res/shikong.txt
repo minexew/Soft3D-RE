@@ -1,0 +1,7 @@
+6
+shikong_01,32,224
+shikong_01,32,224
+shikong_02,32,224
+shikong_02,32,224
+shikong_03,32,224
+shikong_03,32,224

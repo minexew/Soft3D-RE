@@ -1,0 +1,322 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Text Formatting</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Text Formatting</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','Documenting0',this)" class="pathLink">Documenting</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Text Formatting</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1719","aID1719","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','TextFormatting0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Formatting text in wiki-like syntax</div>
+DoxyS features a wiki-like textparser enabling the user to create nice formatted HTML pages using plain text files, while still keeping the original textfile easily readable. The formatting options include:<br>
+<br>
+headlines, lists, tables, boxes, lines, code formatting, <b>bold</b>, <em>italics</em>, <u>underlined</u> text.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Headlines</div>
+Headlines are produced by starting a line with one to three exclamation marks:<br>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+!!!Headline BIG
+!!Headline Medium 
+!Headline small
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding">Will produce:<br>
+<br>
+<div class="userParagraph1">Headline BIG</div>
+<div class="userParagraph2">Headline Medium</div>
+<div class="userParagraph3">Headline small</div>
+<br>
+Additional formatting within a headline is not possible since it's appearance is taken from the stylesheet.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Typeface formatting</div>
+Enclosing one or more words in chars: <code> #, }, {, $ </code> works like this:<br>
+<br>
+</div>
+<div class="padding"><table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">&nbsp;#bold text# </td><td class="userPaddingNormal2">&nbsp;<b>bold text</b> </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">&nbsp;}italic text} </td><td class="userPaddingNormal2">&nbsp;<em>italic text</em> </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">&nbsp;{underlined text{ </td><td class="userPaddingNormal2">&nbsp;<u>underlined text</u> </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">&nbsp;$monospaced text$ </td><td class="userPaddingNormal2">&nbsp;<code>monospaced text</code> </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">&nbsp;{#}Combination{#} </td><td class="userPaddingNormal2">&nbsp;<u><b><em>Combination</u></b></em></td></tr>
+</table>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2">Bulleted lists</div>
+Bulleted lists may be produced by starting lines with a dash and a white space <code>'- '</code>:<br>
+<br>
+</div>
+<div class="padding">  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+- First item
+- Second item spanning several lines because this text is just som damn long that
+  it goes on and on and on. It even continues here after a full stop making it an 
+  indeed veeeery long bulleted text.
+- Third item
+  - First subitem
+  - Second subitem
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding">Will produce:<br>
+<br>
+</div>
+<div class="padding"><ul>
+<li>First item</li>
+<li>Second item spanning several lines because this text is just som damn long that it goes on and on and on. It even continues here after a full stop making it an indeed veeeery long bulleted text.</li>
+<li>Third item<ul>
+<li>First subitem</li>
+<li>Second subitem</li>
+</ul>
+
+</li>
+</ul>
+
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Numbered bulleted lists</div>
+Numbered lists may be produced by starting lines with a dash, hashmark and a whitespace <code>'-# '</code>:<br>
+<br>
+</div>
+<div class="padding">  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+-# First item
+-# Second item
+-# Third item
+  -# First subitem
+  -# Second subitem
+-# Fourth item
+  - First mixed subitem
+  - Second mixed subitem
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding">Will produce:<br>
+<br>
+</div>
+<div class="padding"><ol>
+<li>First item</li>
+<li>Second item</li>
+<li>Third item<ol>
+<li>First subitem</li>
+<li>Second subitem</li>
+</ol>
+
+</li>
+<li>Fourth item<ul>
+<li>First mixed subitem</li>
+<li>Second mixed subitem</li>
+</ul>
+
+</li>
+</ol>
+
+<br>
+</div>
+<div class="padding"><img src="../../common/dot.gif" class="hrThin">
+<br>
+<div class="userParagraph2"> Tables</div>
+Tables are made with the use of the pipe sign <code>'|'</code>. A single pipe sign indicates the beginning of a table cell. Two pipe signs indicate the beginning of a header cell.<br>
+<br>
+</div>
+<div class="padding">  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+||Task no.||Description||Priority||Status||Personnel
+|1|Make a server component to log trafic on the website|3|Startet|LP
+|2|Open documented symbols header or implementationfile in IDE|3|?|LP?
+|3|Call Graph and source code on functions (new tabs)|2|Startet|ML, MH
+|4|Documentation preview of the active file in the IDE(Jens Skinnerup)|2|Not startet|ML, MH
+|5|How hyperlink to a \\page element?(Paisley)|1|Finished|ML, MH
+|6|Rename function family to unit|1|Finished|ML, MH
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding">will produce:<br>
+<br>
+</div>
+<div class="padding"><table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">Task no.</td><td class="userPaddingHeadMultiColumn1">Description</td><td class="userPaddingHeadMultiColumn1">Priority</td><td class="userPaddingHeadMultiColumn1">Status</td><td class="userPaddingHeadMultiColumn2">Personnel<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">1</td><td class="userPaddingNormal1">Make a server component to log trafic on the website</td><td class="userPaddingNormal1">3</td><td class="userPaddingNormal1">Startet</td><td class="userPaddingNormal2">LP<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">2</td><td class="userPaddingNormal1">Open documented symbols header or implementationfile in IDE</td><td class="userPaddingNormal1">3</td><td class="userPaddingNormal1">?</td><td class="userPaddingNormal2">LP?<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">3</td><td class="userPaddingNormal1">Call Graph and source code on functions (new tabs)</td><td class="userPaddingNormal1">2</td><td class="userPaddingNormal1">Startet</td><td class="userPaddingNormal2">ML, MH<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">4</td><td class="userPaddingNormal1">Documentation preview of the active file in the IDE(Jens Skinnerup)</td><td class="userPaddingNormal1">2</td><td class="userPaddingNormal1">Not startet</td><td class="userPaddingNormal2">ML, MH<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">5</td><td class="userPaddingNormal1">How hyperlink to a \page element?(Paisley)</td><td class="userPaddingNormal1">1</td><td class="userPaddingNormal1">Finished</td><td class="userPaddingNormal2">ML, MH<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">6</td><td class="userPaddingNormal1">Rename function family to unit</td><td class="userPaddingNormal1">1</td><td class="userPaddingNormal1">Finished</td><td class="userPaddingNormal2">ML, MH</td></tr>
+</table>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Boxes</div>
+Tables may be used to make a simple box.<br>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+|Boxed text with a newline.\n
+ Next line in same box
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding">Will produce:<br>
+<br>
+</div>
+<div class="padding"><table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingNormal2">Boxed text with a newline.<br>
+ Next line in same box</td></tr>
+</table>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Formatting code: \code . . . \endcode</div>
+Encloses a section that is to be formatted as code. If DoxyS will try to make links to known entities in the source.<br>
+<br>
+</div>
+<div class="padding"><table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn2"><pre>
+
+\code
+int main()
+{
+  printf("Hello world!\n");
+  HowToDocument howToDocument;
+}
+\endcode
+</pre></td></tr>
+</table>
+<br>
+</div>
+<div class="padding">Will produce:<br>
+<br>
+</div>
+<div class="padding">  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+int main()
+{
+  printf("Hello world!\n");
+  <a href="#" onMouseOver="link('_class','../Example_Code/HowToDocument0',this); ">HowToDocument</a> howToDocument;
+}
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Raw formatted text: \pre . . . \endpre</div>
+Indicates that the enclosed section should be formatted in the output, exactly as it is written in the comment block.<br>
+<br>
+</div>
+<div class="padding">  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\pre
+Raw unformatted blok
+Of text complete with all newlines
+Like this
+\endpre
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding">Will produce:<br>
+<pre>
+
+Raw unformatted blok
+Of text complete with all newlines
+Like this
+</pre><br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Horizontal lines</div>
+A horisontal line, like the ones separating sections on this page, may be created by starting a line with three or more<br>
+ dashes: <code>'---'</code> : Thin line.<br>
+<br>
+equals: <code>'==='</code> : Thick line.<br>
+<br>
+Like this:<br>
+<br>
+<img src="../../common/dot.gif" class="hrThin">
+<img src="../../common/dot.gif" class="hrFat">
+<br>
+<div class="userParagraph2"> HTML special chars </div>
+<code>&amp;nbsp;</code>:&nbsp;:<br>
+<br>
+</div>
+<div class="padding"><code>&amp;mdash;</code>:&mdash;:<br>
+<br>
+</div>
+<div class="padding"><code>&amp;Dagger;</code>:&Dagger;:<br>
+<br>
+</div>
+<div class="padding"><code>&amp;#8212;</code>:&#8212;: <em>(mdash again)</em><br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

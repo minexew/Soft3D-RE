@@ -1,0 +1,10 @@
+/**
+\dir 
+!! Overridden functions + class diagrams demonstration.
+This directory contains a simple class hierachy to show how the class inheritance 
+and collaboration diagrams can look like and how overridden functions are displayed.
+
+Also the "Show all inherited" icon on the top of the "Public"-tab and "Protected"-tab 
+is demonstrated.
+
+*/

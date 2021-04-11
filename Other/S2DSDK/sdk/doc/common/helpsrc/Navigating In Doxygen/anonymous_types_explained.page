@@ -1,0 +1,18 @@
+/** 
+\page AnonymousTypes
+
+!!Anonymous types in DoxyS.
+Anonymous namepaces, classes, structs and unions are given artificial names
+in the DoxyS documentation in order to better display them and to be able to 
+distiguish between them.
+
+The automatic generated names are a concatenation of a prefix, unique ID number
+and the name of the surrounding scope like this:
+
+||Syntax||Type||Example
+|$AN$ + $NUM$ _+$file_name$| Anonymous #namespace#, usually in a .CPP-file| AN4_myfile.cpp
+|$AU$ + $NUM$ _+$class_name$| Anonymous #union#, usually inside a class| AU8_MyClass
+|$AC$ + $NUM$ _+$class_name$| Anonymous #class#, usually inside a class| AC12_MyClass
+|$AS$ + $NUM$ _+$class_name$| Anonymous #struct#, usually inside a class| AS2_MyClass
+
+*/

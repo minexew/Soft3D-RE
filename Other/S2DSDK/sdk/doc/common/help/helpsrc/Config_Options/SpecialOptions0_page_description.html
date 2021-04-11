@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - SpecialOptions</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - SpecialOptions</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">SpecialOptions</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1737","aID1737","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','SpecialOptions0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Special options (rarely changed).</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">DELETE_OUTPUT_DIRECTORY</td><td class="userPaddingNormal2">If the DELETE_OUTPUT_DIRECTORY tag is set to YES, then the output directory will be deleted before writing the new output. This can save time in some cases<br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">MS_DOT_NET_INTEGRATION</td><td class="userPaddingNormal2">If the MS_DOT_NET_INTEGRATION tag is set to YES then a XML file for use with MS Visual Studio .Net will be placed in 'OUT_DIR' How to: Taken from Microsofts homepage. Save the file as 'HelpTest2.xml' in Microsoft Visual Studio .NET/Common7/IDE/HTML/XMLLinks/[LCID], where [LCID] depends upon your language, such as English or French. For example, the English LCID is 1033. If it is not already open, display the Dynamic Help window by pressing CTRL+F1. Notice that two new links appear in the Dynamic Help window. One is under a link group called 'Samples' and is called 'Sample: Intro to Visual Studio .NET' and another link called 'Direct Link to MSDN' is under a custom link group called 'Custom Help.' Creating custom link groups allows you to have special categories in which to display your links. Professors and other academic instructors might, for example, create a custom link group called 'Homework' or 'CS101 Projects.' They could then put links to their topics under the custom link group. IT managers and group leads might want to create a custom link group, for example, named 'Coding Policies' that contains links to Help topics on corporate coding policy. For more information, see Creating Custom Link Groups.<br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">MS_DOT_NET_INTEGRATION_PATH</td><td class="userPaddingNormal2">The MS_DOT_NET_INTEGRATION_PATH tag is used to specify where the MS DOT NET integration xml is to be put. Usaualy "/Program Files/Microsoft Visual Studio .NET 2003/Common7/IDE/HTML/XMLLinks/1033" If left empty the xml will be put on documentation root.<br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">GENERATE_HTMLHELP1</td><td class="userPaddingNormal2">If GENERATE_HTMLHELP1 tag is set to YES, then HtmlHelp1 project(hhp) will be generated. Output will be put on documentation root.<br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">GENERATE_STATISTICS</td><td class="userPaddingNormal2">If GENERATE_STATISTICS tag is set to YES, there will be generated a statistics page. Output will be in documentation root/common/statistics.Information, warnings, errors and statistics can be found here.<br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">USE_ONFOCUS_TO_LINKS</td><td class="userPaddingNormal2">If USE_ONFOCUS_TO_LINKS tag is set to YES, the links will be made when the browser gets a OnFocusEvent. If NO, links will be made when the browser gets a OnMouseOverEvent. OnFocusEvent is NOT working in Safari and Opera9 any more.If you are using Firefox, set this option to YES, else incremental find will not work.<br>
+ <b>Default value:</b><br>
+ <code>NO</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

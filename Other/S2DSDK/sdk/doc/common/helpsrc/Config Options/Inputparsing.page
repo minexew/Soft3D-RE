@@ -1,0 +1,13 @@
+/** \page Inputparsing
+
+!!! Options to control how the input is parsed.
+
+
+
+||HIDE_IN_BODY_DOCS|If the HIDE_IN_BODY_DOCS tag is set to YES, DoxyS will hide any documentation blocks found inside the body of a function. If set to NO (the default) these blocks will be appended to the function's detailed documentation block. \n #Default value:#\n $NO$
+||TAB_SIZE|The TAB_SIZE tag can be used to set the number of spaces in a tab. DoxyS uses this value to replace tabs by spaces in code fragments. \n #Default value:#\n $4$
+||ALIASES|This tag can be used to specify a number of aliases that acts as commands in the documentation. An alias has the form "name=value". For example adding "sideeffect=par Side Effects:n" will allow you to put the command sideeffect (or sideeffect) in the documentation, which will result in a user-defined paragraph with heading "Side Effects:". You can put n's in the value part of an alias to insert newlines. 
+||ENABLED_SECTIONS|The ENABLED_SECTIONS tag can be used to enable conditional documentation sections, marked by if sectionname ... endif. 
+||IGNORE_CLASS_PREFIX|In case all classes in a project start with a common prefix, all classes will be put under the same header in the alphabetical index. The IGNORE_CLASS_PREFIX tag can be used to specify one or more prefixes that should be ignored while generating the index headers. 
+||AUTO_BRIEF_ENDS_AT_FIRST_NEWLINE|If set to YES, everything from beginning of documentation block to  first full stop '.' or to first newline will be treated as the brief description. If set to NO only the first full stop '.' will terminate the brief description. This way the brief description can to expand  several lines without using brief keyword explicitly. \n #Default value:#\n $YES$
+*/

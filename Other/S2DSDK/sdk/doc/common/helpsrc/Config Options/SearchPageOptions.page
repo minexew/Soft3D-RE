@@ -1,0 +1,14 @@
+/** \page SearchPageOptions
+
+!!! Search page options.
+
+The search engine features an incremental search on classes, functions, types 
+, brief descriptions, pages (and headlines on pages) etc.
+
+||CREATE_SEARCHPAGE|If the CREATE_SEARCHPAGE tag is set to YES DoxyS will create a searchpage. WARNING, if the project is very large (+500.000 lines), it is recomended to reduce the searchpage by adjusting some of the following options. Other options include using #Mozilla FireFox# browser which seems to execute the Java search-script 3-4 times faster than Opera and Internet Explorer. \n #Default value:#\n $YES$
+||SEARCH_BRIEF_DESCRIPTION|If set to YES DoxyS will include data to search in all the brief descriptions for all types and pages. The brief description is to the first full stop of the description. In case the project is very large setting this option to $NO$ could improve search speed significantly. \n #Default value:#\n $YES$
+||SEARCH_FUNCTIONS|If set to YES DoxyS will include data to search in all the functions and macros in the project.\n #Default value:#\n $YES$
+||SEARCH_VARIABLES|If set to YES DoxyS will include data to search in all the variables in the project. Tis includes member varibles as well as global variables, but not automatic variables. \n #Default value:#\n $YES$
+||SEARCH_TYPEDEFS_ETC|If set to YES DoxyS will include data to search in all the typedefs, enumerations, enum values, defines etc. Basically all C++ entities which are {not{ covered by the above options. \n #Default value:#\n $YES$
+||AUTO_KEYWORD_LIMIT|Set to non-zero (positive) value to enable keywords. The number is a measure to determine whether a given word is to regarded as a (automatic) keyword. For example if limit is set to 2, then it means that if a word say 'someword' only occurs on two different pages/descriptions/dirs then it will be added as a keyword of those two pages. \n #Default value:#\n $2$
+*/

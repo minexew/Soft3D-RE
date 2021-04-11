@@ -1,0 +1,51 @@
+<html>
+<body>
+<pre>
+<h1>Build Log</h1>
+<h3>
+--------------------Configuration: win32 - Win32 Debug--------------------
+</h3>
+<h3>Command Lines</h3>
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP159.tmp" with contents
+[
+/nologo /MLd /W3 /Gm /GX /ZI /Od /I "C:\S2D_SDK\s2dsdk\inc" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /Fp"Debug/win32.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /GZ /c 
+"C:\Documents and Settings\Administrator\桌面\20091723542373499\win32 VC6\Loader.cpp"
+"C:\Documents and Settings\Administrator\桌面\20091723542373499\source\src\GameEngine.cpp"
+"C:\Documents and Settings\Administrator\桌面\20091723542373499\source\src\Animation.cpp"
+"C:\Documents and Settings\Administrator\桌面\20091723542373499\source\src\Bubble.cpp"
+"C:\Documents and Settings\Administrator\桌面\20091723542373499\source\src\Scene.cpp"
+"C:\Documents and Settings\Administrator\桌面\20091723542373499\source\src\Texturemanager.cpp"
+]
+Creating command line "cl.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP159.tmp" 
+Creating temporary file "C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP15A.tmp" with contents
+[
+C:\S2D_SDK\s2dsdk\lib/s2d.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib winmm.lib dsound.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/win32.pdb" /debug /machine:I386 /out:"Debug/win32.exe" /pdbtype:sept 
+".\Debug\Loader.obj"
+".\Debug\GameEngine.obj"
+".\Debug\Animation.obj"
+".\Debug\Bubble.obj"
+".\Debug\Scene.obj"
+".\Debug\Texturemanager.obj"
+]
+Creating command line "link.exe @C:\DOCUME~1\ADMINI~1\LOCALS~1\Temp\RSP15A.tmp"
+<h3>Output Window</h3>
+Compiling...
+Loader.cpp
+c:\s2d_sdk\s2dsdk\inc\s2d\base\inc\s2dbase_arg.h(38) : warning C4005: 'va_start' : macro redefinition
+        c:\program files\vc++\vc98\include\stdarg.h(58) : see previous definition of 'va_start'
+GameEngine.cpp
+c:\documents and settings\administrator\桌面\20091723542373499\source\src\gameengine.cpp(132) : warning C4018: '>=' : signed/unsigned mismatch
+c:\documents and settings\administrator\桌面\20091723542373499\source\src\gameengine.cpp(151) : warning C4018: '>=' : signed/unsigned mismatch
+Animation.cpp
+Bubble.cpp
+Scene.cpp
+Texturemanager.cpp
+Linking...
+
+
+
+<h3>Results</h3>
+win32.exe - 0 error(s), 0 warning(s)
+</pre>
+</body>
+</html>

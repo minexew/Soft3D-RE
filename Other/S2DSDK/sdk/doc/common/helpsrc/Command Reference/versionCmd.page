@@ -1,0 +1,19 @@
+/**
+\page versionCmd
+!!! Designating the version of the code or page ( version )
+The version command is used to indicate what version this particular piece of code 
+is. It's possible to use multiple version tags in which case they are shown 
+comma separated.
+
+!Syntax
+\code
+\version 0.95 Beta
+\endcode
+!Output
+The output can be seen as the second line on this Description tab, and consists 
+of: #Version: 0.95 Beta#
+\include section_commands.inc
+\sa Designating the author authorCmd
+\sa HowToDocument::Version
+\version 0.95 Beta
+*/

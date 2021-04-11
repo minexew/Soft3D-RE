@@ -1,0 +1,84 @@
+<HTML>
+<HEAD>
+<TITLE>DefaultProjectName - Blend_32</TITLE>
+<script type="text/javascript" src="../../../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../../../common/";
+ var relPathToHelpDir = "../../../../common/help/";
+ var toSearchPage     = "_search','../../../../search";
+ Body1();
+</script>
+<div class="headerPage">Blend_32</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../../../index',this)" class="pathLink">Default mainpage</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../../s2d0',this)" class="pathLink">s2d</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../base0',this)" class="pathLink">base</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','inc0',this)" class="pathLink">inc</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_class','Pixel115',this)" class="pathLink">Pixel</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Blend_32</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_member','Blend_323232171425','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_member','Blend_323232171425','_source',this)" class="tabLinkActive">Source</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Call Graph</span></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<div class="paragraph2NoTopPadding">Start Line: 615</div>
+<pre class="codeExamples">
+void <a href="#" onMouseOver="link('_member','Blend_323232171425',this); ">s2d::Pixel::Blend_32</a>(const Pixel &amp;pix, u8 level)
+{
+    assert( level &gt;= 0 &amp;&amp; level &lt;= 31 );
+
+#if (COLOR_FORMAT==RGB888) || (COLOR_FORMAT==RGB666)
+    if( level == 0 ) {
+        return;
+    }
+    if( level == 31 ) {
+        m_r = pix.m_r;
+        m_g = pix.m_g;
+        m_b = pix.m_b;
+        return;
+    }
+#elif (COLOR_FORMAT==RGB332) || (COLOR_FORMAT==RGB444) || (COLOR_FORMAT==RGB555) || (COLOR_FORMAT==RGB565)
+    if( level == 0 ) {
+        return;
+    }
+    if( level == 31 ) {
+        <a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> = pix.m_rgb;
+        return;
+    }
+#endif
+
+#if (COLOR_FORMAT==RGB888) || (COLOR_FORMAT==RGB666)
+    #error
+#elif (COLOR_FORMAT==RGB332)
+    <a href="#" onMouseOver="link('_member','s321623',this); ">s32</a> src = ((pix.m_rgb &amp; 0xE0) &lt;&lt; 10) | ((pix.m_rgb &amp; 0x1C) &lt;&lt; 5) | (pix.m_rgb &amp; 0x03);
+    <a href="#" onMouseOver="link('_member','s321623',this); ">s32</a> dst = ((<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0xE0) &lt;&lt; 10) | ((<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x1C) &lt;&lt; 5) | (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x03);
+    dst = ( dst &lt;&lt; 5 ) + ( src - dst ) * level;
+    <a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> = ((dst &amp; 0x700000) &gt;&gt; 15) | ((dst &amp; 0x7000) &gt;&gt; 10) | ((dst &amp; 0x60) &gt;&gt; 5);
+#elif (COLOR_FORMAT==RGB444)
+    <a href="#" onMouseOver="link('_member','s321623',this); ">s32</a> src = ((pix.m_rgb &amp; 0x0F00) &lt;&lt; 10) | ((pix.m_rgb &amp; 0x00F0) &lt;&lt; 5) | (pix.m_rgb &amp; 0x000F);
+    <a href="#" onMouseOver="link('_member','s321623',this); ">s32</a> dst = ((<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x0F00) &lt;&lt; 10) | ((<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x00F0) &lt;&lt; 5) | (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x000F);
+    dst = ( dst &lt;&lt; 5 ) + ( src - dst ) * level;
+    <a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> = ((dst &amp; 0x7800000) &gt;&gt; 15) | ((dst &amp; 0x3C000) &gt;&gt; 10) | ((dst &amp; 0x1E0) &gt;&gt; 5);
+#elif (COLOR_FORMAT==RGB555)
+    <a href="#" onMouseOver="link('_member','s321623',this); ">s32</a> src = ((pix.m_rgb &amp; 0x7C00) &lt;&lt; 10) | ((pix.m_rgb &amp; 0x03E0) &lt;&lt; 5) | (pix.m_rgb &amp; 0x001F);
+    <a href="#" onMouseOver="link('_member','s321623',this); ">s32</a> dst = ((<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x7C00) &lt;&lt; 10) | ((<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x03E0) &lt;&lt; 5) | (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x001F);
+    dst = ( dst &lt;&lt; 5 ) + ( src - dst ) * level;
+    <a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> = ((dst &amp; 0x3E000000) &gt;&gt; 15) | ((dst &amp; 0xF8000) &gt;&gt; 10) | ((dst &amp; 0x3E0) &gt;&gt; 5);
+#elif (COLOR_FORMAT==RGB565)
+    <a href="#" onMouseOver="link('_member','s321623',this); ">s32</a> src = ((pix.m_rgb &amp; 0xF800) &lt;&lt; 10) | ((pix.m_rgb &amp; 0x07E0) &lt;&lt; 5) | (pix.m_rgb &amp; 0x001F);
+    <a href="#" onMouseOver="link('_member','s321623',this); ">s32</a> dst = ((<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0xF800) &lt;&lt; 10) | ((<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x07E0) &lt;&lt; 5) | (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x001F);
+    dst = ( dst &lt;&lt; 5 ) + ( src - dst ) * level;
+    <a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> = ((dst &amp; 0x7C000000) &gt;&gt; 15) | ((dst &amp; 0x1F8000) &gt;&gt; 10) | ((dst &amp; 0x3E0) &gt;&gt; 5);
+#endif
+}
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_member','_source');
+</script>

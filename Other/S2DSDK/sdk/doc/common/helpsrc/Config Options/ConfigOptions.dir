@@ -1,0 +1,236 @@
+/** \dir
+!!! Configuration options reference
+The configuration options ( set in $doxySfile$) are described in this section.
+The most common ones are found in GeneralOptions, and for a start most users will 
+only need to change these options. Other sections which a lot of people might need 
+to change parameters in include: IncludeInOutput, Inputparsing, OutputCustomization
+
+The others option sections are fine tuning of different areas regarding the 
+documentation generation.
+
+!! DoxyS configuration file ( DoxySFile )
+The DoxyS configuration is used to fine tune how the output is generated. If you 
+don't specify a configuration file to use when running DoxyS a default one named 
+$DoxySFile$ is created and used. This file can then easily be modified for subsequent 
+runs. See also "Running DoxyS" for command line options for generating a configuration 
+file explicitly.
+
+A configuration file is a free-form ASCII text file with a structure that is similar 
+to that of a Makefile. It is parsed by DoxyS. The file may 
+contain tabs and newlines for formatting purposes. The statements in the file are 
+case-sensitive. Comments may be placed anywhere within the file (except within 
+quotes). Comments begin with the '$\#$' character and end at the end of the line.
+
+The file essentially consists of a list of assignment statements. Each statement 
+consists of a TAG_NAME written in capitals, followed by the $'='$ character and one 
+or more values. If the same tag is assigned more than once, the last assignment 
+overwrites any earlier assignment. 
+
+!Example showing a typical configuration file.
+\code
+# DoxySfile 0.97 ShortConfig -- Do not remove or edit this line please --
+
+#---------------------------------------------------------------------------
+# General configuration options
+#---------------------------------------------------------------------------
+PROJECT_NAME                        = "My Engine"
+PROJECT_NUMBER                      = 
+INPUT                               = geoms howtos images math streams mainpage.dir
+OUTPUT_DIRECTORY                    = ../../../doxyShtml/testcode1
+GENERATE_DOXYS_HELP                 = YES
+HTML_FILE_EXTENSION                 = .html
+CUSTOM_DIR                          = ../custom
+SERVER_STATISTICS                   = 
+HTML_HELP_SERVER_PATH               = 
+STRIP_CODE_COMMENTS                 = YES
+#---------------------------------------------------------------------------
+# Special options (rarely changed)
+#---------------------------------------------------------------------------
+DELETE_OUTPUT_DIRECTORY             = NO
+MS_DOT_NET_INTEGRATION              = YES
+MS_DOT_NET_INTEGRATION_PATH         = 
+GENERATE_HTMLHELP1                  = YES
+GENERATE_STATISTICS                 = YES
+USE_ONFOCUS_TO_LINKS                = NO
+#---------------------------------------------------------------------------
+# Search page options
+#---------------------------------------------------------------------------
+CREATE_SEARCHPAGE                   = YES
+SEARCH_BRIEF_DESCRIPTION            = YES
+SEARCH_FUNCTIONS                    = YES
+SEARCH_VARIABLES                    = YES
+SEARCH_TYPEDEFS_ETC                 = YES
+AUTO_KEYWORD_LIMIT                  = 2
+#---------------------------------------------------------------------------
+# Specify what is included in the output
+#---------------------------------------------------------------------------
+CREATE_DOC_FOR_FILES                = YES
+CREATE_SOURCECODE_FOR_FILES         = YES
+CREATE_SOURCECODE_FOR_MEMBERS       = YES
+EXTRACT_PRIVATE                     = YES
+EXTRACT_PROTECTED                   = YES
+EXTRACT_STATIC                      = YES
+EXTRACT_LOCAL_CLASSES               = YES
+HIDE_UNDOC_NAMESPACES               = NO
+HIDE_UNDOC_CLASSES                  = NO
+HIDE_UNDOC_STRUCTS                  = NO
+HIDE_UNDOC_UNIONS                   = YES
+HIDE_UNDOC_FUNCTIONS                = NO
+HIDE_UNDOC_VARIABLES                = NO
+HIDE_UNDOC_ENUMS                    = NO
+HIDE_UNDOC_ENUM_VALUES              = NO
+HIDE_UNDOC_TYPEDEFS                 = NO
+HIDE_UNDOC_MACROS                   = NO
+HIDE_UNDOC_DEFINES                  = YES
+GENERATE_TODOLIST                   = YES
+GENERATE_BUGLIST                    = YES
+GENERATE_DEPRECATEDLIST             = YES
+#---------------------------------------------------------------------------
+# Customize how the documentation is generated
+#---------------------------------------------------------------------------
+MEMBER_SAME_FILE_RELATE_TO_CLASSES  = YES
+MEMBER_SAME_FILE_RELATE_TO_STRUCTS  = NO
+FULL_PATH_NAMES                     = NO
+STRIP_FROM_PATH                     = 
+INTERNAL_DOCS                       = YES
+SHOW_KEYWORDS_SECTION               = YES
+TODO_DOCS                           = YES
+INHERIT_DOCS                        = YES
+HIDE_CLASS_METHODS_IN_OVERVIEW      = NO
+CONCATENATE_DECL_AND_DEFINITION_DOC = YES
+#---------------------------------------------------------------------------
+# Controlling the DocParser (wiki style parser)
+#---------------------------------------------------------------------------
+PAGE_DOCUMENTATION_MODE             = NO
+ENABLE_HARD_SOFT_LINE_BREAKS        = NO
+#---------------------------------------------------------------------------
+# Options to control how the input is parsed
+#---------------------------------------------------------------------------
+HIDE_IN_BODY_DOCS                   = NO
+TAB_SIZE                            = 4
+ALIASES                             = 
+ENABLED_SECTIONS                    = 
+IGNORE_CLASS_PREFIX                 = 
+AUTO_BRIEF_ENDS_AT_FIRST_NEWLINE    = YES
+#---------------------------------------------------------------------------
+# configuration options related to warning and progress messages
+#---------------------------------------------------------------------------
+MESSAGE_LEVEL_SCREEN                = Messages Warnings Debug
+OUTPUT_PATTERNS_SCREEN              = Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown
+OUTPUT_PREFIX_LEVEL_SCREEN          = Warnings Errors
+OUTPUT_PREFIX_PATTERNS_SCREEN       = 
+MESSAGE_LEVEL_HTML_FILE             = Messages Warnings Errors Debug
+OUTPUT_PATTERNS_HTML_FILE           = Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown
+MESSAGE_SCREEN_LOGFILE              = a_log.txt
+QUIET                               = NO
+#---------------------------------------------------------------------------
+# Configuration options related to the input files
+#---------------------------------------------------------------------------
+IGNORE_FILE_NAME                    = DoxyS.ignore
+FILE_PATTERNS                       = *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp *.h++ *.idl *.odl *.cs *.page *.dir *.dxd *.doc
+RECURSIVE                           = YES
+EXCLUDE                             = doxys_docs/
+EXCLUDE_SYMLINKS                    = NO
+EXCLUDE_PATTERNS                    = 
+EXAMPLE_PATH                        = 
+IMAGE_PATH                          = 
+INPUT_FILTER                        = 
+FILTER_SOURCE_FILES                 = NO
+#---------------------------------------------------------------------------
+# Configuration options related to the HTML layout
+#---------------------------------------------------------------------------
+NAVIGATION_CHAR_LENGTH              = 25
+LIMIT_COMPACT_IN_OVERVIEW_TABLES    = 500
+COLS_IN_OVERVIEW_TABLES             = 3
+LIMIT_ALFA_INDEX_IN_OVERVIEW_TABLES = 10
+COMPACT_CHAR_LENGTH                 = 25
+INFO_ON_OVERVIEW_TABLES_NORMAL      = TRUE
+INFO_ON_OVERVIEW_TABLES_COMPACT     = TRUE
+INCLUDE_BRIEF_IN_HEADER             = TRUE
+INCLUDE_BRIEF_IN_DESCRIPTION        = TRUE
+HIDE_TYPE_ON_DESCRIPTION            = NO
+EXPAND_COLLAPSE_SECTIONS            = TRUE
+EXPAND_COLLAPSE_TABLE_SECTIONS_ONLY = TRUE
+CENTER_ALIGN_IMAGES                 = NO
+OPTIMIZE_OUTPUT_FOR_C               = NO
+SHOW_PATH_IN_HEADER                 = YES
+#---------------------------------------------------------------------------
+# Configuration options related to Left Menu layout
+#---------------------------------------------------------------------------
+SHOW_LEFT_MENU                      = YES
+SHOW_LEFT_MENU_MAINDIR              = YES
+SHOW_LEFT_MENU_SEARCH               = YES
+SHOW_LEFT_MENU_DIRECTORY            = YES
+SHOW_LEFT_MENU_DOC                  = YES
+SHOW_LOGO                           = YES
+LEFT_MENU_DIRECTORIES               = YES
+LEFT_MENU_PAGES                     = YES
+LEFT_MENU_CLASSES                   = YES
+LEFT_MENU_STRUCTS                   = YES
+LEFT_MENU_FUNCTIONS                 = NO
+LEFT_MENU_MACROS                    = NO
+LEFT_MENU_DEFINES                   = NO
+LEFT_MENU_ATTRIBUTES                = NO
+LEFT_MENU_TYPES                     = NO
+LEFT_MENU_UNITS                     = YES
+LEFT_MENU_STATISTICS                = YES
+STATISTICS_LINK_ON_MAIN_PAGE        = YES
+#---------------------------------------------------------------------------
+# Configuration options related to header and footer layout
+#---------------------------------------------------------------------------
+HIDE_HEADER_ON_DIRS_AND_PAGES       = NO
+HIDE_FOOTER_ON_DIRS_AND_PAGES       = NO
+HIDE_HEADER_ON_CLASS_AND_MEMBERS    = NO
+HIDE_FOOTER_ON_CLASS_AND_MEMBERS    = NO
+HIDE_HEADER_ON_UNITS                = NO
+HIDE_FOOTER_ON_UNITS                = NO
+#---------------------------------------------------------------------------
+# Configuration options related to the preprocessor   
+#---------------------------------------------------------------------------
+ENABLE_PREPROCESSING                = YES
+MACRO_EXPANSION                     = YES
+EXPAND_ONLY_PREDEF                  = NO
+SEARCH_INCLUDES                     = YES
+INCLUDE_PATH                        = 
+INCLUDE_FILE_PATTERNS               = 
+PREDEFINED                          = 
+EXPAND_AS_DEFINED                   = 
+SKIP_FUNCTION_MACROS                = YES
+#---------------------------------------------------------------------------
+# Configuration options related to the dot tool
+#---------------------------------------------------------------------------
+ENABLE_DOT_GRAPHS                   = YES
+DOT_PATH                            = 
+CLASS_DIAGRAMS                      = YES
+HIDE_UNDOC_RELATIONS                = NO
+CLASS_GRAPH                         = YES
+COLLABORATION_GRAPH                 = YES
+UML_LOOK                            = NO
+TEMPLATE_RELATIONS                  = YES
+INCLUDE_GRAPH                       = YES
+INCLUDED_BY_GRAPH                   = YES
+CALL_GRAPH                          = YES
+DIR_GRAPH                           = YES
+GRAPHICAL_HIERARCHY                 = YES
+DOT_IMAGE_FORMAT                    = png
+DOTFILE_DIRS                        = 
+MAX_DOT_GRAPH_WIDTH                 = 1024
+MAX_DOT_GRAPH_HEIGHT                = 1024
+MAX_DOT_GRAPH_DEPTH                 = 0
+CENTER_ALIGN_DOT_IMAGES             = NO
+DOT_CLEANUP                         = NO
+#---------------------------------------------------------------------------
+# Configuration options related to the latex formula tool
+#---------------------------------------------------------------------------
+HAVE_LATEX_AND_GS                   = NO
+EXTRA_PACKAGES                      = 
+LATEX_BATCHMODE                     = NO
+#---------------------------------------------------------------------------
+# Language options
+#---------------------------------------------------------------------------
+OUTPUT_LANGUAGE                     = English
+USE_WINDOWS_ENCODING                = YES
+\endcode
+*/
+
+*/

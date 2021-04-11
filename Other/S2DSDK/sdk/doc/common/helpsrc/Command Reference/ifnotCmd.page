@@ -1,0 +1,19 @@
+/**
+\page ifnotCmd
+!!!Starts a conditional documentation section ( ifnot ) 
+The section is ended with a matching \endif command. To enable a conditional section, 
+add the section-label to the ENABLED_SECTIONS (see Inputparsing) in the configuration 
+file. Conditional blocks can be nested. Nested sections are only enabled if all 
+parent level sections are enabled as well.
+!Syntax
+\code
+\ifnot Condition1
+   This section is only included, if Condition1 is NOT added to
+   ENABLED_SECTIONS in the DoxySfile
+\endif
+\endcode
+!Output
+Any (not) enabled text inside the ifnot-endif tags are output.
+\include endif.inc
+\sa elseifCmd, elseCmd, ifCmd
+*/

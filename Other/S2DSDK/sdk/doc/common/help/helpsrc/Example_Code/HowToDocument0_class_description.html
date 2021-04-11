@@ -1,0 +1,138 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - HowToDocument</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - HowToDocument</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ExampleCode0',this)" class="pathLink">Example Code</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">HowToDocument</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1612","aID1612","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_class','HowToDocument0','_description',this)" class="tabLinkActive">Description</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_class','HowToDocument0','_public',this)" class="tabLinkInActive">Public</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Protected</span></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_class','HowToDocument0','_private',this)" class="tabLinkInActive">Private</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_class','HowToDocument0','_related',this)" class="tabLinkInActive">Related</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_class','HowToDocument0','_all',this)" class="tabLinkInActive">All</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Inheritance</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Collaboration</span></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<span class="paragraph1">HowToDocument</span>
+<span class="padding">( Class  )</span>
+<div class="paddingAuthor">Version: 1.0&nbsp;&nbsp;-&nbsp;&nbsp;Author:  N.F.S Grundtvig (The members of this class inherits the author by default.) </div>
+<div class="paragraph2">HowTo document your code.<br>
+</div>
+<div class="padding">&nbsp;</div>
+<table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderTop" height=1>
+<TR><TD height=1 width=100% class="oneLine"></TD></TR></TABLE>
+<div class="paragraph2">Description</div>
+<div id="descDesc" class="paddingMembers">HowTo document your code.<br>
+This class serves as an example on how to write<br>
+documentation using DoxyS. For those familiar with DoxyS "ancestor" <em>Doxygen</em> by<br>
+Dimitri Van Heesch most of this will not be new.<br>
+<br>
+The basic idea with this <a href="#" OnMouseOver="link('_class','HowToDocument0',this)">HowToDocument</a> class is that different functions (and a couple)<br>
+of member variables demonstrate the most common ways of documenting code using DoxyS. The functions are given meaning full names like: Parameters. Most of the functions are found on the <b>"Public"-tab</b> for this class.<br>
+<br>
+<div class="userParagraph3">For the impatient </div>
+These are the functions/pages that cover the most basic ways of documenting:<ul>
+<li>BriefAndDescription</li>
+<li>Parameters</li>
+<li>ReturnValue</li>
+<li><a href="#" OnMouseOver="link('_page','../Documenting/MainPage0',this)">MainPage</a></li>
+</ul>
+
+<br>
+<div class="userParagraph3">Source is located here (click on the "Source"-tab) </div>
+<ul>
+<li><a href="#" OnMouseOver="link('_file','HowtoDocument_h0',this)">HowtoDocument.h</a></li>
+<li><a href="#" OnMouseOver="link('_file','HowtoDocument_cpp0',this)">HowtoDocument.cpp</a></li>
+</ul>
+
+<br>
+<div class="userParagraph3">Code documentation block</div>
+Code documentation blocks are designated by using special style comment blocks<br>
+like shown here:<br>
+<br>
+<ol>
+<li><b>Normal multiline</b>   <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/** 
+Brief description.
+Main documentation / description. 
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+</li>
+<li><b>Original Doxygen multiline</b>   <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/*! 
+Brief description.
+Main documentation / description. 
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+</li>
+<li><b>C++ single line style</b>   <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/// Brief description.
+/// Main documentation / description. 
+</pre>  </TD>
+  </TR>
+  </TABLE>
+</li>
+</ol>
+
+<br>
+<div class="userParagraph3">IMPORTANT - REMEMBER</div>
+Functions can just as easily be documented in the cpp-file, which is generally<br>
+recommended. This keeps the header file compact (which many people prefers) and allows<br>
+you to modify the documentation without having to recompile more than just a single cpp<br>
+file.<br>
+<br>
+Possible to continue general description after \note, \todo etc. In fact you can interchange them as you like. Just remember (like done here) to make a blank line after the last \todo etc. section (in this case the last is \author).<br>
+</div>
+<div class="paragraph2">Notes</div>
+<div id="descNode" class="paddingMembers"><LI>This a note<br>
+</div>
+<div class="paragraph2">See also</div>
+<div id="descSee" class="paddingMembers"><LI>BriefAndDescription, ReturnValue.<br>
+</div>
+<div class="paragraph2">Todo</div>
+<div id="descToDo" class="paddingMembers"><LI>We do have stuff to do! Sections like \todo, \note, \sa, \version \author etc. can expand more lines. The section ends at a blank line or if a new \todo, \note etc. section is encountered.<br>
+<LI>We do have more stuff to do!<br>
+</div>
+<div class="padding">&nbsp;</div>
+<table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderTop" height=1>
+<TR><TD height=1 width=100% class="oneLine"></TD></TR></TABLE>
+<div class="paragraph2">Source</div>
+<div class="paddingMembers">The documentation for this Class was generated from the following file:</div>
+<div class="paddingMembers"><LI><a href="#" onMouseOver="link('_file','HowtoDocument_h0',this); ">HowtoDocument.h</a><br></div>
+<div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_class','_description');
+</script>

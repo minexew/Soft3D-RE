@@ -1,0 +1,66 @@
+<HTML>
+<HEAD>
+<TITLE>DefaultProjectName - CounDrawFunc</TITLE>
+<script type="text/javascript" src="../../../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../../../common/";
+ var relPathToHelpDir = "../../../../common/help/";
+ var toSearchPage     = "_search','../../../../search";
+ Body1();
+</script>
+<div class="headerPage">CounDrawFunc</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../../../index',this)" class="pathLink">Default mainpage</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../../s2d0',this)" class="pathLink">s2d</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../core0',this)" class="pathLink">core</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','inc0',this)" class="pathLink">inc</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_class','Draw2D115',this)" class="pathLink">Draw2D</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">CounDrawFunc</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_member','CounDrawFunc4167523969','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_member','CounDrawFunc4167523969','_source',this)" class="tabLinkActive">Source</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_member','CounDrawFunc4167523969','_callgraph',this)" class="tabLinkInActive">Call Graph</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<div class="paragraph2NoTopPadding">Start Line: 112</div>
+<pre class="codeExamples">
+void <a href="#" onMouseOver="link('_member','CounDrawFunc4167523969',this); ">s2d::Draw2D::CounDrawFunc</a>(bool bStretch)
+{
+    <a href="#" onMouseOver="link('_member','../../base/inc/s321623',this); ">s32</a> TrueColorIdx = 0;
+    <a href="#" onMouseOver="link('_member','../../base/inc/s321623',this); ">s32</a> ColorKeyIdx = 0;
+
+    if( ! (<a href="#" onMouseOver="link('_member','m_pTexture140983962',this); ">m_pTexture</a>-&gt;GetFormat()&amp;<a href="#" onMouseOver="link('_member','TF_TRUECOLOR1623',this); ">TF_TRUECOLOR</a>) ){
+        TrueColorIdx = 1;
+    }
+
+    if( <a href="#" onMouseOver="link('_member','m_bHasColorKey140983962',this); ">m_bHasColorKey</a> ){
+        ColorKeyIdx = 1;
+    }else{
+        ColorKeyIdx = 0;
+    }
+
+    if(<a href="#" onMouseOver="link('_member','m_pAlphaChannel140983962',this); ">m_pAlphaChannel</a>){
+        if(bStretch){
+            <a href="#" onMouseOver="link('_member','m_CurFunc140983962',this); ">m_CurFunc</a> = <a href="#" onMouseOver="link('_member','m_AlphaFunc140983962',this); ">m_AlphaFunc</a>[0][TrueColorIdx][<a href="#" onMouseOver="link('_member','m_FilpType140983962',this); ">m_FilpType</a>];
+        }else{
+            <a href="#" onMouseOver="link('_member','m_CurFunc140983962',this); ">m_CurFunc</a> = <a href="#" onMouseOver="link('_member','m_AlphaFunc140983962',this); ">m_AlphaFunc</a>[1][TrueColorIdx][<a href="#" onMouseOver="link('_member','m_FilpType140983962',this); ">m_FilpType</a>];
+        }
+    }else{
+        if(bStretch){
+            <a href="#" onMouseOver="link('_member','m_CurFunc140983962',this); ">m_CurFunc</a> = <a href="#" onMouseOver="link('_member','m_StrFunc140983962',this); ">m_StrFunc</a>[TrueColorIdx][ColorKeyIdx][<a href="#" onMouseOver="link('_member','m_FilpType140983962',this); ">m_FilpType</a>][<a href="#" onMouseOver="link('_member','m_OverlayBlendMode140983962',this); ">m_OverlayBlendMode</a>];
+        }else{
+            <a href="#" onMouseOver="link('_member','m_CurFunc140983962',this); ">m_CurFunc</a> = <a href="#" onMouseOver="link('_member','m_NoStrFunc140983962',this); ">m_NoStrFunc</a>[TrueColorIdx][ColorKeyIdx][<a href="#" onMouseOver="link('_member','m_FilpType140983962',this); ">m_FilpType</a>][<a href="#" onMouseOver="link('_member','m_OverlayBlendMode140983962',this); ">m_OverlayBlendMode</a>];
+        }
+    }
+
+}   //----------------------------------------------------------------------------------------------------
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_member','_source');
+</script>

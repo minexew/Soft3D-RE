@@ -1,0 +1,23 @@
+/**
+\page elseifCmd
+!!!Else If clause of a conditional documentation section ( elseif ) 
+Starts a conditional documentation section if the previous section was not enabled. 
+A conditional section is disabled by default. To enable it you must put the section-label 
+after the ENABLED_SECTIONS (see Inputparsing) in the configuration file. Conditional 
+blocks can be nested. A nested section is only enabled if all enclosing sections 
+are enabled as well.
+!Syntax
+\code
+\if Condition1
+   This section is only included, if Condition1 is added to
+   ENABLED_SECTIONS in the DoxySfile
+\elseif Condition2
+   This section is only included, if Condition2 is added to
+   ENABLED_SECTIONS in the DoxySfile
+\endif
+\endcode
+!Output
+Any enabled text inside the else-endif tags are output.
+\include endif.inc
+\sa elseCmd, ifCmd, ifnotCmd
+*/

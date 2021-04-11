@@ -1,0 +1,78 @@
+/** \page "Documenting the code"
+!!! Documenting the code
+%Documenting code entities in DoxyS is generally done in front of the entity's declaration 
+(classes, typedef, defines, enums, variables, functions). For functions it's also 
+possible to put documentation at the definition in the CPP-file. }This is recommended 
+to keep header files compact and avoid recompiling more than necessary whenever one 
+changes the documentation.} It is also possible to put documentation in separate files, 
+see "Separate Docs" in the example code how to do this. 
+#Note:# Documenting eg. a function both in header- and cpp-file will cause DoxoS to 
+concatenate the documentation strings.
+
+For variables, enum values and function parameters it is often easier to write the 
+usually short documentation }after} the entity on the same line instead of before. 
+This is both possible and recommended and is described later on this page. The 
+information presented here can also be found in a "by example form" in HowToDocument.
+Here follows some examples of how to document entities. In the examples here we mostly 
+use the $/** ... \endds_doc$ and $/// ...$ styles when documenting, but as shown in the table 
+in Documenting::"Documentation blocks" it's also possible to use $/*! ... \endds_doc$ and $//! ... $.
+
+! Documenting on same line as entity
+By default a documetation block using fx. $/** ... \endds_doc$ contains documentation 
+for the entity immediately after. When documenting variables, enum values, function 
+parameters or any entity that needs just a very short documentation (like only a 
+brief description) it's often easier to place the doc string after the entity's 
+declaration using $/**< ... \endds_doc$ or $///< ...$. The next table will show some 
+examples of this also.
+
+! Here are some quick examples:
+
+| #Entity type# | #Syntax to use#  
+| class/struct || $/** Brief to newline or punctuation.\n... Description ...\endds_doc\n class HowToDocument\{\};$
+| function || $/** Brief to newline or punctuation.\n... Description ...\n \\return ... return val description ...\endds_doc\n int HowToDocument::ReturnValue() \{\};$
+| variable || $int  m_iMemberVarShortDoc; ///< Short single line documentation.$
+
+! About brief description
+The brief description as generally shown in overview tables and mouse-over in the 
+output. It greatly enhances the the overview tables, provided the brief description 
+is }short} (just a single line/sentence) and }descriptive} for the entity. The brief 
+description ends at the first punctuation mark or newline, whicever comes first. This 
+is a little different from the original Doxygen, but that hopefully helps to ease 
+the writing of brief descriptions. In the rare cases you need a brief description to 
+span several lines refer to briefCmd.
+
+!! Function parameter documentation
+Function parameter documentation can be done either along with the declaration 
+using $/**< ... \endds_doc$ or $///< ...$ or in the functions general documentation 
+block using Java style command $\\param \<param_name\> Param description$.\n
+!Syntax:
+\code
+/** 
+Fun brief desc. ... more documentation... 
+void  Fun( int iSize   ///< Parameter documentation for iSize
+          )
+{}
+\endds_doc \endcode
+
+The following functions in HowToDocument shows more variations:\n
+- HowToDocument::Parameters
+- HowToDocument::ParametersJavaStyle
+- HowToDocument::ParametersTemplates
+- HowToDocument::ParameterDocCombined
+
+!! Enum values documentation
+Works similar to parameters see HowToDocument::Enum for an example. 
+
+!Sytax:
+\code
+/** 
+Enumeration documentation. This must usually be done in the header file.
+enum Enum      { eEnumVal1    ///< eEnumVal1 enum #value# description.
+                };
+\endds_doc \endcode
+
+#Note:# This works also when the enumeration itself is anonymous.
+
+!! Examples
+See exampleCmd.
+*/

@@ -1,0 +1,114 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - ExampleInclude</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - ExampleInclude</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ExampleCode0',this)" class="pathLink">Example Code</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_class','HowToDocument0',this)" class="pathLink">HowToDocument</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">ExampleInclude</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_member','ExampleInclude2587069908','_description',this)" class="tabLinkActive">Description</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_member','ExampleInclude2587069908','_source',this)" class="tabLinkInActive">Source</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Call Graph</span></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<span class="paragraph1">HowToDocument::ExampleInclude</span>
+<span class="padding">( Public Method  )</span>
+<div class="paddingAuthor">Author:  N.F.S Grundtvig (The members of this class inherits the author by default.) </div>
+<div class="paragraph2">How to include an example.<br>
+</div>
+<div class="padding">&nbsp;</div>
+<table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderTop" height=1>
+<TR><TD height=1 width=100% class="oneLine"></TD></TR></TABLE>
+<div class="paragraph2"><span id="descFunSynExpSpan" style="display:none;visibility:hidden"><a href="javascript:showElement( 'descFunSynColSpan' );javascript:hideElement( 'descFunSynExpSpan' );javascript:showElement( 'descFunSyn' );javascript:setMyCookie( cookieName, 'descFunSyn', 'show' );"><img src="../../common/expand.gif" border=0></a></span><span id="descFunSynColSpan"><a href="javascript:showElement( 'descFunSynExpSpan' );javascript:hideElement( 'descFunSynColSpan' );javascript:hideElement( 'descFunSyn' );javascript:setMyCookie( cookieName, 'descFunSyn', 'hide' );"><img src="../../common/collapse.gif" border=0></a></span>
+Syntax / parameters</div>
+<div id="descFunSyn" class="paddingMembersTableDiv"><table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+<TR VALIGN="top"><TD class="paddingHeadMultiColumn2"><span class="codeFont">void <a href="#" OnMouseOver="link('_member','ExampleInclude2587069908',this)">ExampleInclude</a> ()<br>
+</span></TD></TR></TABLE>
+<br></div>
+<div class="paragraph2">Description</div>
+<div id="descDesc" class="paddingMembers">How to include an example.<br>
+Use: <code>\example relative_path_to_file_name</code>. Alternatively if the file is<br>
+not found relative to the current directory, then the path is considered to<br>
+be relative to the example path set in DoxySFile (EXAMPLE_PATH). That is, the example is looked for here: <br>
+<br>
+<code>EXAMPLE_PATH/relative_path_to_file_name</code><br>
+<br>
+<div class="userParagraph3">Inline formatted code in place</div>
+Examples are <em>always</em> put into the "example" section, which is at the end of the generated documentation page for the entity. In case you want to inline<br>
+formatted code directly in in the documentation refer to <a href="#" OnMouseOver="link('_member','InlineFormattedCode2587069908',this)">InlineFormattedCode</a>.<br>
+<br>
+<div class="userParagraph3">This is how it looks in the source:</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\example examples/myexample.cpp
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+</div>
+<div class="paragraph2">Notes</div>
+<div id="descNode" class="paddingMembers"><LI>This works different from the original Doxygen.<br>
+<LI>It's possible to include as many examples as possible.<br>
+<LI>Examples also works in page and directory documentation.<br>
+</div>
+<div class="paragraph2">See also</div>
+<div id="descSee" class="paddingMembers"><LI><a href="#" OnMouseOver="link('_member','ExampleInline2587069908',this)">ExampleInline()</a>, <a href="#" OnMouseOver="link('_member','InlineFormattedCode2587069908',this)">InlineFormattedCode()</a>. <br>
+</div>
+<div class="paragraph2"><span id="descExampExpSpan" style="display:none;visibility:hidden"><a href="javascript:showElement( 'descExampColSpan' );javascript:hideElement( 'descExampExpSpan' );javascript:showElement( 'descExamp' );javascript:setMyCookie( cookieName, 'descExamp', 'show' );"><img src="../../common/expand.gif" border=0></a></span><span id="descExampColSpan"><a href="javascript:showElement( 'descExampExpSpan' );javascript:hideElement( 'descExampColSpan' );javascript:hideElement( 'descExamp' );javascript:setMyCookie( cookieName, 'descExamp', 'hide' );"><img src="../../common/collapse.gif" border=0></a></span>
+Example</div>
+<div id="descExamp" class="paddingMembersTableDiv">  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+#include &lt;iostream&gt;
+
+#include "../HowtoDocument.h"
+
+void MyExampleFunction()
+{
+  using namespace std;
+  cout&lt;&lt;"Hello World\n";
+
+  // Lets try calling some of the functions in the HowToDoc class
+  <a href="#" onMouseOver="link('_class','HowToDocument0',this); ">HowToDocument</a> howToDoc1;
+  <a href="#" onMouseOver="link('_class','HowToDocument0',this); ">HowToDocument</a> howToDoc2;
+
+  howToDoc1.DocumentingParametersJavaStyle(5, howToDoc2, 3.5f);
+  howToDoc1.<a href="#" onMouseOver="link('_member','BriefToNewline2587069908',this); ">BriefToNewline</a>();
+  howToDoc1.OriginalDoxygenDocCommentStyle();
+}
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding">&nbsp;</div>
+<table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderTop" height=1>
+<TR><TD height=1 width=100% class="oneLine"></TD></TR></TABLE>
+<div class="paragraph2">Source</div>
+<div class="paddingMembers">The documentation for this Member was generated from the following files:</div>
+<div class="paddingMembers"><LI><a href="#" onMouseOver="link('_file','HowtoDocument_cpp0',this); ">HowtoDocument.cpp</a><br><LI><a href="#" onMouseOver="link('_file','HowtoDocument_h0',this); ">HowtoDocument.h</a><br></div>
+<div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_member','_description');
+</script>

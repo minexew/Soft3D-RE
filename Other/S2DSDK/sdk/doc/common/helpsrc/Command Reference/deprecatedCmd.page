@@ -1,0 +1,19 @@
+/**
+\page deprecatedCmd
+!!!Marking a symbol deprecated ( deprecated )
+The deprecated command is used to give a remark about deprecation of the symbol, 
+its lifetime etc.
+
+!Syntax
+\code
+\deprecated This is a remark about the deprecated tag - which is NOT deprecated!
+\endcode
+
+!Output
+The deprecated tag produces a "Deprecated" paragraph at the very top of the symbol 
+description tab (above the brief description - in this case the "Marking a symbol 
+deprecated" header). Using the default stylesheet, the body of the paragraph is in red.
+
+\deprecated This is a remark about the deprecated tag - which is NOT deprecated!
+\sa HowToDocument::Deprecated
+*/

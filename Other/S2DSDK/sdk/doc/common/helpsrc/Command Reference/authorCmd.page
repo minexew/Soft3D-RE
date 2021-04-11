@@ -1,0 +1,18 @@
+/**
+\page authorCmd
+!!! Designating the author of the code or page ( author )
+The author command is used to indicate who was the original author of the code 
+documented, and/or who may have made substantial additions to the code.
+!Syntax
+\code
+\author Martin Harring
+\endcode
+!Output
+The output can be seen as the second line on this Description tab, and consists 
+of: Author: Martin Harring\n
+If author not specifyed for a member or a member function, DoxyS will use the author from the class insted.
+\include section_commands.inc
+\sa Designating the version versionCmd
+\sa HowToDocument::Author
+\author Martin Harring
+*/

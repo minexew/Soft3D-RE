@@ -1,0 +1,16 @@
+/**
+\page "Installing DoxyS" 
+!!! Installing DoxyS
+
+Installing DoxyS is very easy:
+
+!For Windows
+Just copy the executable #$doxys.exe, to $ C:/windows/system32$, or some 
+other directory which is in your path, and you're ready to go!
+
+!For Linux (Unix)
+Just copy the executable #$doxys, to $/usr/bin$, or some 
+other directory which is in your path, and you're ready to go!
+
+
+*/

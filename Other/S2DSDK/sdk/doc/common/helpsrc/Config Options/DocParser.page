@@ -1,0 +1,16 @@
+/** \page DocParser
+
+!!! Controlling the DocParser (wiki style parser).
+
+Options for controlling the docparser (wiki style parser).
+
+!Customize layout for pure text projects (ie containing no code)
+If your project mainly (or purely) contains pages and directories it is recommended 
+to set PAGE_DOCUMENTATION_MODE, HIDE_HEADER_ON_DIRS_AND_PAGES, HIDE_FOOTER_ON_DIRS_AND_PAGES 
+all to true in order to make the output look more like conventional homepages etc.
+This setting is used for the DoxyS homepage.
+
+
+||PAGE_DOCUMENTATION_MODE|Mainly for projects that contains no source code, but only pages and directories. The overview, info classes etc. tabs on mainpage and directories will be disabled. Other tabs are not affected, so it's still possible to have source code in the project,  but mainpage and directories have only Description tabs displayed. \n #Default value:#\n $NO$
+||ENABLE_HARD_SOFT_LINE_BREAKS|More natural formatting than before when it comes to newlines. If you break a line immediately after the normal text (i.e. no space or tab before the linebreak); Then you will get that break in the output. If there is a space or tab after the text but before the linebreak then it behaves as before and just a space is inserted. \n #Default value:#\n $YES$
+*/

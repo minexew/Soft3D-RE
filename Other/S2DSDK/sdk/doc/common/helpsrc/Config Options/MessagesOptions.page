@@ -1,0 +1,15 @@
+/** \page MessagesOptions
+
+!!! configuration options related to warning and progress messages.
+
+
+
+||MESSAGE_LEVEL_SCREEN|The message level that will be printed on the stdout.Errors will always be printed on stderr.Options avalible:Messages Warnings\n #Default value:#\n $Messages Warnings$
+||OUTPUT_PATTERNS_SCREEN|Patterns for the output.Options avalible:Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown\n #Default value:#\n $Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile$
+||OUTPUT_PREFIX_LEVEL_SCREEN|Prefix level for messages to the screen.Options avalible:Messages Warnings Errors\n #Default value:#\n $Warnings Errors$
+||OUTPUT_PREFIX_PATTERNS_SCREEN|Prefix patterns for messages to the screen.Options avalible:Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown
+||MESSAGE_LEVEL_HTML_FILE|The message level that will be writen in the HTML statistics.options avalible:Messages Warnings Errors\n #Default value:#\n $Messages Warnings Errors$
+||OUTPUT_PATTERNS_HTML_FILE|Patterns for the output.Options avalible:Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown\n #Default value:#\n $Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown$
+||MESSAGE_SCREEN_LOGFILE|The MESSAGE_SCREEN_LOGFILE tag can be used to specify a file to which all messages that is shown on the screen should be written. If left blank, no output to log file.Use MESSAGE_LEVEL_SCREEN and OUTPUT_PATTERNS_SCREEN to reduce the number of messages.
+||QUIET|With the QUIET tag on, only Progress and Errors will be printed to the screen. Anything else will be as a ' . '.Possible values are YES and NO. If left blank NO is used. \n #Default value:#\n $YES$
+*/

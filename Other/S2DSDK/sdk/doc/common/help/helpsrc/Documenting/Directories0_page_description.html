@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Directories</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Directories</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','Documenting0',this)" class="pathLink">Documenting</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Directories</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1711","aID1711","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','Directories0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Documenting directories ( dir )</div>
+The directory file (usually named <b><code>DirName.dir</code></b>) is intended for an overview<br>
+and/or introduction to what is found in the given directory. So the basic idea is that every directory/subdirectori must have a <code>.dir</code> file which can be viewed as a sort of intro-page for that given directory.<br>
+<br>
+</div>
+<div class="padding"><em><a href="#" OnMouseOver="link('_dir','Documenting0',this)">Documenting</a> directories is a central part of the DoxyS documentation philosophy.</em><br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/**
+\dir 
+Normal page-like documentation goes here ...
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><a href="#" OnMouseOver="link('_page','Directories0',this)">Directories</a> (and subdirectories with pages and directory descriptions (\dir-tag) together form an easy way of making organized online documentation for just about anything (not just code). In fact all the HELP pages in DoxyS is made by a combination of directories and pages (most of our homepage is made the same way). This can be useful for any kind of (fx. technical documentation) as it is written in plain textfiles and thus can be stored effectively in version control systems like CVS allowing several people to work together on the same documentation.<br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

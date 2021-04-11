@@ -1,0 +1,28 @@
+/**
+\page briefCmd
+!!! Designating a brief description section ( brief )
+The brief description should give a first one line introduction to what the symbol 
+is or does. It is parsed from the beginning of the comment block description, until 
+the first full stop or line break, see HowToDocument::BriefAndDescription. The 
+brief description is shown on lists (class, function, overview etc.) to give a 
+first introduction to the symbol.
+
+! \\brief command (only use in rare cases) 
+The brief command is used to override this behavior and explicitly define a brief 
+description. It is }#NOT#} intended to be used except for rare cases.
+!Syntax
+\code
+\brief This is a brief description which spans several lines
+of text. It continues until a blank line or until a new section command is encountered
+
+So this is not part of the brief description....
+\endcode
+!Output
+See HowToDocument::BriefCmd
+
+\include section_commands.inc
+\note This command is mainly provided for compatibility with Doxygen or in the 
+      rare cases where you for some reason }need} to span the brief over several 
+      lines.
+
+*/

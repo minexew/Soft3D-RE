@@ -1,0 +1,67 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - SearchPageOptions</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - SearchPageOptions</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">SearchPageOptions</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1736","aID1736","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','SearchPageOptions0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Search page options.</div>
+The search engine features an incremental search on classes, functions, types , brief descriptions, pages (and headlines on pages) etc.<br>
+<br>
+</div>
+<div class="padding"><table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">CREATE_SEARCHPAGE</td><td class="userPaddingNormal2">If the CREATE_SEARCHPAGE tag is set to YES DoxyS will create a searchpage. WARNING, if the project is very large (+500.000 lines), it is recomended to reduce the searchpage by adjusting some of the following options. Other options include using <b>Mozilla FireFox</b> browser which seems to execute the Java search-script 3-4 times faster than Opera and Internet Explorer. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">SEARCH_BRIEF_DESCRIPTION</td><td class="userPaddingNormal2">If set to YES DoxyS will include data to search in all the brief descriptions for all types and pages. The brief description is to the first full stop of the description. In case the project is very large setting this option to <code>NO</code> could improve search speed significantly. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">SEARCH_FUNCTIONS</td><td class="userPaddingNormal2">If set to YES DoxyS will include data to search in all the functions and macros in the project.<br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">SEARCH_VARIABLES</td><td class="userPaddingNormal2">If set to YES DoxyS will include data to search in all the variables in the project. Tis includes member varibles as well as global variables, but not automatic variables. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">SEARCH_TYPEDEFS_ETC</td><td class="userPaddingNormal2">If set to YES DoxyS will include data to search in all the typedefs, enumerations, enum values, defines etc. Basically all C++ entities which are <u>not</u> covered by the above options. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">AUTO_KEYWORD_LIMIT</td><td class="userPaddingNormal2">Set to non-zero (positive) value to enable keywords. The number is a measure to determine whether a given word is to regarded as a (automatic) keyword. For example if limit is set to 2, then it means that if a word say 'someword' only occurs on two different pages/descriptions/dirs then it will be added as a keyword of those two pages. <br>
+ <b>Default value:</b><br>
+ <code>2</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

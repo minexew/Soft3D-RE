@@ -1,0 +1,40 @@
+/**
+\page imageCmd
+!!!Adding an image to the documentation ( image )
+Images can be included in the documentation using the \\image tag. 
+
+The filename should be relative either to the current directory or relative to 
+the root of the IMAGE_PATH (see InputOptions), or it can be an absolute path. 
+}Note that this is different from the original Doxygen behaviour}
+
+Image types supported are:
+- .png
+- .jpg
+- .gif
+- .svg (Provided uour browser supports it, natively or via fx. the plugin from Adobe)
+- }.dia (Dia drawings support are on our wish list) }
+- }.psd (Adobe Photoshop drawings support are on our wish list)}
+
+!Syntax
+\code
+\image [path]<image_name>  ["Caption text"]
+\endcode
+!Example
+\code
+\image cpplogo.jpg "This a C++ Logo"
+\endcode
+!Output
+\image cpplogo.jpg "This a C++ Logo"
+
+If the user has an SVG browser plug-in installed or native browser support for SVG, 
+it is even possible to include svg images. SVG images may be sized.
+
+!Syntax SVG
+\code
+\image [path]<image_name> sizeXinpixels sizeYinpixels ["Caption text"]
+\endcode
+!Example
+\code
+\image ./images/canvas.svg 300 400 "Caption text"
+\endcode
+*/

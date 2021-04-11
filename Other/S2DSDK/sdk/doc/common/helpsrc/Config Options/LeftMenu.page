@@ -1,0 +1,25 @@
+/** \page LeftMenu
+
+!!! Configuration options related to Left Menu layout.
+
+
+
+||SHOW_LEFT_MENU|If set to YES then left menu will be generated. If set to NO leftmemu and logo will not be included.  This option disables all left menus in all types of pages and ignores the other SHOW_LEFT_MENU_XXXX. \n #Default value:#\n $YES$
+||SHOW_LEFT_MENU_MAINDIR|If set to YES then left menu will be generated for main page. If set to NO leftmemu and logo will not be included\n #Default value:#\n $YES$
+||SHOW_LEFT_MENU_SEARCH|If set to YES then left menu will be generated for search pages. If set to NO leftmemu and logo will not be included\n #Default value:#\n $YES$
+||SHOW_LEFT_MENU_DIRECTORY|If set to YES then left menu will be generated for search pages. If set to NO leftmemu and logo will not be included\n #Default value:#\n $YES$
+||SHOW_LEFT_MENU_DOC|If set to YES then left menu will be generated for the rest of documentation pages (not above). If set to NO leftmemu and logo will not be included\n #Default value:#\n $YES$
+||SHOW_LOGO|If set to YES and SHOW_LEFT_MENU set to yes then the logo will be displayed. \n #Default value:#\n $YES$
+||LEFT_MENU_DIRECTORIES|If set to YES directories will be shown on left menu. \n #Default value:#\n $YES$
+||LEFT_MENU_PAGES|If set to YES pages will be shown on left menu. \n #Default value:#\n $YES$
+||LEFT_MENU_CLASSES|If set to YES classes will be shown on left menu. \n #Default value:#\n $YES$
+||LEFT_MENU_STRUCTS|If set to YES classes will be shown on left menu. \n #Default value:#\n $YES$
+||LEFT_MENU_FUNCTIONS|If set to YES functions will be shown on left menu. \n #Default value:#\n $NO$
+||LEFT_MENU_MACROS|If set to YES macros will be shown on left menu. \n #Default value:#\n $NO$
+||LEFT_MENU_DEFINES|If set to YES defines will be shown on left menu. \n #Default value:#\n $NO$
+||LEFT_MENU_ATTRIBUTES|If set to YES attributes will be shown on left menu. \n #Default value:#\n $NO$
+||LEFT_MENU_TYPES|If set to YES types will be shown on left menu. \n #Default value:#\n $NO$
+||LEFT_MENU_UNITS|If set to YES units will be shown on left menu. \n #Default value:#\n $YES$
+||LEFT_MENU_STATISTICS|If set to YES statistics will be shown on left menu. \n #Default value:#\n $YES$
+||STATISTICS_LINK_ON_MAIN_PAGE|If set to YES, a link to statistics will be on the main page. If set to NO then locate the statistics under the common directory.\n #Default value:#\n $YES$
+*/

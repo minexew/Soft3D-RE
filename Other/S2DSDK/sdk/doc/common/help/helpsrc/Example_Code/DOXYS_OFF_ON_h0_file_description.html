@@ -1,0 +1,63 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - DOXYS_OFF_ON.h</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - DOXYS_OFF_ON.h</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ExampleCode0',this)" class="pathLink">Example Code</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">DOXYS_OFF_ON.h</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_file','DOXYS_OFF_ON_h0','_description',this)" class="tabLinkActive">Description</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','DOXYS_OFF_ON_h0','_overview',this)" class="tabLinkInActive">Overview</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included files</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included by</span></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','DOXYS_OFF_ON_h0','_source',this)" class="tabLinkInActive">Source</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<span class="paragraph1">DOXYS_OFF_ON.h</span>
+<span class="padding">( File )</span>
+<div class="padding">&nbsp;</div>
+<table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderTop" height=1>
+<TR><TD height=1 width=100% class="oneLine"></TD></TR></TABLE>
+<div class="paragraph2">Description</div>
+<div id="descDesc" class="paddingMembers"><div class="userParagraph3">This file shows how to turn DoxyS on and off in the source code.</div>
+To turn of DoxyS parsing (text is skipped completely by pre-processor) type this on a single line in the source file outside any (other) documentation blocks.<br>
+<br>
+<div class="userParagraph3">To turn OFF:</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn2">/// DOXYS_OFF</td></tr>
+</table>
+<br>
+<div class="userParagraph3">To turn ON:</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn2">/// DOXYS_ON</td></tr>
+</table>
+<br>
+When DoxyS is turned off, this state continues until the <code>/// DOXYS_ON</code><br>
+statement is encountered or until the end of the file is reached. Ie. there<br>
+is an implicit "turn on" statement at the end of a file.<br>
+<br>
+<div class="userParagraph3">See the source for this file, to see how it's done (click "Source"-tab).</div>
+</div>
+<div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_file','_description');
+</script>

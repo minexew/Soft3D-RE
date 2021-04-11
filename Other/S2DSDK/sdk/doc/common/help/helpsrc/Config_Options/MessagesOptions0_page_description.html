@@ -1,0 +1,70 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - MessagesOptions</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - MessagesOptions</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">MessagesOptions</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1733","aID1733","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','MessagesOptions0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> configuration options related to warning and progress messages.</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">MESSAGE_LEVEL_SCREEN</td><td class="userPaddingNormal2">The message level that will be printed on the stdout.Errors will always be printed on stderr.Options avalible:Messages Warnings<br>
+ <b>Default value:</b><br>
+ <code>Messages Warnings</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">OUTPUT_PATTERNS_SCREEN</td><td class="userPaddingNormal2">Patterns for the output.Options avalible:Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown<br>
+ <b>Default value:</b><br>
+ <code>Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">OUTPUT_PREFIX_LEVEL_SCREEN</td><td class="userPaddingNormal2">Prefix level for messages to the screen.Options avalible:Messages Warnings Errors<br>
+ <b>Default value:</b><br>
+ <code>Warnings Errors</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">OUTPUT_PREFIX_PATTERNS_SCREEN</td><td class="userPaddingNormal2">Prefix patterns for messages to the screen.Options avalible:Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown<br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">MESSAGE_LEVEL_HTML_FILE</td><td class="userPaddingNormal2">The message level that will be writen in the HTML statistics.options avalible:Messages Warnings Errors<br>
+ <b>Default value:</b><br>
+ <code>Messages Warnings Errors</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">OUTPUT_PATTERNS_HTML_FILE</td><td class="userPaddingNormal2">Patterns for the output.Options avalible:Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown<br>
+ <b>Default value:</b><br>
+ <code>Progress Preprocessor Scanner Generator Docparser Dot Definition Configfile Undocumented Unknown</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">MESSAGE_SCREEN_LOGFILE</td><td class="userPaddingNormal2">The MESSAGE_SCREEN_LOGFILE tag can be used to specify a file to which all messages that is shown on the screen should be written. If left blank, no output to log file.Use MESSAGE_LEVEL_SCREEN and OUTPUT_PATTERNS_SCREEN to reduce the number of messages.<br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">QUIET</td><td class="userPaddingNormal2">With the QUIET tag on, only Progress and Errors will be printed to the screen. Anything else will be as a ' . '.Possible values are YES and NO. If left blank NO is used. <br>
+ <b>Default value:</b><br>
+ <code>YES</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

@@ -1,0 +1,68 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Running DoxyS</TITLE>
+<script type="text/javascript" src="common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "common/";
+ var relPathToHelpDir = "common/help/";
+ var toSearchPage     = "_search','search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Running DoxyS</div>
+<div class="path"><a href="#" OnMouseOver="link('','index',this)" class="pathLink">Help</A><img src="common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Running DoxyS</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1708","aID1708","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','RunningDoxyS0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Running DoxyS</div>
+Generating documentation for your code is very simple and works even if you have not entered any special comments or commands to your C++ code. From a command prompt at the root of your code directory just type <code>doxys</code> and the program will generate a default configuration file which is used. This configuration file can then be modified for subsequent runs. Config options are described in <a href="#" OnMouseOver="link('_dir','helpsrc/Config_Options/ConfigOptions0',this)">"Config Options"</a>.<br>
+<br>
+</div>
+<div class="padding">By default the code is searched recursively, all entities (classes, functions,<br>
+private, protected, public, variables, defines etc. ) are included. Also most of the dot-graphs (inheritance, callgraphs, included files etc.) and source code are generated.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> Command syntax</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">&nbsp;<code>doxys [configFile]</code> </td><td class="userPaddingNormal2">Generate documentation using <code>configFile</code>.<br>
+ If <code>-</code> ( ie. dash "-") is used for configFile, DoxyS will read from standard input.<br>
+ If configFile is omitted, <b>DoxySfile</b> is used.</td></tr>
+</table>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> Command line options</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingNormal1">&nbsp;<code>-g [-l] [configFile]</code> </td><td class="userPaddingNormal2">Generate default config file with specified name.<br>
+ <code>-l</code> option creates config file in a detailed format(with comments).<br>
+ If <code>-</code> ( ie. dash "-") is used for configFile, DoxyS will write to standard output.<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;<code>-u [-l] [configFile]</code> </td><td class="userPaddingNormal2">Force update on an old configuration file, with comments (DoxyS will automatically update your config file when needed, so this option should not be used under normal circumstances).<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;<code>-p fileName</code> </td><td class="userPaddingNormal2">Single file preview mode. Preview the specified file.<br>
+ Output goes to <code>./doxys_preview/</code>. </td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;<code>-m [dirName]</code> </td><td class="userPaddingNormal2">&nbsp;Generate manual/help. Output goes to <code>./dirName/</code> or<br>
+ <code>./doxys_help/</code> if dirName is omitted. </td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;<code>-h, -?, -help [dirName]</code> </td><td class="userPaddingNormal2">&nbsp;Print help screen.</td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

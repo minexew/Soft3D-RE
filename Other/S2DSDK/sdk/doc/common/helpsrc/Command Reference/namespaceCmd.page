@@ -1,0 +1,16 @@
+/**
+\page namespaceCmd
+!!!Attaching comment block to a specific namespace ( namespace )
+The namespace command is used to explicitly link a documentation comment block 
+to the specified namespace.
+!Syntax
+\code
+/**
+\namespace SepDocNamespace
+Normal way of documenting goes here ....
+\endds_doc \endcode
+!Output
+The namespace command does not produce any output of its own, but secures that the 
+comment block as a whole is used to produce the documentation of the specified namespace.
+\include separate_docs.inc
+*/

@@ -1,0 +1,16 @@
+/**
+\page classCmd
+!!! Attaching comment block to a specific class ( class )
+The class command is used to explicitly link a documentation comment block to the 
+specified class.
+!Syntax
+\code
+/**
+\class SepDocClass
+Normal way of documenting goes here ....
+\endds_doc \endcode
+!Output
+The class command does not produce any output of its own, but secures that the 
+comment block as a whole is used to produce the documentation of the specified class.
+\include separate_docs.inc
+*/

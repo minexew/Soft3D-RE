@@ -1,0 +1,19 @@
+/** \page GeneralOptions
+
+!!! General configuration options.
+
+The general configuration options are those that most projects would want to adjust. 
+The rest of the options will for most purposes work just fine with the default values. 
+
+
+||PROJECT_NAME|The PROJECT_NAME tag is a single word (or a sequence of words surrounded by quotes) that should identify the project. \n #Default value:#\n $DefaultProjectName$
+||PROJECT_NUMBER|The PROJECT_NUMBER tag can be used to enter a project or revision number. This could be handy for archiving the generated documentation or if some version control system is used.
+||INPUT|The INPUT tag can be used to specify the files and/or directories that contain documented source files. You may enter file names like "myfile.cpp" or directories like "/usr/src/myproject". Separate the files or directories with spaces. \n #Default value:#\n $.$
+||OUTPUT_DIRECTORY|The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) base path where the generated documentation will be put. If a relative path is entered, it will be relative to the location where DoxyS was started. If left blank 'doxys_doc' will be used.\n #Default value:#\n $doxys_docs/$
+||GENERATE_DOXYS_HELP|If the GENERATE_DOXYS_HELP tag is set to YES, DoxyS will generate help pages for DoxyS itself along with to the project documentation \n #Default value:#\n $YES$
+||HTML_FILE_EXTENSION|The HTML_FILE_EXTENSION tag can be used to specify the file extension for each generated HTML page (for example: .htm,.php,.asp). If it is left blank DoxyS will generate files with .html extension.\n #Default value:#\n $.html$
+||CUSTOM_DIR|The CUSTOM_DIR tag is used to specify where the custom directory is. The custom directory is used to place a $#logo.gif#$, $#logo.jpg#$ or  $#logo.png#$. This logo file is used on all the pages. A style sheet file can be placed here if you want a different setup then the default.Run DoxyS, copy the style sheet file from the common dir and you are ready to go.
+||SERVER_STATISTICS|The SERVER_STATISTICS tag is used to specify where the server statistics file is.If left blank, server statistics is turned off. To use server statistics, you will need a script on a server to collect the data from the static HTML pages. Script can be found at http://www.doxys.dk under Download.Make your own script and database.Make a database with these filds:Id, Definitiontype, Pagename, Pagetype, Projectname, Date, RequestpageA script that can receive these posted arguments:projectname, definitiontype, pagename, pagetypeand add the date and HTTP_REFERER your self when putting it all into the database.
+||HTML_HELP_SERVER_PATH|The HTML_HELP_SERVER_PATH tag is used to specify where the root of theHTML files will be placed on the server. Used when generating XML-file for integration with MS.NET.
+||STRIP_CODE_COMMENTS|Setting the STRIP_CODE_COMMENTS tag to YES (the default) will instruct DoxyS to hide any special comment blocks from generated source code fragments. Normal C and C++ comments will always remain visible. \n #Default value:#\n $YES$
+*/

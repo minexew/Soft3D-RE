@@ -1,0 +1,18 @@
+/**
+\page includeCmd
+!!!Including a file with additional documentation
+This command can be used to include a source file as a block of code. The command 
+takes the name of an include file as an argument. DoxyS will look for the file relative 
+to the current directory. Absolute path's may also be specified.
+
+Beware that one }should not} enclose the text in the include file with $/**, \endds_doc$ 
+as the file is included raw as it is.
+!Syntax
+\code
+\include <include_file_name>
+\endcode
+!Output
+The included text is treated excately as if it where written in place.
+\note The DoxyS documentation uses $.inc$ as extension for include files. But this 
+is just our convention and any file name will work.
+*/

@@ -1,0 +1,55 @@
+/** \dir
+!!! Documenting
+This page decribes the basics and concepts of DoxyS.\n
+DoxyS is primarily a C++/C documentation tool and secondly a tool for making general 
+online documentation of any kind.
+
+! For the impatient
+If you just want to see what DoxyS can do to your code just run the $doxys$ executable 
+from the root of your code directory, or perhaps a subdirectory if You have a large 
+code base. DoxyS will make a default DoxySFile (configuration file) and use it. If 
+You want to learn how to document classes functions etc. please go to "Documenting the code" 
+or to HowToDocument example code.
+
+!! Introduction
+The basic idea is to reuse the the directory }structure} (hence the S in DoxyS) 
+in the generated output. Each subdirectory }should} have a directory file 
+documenting the contents in general terms giving the reader an introduction and basic 
+idea of how to use the code. The directory documentation files were invented because 
+we found that it often was the first kind of information we would like when trying 
+to familiarize ourselves with a new code library, but that no documentation tools 
+offered a logical place to put this documentation.\n
+For this directory structure approach to work optimally we advise organizing Your 
+code in directories and subdirectories each containing only classes, functions etc. 
+that belongs together. Directories should then have a $.dir$ file which explains 
+the intent of the code found there.
+
+!! Basics
+The basic entities in the DoxyS documentation are Directories, Classes, Units and 
+Pages. These entities together form the navigation menu, which you find to the left 
+of all DoxyS generated documentation pages. So when You are navigating the documentation 
+You are also navigating the code! 
+
+Units serve as a way to document realated free functions as a group assuming that 
+free functions declared in the same header file do have something in common. In most 
+cases You probably don't need units, but when You do they come in quite handy.
+
+Pages on the other hand serve as the perfect place to put any kind of code related 
+documentation. For example code related documentation that does not really fit 
+into the directory description file (see also dirCmd). Pages and directories together 
+can also be used together without any code inside the directories to form general 
+documentation or design documents.
+
+!! Documentation blocks
+In order for DoxyS to reconize a block of text as something that contains documentation 
+one should enclose the text in $/** .. \endds_doc$, or see the following table for all 
+the ways to designate a documentation block.
+
+| #%Documentation Style# | #Syntax to use#  
+| Multi line || $/** \n... text block ... \n \endds_doc$
+| C++ single line style  ||$/// ... lines are ... \n/// ... concatenated to ... \n/// ... one single block ... \n$
+| Multi line #'!'# || $/*! \n... text block ... \n \endds_doc$
+| C++ single line style #'!'# ||$//! ... lines are ... \n//! ... concatenated to ... \n//! ... one single block ... \n$
+
+
+*/

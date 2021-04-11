@@ -1,0 +1,29 @@
+/**
+\page varCmd
+!!! Attaching comment block to a specific variable / enum / define ( var )
+The var command is used to explicitly link a documentation comment block to the 
+specified variable / enum or define. When documenting variables it's necessary to 
+specify the type of the variable also. The $\\var$ command is also used when 
+documenting enum values in a separate file, see SepDocClass::ClassEnum SepDocClass::eClassEnumVal1 
+for an example. Also it's important to qualify the name with full scope.
+
+!Syntax
+\code
+/**
+\var <type> [scope]<var_name>
+Normal way of documenting goes here ....
+\endds_doc \endcode
+
+!Example
+\code
+/**
+\var int SepDocClass::ClassUnion::m_iClassUnionIntMember
+Normal way of documenting goes here ....
+\endds_doc \endcode
+
+!Output
+The var command does not produce any output of its own, but secures that the 
+comment block as a whole is used to produce the documentation of the specified 
+class. But see SepDocClass::ClassUnion::m_iClassUnionIntMember.
+\include separate_docs.inc
+*/

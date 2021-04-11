@@ -1,0 +1,46 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Help</TITLE>
+<script type="text/javascript" src="common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "common/";
+ var relPathToHelpDir = "common/help/";
+ var toSearchPage     = "_search','search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Help</div>
+<div class="path"><span class="pathNonLink">Help</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID0","aID0","headerLeftMenuActive","leftMenuLinkHeadActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('','index','INDEX_DESCRIPTION',this)" class="tabLinkActive">Description</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('','index','_namespaces',this)" class="tabLinkInActive">Namespaces</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('','index','_classes',this)" class="tabLinkInActive">Classes</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('','index','_functions',this)" class="tabLinkInActive">Functions</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('','index','_maindirgraph',this)" class="tabLinkInActive">Graph</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<div class="padding"><div class="userParagraph1"> DoxyS manual</div>
+<br>
+On these pages you will find the documentation for DoxyS itself. How to document code, reference manuals, example code with output and information on how to run the program. Also build/compile instructions are located here.<br>
+<br>
+</div>
+<div class="padding">The <a href="#" OnMouseOver="link('_dir','helpsrc/Documenting/Documenting0',this)">Documenting</a> pages decribe how to document your code using DoxyS. Also there is a quick example found in the <a href="#" OnMouseOver="link('_dir','helpsrc/Example_Code/ExampleCode0',this)">"Example Code"</a> section which is called <a href="#" OnMouseOver="link('_class','helpsrc/Example_Code/HowToDocument0',this)">HowToDocument</a>.<br>
+<br>
+</div>
+<div class="padding">The <a href="#" OnMouseOver="link('_page','RunningDoxyS0',this)">"Running DoxyS"</a> section provides information on how to run the program, which basically just implies typing <code>doxys</code> in the root of your code directory. This will create a default configuration file called <code>"DoxySfile"</code>, which is then used for generating the documentation. The config options are described in detail in <a href="#" OnMouseOver="link('_dir','helpsrc/Config_Options/ConfigOptions0',this)">"Config Options"</a>.<br>
+</div>
+<div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('','INDEX_DESCRIPTION');
+</script>

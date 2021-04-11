@@ -1,0 +1,183 @@
+/** \page "Text Formatting"
+!!! Formatting text in wiki-like syntax
+DoxyS features a wiki-like textparser enabling the user to create nice formatted 
+HTML pages using plain text files, while still keeping the original textfile easily 
+readable. The formatting options include:\n
+headlines, lists, tables, boxes, lines, code formatting, #bold#, }italics}, {underlined{ text.
+
+!! Headlines
+Headlines are produced by starting a line with one to three exclamation marks:
+\code
+!!!Headline BIG
+!!Headline Medium 
+!Headline small
+\endcode
+
+Will produce:\n
+!!!Headline BIG
+!!Headline Medium
+!Headline small
+
+Additional formatting within a headline is not possible since it's appearance is 
+taken from the stylesheet.
+
+!! Typeface formatting
+Enclosing one or more words in chars: $ \#, \}, \{, \$ $ works like this:
+
+|| \#bold text\# | #bold text# 
+|| \}italic text\} | }italic text} 
+|| \{underlined text\{ | {underlined text{  
+|| \$monospaced text\$ | $monospaced text$ 
+|| \{\#\}Combination\{\#\} | {#}Combination{#}
+
+!!Bulleted lists
+Bulleted lists may be produced by starting lines with a dash and a white space $'- '$:
+
+\code
+- First item
+- Second item spanning several lines because this text is just som damn long that
+  it goes on and on and on. It even continues here after a full stop making it an 
+  indeed veeeery long bulleted text.
+- Third item
+  - First subitem
+  - Second subitem
+\endcode
+
+Will produce:
+
+- First item
+- Second item spanning several lines because this text is just som damn long that
+  it goes on and on and on. It even continues here after a full stop making it an 
+  indeed veeeery long bulleted text.
+- Third item
+  - First subitem
+  - Second subitem
+
+
+!! Numbered bulleted lists
+Numbered lists may be produced by starting lines with a dash, hashmark and a whitespace $'-\# '$:
+
+\code
+-# First item
+-# Second item
+-# Third item
+  -# First subitem
+  -# Second subitem
+-# Fourth item
+  - First mixed subitem
+  - Second mixed subitem
+\endcode
+
+Will produce:
+
+-# First item
+-# Second item
+-# Third item
+  -# First subitem
+  -# Second subitem
+-# Fourth item
+  - First mixed subitem
+  - Second mixed subitem
+
+----
+
+!! Tables
+Tables are made with the use of the pipe sign $'|'$. A single pipe sign indicates 
+the beginning of a table cell. Two pipe signs indicate the beginning of a header cell.
+
+\code
+||Task no.||Description||Priority||Status||Personnel
+|1|Make a server component to log trafic on the website|3|Startet|LP
+|2|Open documented symbols header or implementationfile in IDE|3|?|LP?
+|3|Call Graph and source code on functions (new tabs)|2|Startet|ML, MH
+|4|Documentation preview of the active file in the IDE(Jens Skinnerup)|2|Not startet|ML, MH
+|5|How hyperlink to a \\page element?(Paisley)|1|Finished|ML, MH
+|6|Rename function family to unit|1|Finished|ML, MH
+\endcode
+
+will produce:
+
+||Task no.||Description||Priority||Status||Personnel
+|1|Make a server component to log trafic on the website|3|Startet|LP
+|2|Open documented symbols header or implementationfile in IDE|3|?|LP?
+|3|Call Graph and source code on functions (new tabs)|2|Startet|ML, MH
+|4|Documentation preview of the active file in the IDE(Jens Skinnerup)|2|Not startet|ML, MH
+|5|How hyperlink to a \\page element?(Paisley)|1|Finished|ML, MH
+|6|Rename function family to unit|1|Finished|ML, MH
+
+!! Boxes
+Tables may be used to make a simple box.
+\code
+|Boxed text with a newline.\n
+ Next line in same box
+\endcode
+
+Will produce:
+
+|Boxed text with a newline.\n
+ Next line in same box
+
+!! Formatting code: \code . . . \endcode
+Encloses a section that is to be formatted as code. If DoxyS will try to make links 
+to known entities in the source.
+
+||\pre
+\code
+int main()
+{
+  printf("Hello world!\n");
+  HowToDocument howToDocument;
+}
+\endcode
+\endpre
+
+Will produce:
+
+\code
+int main()
+{
+  printf("Hello world!\n");
+  HowToDocument howToDocument;
+}
+\endcode
+
+
+!! Raw formatted text: \pre . . . \endpre
+Indicates that the enclosed section should be formatted in the output, exactly as it is written in the comment block.
+
+\code
+\pre
+Raw unformatted blok
+Of text complete with all newlines
+Like this
+\endpre
+\endcode
+
+Will produce:
+\pre
+Raw unformatted blok
+Of text complete with all newlines
+Like this
+\endpre
+
+!! Horizontal lines
+A horisontal line, like the ones separating sections on this page, may be created 
+by starting a line with three or more\n 
+dashes: $'---'$ : Thin line.\n
+equals: $'==='$ : Thick line.\n
+Like this:\n
+---
+===
+
+!! HTML special chars 
+$\&nbsp;$:&nbsp;:
+
+$\&mdash;$:&mdash;:
+
+$\&Dagger;$:&Dagger;:
+
+$\&\#8212;$:&#8212;: }(mdash again)}
+
+
+
+*/

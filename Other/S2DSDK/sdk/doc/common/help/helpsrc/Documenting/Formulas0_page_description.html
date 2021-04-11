@@ -1,0 +1,128 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Formulas</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Formulas</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','Documenting0',this)" class="pathLink">Documenting</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Formulas</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1714","aID1714","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','Formulas0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Including formulas</div>
+Doxygen allows you to put <img class=formulaInl alt="$ \mbox{LaTeX} $" src="../../doxys_formulas/form_0.png"> formulas in the output. You will need to have the following tools installed:<ul>
+<li><code>latex</code>: The Latex compiler, needed to parse the formulas.</li>
+<li><code>dvips</code>: A tool to convert DVI files to PostScript files.</li>
+<li><code>gs</code>: The GhostScript interpreter for converting PostScript files to bitmaps.</li>
+</ul>
+
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Windows install</div>
+You can download the ProTeXt (<a href="http://www.tug.org/protext">http://www.tug.org/protext</a>) package from <a href="http://mirrors.dotsrc.org/ctan/systems/windows/protext.">http://mirrors.dotsrc.org/ctan/systems/windows/protext.</a><br>
+<br>
+</div>
+<div class="padding">You also need to make sure that <b>C:\Program Files\gs\gs8.54\bin</b> and <b>C:\Program Files\MiKTeX 2.5\miktex\bin</b> are in your <code>PATH</code> variable. Note that your exact version numbers may vary. The important thing is that all 3 <code>latex.exe</code> <code>dvips.exe</code> <code>gswin32.exe</code> are in your <code>PATH</code>.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Examples</div>
+<br>
+There are three ways to include formulas in the documentation.<br>
+<br>
+</div>
+<div class="padding">1. Using in-text formulas that appear in the running text. These formulas should be put between a pair of <b>\f$</b> commands, so that<br>
+<br>
+</div>
+<div class="padding">  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+The distance between \f$(x_1,y_1)\f$ and \f$(x_2,y_2)\f$ is: \f$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}\f$.
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+results in:<br>
+<br>
+</div>
+<div class="padding">The distance between <img class=formulaInl alt="$(x_1,y_1)$" src="../../doxys_formulas/form_1.png"> and <img class=formulaInl alt="$(x_2,y_2)$" src="../../doxys_formulas/form_2.png"> is: <img class=formulaInl alt="$\sqrt{(x_2-x_1)^2+(y_2-y_1)^2}$" src="../../doxys_formulas/form_3.png">.<br>
+<br>
+</div>
+<div class="padding">2. Unnumbered displayed formulas that are centered on a separate line. These formulas should be put between <b>\f[</b> and <b>\f]</b> commands. An example:<br>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\f[
+  |I_2|=\left| \int_{0}^T \psi(t) 
+            \left\{ 
+              u(a,t)-
+              \int_{\gamma(t)}^a 
+              \frac{d\theta}{k(\theta,t)}
+              \int_{a}^\theta c(\xi)u_t(\xi,t)\,d\xi
+            \right\} dt
+        \right|
+\f]
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+results in:<br>
+<br>
+</div>
+<div class="padding"><p class=formulaDsp>
+<img class=formulaDsp alt="\[ |I_2|=\left| \int_{0}^T \psi(t) \left\{ u(a,t)- \int_{\gamma(t)}^a \frac{d\theta}{k(\theta,t)} \int_{a}^\theta c(\xi)u_t(\xi,t)\,d\xi \right\} dt \right| \]" src="../../doxys_formulas/form_4.png">
+
+<br>
+<br>
+</div>
+<div class="padding">3. <a href="#" OnMouseOver="link('_page','Formulas0',this)">Formulas</a> or other latex elements that are not in a math environment can be specified using <b>\f{environment}</b>, where environment is the name of the Latex environment, the corresponding end command is <b>\f}</b>. Here is an example for an equation array<br>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\f{eqnarray*}
+    g &amp;=&amp; \frac{Gm_2}{r^2} \\ 
+      &amp;=&amp; \frac{(6.673 \times 10^{-11}\,\mbox{m}^3\,\mbox{kg}^{-1}\,
+          \mbox{s}^{-2})(5.9736 \times 10^{24}\,\mbox{kg})}{(6371.01\,\mbox{km})^2} \\ 
+      &amp;=&amp; 9.82066032\,\mbox{m/s}^2
+\f}
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+which results in:<br>
+<br>
+</div>
+<div class="padding"><p class=formulaDsp>
+<img class=formulaDsp alt="\begin{eqnarray*} g &amp;=&amp; \frac{Gm_2}{r^2} \\ &amp;=&amp; \frac{(6.673 \times 10^{-11}\,\mbox{m}^3\,\mbox{kg}^{-1}\, \mbox{s}^{-2})(5.9736 \times 10^{24}\,\mbox{kg})}{(6371.01\,\mbox{km})^2} \\ &amp;=&amp; 9.82066032\,\mbox{m/s}^2 \end{eqnarray*}" src="../../doxys_formulas/form_5.png">
+
+<br>
+<br>
+</div>
+<div class="padding">For the first two commands one should make sure formulas contain valid commands in Latex's math-mode. For the third command the section should contain valid command for the specific environment.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Warning:</div>
+Currently, DoxyS is not very fault tolerant in recovering from typos in formulas. It may be necessary to remove the file <code>doxys_formulas/formula.repository</code> that is written to the html directory to get rid of an incorrect formula.<br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

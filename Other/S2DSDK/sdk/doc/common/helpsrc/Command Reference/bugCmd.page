@@ -1,0 +1,15 @@
+/**
+\page bugCmd
+!!! Designating a bug ( bug ).
+For describing a bug related to this entity. The bugs are listed on the "Info"-tab 
+of the directories, See InfoTab. 
+!Syntax
+\code
+\bug This is the description of the bug.
+\endcode
+!Output
+See below in the #Bugs# section.
+\include section_commands.inc
+\bug This is the description of the bug.
+\sa HowToDocument::Bug
+*/

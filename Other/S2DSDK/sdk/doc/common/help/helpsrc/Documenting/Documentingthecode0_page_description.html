@@ -1,0 +1,124 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Documenting the code</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Documenting the code</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','Documenting0',this)" class="pathLink">Documenting</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Documenting the code</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1712","aID1712","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','Documentingthecode0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Documenting the code</div>
+Documenting code entities in DoxyS is generally done in front of the entity's declaration (classes, typedef, defines, enums, variables, functions). For functions it's also possible to put documentation at the definition in the CPP-file. <em>This is recommended to keep header files compact and avoid recompiling more than necessary whenever one changes the documentation.</em> It is also possible to put documentation in separate files, see <a href="#" OnMouseOver="link('_dir','../Example_Code/Separate_Docs/SeparateDocs0',this)">"Separate Docs"</a> in the example code how to do this. <b>Note:</b> <a href="#" OnMouseOver="link('_dir','Documenting0',this)">Documenting</a> eg. a function both in header- and cpp-file will cause DoxoS to concatenate the documentation strings.<br>
+<br>
+</div>
+<div class="padding">For variables, enum values and function parameters it is often easier to write the usually short documentation <em>after</em> the entity on the same line instead of before. This is both possible and recommended and is described later on this page. The information presented here can also be found in a "by example form" in <a href="#" OnMouseOver="link('_class','../Example_Code/HowToDocument0',this)">HowToDocument</a>.<br>
+Here follows some examples of how to document entities. In the examples here we mostly use the <code>/** ... */</code> and <code>/// ...</code> styles when documenting, but as shown in the table in <a href="#" OnMouseOver="link('_dir','Documenting0',this)">Documenting</a>::"Documentation blocks" it's also possible to use <code>/*! ... */</code> and <code>//! ... </code>.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> Documenting on same line as entity</div>
+By default a documetation block using fx. <code>/** ... */</code> contains documentation for the entity immediately after. When documenting variables, enum values, function parameters or any entity that needs just a very short documentation (like only a brief description) it's often easier to place the doc string after the entity's declaration using <code>/**&lt; ... */</code> or <code>///&lt; ...</code>. The next table will show some examples of this also.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> Here are some quick examples:</div>
+<br>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingNormal1">&nbsp;<b>Entity type</b> </td><td class="userPaddingNormal2">&nbsp;<b>Syntax to use</b> </td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;class/struct </td><td class="userPaddingHeadMultiColumn2">&nbsp;<code>/** Brief to newline or punctuation.<br>
+... Description ...*/<br>
+ class <a href="#" OnMouseOver="link('_class','../Example_Code/HowToDocument0',this)">HowToDocument</a>{};</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;function </td><td class="userPaddingHeadMultiColumn2">&nbsp;<code>/** Brief to newline or punctuation.<br>
+... Description ...<br>
+ \return ... return val description ...*/<br>
+ int <a href="#" OnMouseOver="link('_member','../Example_Code/ReturnValue2095680291',this)">HowToDocument::ReturnValue()</a> {};</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;variable </td><td class="userPaddingHeadMultiColumn2">&nbsp;<code>int m_iMemberVarShortDoc; ///&lt; Short single line documentation.</code></td></tr>
+</table>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> About brief description</div>
+The brief description as generally shown in overview tables and mouse-over in the output. It greatly enhances the the overview tables, provided the brief description is <em>short</em> (just a single line/sentence) and <em>descriptive</em> for the entity. The brief description ends at the first punctuation mark or newline, whicever comes first. This is a little different from the original Doxygen, but that hopefully helps to ease the writing of brief descriptions. In the rare cases you need a brief description to span several lines refer to <a href="#" OnMouseOver="link('_page','../Command_Reference/briefCmd0',this)">briefCmd</a>.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Function parameter documentation</div>
+Function parameter documentation can be done either along with the declaration using <code>/**&lt; ... */</code> or <code>///&lt; ...</code> or in the functions general documentation block using Java style command <code>\param &lt;param_name&gt; Param description</code>.<br>
+<br>
+<div class="userParagraph3">Syntax:</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/** 
+Fun brief desc. ... more documentation... 
+void  Fun( int iSize   ///&lt; Parameter documentation for iSize
+          )
+{}
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding">The following functions in <a href="#" OnMouseOver="link('_class','../Example_Code/HowToDocument0',this)">HowToDocument</a> shows more variations:<br>
+<ul>
+<li><a href="#" OnMouseOver="link('_member','../Example_Code/Parameters4173613626',this)">HowToDocument::Parameters</a></li>
+<li><a href="#" OnMouseOver="link('_member','../Example_Code/ParametersJavaStyle4173613626',this)">HowToDocument::ParametersJavaStyle</a></li>
+<li><a href="#" OnMouseOver="link('_member','../Example_Code/ParametersTemplates2482800282',this)">HowToDocument::ParametersTemplates</a></li>
+<li><a href="#" OnMouseOver="link('_member','../Example_Code/ParameterDocCombined955320382',this)">HowToDocument::ParameterDocCombined</a></li>
+</ul>
+
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Enum values documentation</div>
+Works similar to parameters see <a href="#" OnMouseOver="link('_member','../Example_Code/Enum171347412',this)">HowToDocument::Enum</a> for an example.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Sytax:</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/** 
+Enumeration documentation. This must usually be done in the header file.
+enum Enum      { eEnumVal1    ///&lt; eEnumVal1 enum #value# description.
+                };
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><b>Note:</b> This works also when the enumeration itself is anonymous.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph2"> Examples</div>
+See <a href="#" OnMouseOver="link('_page','../Command_Reference/exampleCmd0',this)">exampleCmd</a>.<br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

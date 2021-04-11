@@ -1,0 +1,16 @@
+/**
+\page warningCmd
+!!! Warning section ( warning )
+The deprecated command is used to give a remark about deprecation of the symbol, 
+its lifetime etc.
+
+!Syntax
+\code
+\warning This is a warning, be careful!
+\endcode
+
+!Output
+The deprecated tag produces a "Warning" paragraph like shown here! 
+\warning This is a warning, be careful!
+\sa HowToDocument::Warning
+*/

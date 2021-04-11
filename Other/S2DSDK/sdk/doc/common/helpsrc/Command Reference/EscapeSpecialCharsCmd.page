@@ -1,0 +1,24 @@
+/**
+\page EscapeSpecialCharsCmd
+!!!Escaping special characters ( # $ @ \ } { < > )
+Special characters that would otherwise cause DoxyS to change the output format,
+may be escaped using the backslash character.
+The following table lists the characters along with the escape syntax:
+
+| #Character# || #Escape command# || Remarks
+| \# || \\\# | 
+| \$ || \\\$ | 
+| \@ || \\\@ |  
+| \& || \\\&  | 
+|$ \\ $||$ \\\  $ | 
+|$ \} $||$ \\\} $ |
+|$ \{ $||$ \\\{ $ | 
+|$ \> $||$ \\\> $ | 
+|$ \< $||$ \\\< $ | 
+|$ \endds_doc $||$ \\endds_doc $ | You }must} set $STRIP_CODE_COMMENTS = NO$ in DoxySfile
+ 
+\note Escaping the '&' (ampersand) charater is only necessary in rare cases like 
+      when one wants to write \&nbsp; to the output without getting a HTML 
+      non_breakable_space. 
+\note In headlines ($ !, !!, !!! $) one should }not} escape these characters. 
+*/

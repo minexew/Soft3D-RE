@@ -1,0 +1,16 @@
+/**
+\page typedefCmd
+!!! Attaching comment block to a specific typedef ( typedef )
+The typedef command is used to explicitly link a documentation comment block to the 
+specified typedef.
+!Syntax
+\code
+/**
+\typedef TypeDef 
+Normal way of documenting goes here ....
+\endds_doc \endcode
+!Output
+The typedef command does not produce any output of its own, but secures that the 
+comment block as a whole is used to produce the documentation of the specified class.
+\include separate_docs.inc
+*/

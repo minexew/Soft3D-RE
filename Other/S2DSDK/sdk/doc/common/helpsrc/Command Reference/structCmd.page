@@ -1,0 +1,16 @@
+/**
+\page structCmd
+!!! Attaching comment block to a specific class ( class )
+The struct command is used to explicitly link a documentation comment block to the 
+specified struct. The usage is identical to the \\class command (see classCmd).
+!Syntax
+\code
+/**
+\struct SepDocStruct
+Normal way of documenting goes here ....
+\endds_doc \endcode
+!Output
+The struct command does not produce any output of its own, but secures that the 
+comment block as a whole is used to produce the documentation of the specified class.
+\include separate_docs.inc
+*/

@@ -1,0 +1,55 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Inputparsing</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Inputparsing</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Inputparsing</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1729","aID1729","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','Inputparsing0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Options to control how the input is parsed.</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_IN_BODY_DOCS</td><td class="userPaddingNormal2">If the HIDE_IN_BODY_DOCS tag is set to YES, DoxyS will hide any documentation blocks found inside the body of a function. If set to NO (the default) these blocks will be appended to the function's detailed documentation block. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">TAB_SIZE</td><td class="userPaddingNormal2">The TAB_SIZE tag can be used to set the number of spaces in a tab. DoxyS uses this value to replace tabs by spaces in code fragments. <br>
+ <b>Default value:</b><br>
+ <code>4</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">ALIASES</td><td class="userPaddingNormal2">This tag can be used to specify a number of aliases that acts as commands in the documentation. An alias has the form "name=value". For example adding "sideeffect=par Side Effects:n" will allow you to put the command sideeffect (or sideeffect) in the documentation, which will result in a user-defined paragraph with heading "Side Effects:". You can put n's in the value part of an alias to insert newlines. </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">ENABLED_SECTIONS</td><td class="userPaddingNormal2">The ENABLED_SECTIONS tag can be used to enable conditional documentation sections, marked by if sectionname ... endif. </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">IGNORE_CLASS_PREFIX</td><td class="userPaddingNormal2">In case all classes in a project start with a common prefix, all classes will be put under the same header in the alphabetical index. The IGNORE_CLASS_PREFIX tag can be used to specify one or more prefixes that should be ignored while generating the index headers. </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">AUTO_BRIEF_ENDS_AT_FIRST_NEWLINE</td><td class="userPaddingNormal2">If set to YES, everything from beginning of documentation block to first full stop '.' or to first newline will be treated as the brief description. If set to NO only the first full stop '.' will terminate the brief description. This way the brief description can to expand several lines without using brief keyword explicitly. <br>
+ <b>Default value:</b><br>
+ <code>YES</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

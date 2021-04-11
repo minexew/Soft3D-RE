@@ -1,0 +1,56 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - ifCmd</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - ifCmd</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">ifCmd</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1755","aID1755","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','ifCmd0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1">Starts a conditional documentation section ( if )</div>
+The section is ended with a matching command. To enable a conditional section, add the section-label to the ENABLED_SECTIONS (see <a href="#" OnMouseOver="link('_page','../Config_Options/Inputparsing0',this)">Inputparsing</a>) in the configuration file. Conditional blocks can be nested. Nested sections are only enabled if all parent level sections are enabled as well.<br>
+<div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\if Condition1
+   This section is only included, if Condition1 is added to
+   ENABLED_SECTIONS in the DoxySfile
+\endif
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<div class="userParagraph3">Output</div>
+Any enabled text inside the if-endif tags are output.<br>
+<div class="userParagraph3">endif</div>
+Ends a conditional section that was started with <code>\if</code> or <code>\ifnot</code>.<br>
+<br>
+For each <code>\if, \ifnot</code> one and only one matching <code>\endif</code> must follow.<br>
+</div>
+<div class="paragraph2">See also</div>
+<div id="descSee" class="paddingMembers"><LI><a href="#" OnMouseOver="link('_page','elseifCmd0',this)">elseifCmd</a>, <a href="#" OnMouseOver="link('_page','elseCmd0',this)">elseCmd</a>, <a href="#" OnMouseOver="link('_page','ifnotCmd0',this)">ifnotCmd</a> <br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

@@ -1,0 +1,139 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - IncludeInOutput</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - IncludeInOutput</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">IncludeInOutput</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1727","aID1727","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','IncludeInOutput0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Specify what is included in the output.</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">CREATE_DOC_FOR_FILES</td><td class="userPaddingNormal2">If set to YES DoxyS will create Documentation for files. Documentation for files features <b>included files</b> and <b>included by diagrams</b>, if <code>INCLUDE_GRAPH</code> and <code>INCLUDED_BY_GRAPH</code> are set to YES. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">CREATE_SOURCECODE_FOR_FILES</td><td class="userPaddingNormal2">If the CREATE_SOURCECODE_FOR_FILES tag is set to YES and CREATE_DOC_FOR_FILES is set to YES DoxyS will create the tab 'Source' that holds the sourcecode for the hole file. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">CREATE_SOURCECODE_FOR_MEMBERS</td><td class="userPaddingNormal2">If the CREATE_SOURCECODE_FOR_MEMBERS tag is set to YES DoxyS will create the tab 'Source' that holds the sourcecode for the member. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXTRACT_PRIVATE</td><td class="userPaddingNormal2">If set to YES all private members of a class will be included in the documentation. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXTRACT_PROTECTED</td><td class="userPaddingNormal2">If the EXTRACT_PROTECTED tag is set to YES all protected members of a class will be included in the documentation. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXTRACT_STATIC</td><td class="userPaddingNormal2">If the EXTRACT_STATIC tag is set to YES all static members of a file will be included in the documentation. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">EXTRACT_LOCAL_CLASSES</td><td class="userPaddingNormal2">If the EXTRACT_LOCAL_CLASSES tag is set to YES classes (and structs) defined locally in source files will be included in the documentation. If set to NO only classes defined in header files are included. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_NAMESPACES</td><td class="userPaddingNormal2">If the HIDE_UNDOC_NAMESPACES tag is set to YES, DoxyS will hide all undocumented namespaces. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_CLASSES</td><td class="userPaddingNormal2">If the HIDE_UNDOC_CLASSES tag is set to YES, DoxyS will hide all undocumented classes that are normally visible in the class hierarchy. If set to NO (the default) these classes will be included in the various overviews. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_STRUCTS</td><td class="userPaddingNormal2">If the HIDE_UNDOC_STRUCTS tag is set to YES, DoxyS will hide all undocumented structs that are normally visible in the hierarchy. If set to NO (the default) these structs will be included in the various overviews. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_UNIONS</td><td class="userPaddingNormal2">If the HIDE_UNDOC_UNIONS tag is set to YES, DoxyS will hide all undocumented unions that are normally visible in the hierarchy. If set to NO (the default) these unions will be included in the various overviews. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_FUNCTIONS</td><td class="userPaddingNormal2">If set to YES, DoxyS will hide all undocumented functions inside classes, files or namespaces. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_VARIABLES</td><td class="userPaddingNormal2">If set to YES, DoxyS will hide all undocumented variables inside classes, files or namespaces. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_ENUMS</td><td class="userPaddingNormal2">If set to YES, DoxyS will hide all undocumented enumerations inside classes, files or namespaces. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_ENUM_VALUES</td><td class="userPaddingNormal2">If set to YES, DoxyS will hide all undocumented enum valuesinside classes, files or namespaces. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_TYPEDEFS</td><td class="userPaddingNormal2">If set to YES, DoxyS will hide all undocumented typedefs inside classes, files or namespaces. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_MACROS</td><td class="userPaddingNormal2">If set to YES, DoxyS will hide all undocumented defines. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_DEFINES</td><td class="userPaddingNormal2">If set to YES, DoxyS will hide all undocumented defines. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">GENERATE_TODOLIST</td><td class="userPaddingNormal2">The GENERATE_TODOLIST tag can be used to enable (YES) or disable (NO) the todo list. This list is created by putting odo commands in the documentation.<br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">GENERATE_BUGLIST</td><td class="userPaddingNormal2">The GENERATE_BUGLIST tag can be used to enable (YES) or disable (NO) the bug list. This list is created by putting bug commands in the documentation.<br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">GENERATE_DEPRECATEDLIST</td><td class="userPaddingNormal2">The GENERATE_DEPRECATEDLIST tag can be used to enable (YES) or disable (NO) the deprecated list. This list is created by putting deprecated commands in the documentation.<br>
+ <b>Default value:</b><br>
+ <code>YES</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

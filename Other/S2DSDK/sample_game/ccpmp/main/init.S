@@ -1,0 +1,6 @@
+	.text
+
+	.global	init
+init:
+
+

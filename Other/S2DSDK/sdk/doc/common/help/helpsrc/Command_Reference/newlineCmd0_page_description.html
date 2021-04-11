@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - newlineCmd</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - newlineCmd</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">newlineCmd</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1762","aID1762","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','newlineCmd0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Forcing a newline without using a blank line( \n )</div>
+To force a newline without having to insert a blank line use <code>\n</code>. This can now also be achieved by setting ENABLE_HARD_SOFT_LINE_BREAKS = YES and then make linebreak without any spaces before the linebreak. I.e. simply press "enter" right after the last character on the line to force a line break. If on the other hand you insert a space after the last charater and before the linebreak no linebreak will occur in the output.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+Some text with a line break here\n
+next line continues here.
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<div class="userParagraph3">Output</div>
+Some text with a line break here<br>
+<br>
+next line continues here.<br>
+</div>
+<div class="paragraph2">See also</div>
+<div id="descSee" class="paddingMembers"><LI>ENABLE_HARD_SOFT_LINE_BREAKS on page <a href="#" OnMouseOver="link('_page','../Config_Options/DocParser0',this)">DocParser</a> <br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

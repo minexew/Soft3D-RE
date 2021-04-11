@@ -1,0 +1,67 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - fileCmd</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - fileCmd</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">fileCmd</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1753","aID1753","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','fileCmd0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1">Attaching a comment block to a specific file ( file )</div>
+Indicates that a comment block contains documentation for a source or header file with name &lt;name&gt;. The file name may include (part of) the path if the file-name alone is not unique. If the file name is omitted (i.e. the line after \file is left blank) then the documentation block that contains the \file command will belong to the file it is located in.<br>
+<br>
+</div>
+<div class="padding">DoxyS does not require you to document files in order to get any class, function variable etc. documentation shown in the output. The \file-tag is only in case one do need to document a file. Most often what You really want in this case is to use a unit (<a href="#" OnMouseOver="link('_page','unitCmd0',this)">unitCmd</a>).<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\file [&lt;filename&gt;]
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<div class="userParagraph3">Output</div>
+The file command does not produce any output of its own, but secures that the comment block as a whole is used to produce the documentation of the specified file.<br>
+<div class="userParagraph2">About putting the documentation in separate files</div>
+This command is used for documenting an entity away from it's definition in the code. See SeparateDocs for some examples.<br>
+<br>
+The commands for making separate documentation are:<br>
+<br>
+<code>\class, \def, \enum, (\file), \fn, \namespace, \struct, \typedef, \union \var</code><br>
+<div class="userParagraph3">Qualify with scope (class, namepace) if inside a scope like this:</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\enum <a href="#" onMouseOver="link('_member','../Example_Code/Separate_Docs/ClassEnum179590647',this); ">SepDocClass::ClassEnum</a>
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

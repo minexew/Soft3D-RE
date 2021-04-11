@@ -1,0 +1,16 @@
+/**
+\page throwCmd
+!!!Documenting exceptions thrown by a function ( throw )
+Documenting exeption is similar to documenting parameters using the \\param command. 
+The exception descriptions are also shown in a table after the description section 
+of the function.
+!Syntax
+\code
+\throw ExceptionName Description of exception that can be thrown.
+\endcode
+!Output
+See HowToDocument::ExceptionsThrown in the "Exceptions thrown" section.
+\include section_commands.inc
+\note To provide compatibility with original Doxygen the following aliases for the
+      \\throw command also works: $\\throws$, $\\exception$ and $\\exceptions$
+*/

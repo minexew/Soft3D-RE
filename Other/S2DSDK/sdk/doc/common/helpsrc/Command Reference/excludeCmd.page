@@ -1,0 +1,18 @@
+/**
+\page excludeCmd
+!!! Excluding an entity from the documentation ( exclude )
+if you need to explicitly exclude a certain entity from the documentation this 
+can be done using the $\\exclude$ command.
+
+!Syntax
+\code
+/// \exclude
+class ClassToBeExcluded
+{};
+\endcode
+
+!Output
+No output is produced, as the entity is completely removed at an early stage of 
+DoxyS code parsing.
+\sa "Excluding Input"
+*/

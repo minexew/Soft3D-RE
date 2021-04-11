@@ -1,0 +1,49 @@
+/**
+\page "Excluding Input"
+!!! Excluding certain input (DoxyS.ignore, DOXYS_OFF, exclude)
+To facilitate cutomisation of what's included in the generated output DoxyS supports 
+ways of excluding files, sections of files or individual entities.
+
+! Excluding files (DoxyS.ignore)
+This works similar the CVS counterpart $.cvsignore$ file except that currently 
+the $DoxyS.ignore$ file does not support wildcards in filenames, ie. You need to 
+list all files and directories that you want to exclude in the directory of the 
+$DoxyS.ignore$ file. The name of this file can be configured via the IGNORE_FILE_NAME 
+in the config file, see InputOptions.
+
+It's quite simple to use. In every directory where You need to exclude certain files 
+or subdirectories simple create a $DoxyS.ignore$ file listing the files and directories 
+to be excluded like this:
+
+\code
+some_directory_to_exclude
+some_file_to_exclude.h
+some_file_to_exclude.cpp
+\endcode
+
+! Excluding sections in files (DOXYS_OFF)
+To turn of DoxyS parsing (text is skipped completely by pre-processor) 
+type this on a single line in the source file outside any (other) 
+documentation blocks.
+
+!To turn OFF:
+||/// DOXYS_OFF
+
+
+!To turn ON:
+||/// DOXYS_ON
+
+When DoxyS is turned off, this state continues until the $/// DOXYS_ON$
+statement is encountered or until the end of the file is reached. Ie. there
+is an implicit "turn on" statement at the end of a file.
+
+
+
+! Using the preprocessor to exclude sections of a file
+XXX 
+\todo Write doc "Using the preprocessor to exclude sections of a file"
+
+! Using the exclude command
+A single entity can be excluded by using the \\exclude command, see excludeCmd.
+
+*/

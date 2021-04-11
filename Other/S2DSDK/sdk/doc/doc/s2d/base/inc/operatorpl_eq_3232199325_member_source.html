@@ -1,0 +1,106 @@
+<HTML>
+<HEAD>
+<TITLE>DefaultProjectName - operator+=</TITLE>
+<script type="text/javascript" src="../../../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../../../common/";
+ var relPathToHelpDir = "../../../../common/help/";
+ var toSearchPage     = "_search','../../../../search";
+ Body1();
+</script>
+<div class="headerPage">operator+=</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../../../index',this)" class="pathLink">Default mainpage</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../../s2d0',this)" class="pathLink">s2d</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','../base0',this)" class="pathLink">base</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','inc0',this)" class="pathLink">inc</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_class','Pixel115',this)" class="pathLink">Pixel</A><img src="../../../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">operator+=</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_member','operatorpl_eq_3232199325','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_member','operatorpl_eq_3232199325','_source',this)" class="tabLinkActive">Source</a></span>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_member','operatorpl_eq_3232199325','_callgraph',this)" class="tabLinkInActive">Call Graph</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<div class="paragraph2NoTopPadding">Start Line: 473</div>
+<pre class="codeExamples">
+void <a href="#" onMouseOver="link('_member','operatorpl_eq_3232199325',this); ">s2d::Pixel::operator+=</a>(const Pixel &amp;pix)
+{
+#if (COLOR_FORMAT==RGB888)
+    m_r += pix.m_r;
+    if( m_r &gt; 0xFF )    m_r = 0xFF;
+    m_g += pix.m_g;
+    if( m_g &gt; 0xFF )    m_g = 0xFF;
+    m_b += pix.m_b;
+    if( m_b &gt; 0xFF )    m_b = 0xFF;
+#elif (COLOR_FORMAT==RGB666)
+    m_r += pix.m_r;
+    if( m_r &gt; 0x3F )    m_r = 0x3F;
+    m_g += pix.m_g;
+    if( m_g &gt; 0x3F )    m_g = 0x3F;
+    m_b += pix.m_b;
+    if( m_b &gt; 0x3F )    m_b = 0x3F;
+#elif (COLOR_FORMAT==RGB332)
+    <a href="#" onMouseOver="link('_member','u81623',this); ">u8</a> <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> = 0;
+    <a href="#" onMouseOver="link('_member','u81623',this); ">u8</a> tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x03) + (pix.m_rgb &amp; 0x03);
+    if( tmp &gt; 0x03 )    tmp = 0x03;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x1C) + (pix.m_rgb &amp; 0x1C);
+    if( tmp &gt; 0x1C )    tmp = 0x1C;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0xE0) + (pix.m_rgb &amp; 0xE0);
+    if( tmp &gt; 0xE0 )    tmp = 0xE0;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    <a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> = <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a>;
+#elif (COLOR_FORMAT==RGB444)
+    <a href="#" onMouseOver="link('_member','u161623',this); ">u16</a> <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> = 0;
+    <a href="#" onMouseOver="link('_member','u161623',this); ">u16</a> tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x000F) + (pix.m_rgb &amp; 0x000F);
+    if( tmp &gt; 0x000F )  tmp = 0x000F;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x00F0) + (pix.m_rgb &amp; 0x00F0);
+    if( tmp &gt; 0x00F0 )  tmp = 0x00F0;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x0F00) + (pix.m_rgb &amp; 0x0F00);
+    if( tmp &gt; 0x0F00 )  tmp = 0x0F00;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    <a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> = <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a>;
+#elif (COLOR_FORMAT==RGB555)
+    <a href="#" onMouseOver="link('_member','u161623',this); ">u16</a> <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> = 0;
+    <a href="#" onMouseOver="link('_member','u161623',this); ">u16</a> tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x001F) + (pix.m_rgb &amp; 0x001F);
+    if( tmp &gt; 0x001F )  tmp = 0x001F;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x03E0) + (pix.m_rgb &amp; 0x03E0);
+    if( tmp &gt; 0x03E0 )  tmp = 0x03E0;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x7C00) + (pix.m_rgb &amp; 0x7C00);
+    if( tmp &gt; 0x7C00 )  tmp = 0x7C00;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    <a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> = <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a>;
+#elif (COLOR_FORMAT==RGB565)
+    <a href="#" onMouseOver="link('_member','u161623',this); ">u16</a> <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> = 0;
+    <a href="#" onMouseOver="link('_member','u161623',this); ">u16</a> tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x001F) + (pix.m_rgb &amp; 0x001F);
+    if( tmp &gt; 0x001F )  tmp = 0x001F;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0x07E0) + (pix.m_rgb &amp; 0x07E0);
+    if( tmp &gt; 0x07E0 )  tmp = 0x07E0;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    tmp = (<a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> &amp; 0xF800) + (pix.m_rgb &amp; 0xF800);
+    if( tmp &gt; 0xF800 )  tmp = 0xF800;
+    <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a> |= tmp;
+    <a href="#" onMouseOver="link('_member','m_rgb252063752',this); ">m_rgb</a> = <a href="#" onMouseOver="link('_member','rgb3807711962',this); ">rgb</a>;
+#endif
+}
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_member','_source');
+</script>

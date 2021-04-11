@@ -1,0 +1,76 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - exampleCmd.page</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - exampleCmd.page</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">exampleCmd.page</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','exampleCmd_page0','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Overview</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included files</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included by</span></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_file','exampleCmd_page0','_source',this)" class="tabLinkActive">Source</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<pre class="codeExamples">
+/**
+\page exampleCmd
+!!!Adding an example ( example )
+Indicates that the following text is an example, and causes the text to be formatted 
+as such. It's possible to have as many examples as one desires per entity/page.
+!Syntax
+\code
+\example <filename>
+\endcode
+
+The filename should be relative either to the current directory or relative to 
+the root of the EXAMPLE_PATH (see InputOptions), or it can be an absolute path. 
+}Note that this is different from the original Doxygen behaviour}
+
+!Alternatively:
+\code
+\example
+int MyFunction(const int iParam1, const float fParam2)
+{
+	int iRes = iParam1 * static_cast<int>(fParam2);
+	return iRes;
+}
+\endexample
+\endcode
+
+!Output
+The example tag will include and format the \<filename\> file in the examples section 
+of the documented entity. See at the bottom of this page.
+
+\sa codeCmd for inlining formatted code in place (ie. where it's written)
+\sa HowToDocument::ExampleInclude, HowToDocument::ExampleInline
+\example
+int MyFunction(const int iParam1, const float fParam2)
+{
+	int iRes = iParam1 * static_cast<int>(fParam2);
+	return iRes;
+}
+\endexample
+*/
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_file','_source');
+</script>

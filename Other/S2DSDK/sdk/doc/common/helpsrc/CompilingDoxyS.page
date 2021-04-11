@@ -1,0 +1,30 @@
+/**
+\page "Compiling DoxyS" 
+!!! Compiling DoxyS
+
+Download the source code from the download page and unzip it.
+
+!Windows
+Install python for windows http://www.python.org
+
+In visual studio, open the 'doxys.sln', you can find it in doxys/wintools.
+Start compiling ('Rebuild Solution' the first time). Due to a problem in the 
+project file, that we haven't figured out yet, you will get a bunch of linker 
+errors the first time you compile, unless you choose 'Rebuild Solution'. Hereafter
+a normal build will do fine.
+If you have any idea why this happens, please let us know, so we can fix it.
+
+!Linux (Unix)
+Download source code and unzip it.
+-# Go to root of source code directory and run:
+-# #sh configure --debug# or #sh configure --release#. 
+-# Then just type #make# or perhaps open the KDevlop project file and build from
+there.
+
+You can also just run #./configure# but be sure that the script is executable first!
+If not run #chmod a+x configure#.
+
+Options for the 'configure' script. #configure -h#
+By default it will compile in release, for debug #configure --debug#
+
+*/

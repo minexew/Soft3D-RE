@@ -1,0 +1,23 @@
+/**
+\page fileCmd
+!!!Attaching a comment block to a specific file ( file )
+Indicates that a comment block contains documentation for a source or header file 
+with name \<name\>. The file name may include (part of) the path if the file-name 
+alone is not unique. If the file name is omitted (i.e. the line after \\file is left 
+blank) then the documentation block that contains the \\file command will belong 
+to the file it is located in.
+
+DoxyS does not require you to document files in order to get any class, function 
+variable etc. documentation shown in the output. The \\file-tag is only in case one 
+do need to document a file. Most often what You really want in this case is to use 
+a unit (unitCmd).
+
+!Syntax
+\code
+\file [<filename>]
+\endcode
+!Output
+The file command does not produce any output of its own, but secures that the 
+comment block as a whole is used to produce the documentation of the specified file.
+\include separate_docs.inc
+*/

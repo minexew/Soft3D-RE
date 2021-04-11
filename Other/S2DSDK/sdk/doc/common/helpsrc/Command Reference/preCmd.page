@@ -1,0 +1,25 @@
+/**
+\page preCmd
+!!! Raw formatted text (pre, endpre )
+The $\\pre$ and $\\endpre$ tags enclose a section that is to be formatted as 
+is, complete with all linebreaks etc. 
+
+!Syntax
+\code
+\pre
+Raw unformatted blok
+Of text complete with all newlines
+Like this
+\endpre
+\endcode
+
+!Output
+\pre
+Raw unformatted blok
+Of text complete with all newlines
+Like this
+\endpre
+\note To provide compatibility with original Doxygen the following alias-pair for the
+      $\\pre - \\endpre$ commands also works: $\\verbatim - \\endverbatim$.
+\sa codeCmd for formatting code.
+*/

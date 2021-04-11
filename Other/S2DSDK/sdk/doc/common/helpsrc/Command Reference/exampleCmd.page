@@ -1,0 +1,39 @@
+/**
+\page exampleCmd
+!!!Adding an example ( example )
+Indicates that the following text is an example, and causes the text to be formatted 
+as such. It's possible to have as many examples as one desires per entity/page.
+!Syntax
+\code
+\example <filename>
+\endcode
+
+The filename should be relative either to the current directory or relative to 
+the root of the EXAMPLE_PATH (see InputOptions), or it can be an absolute path. 
+}Note that this is different from the original Doxygen behaviour}
+
+!Alternatively:
+\code
+\example
+int MyFunction(const int iParam1, const float fParam2)
+{
+	int iRes = iParam1 * static_cast<int>(fParam2);
+	return iRes;
+}
+\endexample
+\endcode
+
+!Output
+The example tag will include and format the \<filename\> file in the examples section 
+of the documented entity. See at the bottom of this page.
+
+\sa codeCmd for inlining formatted code in place (ie. where it's written)
+\sa HowToDocument::ExampleInclude, HowToDocument::ExampleInline
+\example
+int MyFunction(const int iParam1, const float fParam2)
+{
+	int iRes = iParam1 * static_cast<int>(fParam2);
+	return iRes;
+}
+\endexample
+*/

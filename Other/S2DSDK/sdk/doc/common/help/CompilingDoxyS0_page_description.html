@@ -1,0 +1,62 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Compiling DoxyS</TITLE>
+<script type="text/javascript" src="common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "common/";
+ var relPathToHelpDir = "common/help/";
+ var toSearchPage     = "_search','search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Compiling DoxyS</div>
+<div class="path"><a href="#" OnMouseOver="link('','index',this)" class="pathLink">Help</A><img src="common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Compiling DoxyS</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1709","aID1709","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','CompilingDoxyS0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Compiling DoxyS</div>
+Download the source code from the download page and unzip it.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Windows</div>
+Install python for windows <a href="http://www.python.org">http://www.python.org</a><br>
+<br>
+</div>
+<div class="padding">In visual studio, open the 'doxys.sln', you can find it in doxys/wintools.<br>
+Start compiling ('Rebuild Solution' the first time). Due to a problem in the project file, that we haven't figured out yet, you will get a bunch of linker errors the first time you compile, unless you choose 'Rebuild Solution'. Hereafter<br>
+a normal build will do fine.<br>
+If you have any idea why this happens, please let us know, so we can fix it.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Linux (Unix)</div>
+Download source code and unzip it.<ol>
+<li>Go to root of source code directory and run:</li>
+<li><b>sh configure --debug</b> or <b>sh configure --release</b>.</li>
+<li>Then just type <b>make</b> or perhaps open the KDevlop project file and build from<br>
+there.</li>
+</ol>
+
+<br>
+</div>
+<div class="padding">You can also just run <b>./configure</b> but be sure that the script is executable first!<br>
+If not run <b>chmod a+x configure</b>.<br>
+<br>
+</div>
+<div class="padding">Options for the 'configure' script. <b>configure -h</b><br>
+By default it will compile in release, for debug <b>configure --debug</b><br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

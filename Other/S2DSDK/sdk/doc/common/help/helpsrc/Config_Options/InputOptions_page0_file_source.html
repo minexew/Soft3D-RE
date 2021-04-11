@@ -1,0 +1,54 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - InputOptions.page</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - InputOptions.page</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">InputOptions.page</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','InputOptions_page0','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Overview</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included files</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included by</span></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_file','InputOptions_page0','_source',this)" class="tabLinkActive">Source</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<pre class="codeExamples">
+/** \page InputOptions
+
+!!! Configuration options related to the input files.
+
+
+
+||IGNORE_FILE_NAME|The IGNORE_FILE_NAME tag can be used to specify a possible textfile in each directory which is searched for files/subdirs to exclude. The default value is 'DoxyS.ignore'. It works like '.cvsignore'. The file is a simple textfile listing one file/subdir per line relative to the directory of the 'DoxyS.ignore' file. Like this: #$file_to_ignore.cpp$# \n #Default value:#\n $DoxyS.ignore$
+||FILE_PATTERNS|If the value of the INPUT tag contains directories, you can use the FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp and *.h) to filter out the source-files in the directories. If left blank the following patterns are tested: *.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp *.h++ *.idl *.odl *.cs *.page *.dir *.dxd *.doc\n #Default value:#\n $*.c *.cc *.cxx *.cpp *.c++ *.java *.ii *.ixx *.ipp *.i++ *.inl *.h *.hh *.hxx *.hpp *.h++ *.idl *.odl *.cs *.page *.dir *.dxd *.doc$
+||RECURSIVE|The RECURSIVE tag can be used to turn specify whether or not subdirectories should be searched for input files as well. Possible values are YES and NO. If left blank YES is used. \n #Default value:#\n $YES$
+||EXCLUDE|The EXCLUDE tag can be used to specify files and/or directories that should excluded from the INPUT source files. This way you can easily exclude a subdirectory from a directory tree whose root is specified with the INPUT tag. \n #Default value:#\n $doxys_docs/$
+||EXCLUDE_SYMLINKS|The EXCLUDE_SYMLINKS tag can be used select whether or not files or directories that are symbolic links (a Unix filesystem feature) are excluded from the input. \n #Default value:#\n $NO$
+||EXCLUDE_PATTERNS|If the value of the INPUT tag contains directories, you can use the EXCLUDE_PATTERNS tag to specify one or more wildcard patterns to exclude certain files from those directories. 
+||EXAMPLE_PATH|If the example is not found relatively to current directory, then try to prepend the EXAMPLE_PATH to see if the example is found here! 
+||IMAGE_PATH|If the image is not found relatively to current directory, then try to prepend the IMAGE_PATH to see if the image is found here! 
+||INPUT_FILTER|The INPUT_FILTER tag can be used to specify a program that DoxyS should invoke to filter for each input file. DoxyS will invoke the filter program by executing (via popen()) the command: $filter input-file$, where $filter$ is the value of the INPUT_FILTER tag, and $input-file$ is the name of an input file. DoxyS will then use the output that the filter program writes to standard output. 
+||FILTER_SOURCE_FILES|If the FILTER_SOURCE_FILES tag is set to YES, the input filter (if set using INPUT_FILTER) will be used to filter the input files when producing source files to browse. \n #Default value:#\n $NO$
+*/
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_file','_source');
+</script>

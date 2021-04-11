@@ -1,0 +1,25 @@
+/**
+\page codeCmd
+!!!Illustrating code in the documentation (code, endcode )
+The $\\code$ and $\\endcode$ tags enclose a section that is to be formatted as 
+code, similar to the $\\example, \\endexample$ tags. The code is parsed with DoxyS 
+codeparser and if possible links are made to classes, functions etc.
+!Syntax
+||\pre\code
+int main()
+{
+  printf("Hello world!\n");
+}
+\endcode\endpre
+
+!Output
+\code
+int main()
+{
+  printf("Hello world!\n");
+}
+\endcode
+\sa preCmd for raw formatting of text.
+\sa EscapeSpecialCharsCmd for writing the special \endds_doc.
+\sa HowToDocument::InlineFormattedCode 
+*/

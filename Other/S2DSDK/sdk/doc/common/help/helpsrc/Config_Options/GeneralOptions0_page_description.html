@@ -1,0 +1,79 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - GeneralOptions</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - GeneralOptions</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">GeneralOptions</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1725","aID1725","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','GeneralOptions0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> General configuration options.</div>
+The general configuration options are those that most projects would want to adjust. The rest of the options will for most purposes work just fine with the default values.<br>
+<br>
+</div>
+<div class="padding"><table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">PROJECT_NAME</td><td class="userPaddingNormal2">The PROJECT_NAME tag is a single word (or a sequence of words surrounded by quotes) that should identify the project. <br>
+ <b>Default value:</b><br>
+ <code>DefaultProjectName</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">PROJECT_NUMBER</td><td class="userPaddingNormal2">The PROJECT_NUMBER tag can be used to enter a project or revision number. This could be handy for archiving the generated documentation or if some version control system is used.<br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">INPUT</td><td class="userPaddingNormal2">The INPUT tag can be used to specify the files and/or directories that contain documented source files. You may enter file names like "myfile.cpp" or directories like "/usr/src/myproject". Separate the files or directories with spaces. <br>
+ <b>Default value:</b><br>
+ <code>.</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">OUTPUT_DIRECTORY</td><td class="userPaddingNormal2">The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) base path where the generated documentation will be put. If a relative path is entered, it will be relative to the location where DoxyS was started. If left blank 'doxys_doc' will be used.<br>
+ <b>Default value:</b><br>
+ <code>doxys_docs/</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">GENERATE_DOXYS_HELP</td><td class="userPaddingNormal2">If the GENERATE_DOXYS_HELP tag is set to YES, DoxyS will generate help pages for DoxyS itself along with to the project documentation <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HTML_FILE_EXTENSION</td><td class="userPaddingNormal2">The HTML_FILE_EXTENSION tag can be used to specify the file extension for each generated HTML page (for example: .htm,.php,.asp). If it is left blank DoxyS will generate files with .html extension.<br>
+ <b>Default value:</b><br>
+ <code>.html</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">CUSTOM_DIR</td><td class="userPaddingNormal2">The CUSTOM_DIR tag is used to specify where the custom directory is. The custom directory is used to place a <code><b>logo.gif</b></code>, <code><b>logo.jpg</b></code> or <code><b>logo.png</b></code>. This logo file is used on all the pages. A style sheet file can be placed here if you want a different setup then the default.Run DoxyS, copy the style sheet file from the common dir and you are ready to go.<br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">SERVER_STATISTICS</td><td class="userPaddingNormal2">The SERVER_STATISTICS tag is used to specify where the server statistics file is.If left blank, server statistics is turned off. To use server statistics, you will need a script on a server to collect the data from the static HTML pages. Script can be found at <a href="http://www.doxys.dk">http://www.doxys.dk</a> under Download.Make your own script and database.Make a database with these filds:Id, Definitiontype, Pagename, Pagetype, Projectname, Date, RequestpageA script that can receive these posted arguments:projectname, definitiontype, pagename, pagetypeand add the date and HTTP_REFERER your self when putting it all into the database.<br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HTML_HELP_SERVER_PATH</td><td class="userPaddingNormal2">The HTML_HELP_SERVER_PATH tag is used to specify where the root of theHTML files will be placed on the server. Used when generating XML-file for integration with MS.NET.<br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">STRIP_CODE_COMMENTS</td><td class="userPaddingNormal2">Setting the STRIP_CODE_COMMENTS tag to YES (the default) will instruct DoxyS to hide any special comment blocks from generated source code fragments. Normal C and C++ comments will always remain visible. <br>
+ <b>Default value:</b><br>
+ <code>YES</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

@@ -1,0 +1,77 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - imageCmd.page</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - imageCmd.page</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">imageCmd.page</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("","","","");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabInActive"><a href="#" OnMouseOver="linkTab('_file','imageCmd_page0','_description',this)" class="tabLinkInActive">Description</a></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Overview</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included files</span></span>
+<span class="tabInActiveGrayout"><span class="tabLinkGrayout">Included by</span></span>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_file','imageCmd_page0','_source',this)" class="tabLinkActive">Source</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+<div class="contentAirTop"></div>
+<pre class="codeExamples">
+/**
+\page imageCmd
+!!!Adding an image to the documentation ( image )
+Images can be included in the documentation using the \\image tag. 
+
+The filename should be relative either to the current directory or relative to 
+the root of the IMAGE_PATH (see InputOptions), or it can be an absolute path. 
+}Note that this is different from the original Doxygen behaviour}
+
+Image types supported are:
+- .png
+- .jpg
+- .gif
+- .svg (Provided uour browser supports it, natively or via fx. the plugin from Adobe)
+- }.dia (Dia drawings support are on our wish list) }
+- }.psd (Adobe Photoshop drawings support are on our wish list)}
+
+!Syntax
+\code
+\image [path]<image_name>  ["Caption text"]
+\endcode
+!Example
+\code
+\image cpplogo.jpg "This a C++ Logo"
+\endcode
+!Output
+\image cpplogo.jpg "This a C++ Logo"
+
+If the user has an SVG browser plug-in installed or native browser support for SVG, 
+it is even possible to include svg images. SVG images may be sized.
+
+!Syntax SVG
+\code
+\image [path]<image_name> sizeXinpixels sizeYinpixels ["Caption text"]
+\endcode
+!Example
+\code
+\image ./images/canvas.svg 300 400 "Caption text"
+\endcode
+*/
+</pre><div class="contentAirBottom"></div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_file','_source');
+</script>

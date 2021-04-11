@@ -1,0 +1,71 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - paramCmd</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - paramCmd</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">paramCmd</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1765","aID1765","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','paramCmd0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Documenting parameters JavaDoc style( param )</div>
+<a href="#" OnMouseOver="link('_dir','../Documenting/Documenting0',this)">Documenting</a> parameters can be done in two ways, except template and macro parameters which currently can only be documented using the <code>\param</code> command. The "normal" way is demonstrated in fx. <a href="#" OnMouseOver="link('_member','../Example_Code/Parameters4173613626',this)">HowToDocument::Parameters</a> and the other is using the on this page described <code>\param</code> command.<br>
+<div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\param &lt;param_name&gt; Parameter description ...
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<div class="userParagraph3">Example</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\param iSize Parameter documentation for iSize
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<div class="userParagraph3">Output</div>
+See <a href="#" OnMouseOver="link('_member','../Example_Code/ParametersJavaStyle4173613626',this)">HowToDocument::ParametersJavaStyle</a> for a good example.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">About section commands</div>
+This command is a section command (also called <a href="#" OnMouseOver="link('_page','../Documenting/SpecialSections0',this)">"Special Sections"</a>). Common to all section commands is the fact that the section continues until a blank line or another section command is encountered.<br>
+<br>
+The section commands are:<br>
+<ul>
+<li><code>\bug, \throw, \internal, \note, \param, \remark, \sa, \todo, \warning \since</code> <em>(Multiple commands are allowed yielding a bulleted list)</em></li>
+<li><code>\author \version <em>(Multiple commands are are comma separated in output)</em></li>
+<li></code>\brief, \return, \deprecated <em>(Only intended to be used once per entity)</em></li>
+</ul>
+
+</div>
+<div class="paragraph2">See also</div>
+<div id="descSee" class="paddingMembers"><LI><a href="#" OnMouseOver="link('_member','../Example_Code/MACRO_PARAMETERS2066218129',this)">MACRO_PARAMETERS</a> <br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

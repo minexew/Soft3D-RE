@@ -1,0 +1,60 @@
+/**
+\page "Auto link generation"
+!!! Automatic link generation
+Most documentation systems have special `see also' sections where links to other 
+pieces of documentation can be inserted. Although DoxyS also has a command to 
+start such a section (see saCmd), it does allow you to put these kind of links 
+anywhere in the documentation. 
+
+
+The next sections show how to generate links to the various documented entities 
+in a source file.\n
+ #Note:# }The auto link system is not working exactly as we would like 
+it to in this beta version of DoxyS, but this will be corrected after the beta.}
+
+!! Links to web pages and mail addresses
+DoxyS will automatically replace any URLs and mail addresses found in the documentation 
+by links.
+
+!! Links to classes, directories, units and pages.
+All words in the documentation that correspond to a documented class, directory, 
+page or unit (use header file name) will automatically be replaced by a link to 
+the corresponding HTML-page containing the documentation of the entity. If you want 
+to prevent that a word that corresponds to a documented class is replaced by a 
+link you should put a '%' in front of the word.
+
+!! Links to files.
+All words that contain a dot (.) that is not the last character in the word are 
+considered to be file names. If the word is indeed the name of a documented input 
+file, a link will automatically be created to the documentation of that file. If 
+a documented units exists with the same name, then that will take precedence over 
+linking to the file.
+
+!! Links to functions.
+Links to functions are created if one of the following patterns is encountered:
+
+-# \<functionName\>"("<argument-list>")"
+-# \<functionName\>"()"
+-# "::"\<functionName\>
+-# (\<className\>"::")n\<functionName\>"("\<argument-list\>")"
+-# (\<className\>"::")n\<functionName\>"()"
+-# (\<className\>"::")n\<functionName\>
+
+where n>0.\n
+For non overloaded members the argument list may be omitted.
+
+#Important:# The patterns above should not contain spaces, tabs or newlines. 
+
+If a function is overloaded and no matching argument list is specified (i.e. pattern 2 
+or 5 is used), a link will be created to the documentation of one of the overloaded 
+members.
+
+For member functions the class scope (as used in patterns 4 to 6) may be omitted, if:
+
+-# The pattern points to a documented member that belongs to the same class as 
+   the documentation block that contains the pattern.
+-# The class that corresponds to the documentation blocks that contains the pattern 
+   has a base class that contains a documented member that matches the pattern.
+
+
+*/

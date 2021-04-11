@@ -1,0 +1,126 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Pages</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Pages</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','Documenting0',this)" class="pathLink">Documenting</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Pages</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1717","aID1717","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','Pages0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Pages in DoxyS ( page )</div>
+<a href="#" OnMouseOver="link('_page','Pages0',this)">Pages</a> in DoxyS are intended to be used for any kind of information related<br>
+to the code. For example You can use pages to put addtional documentation or HowTo's in a directory containing code. The pages show up on the left menu like classes and directories.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/**
+\page PageName
+page content goes here ...
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">or:</div>
+<div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/**
+\page "Page Name With Spaces"
+page content goes here ...
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><a href="#" OnMouseOver="link('_page','Directories0',this)">Directories</a> (and subdirectories with pages and directory descriptions (\dir-tag) together form an easy way of making organized online documentation for just about anything (not just code). In fact all the HELP pages in DoxyS is made by a combination of directories and pages (most of our homepage is made the same way). This can be useful for any kind of (fx. technical documentation) as it is written in plain textfiles and thus can be stored effectively in version control systems like CVS allowing several people to work together on the same documentation.<br>
+<br>
+</div>
+<div class="padding">Right now You <em>must</em> edit your documentation pages in a standard text editor, but we will be making a WYSIWYG editor for our Wiki-like formatting syntax, making it nicer to make documentation pages with formatting, headlines, tables, pictures etc.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> About grouping functionality from original Doxygen</div>
+Also pages can be used as a replacement for the grouping functionality that currently<br>
+is unsupported by DoxyS. (This is by design because we find it a bit complicated to use and pages can accomplish the same thing, by just making a page listing the classes or whatever in a table, bulleted list or in a any other way you prefer. DoxyS will make the links to the classes etc. for you. It could look something like this:<br>
+<br>
+</div>
+<div class="padding">  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/**
+\page "My Grouped Classes"
+!!! Group of related classes
+These classes are related even though the are not all in same dir. Here follows 
+a table listing the classes (clik on the classes to go the class' description):
+
+|| Name || Comments
+| HowToDocument | Only thing that relates these entities is that they are doc-style examples ...
+| SepDocClass | Only thing that relates these entities is that they are doc-style examples ...
+| ClassInUnit | Only thing that relates these entities is that they are doc-style examples ...
+| Page | Only thing that relates these entities is that they are doc-style examples ...
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Yielding the following output:</div>
+<div class="userParagraph1"> Group of related classes</div>
+These classes are related even though the are not all in same dir. Here follows a table listing the classes (clik on the classes to go the class' description):<br>
+<br>
+</div>
+<div class="padding"><table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">&nbsp;Name </td><td class="userPaddingHeadMultiColumn2">&nbsp;Comments<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;<a href="#" OnMouseOver="link('_class','../Example_Code/HowToDocument0',this)">HowToDocument</a> </td><td class="userPaddingNormal2">&nbsp;Only thing that relates these entities is that they are doc-style examples ...<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;<a href="#" OnMouseOver="link('_class','../Example_Code/Separate_Docs/SepDocClass0',this)">SepDocClass</a> </td><td class="userPaddingNormal2">&nbsp;Only thing that relates these entities is that they are doc-style examples ...<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;<a href="#" OnMouseOver="link('_class','../Example_Code/ClassInUnit0',this)">ClassInUnit</a> </td><td class="userPaddingNormal2">&nbsp;Only thing that relates these entities is that they are doc-style examples ...<br>
+</td></tr>
+<tr>
+<td class="userPaddingNormal1">&nbsp;Page </td><td class="userPaddingNormal2">&nbsp;Only thing that relates these entities is that they are doc-style examples ...</td></tr>
+</table>
+<br>
+</div>
+<div class="padding">(<em>Some of the above classes are in fact in the same directory, which is perfectly OK. They<br>
+, however allready have a place where they are presented togeher, namely on the directory page in the directory where they belong. But this is also just a simple example!</em>)<br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

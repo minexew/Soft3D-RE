@@ -1,0 +1,13 @@
+/** \dir
+!Introduction
+The general navigation tool in DoxygenS documentation is the navigation menu placed at the left edge of all documentation pages. It present the possible subdirectories, classes, units and pages of the current directory.
+
+The header title  what directory, class, unit or page is selected, and the navigation trail below, shows where and how the selected subject is placed in the documentation hierarchy. This navigation trail or path also offers the opportunity to jump back to any higher level in the hierarchy of the currently selected subject.
+
+The selected subject is described in the tabbed, right section of the page. Depending on the type of subject/coding symbol selected, the tabs vary, but all offer different information about the subject. The tabs may present lists of member symbols, graphs illustrating relations between the selected symbol and other symbols i.e. inheritance, collaboration or even call grapghs, or it may show detailed descriptions of the symbol, including syntax information, parameters and return values etc. and may even present code examples.
+
+When navigating between symbols of the same type, the selected tab will remain the same - so navigating from one class to another by clicking on a class in the inheritance graph for instance, will take you to the inheritance graph of the new selected class. In fact when you navigate to a symbol of any kind, the selected tab will be the tab that was active, when you last looked at a symbol of the selected type.
+
+Doxygen tries to resolve any linking possibilities, by checking every word it prints against the names of all known symbols, units and pages. If a link is possible, it will be created and in the default style, the link will appear as orange text.
+
+*/

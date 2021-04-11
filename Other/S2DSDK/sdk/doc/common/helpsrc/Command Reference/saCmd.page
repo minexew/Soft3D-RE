@@ -1,0 +1,15 @@
+/**
+\page saCmd
+!!! Making a "See Also" section ( sa ).
+For making a bullet entry in the "See Also" section on the bottom of the page. 
+!Syntax
+\code
+\sa An example here in HowToDocument::SeeAlso.
+\endcode
+!Output
+See below in the #See Also# section.
+\include section_commands.inc
+\note To provide compatibility with original Doxygen the following alias for the
+      $\\sa$ command also works: $\\see$.
+\sa An example here in HowToDocument::SeeAlso.
+*/

@@ -1,0 +1,20 @@
+/**
+\page paramCmd
+!!! Documenting parameters JavaDoc style( param )
+Documenting parameters can be done in two ways, except template and macro parameters 
+which currently can only be documented using the $\\param$ command. The "normal" way is 
+demonstrated in fx. HowToDocument::Parameters and the other is using the on this page 
+described $\\param$ command.
+!Syntax
+\code
+\param <param_name> Parameter description ...
+\endcode
+!Example
+\code
+\param iSize Parameter documentation for iSize
+\endcode
+!Output
+See HowToDocument::ParametersJavaStyle for a good example.
+\include section_commands.inc
+\sa MACRO_PARAMETERS
+*/

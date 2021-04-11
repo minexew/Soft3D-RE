@@ -1,0 +1,26 @@
+/**
+\page "Running DoxyS" 
+!!! Running DoxyS
+
+Generating documentation for your code is very simple and works even if you have 
+not entered any special comments or commands to your C++ code. From a command 
+prompt at the root of your code directory just type $doxys$ and the program will 
+generate a default configuration file which is used. This configuration file can 
+then be modified for subsequent runs. Config options are described in "Config Options".
+
+By default the code is searched recursively, all entities (classes, functions,
+private, protected, public, variables, defines etc. ) are included. Also 
+most of the dot-graphs (inheritance, callgraphs, included files etc.) and source 
+code are generated.
+
+! Command syntax
+|| $doxys [configFile]$ |Generate documentation using $configFile$.\n If  $-$ ( ie. dash "-") is used for configFile, DoxyS will read from standard input.\n If configFile is omitted, #DoxySfile# is used.
+
+! Command line options
+| $-g [-l] [configFile]$ |Generate default config file with specified name.\n $-l$ option creates config file in a detailed format(with comments).\n If $-$ ( ie. dash "-") is used for configFile, DoxyS will write to standard output.
+| $-u [-l] [configFile]$ |Force update on an old configuration file, with comments (DoxyS will automatically update your config file when needed, so this option should not be used under normal circumstances).
+| $-p fileName$ |Single file preview mode. Preview the specified file.\n  Output goes to $./doxys_preview/$. 
+| $-m [dirName]$ | Generate manual/help. Output goes to $./dirName/$ or\n $./doxys_help/$ if dirName is omitted. 
+| $-h, -?, -help [dirName]$ | Print help screen. 
+
+*/

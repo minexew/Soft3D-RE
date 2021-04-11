@@ -1,0 +1,20 @@
+/**
+\page newlineCmd
+!!! Forcing a newline without using a blank line( \n )
+To force a newline without having to insert a blank line use $\\n$. 
+This can now also be achieved by setting ENABLE_HARD_SOFT_LINE_BREAKS = YES 
+and then make linebreak without any spaces before the linebreak. I.e. simply 
+press "enter" right after the last character on the line to force a line break. 
+If on the other hand you insert a space after the last charater and before the 
+linebreak no linebreak will occur in the output.
+
+!Syntax
+\code
+Some text with a line break here\n
+next line continues here.
+\endcode
+!Output
+Some text with a line break here\n
+next line continues here.
+\sa ENABLE_HARD_SOFT_LINE_BREAKS on page DocParser
+*/

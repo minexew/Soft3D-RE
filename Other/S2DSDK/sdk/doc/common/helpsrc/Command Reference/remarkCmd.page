@@ -1,0 +1,15 @@
+/**
+\page remarkCmd
+!!! Making a remark ( remark ).
+For making a remark which is placed in the remarks section of the entity or page.
+!Syntax
+\code
+\remark This is a remark. Remarkable :-)
+\endcode
+!Output
+See below in the #Remarks# section.
+\include section_commands.inc
+\remark This is a remark. Remarkable :-)
+\sa noteCmd for making notes.
+\sa HowToDocument::Remark
+*/

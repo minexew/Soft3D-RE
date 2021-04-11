@@ -1,0 +1,28 @@
+/** \page IncludeInOutput
+
+!!! Specify what is included in the output.
+
+
+
+||CREATE_DOC_FOR_FILES|If set to YES DoxyS will create Documentation for files. Documentation for files features #included files# and #included by diagrams#, if  $INCLUDE_GRAPH$ and $INCLUDED_BY_GRAPH$ are set to YES. \n #Default value:#\n $YES$
+||CREATE_SOURCECODE_FOR_FILES|If the CREATE_SOURCECODE_FOR_FILES tag is set to YES and CREATE_DOC_FOR_FILES is set to YES DoxyS will create the tab 'Source' that holds the sourcecode for the hole file. \n #Default value:#\n $NO$
+||CREATE_SOURCECODE_FOR_MEMBERS|If the CREATE_SOURCECODE_FOR_MEMBERS tag is set to YES DoxyS will create the tab 'Source' that holds the sourcecode for the member. \n #Default value:#\n $YES$
+||EXTRACT_PRIVATE|If set to YES all private members of a class will be included in the documentation. \n #Default value:#\n $YES$
+||EXTRACT_PROTECTED|If the EXTRACT_PROTECTED tag is set to YES all protected members of a class will be included in the documentation. \n #Default value:#\n $YES$
+||EXTRACT_STATIC|If the EXTRACT_STATIC tag is set to YES all static members of a file will be included in the documentation. \n #Default value:#\n $YES$
+||EXTRACT_LOCAL_CLASSES|If the EXTRACT_LOCAL_CLASSES tag is set to YES classes (and structs) defined locally in source files will be included in the documentation. If set to NO only classes defined in header files are included. \n #Default value:#\n $YES$
+||HIDE_UNDOC_NAMESPACES|If the HIDE_UNDOC_NAMESPACES tag is set to YES, DoxyS will hide all undocumented namespaces. \n #Default value:#\n $NO$
+||HIDE_UNDOC_CLASSES|If the HIDE_UNDOC_CLASSES tag is set to YES, DoxyS will hide all undocumented classes that are normally visible in the class hierarchy. If set to NO (the default) these classes will be included in the various overviews. \n #Default value:#\n $NO$
+||HIDE_UNDOC_STRUCTS|If the HIDE_UNDOC_STRUCTS tag is set to YES, DoxyS will hide all undocumented structs that are normally visible in the hierarchy. If set to NO (the default) these structs will be included in the various overviews. \n #Default value:#\n $NO$
+||HIDE_UNDOC_UNIONS|If the HIDE_UNDOC_UNIONS tag is set to YES, DoxyS will hide all undocumented unions that are normally visible in the hierarchy. If set to NO (the default) these unions will be included in the various overviews. \n #Default value:#\n $NO$
+||HIDE_UNDOC_FUNCTIONS|If set to YES, DoxyS will hide all undocumented functions inside classes, files or namespaces. \n #Default value:#\n $NO$
+||HIDE_UNDOC_VARIABLES|If set to YES, DoxyS will hide all undocumented variables inside classes, files or namespaces. \n #Default value:#\n $NO$
+||HIDE_UNDOC_ENUMS|If set to YES, DoxyS will hide all undocumented enumerations inside classes, files or namespaces. \n #Default value:#\n $NO$
+||HIDE_UNDOC_ENUM_VALUES|If set to YES, DoxyS will hide all undocumented enum valuesinside classes, files or namespaces. \n #Default value:#\n $NO$
+||HIDE_UNDOC_TYPEDEFS|If set to YES, DoxyS will hide all undocumented typedefs inside classes, files or namespaces. \n #Default value:#\n $NO$
+||HIDE_UNDOC_MACROS|If set to YES, DoxyS will hide all undocumented defines. \n #Default value:#\n $NO$
+||HIDE_UNDOC_DEFINES|If set to YES, DoxyS will hide all undocumented defines. \n #Default value:#\n $YES$
+||GENERATE_TODOLIST|The GENERATE_TODOLIST tag can be used to enable (YES) or disable (NO) the todo list. This list is created by putting 	odo commands in the documentation.\n #Default value:#\n $YES$
+||GENERATE_BUGLIST|The GENERATE_BUGLIST tag can be used to enable (YES) or disable (NO) the bug list. This list is created by putting bug commands in the documentation.\n #Default value:#\n $YES$
+||GENERATE_DEPRECATEDLIST|The GENERATE_DEPRECATEDLIST tag can be used to enable (YES) or disable (NO) the deprecated list. This list is created by putting deprecated commands in the documentation.\n #Default value:#\n $YES$
+*/

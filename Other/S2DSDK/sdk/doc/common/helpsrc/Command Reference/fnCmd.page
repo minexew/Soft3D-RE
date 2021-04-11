@@ -1,0 +1,28 @@
+/**
+\page fnCmd
+!!! Attaching comment block to a specific function ( fn )
+The var command is used to explicitly link a documentation comment block to the 
+specified function. When documenting functions it's necessary to specify the 
+return type (also if it's void) of the function along with the parameter types. 
+
+!Syntax
+\code
+/**
+\fn <return_type> [scope]<fun_name>[(param_type, param_type ..)]
+Normal way of documenting goes here ....
+\endds_doc \endcode
+
+!Example
+\code
+/**
+\fn int FreeFunction(int)
+Normal way of documenting goes here ....
+\endds_doc \endcode
+
+!Output
+The var command does not produce any output of its own, but secures that the 
+comment block as a whole is used to produce the documentation of the specified 
+class. But see FreeFunction().
+\include separate_docs.inc
+\sa SepDocNamespace::NamespaceFunction()
+*/

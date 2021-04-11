@@ -1,0 +1,19 @@
+/**
+\page callgraphCmd
+!!! Adding a call graph ( callgraph )
+If the HAVE_DOT parameter is set to YES in the DoxySfile, this command will cause 
+a call graph to be generated for the function (provided the implementation of the 
+function or method calls other documented functions). The command can be added 
+anywhere in the documentation block for a function.
+!Syntax
+\code
+/** Brief description of function. More .....
+\callgraph 
+\endds_doc \endcode
+!Output
+A callgraph tab is added to the function documentation.
+
+\note The completeness (and correctness) of the call graph depends on the DoxyS code 
+      parser which is not perfect.
+\sa CALL_GRAPH on DotOptions page.
+*/

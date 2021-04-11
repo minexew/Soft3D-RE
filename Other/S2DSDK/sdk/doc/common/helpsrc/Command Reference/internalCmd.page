@@ -1,0 +1,17 @@
+/**
+\page internalCmd
+!!! Making a "For internal use only" section ( internal ).
+For making a bullet entry in the "For internal use only" section on the bottom 
+of the page. The internal sections are mainly meant for the developpers of the 
+code and therefore they can be turned ON or OFF in the generated output by setting 
+INTERNAL_DOCS in the configuration file (see OutputCustomization).
+!Syntax
+\code
+\internal This comment is for internal use only.
+\endcode
+!Output
+See below in the #For internal use only# section.
+\include section_commands.inc
+\internal This comment is for internal use only.
+\sa todoCmd for making another kind of developer only comment.
+*/

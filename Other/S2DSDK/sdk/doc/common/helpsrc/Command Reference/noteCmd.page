@@ -1,0 +1,16 @@
+/**
+\page noteCmd
+!!! Making a note ( note ).
+For making a note which is placed in the notes section of the entity or page.
+!Syntax
+\code
+\note This is a note.
+\endcode
+!Output
+See below in the #Notes# section.
+\include section_commands.inc
+\note This is a note.
+\note This is another note.
+\sa remarkCmd for making remarks.
+\sa HowToDocument::Note
+*/

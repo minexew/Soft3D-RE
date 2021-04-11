@@ -1,0 +1,128 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - DotOptions</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - DotOptions</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','ConfigOptions0',this)" class="pathLink">Config Options</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">DotOptions</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1723","aID1723","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','DotOptions0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Configuration options related to the dot tool.</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn1">ENABLE_DOT_GRAPHS</td><td class="userPaddingNormal2">If set to YES then DoxyS will assume the dot tool is available from the path. This tool is part of Graphviz, a graph visualization toolkit from AT&amp;T and Lucent Bell Labs. The other options in this section have no effect if this option is set to NO. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">DOT_PATH</td><td class="userPaddingNormal2">The tag DOT_PATH can be used to specify the path where the dot tool can be found. If left blank, it is assumed the dot tool can be found on the path. </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">CLASS_DIAGRAMS</td><td class="userPaddingNormal2">If the CLASS_DIAGRAMS tag is set to YES (the default) DoxyS will generate a inheritance diagram for classes with base or super classes. Setting the tag to NO turns the diagrams off. Note that this option is superceded by the ENABLE_DOT_GRAPHS option below. This is only a fallback. It is recommended to install and use dot, since it yields more powerful graphs. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">HIDE_UNDOC_RELATIONS</td><td class="userPaddingNormal2">If set to YES, the inheritance and collaboration graphs will hide inheritance and usage relations if the target is undocumented or is not a class. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">CLASS_GRAPH</td><td class="userPaddingNormal2">If the CLASS_GRAPH and ENABLE_DOT_GRAPHS tags are set to YES then DoxyS will generate a graph for each documented class showing the direct and indirect inheritance relations. Setting this tag to YES will force the the CLASS_DIAGRAMS tag to NO.<br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">COLLABORATION_GRAPH</td><td class="userPaddingNormal2">If the COLLABORATION_GRAPH and ENABLE_DOT_GRAPHS tags are set to YES then DoxyS will generate a graph for each documented class showing the direct and indirect implementation dependencies (inheritance, containment, and class references variables) of the class with other documented classes. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">UML_LOOK</td><td class="userPaddingNormal2">If the UML_LOOK tag is set to YES DoxyS will generate inheritance and collaboration diagrams in a style similiar to the OMG's Unified Modeling Language. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">TEMPLATE_RELATIONS</td><td class="userPaddingNormal2">If set to YES, the inheritance and collaboration graphs will show the relations between templates and their instances. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">INCLUDE_GRAPH</td><td class="userPaddingNormal2">If the ENABLE_PREPROCESSING, SEARCH_INCLUDES, INCLUDE_GRAPH, and ENABLE_DOT_GRAPHS tags are set to YES then DoxyS will generate a graph for each documented file showing the direct and indirect include dependencies of the file with other documented files. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">INCLUDED_BY_GRAPH</td><td class="userPaddingNormal2">If the ENABLE_PREPROCESSING, SEARCH_INCLUDES, INCLUDED_BY_GRAPH, and ENABLE_DOT_GRAPHS tags are set to YES then DoxyS will generate a graph for each documented header file showing the documented files that directly or indirectly include this file. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">CALL_GRAPH</td><td class="userPaddingNormal2">If the CALL_GRAPH and ENABLE_DOT_GRAPHS tags are set to YES then DoxyS will generate a call dependency graph for every global function or class method. Note that enabling this option will significantly increase the time of a run. So in most cases it will be better to enable call graphs for selected functions only using the callgraph command.<br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">DIR_GRAPH</td><td class="userPaddingNormal2">If the CALL_GRAPH and ENABLE_DOT_GRAPHS tags are set to YES then DoxyS will generate a directory graph for for every directory. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">GRAPHICAL_HIERARCHY</td><td class="userPaddingNormal2">If the GRAPHICAL_HIERARCHY and ENABLE_DOT_GRAPHS tags are set to YES then DoxyS will graphical hierarchy of all classes instead of a textual one. <br>
+ <b>Default value:</b><br>
+ <code>YES</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">DOT_IMAGE_FORMAT</td><td class="userPaddingNormal2">The DOT_IMAGE_FORMAT tag can be used to set the image format of the images generated by dot. Possible values are png, jpg, or gif. If left blank png will be used. <br>
+ <b>Default value:</b><br>
+ <code>png</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">DOTFILE_DIRS</td><td class="userPaddingNormal2">The DOTFILE_DIRS tag can be used to specify one or more directories that contain dot files that are included in the documentation (see the dotfile command). </td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">MAX_DOT_GRAPH_WIDTH</td><td class="userPaddingNormal2">The MAX_DOT_GRAPH_WIDTH tag can be used to set the maximum allowed width (in pixels) of the graphs generated by dot. If a graph becomes larger than this value, DoxyS will try to truncate the graph, so that it fits within the specified constraint. Beware that most browsers cannot cope with very large images. <br>
+ <b>Default value:</b><br>
+ <code>1024</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">MAX_DOT_GRAPH_HEIGHT</td><td class="userPaddingNormal2">The MAX_DOT_GRAPH_HEIGHT tag can be used to set the maximum allows height (in pixels) of the graphs generated by dot. If a graph becomes larger than this value, DoxyS will try to truncate the graph, so that it fits within the specified constraint. Beware that most browsers cannot cope with very large images. <br>
+ <b>Default value:</b><br>
+ <code>1024</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">MAX_DOT_GRAPH_DEPTH</td><td class="userPaddingNormal2">The MAX_DOT_GRAPH_DEPTH tag can be used to set the maximum depth of the graphs generated by dot. A depth value of 3 means that only nodes reachable from the root by following a path via at most 3 edges will be shown. Nodes that lay further from the root node will be omitted. Note that setting this option to 1 or 2 may greatly reduce the computation time needed for large code bases. Also note that a graph may be further truncated if the graph's image dimensions are not sufficient to fit the graph (see MAX_DOT_GRAPH_WIDTH and MAX_DOT_GRAPH_HEIGHT). If 0 is used for the depth value (the default), the graph is not depth-constrained. <br>
+ <b>Default value:</b><br>
+ <code>0</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">CENTER_ALIGN_DOT_IMAGES</td><td class="userPaddingNormal2">If set to YES, then all dot images are centered. Otherwise the images will be left-aligned. <br>
+ <b>Default value:</b><br>
+ <code>NO</code><br>
+</td></tr>
+<tr>
+<td class="userPaddingHeadMultiColumn1">DOT_CLEANUP</td><td class="userPaddingNormal2">If the DOT_CLEANUP tag is set to YES (the default) DoxyS will remove the intermediate dot files that are used to generate the various graphs. <br>
+ <b>Default value:</b><br>
+ <code>YES</code></td></tr>
+</table>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

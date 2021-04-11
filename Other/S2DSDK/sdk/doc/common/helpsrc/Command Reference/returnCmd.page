@@ -1,0 +1,15 @@
+/**
+\page returnCmd
+!!! Documenting return values ( return )
+Documenting return values from functions or macros is done using the keyword $\\return$. 
+The return value i listed last in the parameter table like shown here: HowToDocument::Return. 
+!Syntax
+\code
+\return Return value description ...
+\endcode
+!Output
+See HowToDocument::ReturnValue for a example.
+\include section_commands.inc
+\note To provide compatibility with original Doxygen the following aliases for the
+      $\\return$ command also works: $\\returns$ and $\\retval$
+*/

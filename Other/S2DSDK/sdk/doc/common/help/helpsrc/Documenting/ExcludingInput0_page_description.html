@@ -1,0 +1,88 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - Excluding Input</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - Excluding Input</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','Documenting0',this)" class="pathLink">Documenting</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">Excluding Input</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1713","aID1713","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','ExcludingInput0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Excluding certain input (DoxyS.ignore, DOXYS_OFF, exclude)</div>
+To facilitate cutomisation of what's included in the generated output DoxyS supports ways of excluding files, sections of files or individual entities.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> Excluding files (DoxyS.ignore)</div>
+This works similar the CVS counterpart <code>.cvsignore</code> file except that currently the <code>DoxyS.ignore</code> file does not support wildcards in filenames, ie. You need to list all files and directories that you want to exclude in the directory of the <code>DoxyS.ignore</code> file. The name of this file can be configured via the IGNORE_FILE_NAME in the config file, see <a href="#" OnMouseOver="link('_page','../Config_Options/InputOptions0',this)">InputOptions</a>.<br>
+<br>
+</div>
+<div class="padding">It's quite simple to use. In every directory where You need to exclude certain files or subdirectories simple create a <code>DoxyS.ignore</code> file listing the files and directories to be excluded like this:<br>
+<br>
+</div>
+<div class="padding">  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+some_directory_to_exclude
+some_file_to_exclude.h
+some_file_to_exclude.cpp
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> Excluding sections in files (DOXYS_OFF)</div>
+To turn of DoxyS parsing (text is skipped completely by pre-processor) type this on a single line in the source file outside any (other) documentation blocks.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">To turn OFF:</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn2">/// DOXYS_OFF</td></tr>
+</table>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">To turn ON:</div>
+<table cellspacing=0 cellpadding=0 border=0 class="userTableBorder">
+<tr>
+<td class="userPaddingHeadMultiColumn2">/// DOXYS_ON</td></tr>
+</table>
+<br>
+</div>
+<div class="padding">When DoxyS is turned off, this state continues until the <code>/// DOXYS_ON</code><br>
+statement is encountered or until the end of the file is reached. Ie. there<br>
+is an implicit "turn on" statement at the end of a file.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> Using the preprocessor to exclude sections of a file</div>
+XXX<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3"> Using the exclude command</div>
+A single entity can be excluded by using the \exclude command, see <a href="#" OnMouseOver="link('_page','../Command_Reference/excludeCmd0',this)">excludeCmd</a>.<br>
+</div>
+<div class="paragraph2">Todo</div>
+<div id="descToDo" class="paddingMembers"><LI>Write doc "Using the preprocessor to exclude sections of a file" <br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

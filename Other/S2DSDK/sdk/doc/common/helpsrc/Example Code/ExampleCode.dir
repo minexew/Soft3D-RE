@@ -1,0 +1,44 @@
+/**
+\dir 
+!!! Example code showing how to use DoxyS.
+This directory contains example code showing howto use DoxyS to document
+code. The souce for these examples can be found in the output directory 
+under: #$common/helpsrc/ExampleCode$#. In case you are new to DoxyS and just 
+want to get a very quick introduction by examples please proceed to HowToDocument.
+
+Also in this directory we present example code, which demonstrates }all}
+DoxyS's features. This includes how to document code and how different types
+of code are displayed etc. Among this are also more advanced features like templates, 
+template specializations, overloaded functions etc.
+
+!The main topics covered in this example code are:
+|| Topic || Where to look
+| Howto document (quick intro)| HowToDocument
+| units: Related free functions| Unit.h
+| Turn DoxyS ON/OFF| DOXYS_OFF_ON.h
+| separate documentation | "Separate Docs"
+*/
+
+
+//- templates
+//- template specialization
+//- MyClass example, with most common things:
+//  - Author
+//  - Note
+//  - Deprecated
+//  - Version
+//  - Todo
+//  - Example inclusion
+//  - Overloads
+//  - Overrides
+//  
+//- Global functions
+//- Unit
+//- include a raw text file
+//- include a an image
+//- including examples
+//- DOXYS_OFF DOXYS_ON
+//- Conditional blocks \\if etc.
+//- \\page
+//- \\file
+  

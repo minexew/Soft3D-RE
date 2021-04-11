@@ -1,0 +1,84 @@
+<HTML>
+<HEAD>
+<TITLE>HELP - varCmd</TITLE>
+<script type="text/javascript" src="../../common/js.js" language="JavaScript"></script>
+<script type="text/javascript" src="leftmenu.js" language="JavaScript"></script>
+<script type="text/javascript">
+ var relPathToCommmon = "../../common/";
+ var relPathToHelpDir = "../../common/help/";
+ var toSearchPage     = "_search','../../search";
+ Body1();
+</script>
+<div class="headerPage">HELP - varCmd</div>
+<div class="path"><a href="#" OnMouseOver="link('','../../index',this)" class="pathLink">Help</A><img src="../../common/path-arrow.gif" class="path-arrow"><a href="#" OnMouseOver="link('_dir','CommandReference0',this)" class="pathLink">Command Reference</A><img src="../../common/path-arrow.gif" class="path-arrow"><span class="pathNonLink">varCmd</span></div>
+<script type="text/javascript">
+ Body2();
+ BodyLeftMenuStart();
+WriteLeftMenu("divID1776","aID1776","LeftMenuActive","leftMenuLinkActive");
+ BodyLeftMenuEnd();
+ Body3();
+</script>
+<span class="tabActive"><a href="#" OnMouseOver="linkTab('_page','varCmd0','_description',this)" class="tabLinkActive">Description</a></span>
+<script type="text/javascript">
+ Body4();
+</script>
+&nbsp;<br>
+<div class="padding"><div class="userParagraph1"> Attaching comment block to a specific variable / enum / define ( var )</div>
+The var command is used to explicitly link a documentation comment block to the specified variable / enum or define. When documenting variables it's necessary to specify the type of the variable also. The <code>\var</code> command is also used when documenting enum values in a separate file, see <a href="#" OnMouseOver="link('_member','../Example_Code/Separate_Docs/ClassEnum179590647',this)">SepDocClass::ClassEnum</a> <a href="#" OnMouseOver="link('_member','../Example_Code/Separate_Docs/eClassEnumVal1179590647',this)">SepDocClass::eClassEnumVal1</a> for an example. Also it's important to qualify the name with full scope.<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Syntax</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/**
+\var &lt;type&gt; [scope]&lt;var_name&gt;
+Normal way of documenting goes here ....
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Example</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+/**
+\var int SepDocClass::ClassUnion::m_iClassUnionIntMember
+Normal way of documenting goes here ....
+*/
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+<br>
+</div>
+<div class="padding"><div class="userParagraph3">Output</div>
+The var command does not produce any output of its own, but secures that the comment block as a whole is used to produce the documentation of the specified class. But see <a href="#" OnMouseOver="link('_member','../Example_Code/Separate_Docs/m_iClassUnionIntMember464580851',this)">SepDocClass::ClassUnion::m_iClassUnionIntMember</a>.<br>
+<div class="userParagraph2">About putting the documentation in separate files</div>
+This command is used for documenting an entity away from it's definition in the code. See SeparateDocs for some examples.<br>
+<br>
+The commands for making separate documentation are:<br>
+<br>
+<code>\class, \def, \enum, (\file), \fn, \namespace, \struct, \typedef, \union \var</code><br>
+<div class="userParagraph3">Qualify with scope (class, namepace) if inside a scope like this:</div>
+  <table cellspacing=0 cellpadding=0 border=0 class="widthAndBorderMembers">
+  <TR VALIGN="top">
+  <TD class="paddingHeadMultiColumn2">
+<pre class="codeExamples">
+\enum <a href="#" onMouseOver="link('_member','../Example_Code/Separate_Docs/ClassEnum179590647',this); ">SepDocClass::ClassEnum</a>
+</pre>  </TD>
+  </TR>
+  </TABLE>
+<br>
+</div>
+<script type="text/javascript">
+ Body5();
+Statistics("","","","","");
+ Body6();
+SetPageTab('_page','_description');
+</script>

@@ -1,0 +1,22 @@
+/** \page LayoutHtml
+
+!!! Configuration options related to the HTML layout.
+
+
+
+||NAVIGATION_CHAR_LENGTH|The NAVIGATION_CHAR_LENGTH tag is the maximum of charters there must bebefore we are cuttingThis is done to prevent the left menu from taking op to much space\n #Default value:#\n $25$
+||LIMIT_COMPACT_IN_OVERVIEW_TABLES|If the number of entries in an overview table exceeds this number, then the the table will be shown in compact mode. Compact mode means that the table will contain COLS_IN_OVERVIEW_TABLES coloumns in each row and only the definitions name will be shown. The brief description will be be shown via mouse over effect. \n #Default value:#\n $100$
+||COLS_IN_OVERVIEW_TABLES|Number of coloumns in all the overview tables in case some of them contains so many elements that they need to swich to compact mode. \n #Default value:#\n $4$
+||LIMIT_ALFA_INDEX_IN_OVERVIEW_TABLES|If the number of entries in an overview table exceeds this number, then the the an alphabetical index will be generated. \n #Default value:#\n $200$
+||COMPACT_CHAR_LENGTH|The COMPACT_CHAR_LENGTH tag is the maximum of charters there must bebefore we are cutting the name in compact modeThis is done to prevent the name from being to long\n #Default value:#\n $25$
+||INFO_ON_OVERVIEW_TABLES_NORMAL|Enables the info icon in non compact mode (ie. tables with brief description).A mouse over will be shown with same type of info as on diagrams. Brief, public members etc.\n #Default value:#\n $YES$
+||INFO_ON_OVERVIEW_TABLES_COMPACT|Enables the info icon in compact mode (ie. tables with no brief description).A mouse over will be shown with same type of info as on diagrams. Brief, public members etc.\n #Default value:#\n $YES$
+||INCLUDE_BRIEF_IN_HEADER|If true the brief description is included in the header of the description. If both this tag and INCLUDE_BRIEF_IN_DESCRIPTION are set to NO then brief description will }not} appear on the decription pages.\n #Default value:#\n $YES$
+||INCLUDE_BRIEF_IN_DESCRIPTION|If true the brief description is repeated in the description section.If both this tag and INCLUDE_BRIEF_IN_HEADER are set to NO then brief description will }not} appear on the decription pages.\n #Default value:#\n $YES$
+||HIDE_TYPE_ON_DESCRIPTION|If true the desciption will not contain type info.Ex:(Page),(Class),(Namespace).\n #Default value:#\n $NO$
+||EXPAND_COLLAPSE_SECTIONS|Enables the collapse / expand icons on the description page.All sections can now be collapsed. See also EXPAND_COLLAPSE_TABLE_SECTIONS_ONLY \n #Default value:#\n $YES$
+||EXPAND_COLLAPSE_TABLE_SECTIONS_ONLY|Enables the collapse / expand icons on syntax, parameters etc.This tag depends on EXPAND_COLLAPSE_SECTIONS is set to YES.If this is set to true, then only syntax/parameters, reimplements etc. sections will have expand collapse icons. Description, todo, etc. }cannot} be collapsed. \n #Default value:#\n $YES$
+||CENTER_ALIGN_IMAGES|If set to YES, then included images (and their captions) are centered. Otherwise the images and captions will be left-aligned. \n #Default value:#\n $NO$
+||OPTIMIZE_OUTPUT_FOR_C|If set to YES, DoxyS make some C related enhancements. For now it's not so much, but still nice for pure C code. \n #Default value:#\n $NO$
+||SHOW_PATH_IN_HEADER|If set to YES, DoxyS will make a path in the header. You can get an overview over where you are in the project and navigate in the path. \n #Default value:#\n $YES$
+*/
