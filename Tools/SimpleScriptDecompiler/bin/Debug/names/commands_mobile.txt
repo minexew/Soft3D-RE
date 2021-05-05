@@ -1,8 +1,20 @@
-#Moved to special commands
-#37:enableTask(string);
-#38:disableTask(string);
+36:runScript(string);
+37:enableTask(string);
+38:disableTask(string);
+39:runTask(string);
+40:intermitTask(string)
+#setVar(short,int);
+#getVar(short);
 
+43:IsKeyFirstDown(byte);
+44:IsKeyDown(byte);
+45:IsKeyPress(byte);
+46:IsKeyUp(byte);
+47:IsKeyClick(byte);
+48:IsAnyKeyDown();
+49:IsAnyKeyClick();
 
+50:Log(string);
 51:FadeIn(byte,byte,byte,byte);
 52:FadeOut(byte,byte,byte,byte);
 

@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using SimpleScriptDecompiler.Decompiler;
+using System;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace SimpleScriptDecompiler.Utils
 {
@@ -23,19 +21,40 @@ namespace SimpleScriptDecompiler.Utils
 
         public static string GetFuncName(int index)
         {
-            return "func_" + index;
+            return Constants.FUNC_PREFIX + index;
         }
 
         public static string GetVarName(int index)
         {
-            return "var_" + (index + 1);
+            return Constants.VAR_PREFIX + (index + 1);
+        }
+
+        public static bool GetCommandName(int id, out string name)
+        {
+            name = string.Format("Command[{0}]", id);
+
+            if (CommandsFile.IsLoaded)
+            {
+                var c = CommandsFile.GetCommand(id);
+                if (c != null && c.Name != null)
+                {
+                    name = c.Name;
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public static float Int2Float(int i)
         {
+            float result = (float)i / 0x10000;
+            return (float)Math.Round(result, 4);
+            /*
             float result = i >> 16;
             result += (float)(i & 0xFFFF) / ushort.MaxValue;
             return (float)Math.Round(result, 4);
+            */
         }
     }
 }

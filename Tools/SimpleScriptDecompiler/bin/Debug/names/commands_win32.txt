@@ -1,20 +1,69 @@
-#FOR WIN32 REV, FUNC NAMES FOR 7 Days Salvation Demo (English)
+#ONLY WIN32 REV, FUNC NAMES FOR 7 Days Salvation Demo (English)
 
+#Special commands
+0:runScript(string);
 1:enableTask(string);
 2:disableTask(string);
+3:runTask(string);
+
+#Not implemented in the game
+4:intermitTask(string);
+
 5:setVar(short,int);
+6:getVar(short);
+#Special commands end
+
+7:IsKeyFirstDown(byte);
+8:IsKeyDown(byte);
+9:IsKeyPress(byte);
+10:IsKeyUp(byte);
+11:IsKeyClick(byte);
+
+#IsAnyKeyDown(); (not include)
+#IsAnyKeyClick(); (not include)
+#Log(string); (not include)
+
 12:FadeIn(byte,byte,byte,byte);
 13:FadeOut(byte,byte,byte,byte);
+
+#LoadNextDay(); (not include)
+
+#ORIGINAL ARGS: short,float,float,float,float,float,float,short,short,short
+14:SetLoadMapParams(short,float,float,float,float,float,float);
+
+15:LoadNextLevel(short,short);
 16:LoadMap(short);
 17:IsMapLoadOK();
 18:SetEventHappen(short);
 19:IsEventHappen(short);
-
-#not sure
+20:GameOver();
+21:Save();
+22:PauseAllUnits(bool);
 23:FreezeCameraTrigger(bool);
-
+24:SetCamera(float,float,float,float,float,float);
+25:CameraMoveTo(float,float,float,float,float,float,float);
 26:SetCameraDetail(byte,float,float,float,float,float,float,float,string,float,bool,short);
+27:IsCameraCurveOver();
+28:BindCameraToPlayer();
+29:BindCameraToEnemy(short);
+30:UnBindCamera();
+31:CameraShake(int,float);
+
+#EnableLinearLerp(bool,float); (not include) check
+
+32:OpenDialog(short);
+33:AddSeleDlgItem(byte,short);
+34:OpenSeleDialog(short,byte,bool);
+35:OpenSimpleDialog(int);
+36:OpenTurtDialog(int,int);
+37:GetSeleDlgValue();
+38:CloseDialog();
 39:IsDialogClose();
+
+#Not implemented in the game
+40:ClearRank();
+41:CalcRank(short);
+
 42:PlayMusic(string,bool);
 43:StopMusic();
 44:AddEnviAudio(byte,string,int,int);
@@ -22,10 +71,26 @@
 46:PlaySound(string);
 47:StartTimer(byte);
 48:GetTime(byte);
+49:StopTimer(byte);
+50:EnablePrompt(int,int);
+51:DisablePrompt();
 
+52:SwitchSceneLight(short,bool);
+53:IsSceneLightOn(short);
+54:SetSceneFog(short,short,short,float,float);
+55:SetMovieSub(bool,short);
 
-57:IgnorePlayerInput(bool);
+#SetKeyMask(bool,bool,bool,bool);
+#SetScreenShader(byte);
+#AddMapMarker(byte,byte,int,int);
+#RemoveMapMarker(byte);
+
+56:SetPlayerGenerationPos(float,float,float,float,float,float);
+
+#SetPlayerVisible(bool);
+
 #check this
+57:IgnorePlayerInput(bool);
 58:PausePlayer(bool);
 
 59:SetPlayerDir(float,float,float);
@@ -33,26 +98,131 @@
 61:SetPlayerAnim(string,bool);
 62:IsPlayerAnimOver();
 63:TeleportPlayer(float,float,float);
+64:PlayerMoveTo(float,float,float);
+65:IsPlayerNearPos(float,float,float,float);
+66:IsPlayerEnterBox(float,float,float,float,float,float);
+67:IsPlayerLeaveBox(float,float,float,float,float,float);
+68:IsPlayerNearEnemy(short);
+69:IsPlayerNearThing(short,float);
+70:PlayerAttack();
+71:IsPlayerDead();
+72:GetPlayerHP();
+
+#63:SetPlayerHP(short); (not include)
+
+73:AddPlayerHP(short);
 
 
+84:BeginQTE(short,short,short);
+85:GetQTEResult();
 
+#GetPlayerUsedItem();
+#PlayerCrawl();
 
-
-#92:AddDoorTrigger
+86:AddEventTrigger(short,byte,short,float,float,float,float,float,float);
+87:SetEventTriggerCnt(short,byte);
+88:SetEventTriggerString(short,short);
+89:IsEventStarted(short);
+90:AddPickTrigger(short,short,short,float,float,float,float,float,float);
+91:EnablePickTrigger(short,bool);
+92:AddDoorTrigger(short,short,short,short,short,short,float,float,float,float,float,float,float,float,float,float,float,float);
+93:SetDoorTriggerItem(short,short);
+94:SetDoorTriggerString(short,short);
+95:EnableDoorTrigger(short,bool);
 96:AddActTrigger(short,float,float,float,float,float,float);
-
-##not sure
-#97:SetActTrigSelCnt
-
+97:SetActTrigSelCnt(short,byte);
 98:SetActTrigString(short,byte,short);
-
+99:GetActTrigValue(short);
+100:ClearActTrigValue(short);
 101:EnableActTrigger(short,bool);
+102:AddHideTrigger(short,short,float,float,float,float,float,float,float,float,float,float,float,float);
+103:EnableHideTrigger(short,bool);
 
-#not sure
-#104:RemoveTrigger
-#105:AddEnemy
+#AddItemTrigger(short,short,float,float,float,float,float,float); (not include)
+#AddItemToIT(short,short); (not include)
+#EnableItemTrigger(short,bool); (not include)
+#AddTalkTrigger(short,float,float,float,float,float,float); (not include)
+#SetTalkTriggerCameraPos(short,float,float,float); (not include)
+#AddTalkTiggerTalkerPos(short,float,float,float); (not include)
+#AddTalkTriggerInfo(short,short,short,short); (not include)
+#IsTalkFinished(short); (not include)
+#EnableTalkTrigger(short,bool); (not include)
+
+104:RemoveTrigger(short);
+105:AddEnemy(short,byte,short,float,float,float);
+
+106:SetEnemyClip(short,bool);
+107:SetEnemyAnim(short,string,bool);
+108:IsEnemyAnimOver(short);
+109:IsEnemyDead(short);
+110:GetEnemyHP(short);
+111:SetEnemyHP(short,short);
+112:GetEnemyATK(short);
+113:SetEnemyATK(short,byte);
+114:SetEnemyDir(short,float,float,float);
+115:TeleportEnemy(short,float,float,float);
+116:EnemyMoveTo(short,float,float,float);
+117:IsEnemyNearPos(short,float,float,float);
+
+118:EnemyFollowPlayer(short);
+119:EnemyAttackPlayer(short);
+120:RemoveEnemy(short);
+121:RemoveEnemyType(short);
+122:RemoveAllEnemy();
+123:PauseEnemy(short,bool);
+124:PauseEnemyType(short,bool);
+125:PauseAllEnemy(bool);
+126:ForceEnemyStop(short,bool);
+127:AddStayBox(short,float,float,float,float,float,float);
+128:SetStayBoxLeave(short,float,float,float,float,float,float);
+129:SetStayBoxEnter(short,float,float,float,float,float,float);
+
+130:SetEnemyStayBox(short,short);
+131:SetEnemyMoveBackPt(short,float,float,float);
+132:AddEnemyWayPoint(short,float,float,float);
+
+#CHECK THIS
+133:SetEnemyWayPointClosed(short,bool);
+
+#SetEnemyAlertRange(short,float); (not include)
+
+134:AddColi(short,float,float,float,float,float,float);
+135:RemoveColi(short);
+136:AddTrap(short,float,float,float,float,float,float,float,float,float);
+137:RemoveTrap(short);
 
 138:AddThing(short,byte,byte,string,float,float,float,float,float,float,float,float,float,float,float,float,bool);
-#142:ShowThing
-#144:SetThingAnim
-#150:SetThingBreakModel
+
+#SetThingDir(short,float,float,float); (not include)
+
+139:SetThingItem(short,short);
+140:SetThingColi(short,bool);
+141:SetThingShin(short,float,float,short);
+142:ShowThing(short,bool);
+143:IsShowThing(short);
+144:SetThingAnim(short,string,int,byte,byte);
+
+145:PauseThingAnim(short,bool);
+146:IsThingAnimPaused(short);
+147:SetThingAnimFrame(short,short);
+148:GetThingAnimFrame(short);
+149:IsThingAnimOver(short);
+150:SetThingBreakModel(short,string,string);
+151:SetThingBreakAnim(short,string);
+152:SetThingBreakSound(short,string);
+
+#SetThingPushSound(short,string); (not include)
+#RotateThingX(short,short); (not include)
+#RotateThingY(short,short); (not include)
+#RotateThingZ(short,short); (not include)
+
+153:SetThingPos(short,float,float,float);
+#AddThingPos(short,float,float,float); (may be its SetThingPos, check)
+
+154:MoveThingTo(short,float,float,float,float);
+
+161:PlayerGetItem(short);
+
+#Check
+162:IsPlayerHaveItem(short);
+163:PlayerLoseItem(short);

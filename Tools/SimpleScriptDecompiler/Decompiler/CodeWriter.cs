@@ -61,7 +61,7 @@ namespace SimpleScriptDecompiler.Decompiler
         public void SetTabLevel(int level)
         {
             tabLevel = Math.Max(level, 0);
-            space = new string(' ', tabSize * tabLevel);
+            space = new string(Constants.SPACE, tabSize * tabLevel);
         }
 
         public void WriteLine()
@@ -97,13 +97,22 @@ namespace SimpleScriptDecompiler.Decompiler
             
         }
 
+        public void WriteLine(string format, object arg0)
+        {
+            if (!spaceNeeded)
+            {
+                writer.WriteLine(space + format, arg0);
+            }
+            else
+            {
+                spaceNeeded = false;
+                writer.WriteLine(format, arg0);
+            }
+            lineIndex++;
+        }
+
         public void WriteLine(string format, params object[] arg)
         {
-            if(arg == null || arg.Length <= 0)
-            {
-                WriteLine((object)format);
-                return;
-            }
             if (!spaceNeeded)
             {
                 writer.WriteLine(space + format, arg);
@@ -114,6 +123,19 @@ namespace SimpleScriptDecompiler.Decompiler
                 writer.WriteLine(format, arg);
             }
             lineIndex++;
+        }
+
+        public void Write(string format, object arg0)
+        {
+            if (!spaceNeeded)
+            {
+                spaceNeeded = true;
+                writer.Write(space + format, arg0);
+            }
+            else
+            {
+                writer.Write(format, arg0);
+            }
         }
 
         public void Write(string format, params object[] arg)
@@ -128,23 +150,23 @@ namespace SimpleScriptDecompiler.Decompiler
                 writer.Write(format, arg);
             }
         }
-
+        /*
         public void WriteEndCommand()
         {
-            WriteLine(";");
+            WriteLine(Constants.END_STATEMENT);
         }
-
+        */
         public void SetMode(WriterMode mode)
         {
             switch(mode)
             {
                 case WriterMode.NORMAL:
                     RemoveTabLevel();
-                    WriteLine("}");
+                    WriteLine(Constants.END_FUNC);
                     break;
                 case WriterMode.SERIAL:
-                    WriteLine("serial");
-                    WriteLine("{");
+                    WriteLine(Constants.SERIAL);
+                    WriteLine(Constants.START_FUNC);
                     AddTabLevel();
                     break;
                 default:
@@ -158,15 +180,17 @@ namespace SimpleScriptDecompiler.Decompiler
             return mode;
         }
 
-        public void WriteWarning(object warn)
+        public void Warning(object warn)
         {
-            Console.WriteLine("Warning! " + warn + " on line: " + (lineIndex + 1));
+            Console.WriteLine("Warning! {0} on line: {1}", warn, GetLineIndex());
             Write(warn);
         }
 
-        public void WriteWarning(string format, params object[] arg)
+        public void Warning(string format, params object[] arg)
         {
-            Console.WriteLine("Warning! " + format + " on line: " + (lineIndex + 1), arg);
+            Console.WriteLine("Warning! {0} on line: {1}",
+                string.Format(format, arg),
+                GetLineIndex());
             Write(format, arg);
         }
 

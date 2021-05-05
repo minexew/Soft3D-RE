@@ -44,15 +44,21 @@
   <ItemGroup>
     <Compile Include="CommandsFile.cs" />
     <Compile Include="Decompiler\CodeWriter.cs" />
+    <Compile Include="Decompiler\Constants.cs" />
     <Compile Include="Decompiler\Globals.cs" />
     <Compile Include="Decompiler\IDecompilerInterface.cs" />
     <Compile Include="Decompiler\MobileDecompiler.cs" />
     <Compile Include="Decompiler\Win32Decompiler.cs" />
+    <Compile Include="IO\CustomBinaryReader.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Script\MobileSimpleScript.cs" />
     <Compile Include="Script\IScriptInterface.cs" />
-    <Compile Include="Script\Win32SimpleScript.cs" />
+    <Compile Include="Script\Mobile\Command.cs" />
+    <Compile Include="Script\Mobile\Function.cs" />
+    <Compile Include="Script\Mobile\SimpleScript.cs" />
+    <Compile Include="Script\Win32\Command.cs" />
+    <Compile Include="Script\Win32\Function.cs" />
+    <Compile Include="Script\Win32\SimpleScript.cs" />
     <Compile Include="Utils\DecompilerUtils.cs" />
     <Compile Include="Utils\TypeNamesUtils.cs" />
   </ItemGroup>

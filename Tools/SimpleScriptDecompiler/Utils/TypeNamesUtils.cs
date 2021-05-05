@@ -8,7 +8,8 @@ namespace SimpleScriptDecompiler.Utils
 {
     class TypeNamesUtils
     {
-        private static Dictionary<string, string> names = new Dictionary<string, string>()
+        private static readonly Dictionary<string, string> names =
+        new Dictionary<string, string>()
         {
             { "bool",   "Boolean" },
             { "float",  "Single" },

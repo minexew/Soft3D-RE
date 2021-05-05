@@ -22,7 +22,8 @@ namespace SimpleScriptDecompiler
         private const string dir = "names";
 
         private static Dictionary<int, Command> commands;
-        private static bool isLoaded;
+
+        public static bool IsLoaded { get; private set; }
 
 
         public static void LoadFromFile(string filename)
@@ -59,13 +60,9 @@ namespace SimpleScriptDecompiler
             reader.Close();
 
 
-            isLoaded = true;
+            IsLoaded = true;
         }
 
-        public static bool IsLoaded()
-        {
-            return isLoaded;
-        }
 
         private static Command GetCommand(string line)
         {
@@ -78,11 +75,11 @@ namespace SimpleScriptDecompiler
 
             Command command = new Command();
             command.Name = data[0];
-            command.Args = GetCommandAgrs(data[1].Substring(0, data[1].IndexOf(')')));
+            command.Args = GetCommandArgs(data[1].Substring(0, data[1].IndexOf(')')));
             return command;
         }
 
-        private static Type[] GetCommandAgrs(string s)
+        private static Type[] GetCommandArgs(string s)
         {
             string[] data = s.Split(',');
             List<Type> args = new List<Type>();

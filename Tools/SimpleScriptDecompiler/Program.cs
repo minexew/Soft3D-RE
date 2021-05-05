@@ -14,7 +14,7 @@ namespace SimpleScriptDecompiler
             None,
             Win32,
             Mobile,
-            PlatFormCount
+            PlatformCount
         }
 
         private static TargetPlatform platform;
@@ -24,8 +24,6 @@ namespace SimpleScriptDecompiler
 
         static void Main(string[] args)
         {
-            //args = new string[] { "mobile", "mobile_scripts/ep0104.sst" };
-            
             ProcessArgs(args);
 
             if(platform == TargetPlatform.None || string.IsNullOrEmpty(inputFile))
@@ -43,11 +41,11 @@ namespace SimpleScriptDecompiler
             switch(platform)
             {
                 case TargetPlatform.Win32:
-                    script = new Win32SimpleScript();
+                    script = new Script.Win32.SimpleScript();
                     decompiler = new Win32Decompiler();
                     break;
                 case TargetPlatform.Mobile:
-                    script = new MobileSimpleScript();
+                    script = new Script.Mobile.SimpleScript();
                     decompiler = new MobileDecompiler();
                     break;
                 default:
@@ -72,19 +70,22 @@ namespace SimpleScriptDecompiler
             if (args == null || args.Length <= 1)
                 return;
 
-            if (args[0].ToLower().StartsWith("win"))
+            string _platform = args[0].ToLower();
+
+            if (_platform.StartsWith("win"))
                 platform = TargetPlatform.Win32;
-            else if (args[0].ToLower().StartsWith("mobile"))
+            else if (_platform.StartsWith("mobile"))
                 platform = TargetPlatform.Mobile;
             else
                 return;
 
-            if (!File.Exists(args[1]))
+            string _inputFile = args[1];
+            if (!File.Exists(_inputFile))
                 return;
 
-            inputFile = args[1];
+            inputFile = _inputFile;
 
-            outputFile = "out.sst";
+            outputFile = "out.txt";
 
             if (args.Length == 3 && !string.IsNullOrEmpty(args[2]))
                 outputFile = args[2];
@@ -99,7 +100,7 @@ namespace SimpleScriptDecompiler
         private static void PrintPlatforms()
         {
             Console.WriteLine("Platforms:");
-            for (int i = 0; i < (int)TargetPlatform.PlatFormCount; i++)
+            for (int i = 0; i < (int)TargetPlatform.PlatformCount; i++)
             {
                 TargetPlatform platform = (TargetPlatform)i;
                 if (platform != TargetPlatform.None)

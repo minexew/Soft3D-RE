@@ -1,8 +1,8 @@
 ﻿using SimpleScriptDecompiler.Script;
+using SimpleScriptDecompiler.Script.Mobile;
 using SimpleScriptDecompiler.Utils;
 using System;
 using static SimpleScriptDecompiler.Decompiler.CodeWriter;
-using static SimpleScriptDecompiler.Script.MobileSimpleScript;
 
 namespace SimpleScriptDecompiler.Decompiler
 {
@@ -24,7 +24,7 @@ namespace SimpleScriptDecompiler.Decompiler
                 Console.WriteLine("Decompiler: script is null");
                 return;
             }
-            MobileSimpleScript ss = (MobileSimpleScript)script;
+            SimpleScript ss = (SimpleScript)script;
             //TODO: Check normal cast
 
             
@@ -39,57 +39,71 @@ namespace SimpleScriptDecompiler.Decompiler
             if(ss.constructorExist)
             {
                 writer.WriteLine();
-                WriteFunction(ss.constructorFunction, -1);
+                ProcessConstructor(ss.constructorFunction);
             }
 
             for(int i = 0; i < ss.functionCount; i++)
             {
                 writer.WriteLine();
-                WriteFunction(ss.functions[i], i);
+                ProcessFunction(ss.functions[i], i);
             }
 
             writer.Close();
         }
 
-        private void WriteFunction(Function function, int index)
+        private void ProcessConstructor(Function function)
         {
-            string name;
-            if (index == -1)
-                name = "init";
-            else
-                name = DecompilerUtils.GetFuncName(index);
+            ProcessFunction(function, -1);
+        }
 
-            writer.Write(name + "():(");
-            if(function.externalCommandCount > 0)
+        private void ProcessFunction(Function function, int index)
+        {
+            ProcessStartCommand(index);
+
+            writer.Write(Constants.START_ARGS);
+            if (function.externalCommandCount > 0)
             {
                 if (function.externalCommandCount != 1)
                     throw new Exception("ILLEGAL EXTERNAL COMMAND COUNT IN FUNCTION HEADER!");
                 externalFunctionMode = true;
-                WriteCommand(function.exCommands[0]);
+                ProcessCommand(function.exCommands[0]);
                 externalFunctionMode = false;
             }
-            writer.WriteLine(")");
+            writer.WriteLine(Constants.END_ARGS);
 
 
-            writer.WriteLine("{");
+            writer.WriteLine(Constants.START_FUNC);
             writer.AddTabLevel();
 
-            if(function.varsCount > 0) //not needed to decompiler
+            if (function.varsCount > 0) //not needed to decompiler
             {
                 //WriteVars(function.vars);
             }
 
-            for(int i = 0; i < function.commandCount; i++)
+            for (int i = 0; i < function.commandCount; i++)
             {
                 ProcessCommandType(function.commands[i].type);
-                WriteCommand(function.commands[i]);
+                ProcessCommand(function.commands[i]);
                 writer.WriteLine();
             }
 
-            CheckSeialModeClosed();
+            CheckSerialModeClosed();
 
             writer.RemoveTabLevel();
-            writer.WriteLine("}");
+            writer.WriteLine(Constants.END_FUNC);
+        }
+
+        private void ProcessStartCommand(int commandIndex)
+        {
+            string name;
+            if (commandIndex == -1)
+                name = Constants.CONSTRUCT_FUNC_NAME;
+            else
+                name = DecompilerUtils.GetFuncName(commandIndex);
+
+            writer.Write(name);
+            writer.Write(Constants.NO_ARGS);
+            writer.Write(Constants.COLON);
         }
 
         private void ProcessCommandType(ushort type)
@@ -109,96 +123,71 @@ namespace SimpleScriptDecompiler.Decompiler
             }
         }
 
-        private void CheckSeialModeClosed()
+        private void CheckSerialModeClosed()
         {
             //check if serial mode opened on end function
             ProcessCommandType(0);
         }
 
 
-        private void WriteCommand(Command command)
+        private void ProcessCommand(Command command)
         {
-            if (command.id < 39)
+            if (IsSpecialCommand(command) && !IsSpecialCommandArgsOnly(command))
             {
                 ProcessSpecialCommand(command);
-                return;
+                    return;
             }
 
-            string name = string.Format("Command[{0}]", command.id);
 
-            if (CommandsFile.IsLoaded())
-            {
-                var c  = CommandsFile.GetCommand(command.id);
-                if (c != null && c.Name != null)
-                    name = c.Name;
-            }
+
+            DecompilerUtils.GetCommandName(command.id, out string name);
 
             writer.Write(name);
 
-            writer.Write("(");
+            writer.Write(Constants.START_ARGS);
+
             ProcessCommandArgs(command);
-            writer.Write(")");
+   
+            writer.Write(Constants.END_ARGS);
             if(!specialCommandMode && !externalFunctionMode)
-                writer.Write(";");
+                writer.Write(Constants.END_STATEMENT);
         }
 
+        private bool IsSpecialCommand(Command command)
+        {
+            return command.id - 36 < Constants.SPECIAL_COMMANDS_COUNT;
+        }
 
+        private bool IsSpecialCommandArgsOnly(Command command)
+        {
+            return IsSpecialCommand(command) && command.id >= 36;
+        }
 
         private void ProcessSpecialCommand(Command command)
         {
             switch (command.id)
             {
                 case 7: //if
-                    writer.WriteLine();
-                    writer.Write("if(");
-                    specialCommandMode = true;
-                    ProcessExternalCommands(command, 2, false);
-                    specialCommandMode = false;
-                    writer.WriteLine(")");
-                    writer.WriteLine("{");
-                    ProcessExternalCommands(command, 1, true);
-                    writer.WriteLine("}");
+                    ProcessSpecialCommandIF(command);
                     break;
                 case 9: //wait
-
-                    if(externalFunctionMode) //if external, command "wait" magic convert to empty
-                    {
-                        ProcessExternalCommands(command, 2, false);
-                        return;
-                    }
-                    writer.Write("wait( ");
-                    specialCommandMode = true;
-                    ProcessExternalCommands(command, 2, false);
-                    specialCommandMode = false;
-                    writer.WriteLine(" );");
-
+                    ProcessSpecialCommandWAIT(command);
                     break;
                 case 11: //else
-                    writer.WriteLine("else");
-                    writer.WriteLine("{");
-                    ProcessExternalCommands(command, 1, true);
-                    writer.WriteLine("}");
+                    ProcessSpecialCommandELSE(command);
                     break;
                 case 16: //==
-                    writer.Write(" == " + command.args[1]);
+                    writer.Write(" == {0}", command.args[1]);
                     ProcessExternalCommands(command, 2, false);
                     break;
                 case 18: //>=
-                    writer.Write(" >= " + command.args[1]);
+                    writer.Write(" >= {0}", command.args[1]);
                     ProcessExternalCommands(command, 2, false);
                     break;
                 //case 22: //maybe &&
                     //break;
-
-                //Next command is not special, but it needs refactoring
                 case 25:
                     writer.Write("{0} = {1};", DecompilerUtils.GetVarName(command.unk2_data2), command.args[0]);
-                    break;
-                case 37:
-                    writer.Write("enableTask(\"{0}\");", DecompilerUtils.GetFuncName((int)command.args[0]));
-                    break;
-                case 38:
-                    writer.Write("disableTask(\"{0}\");", DecompilerUtils.GetFuncName((int)command.args[0]));
                     break;
                 default:
                     writer.Write("Unknown special command id: " + command.id);
@@ -218,8 +207,59 @@ namespace SimpleScriptDecompiler.Decompiler
             }
         }
 
+        private void ProcessSpecialCommandIF(Command command)
+        {
+            writer.WriteLine();
+            writer.Write(Constants.IF);
+
+            writer.Write(Constants.START_ARGS);
+            specialCommandMode = true;
+            ProcessExternalCommands(command, 2, false);
+            specialCommandMode = false;
+            writer.Write(Constants.END_ARGS);
+
+            writer.WriteLine(Constants.START_FUNC);
+            ProcessExternalCommands(command, 1, true);
+            writer.WriteLine(Constants.END_FUNC);
+        }
+
+        private void ProcessSpecialCommandWAIT(Command command)
+        {
+            //if external, command "wait" magic convert to empty
+            if (externalFunctionMode)
+            {
+                ProcessExternalCommands(command, 2, false);
+                return;
+            }
+            writer.Write(Constants.WAIT);
+            writer.Write(Constants.START_ARGS);
+            writer.Write(Constants.SPACE);
+
+            specialCommandMode = true;
+            ProcessExternalCommands(command, 2, false);
+            specialCommandMode = false;
+
+            writer.Write(Constants.SPACE);
+            writer.Write(Constants.END_ARGS);
+            writer.Write(Constants.END_STATEMENT);
+        }
+
+        private void ProcessSpecialCommandELSE(Command command)
+        {
+            writer.WriteLine(Constants.ELSE);
+            writer.WriteLine(Constants.START_FUNC);
+            ProcessExternalCommands(command, 1, true);
+            writer.WriteLine(Constants.END_FUNC);
+        }
+
         private void ProcessCommandArgs(Command command)
         {
+            if (IsSpecialCommandArgsOnly(command))
+            {
+                ProcessSpecialCommandArgs(command);
+                return;
+            }
+
             CheckArgsTypes(command);
 
             if (command.argsCount > 0)
@@ -228,6 +268,20 @@ namespace SimpleScriptDecompiler.Decompiler
             }
         }
 
+        private void ProcessSpecialCommandArgs(Command command)
+        {
+            switch(command.id)
+            {
+                case 37: //enableTask
+                case 38: //disableTask
+                case 39: //runTask
+                case 40: //intermitTask
+                    writer.Write("\"{0}\"", DecompilerUtils.GetFuncName((int)command.args[0]));
+                    break;
+                default:
+                    throw new Exception("Illegal special command ID! " + command.id);
+            }
+        }
 
 
         private void ProcessExternalCommands(Command command, int index, bool separatorIsNeeded)
@@ -253,7 +307,7 @@ namespace SimpleScriptDecompiler.Decompiler
                 writer.AddTabLevel();
                 for (int i = 0; i < count; i++)
                 {
-                    WriteCommand(exCommands[i]);
+                    ProcessCommand(exCommands[i]);
                     if (separatorIsNeeded)
                         writer.WriteLine();
                 }
@@ -266,8 +320,8 @@ namespace SimpleScriptDecompiler.Decompiler
             if (vars.Length == 0)
                 return;
 
-            writer.WriteLine("VarName");
-            writer.WriteLine("{");
+            writer.WriteLine(Constants.VARS);
+            writer.WriteLine(Constants.START_FUNC);
             writer.AddTabLevel();
             for(int i = 0; i < vars.Length; i++)
             {
@@ -276,13 +330,12 @@ namespace SimpleScriptDecompiler.Decompiler
                     DecompilerUtils.GetVarName(i));
             }
             writer.RemoveTabLevel();
-            writer.WriteLine("}");
+            writer.WriteLine(Constants.END_FUNC);
         }
 
-        //Move to Utils
         public void CheckArgsTypes(Command command)
         {
-            if (CommandsFile.IsLoaded()) //check args
+            if (CommandsFile.IsLoaded) //check args
             {
                 var c = CommandsFile.GetCommand(command.id);
                 if (c == null || !c.HasArgs())

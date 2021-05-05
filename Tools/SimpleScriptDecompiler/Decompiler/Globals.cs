@@ -8,6 +8,6 @@ namespace SimpleScriptDecompiler.Decompiler
 {
     class Globals
     {
-        public const string VERSION = "0.2b";
+        public const string VERSION = "0.3b";
     }
 }
