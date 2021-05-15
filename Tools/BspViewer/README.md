@@ -13,6 +13,7 @@ ____
 | `W-A-S-D` | Move |
 | `C` | Descend Y-axis |
 | `Space` | Climb Y-axis |
+| `Mouse move + right button` | Rotate around |
 ____
 ## Screenshoots
 ![First map win32 demo](https://raw.githubusercontent.com/ruslol/Soft3D-RE/master/Tools/BspViewer/bin/Screenshots/scr_v0.1.png)
