@@ -12,7 +12,7 @@
 |✔️|SAU|A320|AMI ADPCM audio, well-understood
 |🔧|SBN|GA330|<p>font (glyphs) + text data (32-bit encoding), mostly understood</p><ul><li>Why is the header length not always the same?</li><li>How to calculate glyph indexes across SBNs?</li></ul>
 |🔧|SBN|Win32|font (glyphs) + text data (7-bit encoding), mostly understood
-|🔧|SBP|GA330|<p>maps, using [binary space partitioning](https://en.wikipedia.org/wiki/Binary_space_partitioning)</p><ul><li>How to interpret all the chunks?</li><li>Which geometry is used by the game?</li><li>How are textures referenced?</li><li>How are UV coordinates encoded?</li><li>How are lightmaps applied?</li></ul>
+|🔧|SBP|GA330|<p>maps, using [binary space partitioning](https://en.wikipedia.org/wiki/Binary_space_partitioning), mostly understood</p><ul><li>How to interpret all the chunks?</li><li>How are lightmaps applied?</li></ul>
 |❌|SDT||various _data tables_ without a common format?
 |🔧|SPL||Camera settings|
 |🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Skinning? Animations?</li></ul>
