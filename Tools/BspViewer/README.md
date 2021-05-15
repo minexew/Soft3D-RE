@@ -12,7 +12,7 @@ ____
 | `1-2-3-4` | Change camera speed |
 | `W-A-S-D` | Move |
 | `C` | Descend Y-axis |
-| `Shift` | Climb Y-axis |
+| `Space` | Climb Y-axis |
 ____
 ## TODO:
 * Fix uvs bugs
