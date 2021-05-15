@@ -3,8 +3,8 @@ ____
 ## Usage:
 ```BspViewer <maps path> <res path> <maps names separated by commas without ext>```
 #### Examples:
-```BspViewer <С:\7DS\maps> <C:\7DS\ExtractedRes> <map1001>```<br/>
-```BspViewer <С:\7DS\maps> <C:\7DS\ExtractedRes> <map1001, map1002, map1003>```
+```BspViewer С:\7DS\maps C:\7DS\ExtractedRes map1001```<br/>
+```BspViewer С:\7DS\maps C:\7DS\ExtractedRes map1001, map1002, map1003```
 ____
 ## Controls:
 |  |  |
