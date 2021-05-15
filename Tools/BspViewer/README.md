@@ -14,6 +14,9 @@ ____
 | `C` | Descend Y-axis |
 | `Space` | Climb Y-axis |
 ____
+## Screenshoots
+![First map win32 demo](https://raw.githubusercontent.com/ruslol/Soft3D-RE/master/Tools/BspViewer/bin/Screenshots/scr_v0.1.png)
+____
 ## TODO:
 * Fix uvs bugs
 * Not all models are loaded
