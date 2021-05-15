@@ -15,7 +15,7 @@
 |🔧|SBP|GA330|<p>maps, using [binary space partitioning](https://en.wikipedia.org/wiki/Binary_space_partitioning)</p><ul><li>How to interpret all the chunks?</li><li>Which geometry is used by the game?</li><li>How are textures referenced?</li><li>How are UV coordinates encoded?</li><li>How are lightmaps applied?</li></ul>
 |❌|SDT||various _data tables_ without a common format?
 |🔧|SPL||Camera settings|
-|🔧|SOJ||<p>3D objects, partially understood</p><ul><li>How are textures mapped?</li><li>How are UV coordinates encoded?</li><li>Skinning? Animations?</li></ul>
+|🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Skinning? Animations?</li></ul>
 |🔧|SST||“simple script”, mostly understood
 |✔️|STX|GA330|images/textures, well-understood
 |✔️|WAR|Win32|AMI ADPCM audio, well-understood
