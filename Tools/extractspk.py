@@ -57,7 +57,7 @@ for i in range(len(headers)):
     tpath = path_redelimit(args.dir, headers[i][PATH])
     tpath.parent.mkdir(parents=True, exist_ok=True)
     dest = open(tpath, "wb")
-    arc.seek(headers[i][1]+1)
+    arc.seek(headers[i][1])
     if i == len(headers) - 1:
         dest.write(arc.read())
     else:
