@@ -9,7 +9,7 @@
 |✔️|S3DTEX||images/textures, well-understood
 |❌|S3DSTY||
 |❌|SAI||probably 3D model animations
-|✔️|SAU|(all)|AMI ADPCM audio, well-understood
+|✔️|SAU|DA320 (all), GA330, Win32 (chi)|AMI ADPCM audio, well-understood
 |🔧|SBN|GA330|<p>font (glyphs) + text data (32-bit encoding), mostly understood</p><ul><li>Why is the header length not always the same?</li><li>How to calculate glyph indexes across SBNs?</li></ul>
 |🔧|SBN|Win32|font (glyphs) + text data (7-bit encoding), mostly understood
 |🔧|SBP|GA330|<p>maps, based on [Quake 2 map format](https://www.flipcode.com/archives/Quake_2_BSP_File_Format.shtml), mostly understood</p><ul><li>How to interpret all the chunks?</li><li>How are lightmaps applied?</li></ul>
@@ -18,7 +18,7 @@
 |🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Skinning? Animations?</li></ul>
 |🔧|SST||“simple script”, mostly understood
 |✔️|STX|GA330|images/textures, well-understood
-|✔️|WAR|DA320, Win32|AMI ADPCM audio, well-understood
+|✔️|WAR|DA320 (old), Win32 (eng)|AMI ADPCM audio, well-understood
 
 _Let us know if you have had success parsing files from platforms not listed in the table!_
 
