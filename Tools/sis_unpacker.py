@@ -13,7 +13,7 @@ def hexalign(value, align = 0):
     return '0x' + hex(value)[2:].zfill(align)
 
 def Int64toTime(time):  # thx to Fire_Head
-    return int(time / 1000000 - 3600) - 730497*24*3600 + (30*365*24*60*60+7*24*60*60)
+    return int((time / 1000000 - 3600) - 730497*24*3600 + (30*365*24*60*60+7*24*60*60))
 
 def main():
     if len(sys.argv) < 2:
