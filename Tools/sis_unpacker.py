@@ -1,15 +1,19 @@
 #!/usr/bin/env python3
 '''
-    sis_unpacker.py v0.1.1 by Yoti
+    sis_unpacker.py v0.2 by Yoti
 '''
 
 import os
 import sys
 import zlib
 import struct
+from datetime import datetime
 
 def hexalign(value, align = 0):
     return '0x' + hex(value)[2:].zfill(align)
+
+def Int64toTime(time):  # thx to Fire_Head
+    return int(time / 1000000 - 3600) - 730497*24*3600 + (30*365*24*60*60+7*24*60*60)
 
 def main():
     if len(sys.argv) < 2:
@@ -53,19 +57,27 @@ def main():
 
                     fin.seek(file_record[8], os.SEEK_SET)
                     fout_data_cmp = fin.read(file_record[7])
+
                     try:
                         fout_data = zlib.decompress(fout_data_cmp)
+
                         print(str(len(fout_data)) + ')')
                         if not os.path.exists(os.path.dirname(fout_name)):
                             os.makedirs(os.path.dirname(fout_name))
                         with open(fout_name, 'wb') as fout:
                             fout.write(fout_data)
+
+                        if fout_name.endswith('.app'):
+                            time = Int64toTime(struct.unpack('<Q', fout_data[36:36+8])[0])
+                            print('info: Application build timestamp is ', end='')
+                            print(datetime.fromtimestamp(time).strftime("%Y/%m/%d %H:%M:%S"))
                     except:
                         print(str(len(fout_data_cmp)) + ')')
                         if not os.path.exists(os.path.dirname(fout_name)):
                             os.makedirs(os.path.dirname(fout_name))
                         with open(fout_name, 'wb') as fout:
                             fout.write(fout_data_cmp)
+
                     fin.seek(tmp, os.SEEK_SET)
 
 if __name__ == "__main__":
