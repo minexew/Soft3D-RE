@@ -1,0 +1,10 @@
+Description of the file "Basefont.sbn":
+
+The beginning of the file
+0F 00 00 00 - ?unknown_value
+40 00 00 00 - number of characters in file (64 in DEC)
+
+Character data:
+07 00 00 00 - character width
+0F 00 00 00 - character height
+10 00 00 00 - how long does a symbol take (16 byte’s in DEC)
