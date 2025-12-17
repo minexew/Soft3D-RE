@@ -18,7 +18,7 @@ def Int64toTime(time):  # thx to Fire_Head
 def main():
     if len(sys.argv) < 2:
         print('usage: ' + sys.argv[0] + ' <in_file> [out_dir]')
-        quit()
+        sys.exit()
 
     if len(sys.argv) == 2:
         out_dir = os.path.splitext(sys.argv[1])[0]
@@ -34,7 +34,7 @@ def main():
         if uids[1] != 0x10003a12 or uids[2] != 0x10000419:
             print()
             print('Unsupported file type!')
-            quit()
+            sys.exit()
 
         fin.seek(4, os.SEEK_CUR)
         files_count = struct.unpack('<H', fin.read(2))[0]
