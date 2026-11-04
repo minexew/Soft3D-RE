@@ -1,0 +1,601 @@
+dll	log_ordinal_zero_based	dll_ordinal_one_based	code_offset	symbol_type	mangled_symbol	demangled_signature	source_dso
+APPARC{000a0000}[10003a3d].DLL	0	1	0x0019CA5C	FUNC	_ZN11CApaProcess10ConstructLEv	CApaProcess::ConstructL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/apparc.dso
+APPARC{000a0000}[10003a3d].DLL	1	2	0x0019CA68	FUNC	"""_._.absent_export_2"""	"""_._.absent_export_2"""	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/apparc.dso
+APPARC{000a0000}[10003a3d].DLL	2	3	0x0019CA6C	FUNC	_ZN11CApaProcess15DestroyDocumentEP12CApaDocument	CApaProcess::DestroyDocument(CApaDocument*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/apparc.dso
+APPARC{000a0000}[10003a3d].DLL	3	4	0x001A3E74	FUNC	_ZN11CApaProcess15SetMainDocumentEP12CApaDocument	CApaProcess::SetMainDocument(CApaDocument*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/apparc.dso
+APPARC{000a0000}[10003a3d].DLL	4	5	0x001A3E9C	FUNC	_ZN11CApaProcess16OpenNewDocumentLERP10CFileStoreRP17CStreamDictionaryRK7TDesC16j	CApaProcess::OpenNewDocumentL(CFileStore*&, CStreamDictionary*&, TDesC16 const&, unsigned int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/apparc.dso
+APPARC{000a0000}[10003a3d].DLL	5	6	0x00131F90	FUNC	_ZN11CApaProcess16ReadRootStreamLCER3RFsRP10CFileStoreRK7TDesC16j	CApaProcess::ReadRootStreamLC(RFs&, CFileStore*&, TDesC16 const&, unsigned int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/apparc.dso
+BITGDI{000a0000}[10003b18].DLL	0	1	0x001321A8	FUNC	_Z14DummyReserved1v	DummyReserved1()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/bitgdi.dso
+COMMDB{000a0000}[10004e1c].DLL	0	1	0x00131C90	FUNC	_ZTV31CCommsDbConnectionPrefTableView	vtable for CCommsDbConnectionPrefTableView	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/commdb.dso
+COMMDB{000a0000}[10004e1c].DLL	1	2	0x00131D28	FUNC	_ZN22CCommsDbTemplateRecord19CancelModificationsEv	CCommsDbTemplateRecord::CancelModifications()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/commdb.dso
+COMMDB{000a0000}[10004e1c].DLL	2	3	0x00131EE0	FUNC	_ZN17CCommsDbTableView19CancelRecordChangesEv	CCommsDbTableView::CancelRecordChanges()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/commdb.dso
+COMMDB{000a0000}[10004e1c].DLL	3	4	0x00131F70	FUNC	_ZN18CCommsDatabaseBase25CancelRequestNotificationEv	CCommsDatabaseBase::CancelRequestNotification()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/commdb.dso
+COMMDB{000a0000}[10004e1c].DLL	4	5	0x00131FD0	FUNC	_ZN18CCommsDatabaseBase17CommitTransactionEv	CCommsDatabaseBase::CommitTransaction()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/commdb.dso
+COMMDB{000a0000}[10004e1c].DLL	5	6	0x00132070	FUNC	_ZN17CCommsDbTableView12DeleteRecordEv	CCommsDbTableView::DeleteRecord()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/commdb.dso
+COMMDB{000a0000}[10004e1c].DLL	6	7	0x00132188	FUNC	_ZN22CCommsDbTemplateRecord6DeleteEv	CCommsDbTemplateRecord::Delete()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/commdb.dso
+COMMDB{000a0000}[10004e1c].DLL	7	8	0x00132208	FUNC	_ZNK26CStoreableOverrideSettings12ExternalizeLER12RWriteStream	CStoreableOverrideSettings::ExternalizeL(RWriteStream&) const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/commdb.dso
+CONE{000a0000}[10003a41].DLL	0	1	0x0019D1B0	FUNC	_Z10PanicStub1v	PanicStub1()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	1	2	0x0019D1B4	FUNC	_ZN10CCoeStaticC1E4TUidNS_6TScopeE	CCoeStatic::CCoeStatic(TUid, CCoeStatic::TScope)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	2	3	0x0019D1B8	FUNC	_ZN10CCoeStaticC1E4TUidiNS_6TScopeE	CCoeStatic::CCoeStatic(TUid, int, CCoeStatic::TScope)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	3	4	0x0019D1BC	FUNC	_ZN10CCoeStaticC2E4TUidNS_6TScopeE	CCoeStatic::CCoeStatic(TUid, CCoeStatic::TScope)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	4	5	0x0019D1C0	FUNC	_ZN10CCoeStaticC2E4TUidiNS_6TScopeE	CCoeStatic::CCoeStatic(TUid, int, CCoeStatic::TScope)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	5	6	0x0019D1C4	FUNC	_ZN10CCoeStaticD0Ev	CCoeStatic::~CCoeStatic()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	6	7	0x0019D1C8	FUNC	_ZN10CCoeStaticD1Ev	CCoeStatic::~CCoeStatic()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	7	8	0x0019D1CC	FUNC	_ZN10CCoeStaticD2Ev	CCoeStatic::~CCoeStatic()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	8	9	0x0019D1D0	FUNC	_ZN11CCoeControl10Reserved_2Ev	CCoeControl::Reserved_2()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	9	10	0x0019D1D4	FUNC	_ZN11CCoeControl11CloseWindowEv	CCoeControl::CloseWindow()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	10	11	0x0019D1D8	FUNC	_ZN11CCoeControl11MakeVisibleEi	CCoeControl::MakeVisible(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	11	12	0x0019D1DC	FUNC	_ZN11CCoeControl11MinimumSizeEv	CCoeControl::MinimumSize()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	12	13	0x0019D1E0	FUNC	_ZN11CCoeControl11SetAdjacentEi	CCoeControl::SetAdjacent(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	13	14	0x0019D1E4	FUNC	_ZN11CCoeControl11SetFocusingEi	CCoeControl::SetFocusing(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	14	15	0x0019D1E8	FUNC	_ZN11CCoeControl11SetNeighborEPS_	CCoeControl::SetNeighbor(CCoeControl*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	15	16	0x0019D1EC	FUNC	_ZN11CCoeControl11SetObserverEP19MCoeControlObserver	CCoeControl::SetObserver(MCoeControlObserver*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	16	17	0x0019D1F0	FUNC	_ZN11CCoeControl11SetPositionERK6TPoint	CCoeControl::SetPosition(TPoint const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	17	18	0x0019D1F4	FUNC	_ZN11CCoeControl11SizeChangedEv	CCoeControl::SizeChanged()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	18	19	0x0019D1F8	FUNC	_ZN11CCoeControl12FocusChangedE8TDrawNow	CCoeControl::FocusChanged(TDrawNow)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	19	20	0x0019D1FC	FUNC	_ZN11CCoeControl12ReportEventLEN19MCoeControlObserver9TCoeEventE	CCoeControl::ReportEventL(MCoeControlObserver::TCoeEvent)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	20	21	0x0019D200	FUNC	_ZN11CCoeControl12SetMopParentEP15MObjectProvider	CCoeControl::SetMopParent(MObjectProvider*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	21	22	0x0019D204	FUNC	_ZN11CCoeControl13CreateWindowLEP12RWindowGroup	CCoeControl::CreateWindowL(RWindowGroup*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	22	23	0x0019D208	FUNC	_ZN11CCoeControl13CreateWindowLEPKS_	CCoeControl::CreateWindowL(CCoeControl const*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	23	24	0x0019D20C	FUNC	_ZN11CCoeControl13CreateWindowLER15RWindowTreeNode	CCoeControl::CreateWindowL(RWindowTreeNode&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	24	25	0x0019D210	FUNC	_ZN11CCoeControl13CreateWindowLEv	CCoeControl::CreateWindowL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	25	26	0x0019D214	FUNC	_ZN11CCoeControl14OfferKeyEventLERK9TKeyEvent10TEventCode	CCoeControl::OfferKeyEventL(TKeyEvent const&, TEventCode)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	26	27	0x0019D218	FUNC	_ZN11CCoeControl14OverrideColorLEi4TRgb	CCoeControl::OverrideColorL(int, TRgb)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	27	28	0x0019D21C	FUNC	_ZN11CCoeControl14SetNonFocusingEv	CCoeControl::SetNonFocusing()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	28	29	0x0019D220	FUNC	_ZN11CCoeControl15MopSupplyObjectE8TTypeUid	CCoeControl::MopSupplyObject(TTypeUid)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	29	30	0x0019D224	FUNC	_ZN11CCoeControl15PositionChangedEv	CCoeControl::PositionChanged()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	30	31	0x0019D228	FUNC	_ZN11CCoeControl16ClaimPointerGrabEi	CCoeControl::ClaimPointerGrab(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	31	32	0x0019D22C	FUNC	_ZN11CCoeControl16EnableDragEventsEv	CCoeControl::EnableDragEvents()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	32	33	0x0019D230	FUNC	_ZN11CCoeControl16SetCornerAndSizeE13TGulAlignmentRK5TSize	CCoeControl::SetCornerAndSize(TGulAlignment, TSize const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	33	34	0x0019D234	FUNC	_ZN11CCoeControl17SetControlContextEP18MCoeControlContext	CCoeControl::SetControlContext(MCoeControlContext*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	34	35	0x0019D238	FUNC	_ZN11CCoeControl17SetPointerCaptureEi	CCoeControl::SetPointerCapture(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	35	36	0x0019D23C	FUNC	_ZN11CCoeControl19HandlePointerEventLERK13TPointerEvent	CCoeControl::HandlePointerEventL(TPointerEvent const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	36	37	0x0019D240	FUNC	_ZN11CCoeControl19SetContainerWindowLER15RBackedUpWindow	CCoeControl::SetContainerWindowL(RBackedUpWindow&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	37	38	0x0019D244	FUNC	_ZN11CCoeControl19SetContainerWindowLER7RWindow	CCoeControl::SetContainerWindowL(RWindow&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	38	39	0x0019D248	FUNC	_ZN11CCoeControl19SetContainerWindowLERKS_	CCoeControl::SetContainerWindowL(CCoeControl const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	39	40	0x0019D24C	FUNC	_ZN11CCoeControl20HandleResourceChangeEi	CCoeControl::HandleResourceChange(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	40	41	0x0019D258	FUNC	_ZN11CCoeControl20PrepareForFocusGainLEv	CCoeControl::PrepareForFocusGainL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	41	42	0x0019D25C	FUNC	_ZN11CCoeControl20PrepareForFocusLossLEv	CCoeControl::PrepareForFocusLossL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	42	43	0x0019D260	FUNC	_ZN11CCoeControl20SetGloballyCapturingEi	CCoeControl::SetGloballyCapturing(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	43	44	0x0019DD78	FUNC	_ZN11CCoeControl21CreateBackedUpWindowLER15RWindowTreeNode	CCoeControl::CreateBackedUpWindowL(RWindowTreeNode&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	44	45	0x0019D264	FUNC	_ZN11CCoeControl21CreateBackedUpWindowLER15RWindowTreeNode12TDisplayMode	CCoeControl::CreateBackedUpWindowL(RWindowTreeNode&, TDisplayMode)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	45	46	0x0019DD7C	FUNC	_ZN11CCoeControl21SetAllowStrayPointersEv	CCoeControl::SetAllowStrayPointers()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	46	47	0x0019D288	FUNC	_ZN11CCoeControl21SetCanDrawOutsideRectEv	CCoeControl::SetCanDrawOutsideRect()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	47	48	0x0019DC6C	FUNC	_ZN11CCoeControl22ConstructFromResourceLER15TResourceReader	CCoeControl::ConstructFromResourceL(TResourceReader&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	48	49	0x0019DC7C	FUNC	_ZN11CCoeControl22CopyControlContextFromEPKS_	CCoeControl::CopyControlContextFrom(CCoeControl const*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	49	50	0x0019DC84	FUNC	_ZN11CCoeControl22SetExtentToWholeScreenEv	CCoeControl::SetExtentToWholeScreen()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	50	51	0x0019DC90	FUNC	_ZN11CCoeControl25HandlePointerBufferReadyLEv	CCoeControl::HandlePointerBufferReadyL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	51	52	0x0019DC94	FUNC	_ZN11CCoeControl26SetSizeWithoutNotificationERK5TSize	CCoeControl::SetSizeWithoutNotification(TSize const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	52	53	0x0019DC98	FUNC	_ZN11CCoeControl30IgnoreEventsUntilNextPointerUpEv	CCoeControl::IgnoreEventsUntilNextPointerUp()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	53	54	0x0019DC9C	FUNC	_ZN11CCoeControl32SetComponentsToInheritVisibilityEi	CCoeControl::SetComponentsToInheritVisibility(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	54	55	0x0019DD60	FUNC	_ZN11CCoeControl37HandleComponentControlsResourceChangeEi	CCoeControl::HandleComponentControlsResourceChange(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	55	56	0x0019DD64	FUNC	_ZN11CCoeControl7MopNextEv	CCoeControl::MopNext()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	56	57	0x0019DD98	FUNC	_ZN11CCoeControl7SetRectERK5TRect	CCoeControl::SetRect(TRect const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	57	58	0x0019DD9C	FUNC	_ZN11CCoeControl7SetSizeERK5TSize	CCoeControl::SetSize(TSize const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	58	59	0x00131D18	FUNC	_ZN11CCoeControl8SetBlankEv	CCoeControl::SetBlank()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	59	60	0x00131D20	FUNC	_ZN11CCoeControl8SetFocusEi8TDrawNow	CCoeControl::SetFocus(int, TDrawNow)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	60	61	0x00131E40	FUNC	_ZN11CCoeControl9ActivateLEv	CCoeControl::ActivateL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	61	62	0x00131F30	FUNC	_ZN11CCoeControl9SetDimmedEi	CCoeControl::SetDimmed(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	62	63	0x00132040	FUNC	_ZN11CCoeControl9SetExtentERK6TPointRK5TSize	CCoeControl::SetExtent(TPoint const&, TSize const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	63	64	0x001320F8	FUNC	_ZN11CCoeControlC1Ev	CCoeControl::CCoeControl()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	64	65	0x00132210	FUNC	_ZN11CCoeControlC2Ev	CCoeControl::CCoeControl()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+CONE{000a0000}[10003a41].DLL	65	66	0x001322F8	FUNC	_ZN11CCoeControlD0Ev	CCoeControl::~CCoeControl()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/cone.dso
+ETel{000a0000}[10003d46].DLL	0	1	0x00131D40	FUNC	_Z11PanicClienti	PanicClient(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	1	2	0x00131D90	FUNC	_ZNK5RCall24AnswerIncomingCallCancelEv	RCall::AnswerIncomingCallCancel() const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	2	3	0x00131DD8	FUNC	_ZN10CPhoneBase13CancelServiceEim	CPhoneBase::CancelService(int, unsigned long)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	3	4	0x00131DF0	FUNC	_ZN10CPhoneBase14NumberOfSlotsLEi	CPhoneBase::NumberOfSlotsL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	4	5	0x00131E80	FUNC	_ZN10CPhoneBase18OpenPostProcessingEP11CTelSessioni	CPhoneBase::OpenPostProcessing(CTelSession*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	5	6	0x00131E90	FUNC	_ZN10CPhoneBase28CloseSubSessionPreProcessingEP11CTelSessioni	CPhoneBase::CloseSubSessionPreProcessing(CTelSession*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	6	7	0x00131EE8	FUNC	_ZN10CPhoneBase7ServiceERK9RMessage2P9CReqEntry	CPhoneBase::Service(RMessage2 const&, CReqEntry*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	7	8	0x00131F28	FUNC	_ZN10CPhoneBase8ReqModeLEi	CPhoneBase::ReqModeL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	8	9	0x00131F38	FUNC	_ZThn60_NK9CCallBase19CheckPriorityClientEm	non-virtual thunk to CCallBase::CheckPriorityClient(unsigned long) const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	9	10	0x00131F40	FUNC	_ZN10CPhoneBaseC2Ev	CPhoneBase::CPhoneBase()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	10	11	0x00131F60	FUNC	_ZN10CPhoneBaseD0Ev	CPhoneBase::~CPhoneBase()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	11	12	0x00131F68	FUNC	_ZN10CPhoneBaseD1Ev	CPhoneBase::~CPhoneBase()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	12	13	0x00131FF8	FUNC	_ZN10CPhoneBaseD2Ev	CPhoneBase::~CPhoneBase()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	13	14	0x00132008	FUNC	_ZN10CTelObject12ReqCompletedEmi	CTelObject::ReqCompleted(unsigned long, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	14	15	0x00132038	FUNC	_ZN10CTelObject12UpCallOptionEiPv	CTelObject::UpCallOption(int, void*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	15	16	0x001321B8	FUNC	_ZN10CTelObject14DownCallOptionEiPv	CTelObject::DownCallOption(int, void*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	16	17	0x001321D0	FUNC	_ZN10CTelObject17FlowControlResumeEv	CTelObject::FlowControlResume()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+ETel{000a0000}[10003d46].DLL	17	18	0x001322C0	FUNC	_ZN10CTelObject18FlowControlSuspendEv	CTelObject::FlowControlSuspend()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel.dso
+Etel3rdParty{000a0000}[10004268].dll	0	1	0x00131E30	FUNC	_ZN10CTelephony10TPhoneIdV1C1Ev	CTelephony::TPhoneIdV1::TPhoneIdV1()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel3rdparty.dso
+Etel3rdParty{000a0000}[10004268].dll	1	2	0x00131F10	FUNC	_ZN10CTelephony10TPhoneIdV1C2Ev	CTelephony::TPhoneIdV1::TPhoneIdV1()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel3rdparty.dso
+Etel3rdParty{000a0000}[10004268].dll	2	3	0x00132028	FUNC	_ZN10CTelephony11TCallCapsV1C1Ev	CTelephony::TCallCapsV1::TCallCapsV1()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel3rdparty.dso
+Etel3rdParty{000a0000}[10004268].dll	3	4	0x00132230	FUNC	_ZN10CTelephony11TCallCapsV1C2Ev	CTelephony::TCallCapsV1::TCallCapsV1()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/etel3rdparty.dso
+MediaClientAudioStream{000a0000}[10003996].dll	0	1	0x00131CF8	FUNC	_ZN21CMdaAudioOutputStream11SetBalanceLEi	CMdaAudioOutputStream::SetBalanceL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/mediaclientaudiostream.dso
+SCDV{000a0000}[100001ec].dll	0	1	0x00131D30	FUNC	_ZN14CFbsDrawDevice14DisplayMode16MEv	CFbsDrawDevice::DisplayMode16M()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/scdv.dso
+WS32{000a0000}[10003b21].DLL	0	1	0x00131DE0	FUNC	_ZN10RWsSession10EventReadyEP14TRequestStatus	RWsSession::EventReady(TRequestStatus*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/ws32.dso
+WS32{000a0000}[10003b21].DLL	1	2	0x00131ED8	FUNC	_ZN10RWsSession10LogCommandENS_15TLoggingCommandE	RWsSession::LogCommand(RWsSession::TLoggingCommand)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/ws32.dso
+WS32{000a0000}[10003b21].DLL	2	3	0x00132078	FUNC	_ZN10RWsSession10LogMessageERK4TBufILi128EE	RWsSession::LogMessage(TBuf<128> const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/ws32.dso
+avkon{000a0000}[100056c6].dll	0	1	0x0012F588	FUNC	_Z11ApacPlain12v	ApacPlain12()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	1	2	0x0012F6A8	FUNC	_Z11ApacPlain16v	ApacPlain16()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	2	3	0x001309B8	FUNC	_Z11ClockBold30v	ClockBold30()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	3	4	0x001309BC	FUNC	_Z11LatinBold12v	LatinBold12()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	4	5	0x001309C0	FUNC	_Z11LatinBold13v	LatinBold13()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	5	6	0x001309C4	FUNC	_Z11LatinBold16v	LatinBold16()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	6	7	0x001309C8	FUNC	_Z11LatinBold17v	LatinBold17()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	7	8	0x001309CC	FUNC	_Z11LatinBold19v	LatinBold19()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	8	9	0x001309D0	FUNC	_Z12LatinClock14v	LatinClock14()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	9	10	0x00130DD0	FUNC	_Z12LatinPlain12v	LatinPlain12()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	10	11	0x00130DD4	FUNC	_Z12NumberPlain5v	NumberPlain5()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	11	12	0x0019CA4C	FUNC	"""_._.absent_export_12"""	"""_._.absent_export_12"""	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	12	13	0x0019CA58	FUNC	_Z16GetMaxTextLengthPK16CAknQueryControlRK6TDes16i	GetMaxTextLength(CAknQueryControl const*, TDes16 const&, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	13	14	0x0019CA64	FUNC	_Z19CompleteWithAppPathR6TDes16	CompleteWithAppPath(TDes16&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	14	15	0x0019CAAC	FUNC	_ZN10CAknDialog10ConstructLEi	CAknDialog::ConstructL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	15	16	0x0019DC74	FUNC	_ZN10CAknDialog11SetEmphasisEP11CCoeControli	CAknDialog::SetEmphasis(CCoeControl*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	16	17	0x0019DC78	FUNC	_ZN10CAknDialog11SizeChangedEv	CAknDialog::SizeChanged()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	17	18	0x0019DC80	FUNC	_ZN10CAknDialog12DisplayMenuLEv	CAknDialog::DisplayMenuL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	18	19	0x0019DC88	FUNC	_ZN10CAknDialog12FocusChangedE8TDrawNow	CAknDialog::FocusChanged(TDrawNow)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	19	20	0x0019DC8C	FUNC	_ZN10CAknDialog14OfferKeyEventLERK9TKeyEvent10TEventCode	CAknDialog::OfferKeyEventL(TKeyEvent const&, TEventCode)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	20	21	0x0019DCB0	FUNC	_ZN10CAknDialog15MopSupplyObjectE8TTypeUid	CAknDialog::MopSupplyObject(TTypeUid)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	21	22	0x0019DCB8	FUNC	_ZN10CAknDialog15ProcessCommandLEi	CAknDialog::ProcessCommandL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	22	23	0x0019DCD0	FUNC	_ZN10CAknDialog16DynInitMenuPaneLEiP12CEikMenuPane	CAknDialog::DynInitMenuPaneL(int, CEikMenuPane*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	23	24	0x0019DCD4	FUNC	_ZN10CAknDialog18ExtensionInterfaceE4TUid	CAknDialog::ExtensionInterface(TUid)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	24	25	0x0019DCD8	FUNC	_ZN10CAknDialog19CAknDialog_ReservedEv	CAknDialog::CAknDialog_Reserved()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	25	26	0x0019DCE0	FUNC	_ZN10CAknDialog19HandlePointerEventLERK13TPointerEvent	CAknDialog::HandlePointerEventL(TPointerEvent const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	26	27	0x0019DCEC	FUNC	_ZN10CAknDialog19Reserved_MtsmObjectEv	CAknDialog::Reserved_MtsmObject()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	27	28	0x0019DD00	FUNC	_ZN10CAknDialog21CEikDialog_Reserved_1Ev	CAknDialog::CEikDialog_Reserved_1()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	28	29	0x0019DD04	FUNC	_ZN10CAknDialog21CEikDialog_Reserved_2Ev	CAknDialog::CEikDialog_Reserved_2()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	29	30	0x0019DD08	FUNC	_ZN10CAknDialog21Reserved_MtsmPositionEv	CAknDialog::Reserved_MtsmPosition()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	30	31	0x0019DD0C	FUNC	_ZN10CAknDialog5RunLDEv	CAknDialog::RunLD()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	31	32	0x0019DD10	FUNC	_ZN10CAknDialog8HideMenuEv	CAknDialog::HideMenu()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	32	33	0x0019DD1C	FUNC	_ZN10CAknDialog9ExecuteLDEi	CAknDialog::ExecuteLD(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	33	34	0x0019DD70	FUNC	_ZN10CAknDialog9OkToExitLEi	CAknDialog::OkToExitL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	34	35	0x0019DD88	FUNC	_ZN10CAknDialog9PrepareLCEi	CAknDialog::PrepareLC(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	35	36	0x0019DD94	FUNC	_ZN10CAknDialogC1Ev	CAknDialog::CAknDialog()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	36	37	0x0019DDA8	FUNC	_ZN10CAknDialogC2Ev	CAknDialog::CAknDialog()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	37	38	0x0019DDC8	FUNC	_ZN10CAknDialogD0Ev	CAknDialog::~CAknDialog()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	38	39	0x001A3EA4	FUNC	_ZN10CAknDialogD1Ev	CAknDialog::~CAknDialog()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	39	40	0x001A3EB0	FUNC	_ZN10CAknDialogD2Ev	CAknDialog::~CAknDialog()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	40	41	0x001A3EE8	FUNC	_ZN10CAknSlider11SetStepSizeEi	CAknSlider::SetStepSize(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	41	42	0x00131CB0	FUNC	_ZN10CAknSlider13CreateBitmapLEii	CAknSlider::CreateBitmapL(int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	42	43	0x00131D10	FUNC	_ZN10CAknSlider13CreateBitmapLEiii	CAknSlider::CreateBitmapL(int, int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	43	44	0x00131E08	FUNC	_ZN10CAknSlider13SetValueTextLEv	CAknSlider::SetValueTextL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	44	45	0x00131E60	FUNC	_ZN10CAknSlider15SetMaximumTextLERK7TDesC16	CAknSlider::SetMaximumTextL(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	45	46	0x00131F98	FUNC	_ZN10CAknSlider15SetMinimumTextLERK7TDesC16	CAknSlider::SetMinimumTextL(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	46	47	0x00131FF0	FUNC	_ZN10CAknSlider16SetDecimalPlacesEi	CAknSlider::SetDecimalPlaces(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	47	48	0x00132128	FUNC	_ZN10CAknSlider18ExtensionInterfaceE4TUid	CAknSlider::ExtensionInterface(TUid)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	48	49	0x00132238	FUNC	_ZN10CAknSlider19HandlePointerEventLERK13TPointerEvent	CAknSlider::HandlePointerEventL(TPointerEvent const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+avkon{000a0000}[100056c6].dll	49	50	0x001322E8	FUNC	_ZN10CAknSlider20HandleResourceChangeEi	CAknSlider::HandleResourceChange(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/avkon.dso
+dfpaeabi{000a0000}.dll	0	1	0x00131CB8	FUNC	__aeabi_cdcmpeq	__aeabi_cdcmpeq	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/dfpaeabi.dso
+dfpaeabi{000a0000}.dll	1	2	0x00131D60	FUNC	__aeabi_cdcmple	__aeabi_cdcmple	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/dfpaeabi.dso
+dfpaeabi{000a0000}.dll	2	3	0x00132060	FUNC	__aeabi_cdrcmple	__aeabi_cdrcmple	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/dfpaeabi.dso
+dfpaeabi{000a0000}.dll	3	4	0x001320E0	FUNC	__aeabi_cfcmpeq	__aeabi_cfcmpeq	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/dfpaeabi.dso
+dfpaeabi{000a0000}.dll	4	5	0x00132108	FUNC	__aeabi_cfcmple	__aeabi_cfcmple	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/dfpaeabi.dso
+dfpaeabi{000a0000}.dll	5	6	0x001321E0	FUNC	__aeabi_cfrcmple	__aeabi_cfrcmple	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/dfpaeabi.dso
+dfpaeabi{000a0000}.dll	6	7	0x001321F0	FUNC	__aeabi_d2f	__aeabi_d2f	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/dfpaeabi.dso
+dfpaeabi{000a0000}.dll	7	8	0x00132240	FUNC	__aeabi_d2iz	__aeabi_d2iz	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/dfpaeabi.dso
+dfpaeabi{000a0000}.dll	8	9	0x001322B0	FUNC	__aeabi_d2lz	__aeabi_d2lz	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/dfpaeabi.dso
+drtaeabi{000a0000}.dll	0	1	0x00132DE4	FUNC	_ZN10__cxxabiv116__enum_type_infoD0Ev	__cxxabiv1::__enum_type_info::~__enum_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	1	2	0x00132F88	FUNC	_ZN10__cxxabiv116__enum_type_infoD1Ev	__cxxabiv1::__enum_type_info::~__enum_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	2	3	0x00132F94	FUNC	_ZN10__cxxabiv116__enum_type_infoD2Ev	__cxxabiv1::__enum_type_info::~__enum_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	3	4	0x00132FA0	FUNC	_ZN10__cxxabiv117__array_type_infoD0Ev	__cxxabiv1::__array_type_info::~__array_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	4	5	0x00132FAC	FUNC	_ZN10__cxxabiv117__array_type_infoD1Ev	__cxxabiv1::__array_type_info::~__array_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	5	6	0x00132FB8	FUNC	_ZN10__cxxabiv117__array_type_infoD2Ev	__cxxabiv1::__array_type_info::~__array_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	6	7	0x00132FC4	FUNC	_ZN10__cxxabiv117__class_type_infoD0Ev	__cxxabiv1::__class_type_info::~__class_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	7	8	0x00132FD0	FUNC	_ZN10__cxxabiv117__class_type_infoD1Ev	__cxxabiv1::__class_type_info::~__class_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	8	9	0x00133180	FUNC	_ZN10__cxxabiv117__class_type_infoD2Ev	__cxxabiv1::__class_type_info::~__class_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	9	10	0x00133370	FUNC	_ZN10__cxxabiv117__pbase_type_infoD0Ev	__cxxabiv1::__pbase_type_info::~__pbase_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	10	11	0x00133560	FUNC	_ZN10__cxxabiv117__pbase_type_infoD1Ev	__cxxabiv1::__pbase_type_info::~__pbase_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	11	12	0x00133754	FUNC	_ZN10__cxxabiv117__pbase_type_infoD2Ev	__cxxabiv1::__pbase_type_info::~__pbase_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	12	13	0x00133AE0	FUNC	_ZN10__cxxabiv119__pointer_type_infoD0Ev	__cxxabiv1::__pointer_type_info::~__pointer_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	13	14	0x00133CD0	FUNC	_ZN10__cxxabiv119__pointer_type_infoD1Ev	__cxxabiv1::__pointer_type_info::~__pointer_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	14	15	0x0013402C	FUNC	_ZN10__cxxabiv119__pointer_type_infoD2Ev	__cxxabiv1::__pointer_type_info::~__pointer_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	15	16	0x001341A8	FUNC	_ZN10__cxxabiv120__function_type_infoD0Ev	__cxxabiv1::__function_type_info::~__function_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	16	17	0x00134424	FUNC	_ZN10__cxxabiv120__function_type_infoD1Ev	__cxxabiv1::__function_type_info::~__function_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	17	18	0x0013443C	FUNC	_ZN10__cxxabiv120__function_type_infoD2Ev	__cxxabiv1::__function_type_info::~__function_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	18	19	0x00134578	FUNC	_ZN10__cxxabiv120__si_class_type_infoD0Ev	__cxxabiv1::__si_class_type_info::~__si_class_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	19	20	0x001346D0	FUNC	_ZN10__cxxabiv120__si_class_type_infoD1Ev	__cxxabiv1::__si_class_type_info::~__si_class_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	20	21	0x001348F4	FUNC	_ZN10__cxxabiv120__si_class_type_infoD2Ev	__cxxabiv1::__si_class_type_info::~__si_class_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	21	22	0x0013501C	FUNC	_ZN10__cxxabiv121__vmi_class_type_infoD0Ev	__cxxabiv1::__vmi_class_type_info::~__vmi_class_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	22	23	0x00135210	FUNC	_ZN10__cxxabiv121__vmi_class_type_infoD1Ev	__cxxabiv1::__vmi_class_type_info::~__vmi_class_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	23	24	0x001355C0	FUNC	_ZN10__cxxabiv121__vmi_class_type_infoD2Ev	__cxxabiv1::__vmi_class_type_info::~__vmi_class_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	24	25	0x001355E4	FUNC	_ZN10__cxxabiv123__fundamental_type_infoD0Ev	__cxxabiv1::__fundamental_type_info::~__fundamental_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	25	26	0x00135610	FUNC	_ZN10__cxxabiv123__fundamental_type_infoD1Ev	__cxxabiv1::__fundamental_type_info::~__fundamental_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	26	27	0x0013563C	FUNC	_ZN10__cxxabiv123__fundamental_type_infoD2Ev	__cxxabiv1::__fundamental_type_info::~__fundamental_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	27	28	0x00135668	FUNC	_ZN10__cxxabiv129__pointer_to_member_type_infoD0Ev	__cxxabiv1::__pointer_to_member_type_info::~__pointer_to_member_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	28	29	0x00135694	FUNC	_ZN10__cxxabiv129__pointer_to_member_type_infoD1Ev	__cxxabiv1::__pointer_to_member_type_info::~__pointer_to_member_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	29	30	0x001356C0	FUNC	_ZN10__cxxabiv129__pointer_to_member_type_infoD2Ev	__cxxabiv1::__pointer_to_member_type_info::~__pointer_to_member_type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	30	31	0x001356EC	FUNC	_ZNKSt10bad_typeid4whatEv	std::bad_typeid::what() const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	31	32	0x00135718	FUNC	_ZNKSt8bad_cast4whatEv	std::bad_cast::what() const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	32	33	0x00135744	FUNC	_ZNKSt9type_info4nameEv	std::type_info::name() const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	33	34	0x00135770	FUNC	_ZNKSt9type_info6beforeERKS_	std::type_info::before(std::type_info const&) const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	34	35	0x00135798	FUNC	_ZNKSt9type_infoeqERKS_	std::type_info::operator==(std::type_info const&) const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	35	36	0x001357C0	FUNC	_ZNKSt9type_infoneERKS_	std::type_info::operator!=(std::type_info const&) const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	36	37	0x001357E8	FUNC	_ZNSt10bad_typeidC1ERKS_	std::bad_typeid::bad_typeid(std::bad_typeid const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	37	38	0x00135810	FUNC	_ZNSt10bad_typeidC1Ev	std::bad_typeid::bad_typeid()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	38	39	0x00135834	FUNC	_ZNSt10bad_typeidC2ERKS_	std::bad_typeid::bad_typeid(std::bad_typeid const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	39	40	0x0013585C	FUNC	_ZNSt10bad_typeidC2Ev	std::bad_typeid::bad_typeid()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	40	41	0x00135880	FUNC	_ZNSt10bad_typeidD0Ev	std::bad_typeid::~bad_typeid()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	41	42	0x001358A8	FUNC	_ZNSt10bad_typeidD1Ev	std::bad_typeid::~bad_typeid()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	42	43	0x001358CC	FUNC	_ZNSt10bad_typeidD2Ev	std::bad_typeid::~bad_typeid()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	43	44	0x001358EC	FUNC	_ZNSt10bad_typeidaSERKS_	std::bad_typeid::operator=(std::bad_typeid const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	44	45	0x00135C20	FUNC	_ZNSt8bad_castC1ERKS_	std::bad_cast::bad_cast(std::bad_cast const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	45	46	0x00135DC8	FUNC	_ZNSt8bad_castC1Ev	std::bad_cast::bad_cast()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	46	47	0x00135F50	FUNC	_ZNSt8bad_castC2ERKS_	std::bad_cast::bad_cast(std::bad_cast const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	47	48	0x001362CC	FUNC	_ZNSt8bad_castC2Ev	std::bad_cast::bad_cast()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	48	49	0x001363E0	FUNC	_ZNSt8bad_castD0Ev	std::bad_cast::~bad_cast()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	49	50	0x00136574	FUNC	_ZNSt8bad_castD1Ev	std::bad_cast::~bad_cast()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	50	51	0x0013658C	FUNC	_ZNSt8bad_castD2Ev	std::bad_cast::~bad_cast()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	51	52	0x001365A4	FUNC	_ZNSt8bad_castaSERKS_	std::bad_cast::operator=(std::bad_cast const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	52	53	0x001365BC	FUNC	_ZNSt9type_infoD0Ev	std::type_info::~type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	53	54	0x001365D4	FUNC	_ZNSt9type_infoD1Ev	std::type_info::~type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	54	55	0x001365EC	FUNC	_ZNSt9type_infoD2Ev	std::type_info::~type_info()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	55	56	0x00136978	FUNC	_ZSt21__gen_dummy_typeinfosv	std::__gen_dummy_typeinfos()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	56	57	0x0013698C	FUNC	_ZTIN10__cxxabiv116__enum_type_infoE	typeinfo for __cxxabiv1::__enum_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	57	58	0x001369A0	FUNC	_ZTIN10__cxxabiv117__array_type_infoE	typeinfo for __cxxabiv1::__array_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	58	59	0x00136BD8	FUNC	_ZTIN10__cxxabiv117__class_type_infoE	typeinfo for __cxxabiv1::__class_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	59	60	0x00136F50	FUNC	_ZTIN10__cxxabiv117__pbase_type_infoE	typeinfo for __cxxabiv1::__pbase_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	60	61	0x0013748C	FUNC	_ZTIN10__cxxabiv119__pointer_type_infoE	typeinfo for __cxxabiv1::__pointer_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	61	62	0x001393EC	FUNC	_ZTIN10__cxxabiv120__function_type_infoE	typeinfo for __cxxabiv1::__function_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	62	63	0x001398D8	FUNC	_ZTIN10__cxxabiv120__si_class_type_infoE	typeinfo for __cxxabiv1::__si_class_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	63	64	0x00139A20	FUNC	_ZTIN10__cxxabiv121__vmi_class_type_infoE	typeinfo for __cxxabiv1::__vmi_class_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	64	65	0x00139C10	FUNC	_ZTIN10__cxxabiv123__fundamental_type_infoE	typeinfo for __cxxabiv1::__fundamental_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	65	66	0x00139D58	FUNC	_ZTIN10__cxxabiv129__pointer_to_member_type_infoE	typeinfo for __cxxabiv1::__pointer_to_member_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	66	67	0x00139EDC	FUNC	_ZTIPKa	typeinfo for signed char const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	67	68	0x0013A038	FUNC	_ZTIPKb	typeinfo for bool const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	68	69	0x0013A358	FUNC	_ZTIPKc	typeinfo for char const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	69	70	0x0013A4E0	FUNC	_ZTIPKd	typeinfo for double const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	70	71	0x0013A6C0	FUNC	_ZTIPKe	typeinfo for long double const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	71	72	0x0013D578	FUNC	_ZTIPKf	typeinfo for float const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	72	73	0x0013D7B4	FUNC	_ZTIPKh	typeinfo for unsigned char const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	73	74	0x0013D8F8	FUNC	_ZTIPKi	typeinfo for int const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	74	75	0x0013DAE8	FUNC	_ZTIPKj	typeinfo for unsigned int const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	75	76	0x0013DCD8	FUNC	_ZTIPKl	typeinfo for long const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	76	77	0x0013DEC8	FUNC	_ZTIPKm	typeinfo for unsigned long const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	77	78	0x0013E0EC	FUNC	_ZTIPKs	typeinfo for short const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	78	79	0x0013E230	FUNC	_ZTIPKt	typeinfo for unsigned short const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	79	80	0x0013E4C4	FUNC	_ZTIPKv	typeinfo for void const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	80	81	0x0013E600	FUNC	_ZTIPKw	typeinfo for wchar_t const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	81	82	0x0013E63C	FUNC	_ZTIPKx	typeinfo for long long const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	82	83	0x0013E7C8	FUNC	_ZTIPKy	typeinfo for unsigned long long const*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	83	84	0x0013E7E4	FUNC	_ZTIPa	typeinfo for signed char*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	84	85	0x0013E800	FUNC	_ZTIPb	typeinfo for bool*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	85	86	0x0013E81C	FUNC	_ZTIPc	typeinfo for char*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	86	87	0x0013E838	FUNC	_ZTIPd	typeinfo for double*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	87	88	0x00144950	FUNC	_ZTIPe	typeinfo for long double*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	88	89	0x001451C4	FUNC	_ZTIPf	typeinfo for float*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	89	90	0x001451E4	FUNC	_ZTIPh	typeinfo for unsigned char*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	90	91	0x0014B638	FUNC	_ZTIPi	typeinfo for int*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	91	92	0x0015181C	FUNC	_ZTIPj	typeinfo for unsigned int*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	92	93	0x00151840	FUNC	_ZTIPl	typeinfo for long*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	93	94	0x00153468	FUNC	_ZTIPm	typeinfo for unsigned long*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	94	95	0x00153620	FUNC	_ZTIPs	typeinfo for short*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	95	96	0x0015398C	FUNC	_ZTIPt	typeinfo for unsigned short*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	96	97	0x00153CF0	FUNC	_ZTIPv	typeinfo for void*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	97	98	0x00153D88	FUNC	_ZTIPw	typeinfo for wchar_t*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	98	99	0x00153FE4	FUNC	_ZTIPx	typeinfo for long long*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	99	100	0x001542A4	FUNC	_ZTIPy	typeinfo for unsigned long long*	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	100	101	0x001542B8	FUNC	_ZTISt10bad_typeid	typeinfo for std::bad_typeid	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	101	102	0x00154560	FUNC	_ZTISt8bad_cast	typeinfo for std::bad_cast	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	102	103	0x0015457C	FUNC	_ZTISt9type_info	typeinfo for std::type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	103	104	0x00154598	FUNC	_ZTIa	typeinfo for signed char	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	104	105	0x001545E0	FUNC	_ZTIb	typeinfo for bool	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	105	106	0x001545FC	FUNC	_ZTIc	typeinfo for char	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	106	107	0x001549C0	FUNC	_ZTId	typeinfo for double	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	107	108	0x00154B54	FUNC	_ZTIe	typeinfo for long double	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	108	109	0x00154C74	FUNC	_ZTIf	typeinfo for float	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	109	110	0x00154E78	FUNC	_ZTIh	typeinfo for unsigned char	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	110	111	0x001552A0	FUNC	_ZTIi	typeinfo for int	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	111	112	0x001554D0	FUNC	_ZTIj	typeinfo for unsigned int	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	112	113	0x001555F4	FUNC	_ZTIl	typeinfo for long	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	113	114	0x001557F8	FUNC	_ZTIm	typeinfo for unsigned long	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	114	115	0x00155958	FUNC	_ZTIs	typeinfo for short	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	115	116	0x00155964	FUNC	_ZTIt	typeinfo for unsigned short	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	116	117	0x00155970	FUNC	_ZTIv	typeinfo for void	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	117	118	0x0015597C	FUNC	_ZTIw	typeinfo for wchar_t	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	118	119	0x00156058	FUNC	_ZTIx	typeinfo for long long	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	119	120	0x001576F0	FUNC	_ZTIy	typeinfo for unsigned long long	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	120	121	0x0015796C	FUNC	_ZTVN10__cxxabiv116__enum_type_infoE	vtable for __cxxabiv1::__enum_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	121	122	0x00157CE4	FUNC	_ZTVN10__cxxabiv117__array_type_infoE	vtable for __cxxabiv1::__array_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	122	123	0x00157F24	FUNC	_ZTVN10__cxxabiv117__class_type_infoE	vtable for __cxxabiv1::__class_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	123	124	0x00158030	FUNC	_ZTVN10__cxxabiv117__pbase_type_infoE	vtable for __cxxabiv1::__pbase_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	124	125	0x0019C34C	FUNC	_ZTVN10__cxxabiv119__pointer_type_infoE	vtable for __cxxabiv1::__pointer_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	125	126	0x0019CAA4	FUNC	_ZTVN10__cxxabiv120__function_type_infoE	vtable for __cxxabiv1::__function_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	126	127	0x0019D280	FUNC	_ZTVN10__cxxabiv120__si_class_type_infoE	vtable for __cxxabiv1::__si_class_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	127	128	0x0019DDC0	FUNC	_ZTVN10__cxxabiv121__vmi_class_type_infoE	vtable for __cxxabiv1::__vmi_class_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	128	129	0x001A3EE0	FUNC	_ZTVN10__cxxabiv123__fundamental_type_infoE	vtable for __cxxabiv1::__fundamental_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	129	130	0x00132F4C	FUNC	_ZTVN10__cxxabiv129__pointer_to_member_type_infoE	vtable for __cxxabiv1::__pointer_to_member_type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	130	131	0x00134168	FUNC	_ZTVSt10bad_typeid	vtable for std::bad_typeid	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	131	132	0x0013416C	FUNC	_ZTVSt8bad_cast	vtable for std::bad_cast	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	132	133	0x00134170	FUNC	_ZTVSt9type_info	vtable for std::type_info	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	133	134	0x00134174	FUNC	__aeabi_idiv0	__aeabi_idiv0	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	134	135	0x00134178	FUNC	__aeabi_idivmod	__aeabi_idivmod	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	135	136	0x0013417C	FUNC	__aeabi_lasr	__aeabi_lasr	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	136	137	0x00134180	FUNC	__aeabi_lcmp	__aeabi_lcmp	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	137	138	0x00134890	FUNC	__aeabi_ldiv0	__aeabi_ldiv0	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	138	139	0x00135120	FUNC	__aeabi_ldivmod	__aeabi_ldivmod	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	139	140	0x00135124	FUNC	__aeabi_llsl	__aeabi_llsl	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	140	141	0x00135128	FUNC	__aeabi_llsr	__aeabi_llsr	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	141	142	0x00135140	FUNC	__aeabi_lmul	__aeabi_lmul	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	142	143	0x00135144	FUNC	__aeabi_memclr	__aeabi_memclr	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	143	144	0x0013A65C	FUNC	__aeabi_memclr4	__aeabi_memclr4	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	144	145	0x0013A6B0	FUNC	__aeabi_memclr8	__aeabi_memclr8	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	145	146	0x0013E724	FUNC	__aeabi_memcpy	__aeabi_memcpy	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	146	147	0x0013E728	FUNC	__aeabi_memcpy4	__aeabi_memcpy4	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	147	148	0x0013E72C	FUNC	__aeabi_memcpy8	__aeabi_memcpy8	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	148	149	0x0013E730	FUNC	__aeabi_memmove	__aeabi_memmove	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	149	150	0x0013E734	FUNC	__aeabi_memmove4	__aeabi_memmove4	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	150	151	0x0013E738	FUNC	__aeabi_memmove8	__aeabi_memmove8	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	151	152	0x0013E73C	FUNC	__aeabi_memset	__aeabi_memset	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	152	153	0x0013E740	FUNC	__aeabi_memset4	__aeabi_memset4	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	153	154	0x0013E744	FUNC	__aeabi_memset8	__aeabi_memset8	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	154	155	0x0013E798	FUNC	__aeabi_uidivmod	__aeabi_uidivmod	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	155	156	0x0013E79C	FUNC	__aeabi_ulcmp	__aeabi_ulcmp	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	156	157	0x00145C18	FUNC	__aeabi_uldivmod	__aeabi_uldivmod	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	157	158	0x00145C1C	FUNC	__aeabi_unwind_cpp_pr0	__aeabi_unwind_cpp_pr0	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	158	159	0x00145C20	FUNC	__aeabi_unwind_cpp_pr1	__aeabi_unwind_cpp_pr1	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	159	160	0x0014B618	FUNC	__aeabi_unwind_cpp_pr2	__aeabi_unwind_cpp_pr2	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	160	161	0x0014B61C	FUNC	__aeabi_uread4	__aeabi_uread4	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	161	162	0x0014B628	FUNC	__aeabi_uread8	__aeabi_uread8	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	162	163	0x001554A4	FUNC	__aeabi_uwrite4	__aeabi_uwrite4	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	163	164	0x001554AC	FUNC	__aeabi_uwrite8	__aeabi_uwrite8	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	164	165	0x001557BC	FUNC	__aeabi_vec_cctor_nocookie_nodtor	__aeabi_vec_cctor_nocookie_nodtor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	165	166	0x001557C0	FUNC	__aeabi_vec_ctor_cookie_nodtor	__aeabi_vec_ctor_cookie_nodtor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	166	167	0x001557C4	FUNC	__aeabi_vec_ctor_nocookie_nodtor	__aeabi_vec_ctor_nocookie_nodtor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	167	168	0x001557C8	FUNC	__aeabi_vec_delete	__aeabi_vec_delete	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	168	169	0x001557D4	FUNC	__aeabi_vec_delete3	__aeabi_vec_delete3	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	169	170	0x001557D8	FUNC	__aeabi_vec_delete3_nodtor	__aeabi_vec_delete3_nodtor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	170	171	0x001557DC	FUNC	__aeabi_vec_dtor	__aeabi_vec_dtor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	171	172	0x001557E0	FUNC	__aeabi_vec_dtor_cookie	__aeabi_vec_dtor_cookie	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	172	173	0x001557E4	FUNC	__aeabi_vec_new_cookie	__aeabi_vec_new_cookie	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	173	174	0x001557E8	FUNC	__aeabi_vec_new_cookie_noctor	__aeabi_vec_new_cookie_noctor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	174	175	0x0019C180	FUNC	__aeabi_vec_new_cookie_nodtor	__aeabi_vec_new_cookie_nodtor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	175	176	0x001A3DF8	FUNC	__aeabi_vec_new_nocookie	__aeabi_vec_new_nocookie	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	176	177	0x001A3E08	FUNC	__cxa_allocate_exception	__cxa_allocate_exception	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	177	178	0x00132F80	FUNC	__cxa_bad_cast	__cxa_bad_cast	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	178	179	0x00134194	FUNC	__cxa_bad_typeid	__cxa_bad_typeid	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	179	180	0x001346C8	FUNC	__cxa_begin_catch	__cxa_begin_catch	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	180	181	0x00134898	FUNC	__cxa_begin_cleanup	__cxa_begin_cleanup	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	181	182	0x00135150	FUNC	__cxa_call_unexpected	__cxa_call_unexpected	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	182	183	0x00135158	FUNC	__cxa_end_catch	__cxa_end_catch	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	183	184	0x00135D60	FUNC	__cxa_end_cleanup	__cxa_end_cleanup	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	184	185	0x0013E7B0	FUNC	__cxa_free_exception	__cxa_free_exception	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	185	186	0x001448F0	FUNC	__cxa_guard_abort	__cxa_guard_abort	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	186	187	0x00145C28	FUNC	__cxa_guard_acquire	__cxa_guard_acquire	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	187	188	0x0014B630	FUNC	__cxa_guard_release	__cxa_guard_release	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	188	189	0x00153454	FUNC	__cxa_pure_virtual	__cxa_pure_virtual	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	189	190	0x00155E28	FUNC	__cxa_rethrow	__cxa_rethrow	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	190	191	0x00157F08	FUNC	__cxa_throw	__cxa_throw	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	191	192	0x0019C198	FUNC	__cxa_vec_cctor	__cxa_vec_cctor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	192	193	0x001A3E10	FUNC	__cxa_vec_cleanup	__cxa_vec_cleanup	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	193	194	0x001A3E18	FUNC	__cxa_vec_ctor	__cxa_vec_ctor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	194	195	0x00134770	FUNC	__cxa_vec_delete	__cxa_vec_delete	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	195	196	0x00135C34	FUNC	__cxa_vec_delete2	__cxa_vec_delete2	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	196	197	0x00145194	FUNC	__cxa_vec_delete3	__cxa_vec_delete3	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	197	198	0x00145CD4	FUNC	__cxa_vec_dtor	__cxa_vec_dtor	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	198	199	0x001545B0	FUNC	__cxa_vec_new	__cxa_vec_new	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	199	200	0x00155BE8	FUNC	__cxa_vec_new2	__cxa_vec_new2	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	200	201	0x001575B4	FUNC	__cxa_vec_new3	__cxa_vec_new3	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	201	202	0x00131CF0	FUNC	__dynamic_cast	__dynamic_cast	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	202	203	0x00131D80	FUNC	__get_typeid	__get_typeid	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	203	204	0x00131DF8	FUNC	_ZN23TCppRTExceptionsGlobalsC1Ev	TCppRTExceptionsGlobals::TCppRTExceptionsGlobals()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	204	205	0x00131E58	FUNC	_ZN23TCppRTExceptionsGlobalsC2Ev	TCppRTExceptionsGlobals::TCppRTExceptionsGlobals()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	205	206	0x00131F08	FUNC	_ZTI15XLeaveException	typeinfo for XLeaveException	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	206	207	0x00132000	FUNC	_ZTV15XLeaveException	vtable for XLeaveException	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	207	208	0x00132058	FUNC	_ZN15XLeaveException16ForceKeyFunctionEv	XLeaveException::ForceKeyFunction()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	208	209	0x00132068	FUNC	_ZSt10unexpectedv	std::unexpected()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	209	210	0x001320F0	FUNC	_ZSt13set_terminatePFvvE	std::set_terminate(void (*)())	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	210	211	0x00132118	FUNC	_ZSt14set_unexpectedPFvvE	std::set_unexpected(void (*)())	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	211	212	0x00132168	FUNC	_ZSt18uncaught_exceptionv	std::uncaught_exception()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	212	213	0x001321A0	FUNC	_ZSt9terminatev	std::terminate()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	213	214	0x00132228	FUNC	__cxa_call_terminate	__cxa_call_terminate	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+drtaeabi{000a0000}.dll	214	215	0x001322A0	FUNC	__cxa_current_exception_type	__cxa_current_exception_type	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/drtaeabi.dso
+efsrv{000a0000}[100039e4].dll	0	1	0x00131D68	FUNC	_Z18FileNamesIdenticalRK7TDesC16S1_	FileNamesIdentical(TDesC16 const&, TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	1	2	0x00131DA0	FUNC	_ZN10TDriveUnitC1ERK7TDesC16	TDriveUnit::TDriveUnit(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	2	3	0x00131DC0	FUNC	_ZN10TDriveUnitC1Ei	TDriveUnit::TDriveUnit(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	3	4	0x00131DE8	FUNC	_ZN10TDriveUnitC2ERK7TDesC16	TDriveUnit::TDriveUnit(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	4	5	0x00131E28	FUNC	_ZN10TDriveUnitC2Ei	TDriveUnit::TDriveUnit(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	5	6	0x00131EA8	FUNC	_ZN10TDriveUnitaSERK7TDesC16	TDriveUnit::operator=(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	6	7	0x00131F20	FUNC	_ZN10TDriveUnitaSEi	TDriveUnit::operator=(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	7	8	0x00131F78	FUNC	_ZN10TParseBase6AddDirERK7TDesC16	TParseBase::AddDir(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	8	9	0x001320A8	FUNC	_ZN10TParseBase6PopDirEv	TParseBase::PopDir()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	9	10	0x001320B0	FUNC	_ZN10TParseBaseC2Ev	TParseBase::TParseBase()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	10	11	0x001320B8	FUNC	_ZN10TParsePtrC7NameBufEv	TParsePtrC::NameBuf()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	11	12	0x00132150	FUNC	_ZN10TParsePtrCC1ERK7TDesC16	TParsePtrC::TParsePtrC(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+efsrv{000a0000}[100039e4].dll	12	13	0x00132268	FUNC	_ZN10TParsePtrCC2ERK7TDesC16	TParsePtrC::TParsePtrC(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/efsrv.dso
+eikcore{000a0000}[10004892].dll	0	1	0x0019CA50	FUNC	_Z12InternalizeLR12TEikPortFlagR11RReadStream	InternalizeL(TEikPortFlag&, RReadStream&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	1	2	0x0019CA60	FUNC	_ZN10CEikMsgWin10ConstructLER12RWindowGroup	CEikMsgWin::ConstructL(RWindowGroup&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	2	3	0x0019CA70	FUNC	_ZN10CEikMsgWin12StartDisplayERK7TDesC1613TGulAlignment	CEikMsgWin::StartDisplay(TDesC16 const&, TGulAlignment)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	3	4	0x0019CA74	FUNC	_ZN10CEikMsgWin13CancelDisplayEv	CEikMsgWin::CancelDisplay()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	4	5	0x0019CA78	FUNC	_ZThn24_NK21CEikEmbeddableAppList9MdcaPointEi	non-virtual thunk to CEikEmbeddableAppList::MdcaPoint(int) const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	5	6	0x0019CA7C	FUNC	_ZN10CEikMsgWinC2ER9CEikonEnv	CEikMsgWin::CEikMsgWin(CEikonEnv&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	6	7	0x0019CA80	FUNC	_ZN10CEikMsgWinD0Ev	CEikMsgWin::~CEikMsgWin()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	7	8	0x0019DCA4	FUNC	_ZN10CEikMsgWinD1Ev	CEikMsgWin::~CEikMsgWin()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	8	9	0x0019DCA8	FUNC	_ZN10CEikMsgWinD2Ev	CEikMsgWin::~CEikMsgWin()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	9	10	0x0019DCAC	FUNC	_ZN11CEikLibrary20PostAppUiInitializeLEv	CEikLibrary::PostAppUiInitializeL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	10	11	0x0019DCB4	FUNC	_ZN11CEikProcess12SetMainStoreEP10CFileStore	CEikProcess::SetMainStore(CFileStore*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	11	12	0x0019DCBC	FUNC	_ZN11CEikProcess22SaveToDirectFileStoreLEP12CEikDocumentPK4TBufILi256EE	CEikProcess::SaveToDirectFileStoreL(CEikDocument*, TBuf<256> const*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	12	13	0x0019DCC4	FUNC	_ZN11CEikProcess22SaveToDirectFileStoreLEP12CEikDocumentPK4TBufILi256EEiPS3_	CEikProcess::SaveToDirectFileStoreL(CEikDocument*, TBuf<256> const*, int, TBuf<256>*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	13	14	0x0019DCC8	FUNC	_ZN11CEikProcessD0Ev	CEikProcess::~CEikProcess()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	14	15	0x0019DCCC	FUNC	_ZN11CEikProcessD1Ev	CEikProcess::~CEikProcess()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	15	16	0x0019DCDC	FUNC	_ZN11CEikProcessD2Ev	CEikProcess::~CEikProcess()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	16	17	0x0019DCE4	FUNC	_ZN12CEikDocument9OpenFileLERP10CFileStoreR5RFile	CEikDocument::OpenFileL(CFileStore*&, RFile&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	17	18	0x0019DCE8	FUNC	_ZN12CEikDocument10Reserved_2Ev	CEikDocument::Reserved_2()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	18	19	0x0019DCF0	FUNC	_ZN12CEikDocument10SetChangedEi	CEikDocument::SetChanged(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	19	20	0x0019DCF4	FUNC	_ZN12CEikDocument12NewDocumentLEv	CEikDocument::NewDocumentL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	20	21	0x0019DCF8	FUNC	_ZN12CEikDocument13SetEditStoreLEP12CStreamStore	CEikDocument::SetEditStoreL(CStreamStore*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	21	22	0x0019DCFC	FUNC	_ZN12CEikDocument14PrepareToEditLEP23MApaEmbeddedDocObserveri	CEikDocument::PrepareToEditL(MApaEmbeddedDocObserver*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	22	23	0x0019DD20	FUNC	_ZN12CEikDocument14PrepareToEditLEv	CEikDocument::PrepareToEditL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	23	24	0x0019DD24	FUNC	_ZN12CEikDocument14SetAppFileModeEj	CEikDocument::SetAppFileMode(unsigned int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	24	25	0x0019DD28	FUNC	_ZN12CEikDocument15UpdateTaskNameLEP19CApaWindowGroupName	CEikDocument::UpdateTaskNameL(CApaWindowGroupName*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	25	26	0x0019DD2C	FUNC	_ZN12CEikDocument17CreateFileStoreLCER3RFsRK7TDesC16	CEikDocument::CreateFileStoreLC(RFs&, TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	26	27	0x0019DD30	FUNC	_ZN12CEikDocument5EditLEP23MApaEmbeddedDocObserveri	CEikDocument::EditL(MApaEmbeddedDocObserver*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	27	28	0x0019DD34	FUNC	_ZN12CEikDocument5SaveLEN13MSaveObserver9TSaveTypeE	CEikDocument::SaveL(MSaveObserver::TSaveType)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	28	29	0x0019DD38	FUNC	_ZN12CEikDocument5SaveLEv	CEikDocument::SaveL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	29	30	0x0019DD3C	FUNC	_ZN12CEikDocument6PrintLERK12CStreamStore	CEikDocument::PrintL(CStreamStore const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	30	31	0x0019DD40	FUNC	_ZN12CEikDocument8RestoreLERK12CStreamStoreRK17CStreamDictionary	CEikDocument::RestoreL(CStreamStore const&, CStreamDictionary const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	31	32	0x0019DD44	FUNC	_ZN12CEikDocument9OpenFileLEiRK7TDesC16R3RFs	CEikDocument::OpenFileL(int, TDesC16 const&, RFs&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	32	33	0x0019DD48	FUNC	_ZThn24_NK21CEikEmbeddableAppList9MdcaCountEv	non-virtual thunk to CEikEmbeddableAppList::MdcaCount() const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	33	34	0x0019DD4C	FUNC	_ZN12CEikDocumentC2ER15CEikApplication	CEikDocument::CEikDocument(CEikApplication&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	34	35	0x0019DD50	FUNC	_ZN12CEikDocumentD0Ev	CEikDocument::~CEikDocument()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	35	36	0x0019DD5C	FUNC	_ZN12CEikDocumentD1Ev	CEikDocument::~CEikDocument()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	36	37	0x0019DD74	FUNC	_ZN12CEikDocumentD2Ev	CEikDocument::~CEikDocument()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	37	38	0x001A3E6C	FUNC	_ZN12EikFileUtils14AbbreviatePathER7TDesC16RK5CFonti	EikFileUtils::AbbreviatePath(TDesC16&, CFont const&, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	38	39	0x001A3E70	FUNC	_ZN12EikFileUtils30ValidateFolderNameTypedByUserLERK7TDesC16S2_	EikFileUtils::ValidateFolderNameTypedByUserL(TDesC16 const&, TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	39	40	0x001A3E78	FUNC	_ZN13EikBubbleHelp12IsDisplayingEi	EikBubbleHelp::IsDisplaying(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	40	41	0x001A3E7C	FUNC	_ZN13EikBubbleHelp13CancelTriggerEv	EikBubbleHelp::CancelTrigger()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	41	42	0x001A3E80	FUNC	_ZN13EikBubbleHelp6CancelEv	EikBubbleHelp::Cancel()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	42	43	0x001A3E84	FUNC	_ZN13EikBubbleHelp7TriggerERK7TDesC16RK5TRecti	EikBubbleHelp::Trigger(TDesC16 const&, TRect const&, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	43	44	0x001A3E88	FUNC	_ZN14CEikBubbleHelp17SetTriggeredHelpLEP17MEikTriggeredHelp	CEikBubbleHelp::SetTriggeredHelpL(MEikTriggeredHelp*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	44	45	0x001A3E90	FUNC	_ZN14CEikBusyMsgWin34StartDisplaySpecifyingInitialDelayERK7TDesC1613TGulAlignment27TTimeIntervalMicroSeconds32	CEikBusyMsgWin::StartDisplaySpecifyingInitialDelay(TDesC16 const&, TGulAlignment, TTimeIntervalMicroSeconds32)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	45	46	0x001A3E94	FUNC	_ZN14CEikBusyMsgWinC1ER9CEikonEnv	CEikBusyMsgWin::CEikBusyMsgWin(CEikonEnv&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	46	47	0x001A3E98	FUNC	_ZN14CEikBusyMsgWinC2ER9CEikonEnv	CEikBusyMsgWin::CEikBusyMsgWin(CEikonEnv&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	47	48	0x001A3EA0	FUNC	_ZN14CEikInfoMsgWin30StartDisplaySpecifyingDurationERK7TDesC1613TGulAlignment27TTimeIntervalMicroSeconds32	CEikInfoMsgWin::StartDisplaySpecifyingDuration(TDesC16 const&, TGulAlignment, TTimeIntervalMicroSeconds32)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	48	49	0x001A3EA8	FUNC	_ZN14CEikInfoMsgWinC1ER9CEikonEnv	CEikInfoMsgWin::CEikInfoMsgWin(CEikonEnv&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	49	50	0x001A3EB4	FUNC	_ZN14CEikInfoMsgWinC2ER9CEikonEnv	CEikInfoMsgWin::CEikInfoMsgWin(CEikonEnv&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	50	51	0x001A3EB8	FUNC	"""_._.absent_export_51"""	"""_._.absent_export_51"""	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	51	52	0x001A3EC4	FUNC	"""_._.absent_export_52"""	"""_._.absent_export_52"""	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	52	53	0x00131EB8	FUNC	"""_._.absent_export_53"""	"""_._.absent_export_53"""	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	53	54	0x00131FC0	FUNC	"""_._.absent_export_54"""	"""_._.absent_export_54"""	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	54	55	0x00132158	FUNC	"""_._.absent_export_55"""	"""_._.absent_export_55"""	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+eikcore{000a0000}[10004892].dll	55	56	0x00132278	FUNC	"""_._.absent_export_56"""	"""_._.absent_export_56"""	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/eikcore.dso
+esock{000a0000}[10003d3f].dll	0	1	0x00131C80	FUNC	_ZN11RConnection11CancelIoctlEv	RConnection::CancelIoctl()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	1	2	0x00131CA0	FUNC	_ZN11RConnection13GetDesSettingERK7TDesC16R5TDes8	RConnection::GetDesSetting(TDesC16 const&, TDes8&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	2	3	0x00131CA8	FUNC	_ZN11RConnection13GetDesSettingERK7TDesC16R6TDes16	RConnection::GetDesSetting(TDesC16 const&, TDes16&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	3	4	0x00131CC0	FUNC	_ZN11RConnection13GetIntSettingERK7TDesC16Rm	RConnection::GetIntSetting(TDesC16 const&, unsigned long&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	4	5	0x00131CD0	FUNC	_ZN11RConnection14GetBoolSettingERK7TDesC16Ri	RConnection::GetBoolSetting(TDesC16 const&, int&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	5	6	0x00131CE0	FUNC	_ZN11RConnection17GetConnectionInfoEjR5TDes8	RConnection::GetConnectionInfo(unsigned int, TDes8&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	6	7	0x00131DC8	FUNC	_ZN11RConnection17GetLongDesSettingERK7TDesC16R6TDes16	RConnection::GetLongDesSetting(TDesC16 const&, TDes16&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	7	8	0x00131E00	FUNC	_ZN11RConnection17LastProgressErrorER12TNifProgress	RConnection::LastProgressError(TNifProgress&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	8	9	0x00131E50	FUNC	_ZN11RConnection20EnumerateConnectionsERj	RConnection::EnumerateConnections(unsigned int&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	9	10	0x00131F00	FUNC	_ZN11RConnection20GetSubConnectionInfoER5TDes8	RConnection::GetSubConnectionInfo(TDes8&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	10	11	0x00131FC8	FUNC	_ZN11RConnection20GetSubConnectionInfoEjR5TDes8	RConnection::GetSubConnectionInfo(unsigned int, TDes8&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	11	12	0x00131FE8	FUNC	_ZN11RConnection20ProgressNotificationER8TPckgBufI12TNifProgressER14TRequestStatusj	RConnection::ProgressNotification(TPckgBuf<TNifProgress>&, TRequestStatus&, unsigned int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	12	13	0x001320D0	FUNC	_ZN11RConnection20ProgressNotificationEjR8TPckgBufI12TNifProgressER14TRequestStatusj	RConnection::ProgressNotification(unsigned int, TPckgBuf<TNifProgress>&, TRequestStatus&, unsigned int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	13	14	0x001320D8	FUNC	_ZN11RConnection21DataTransferredCancelEj	RConnection::DataTransferredCancel(unsigned int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	14	15	0x00132130	FUNC	_ZN11RConnection21DataTransferredCancelEv	RConnection::DataTransferredCancel()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	15	16	0x00132138	FUNC	_ZN11RConnection22DataTransferredRequestER5TPckgIjES2_R14TRequestStatus	RConnection::DataTransferredRequest(TPckg<unsigned int>&, TPckg<unsigned int>&, TRequestStatus&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	16	17	0x001321F8	FUNC	_ZN11RConnection22DataTransferredRequestEjR5TPckgIjES2_R14TRequestStatus	RConnection::DataTransferredRequest(unsigned int, TPckg<unsigned int>&, TPckg<unsigned int>&, TRequestStatus&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	17	18	0x00132200	FUNC	_ZN11RConnection23EnumerateSubConnectionsERj	RConnection::EnumerateSubConnections(unsigned int&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	18	19	0x00132298	FUNC	_ZN11RConnection24AllInterfaceNotificationER5TDes8R14TRequestStatus	RConnection::AllInterfaceNotification(TDes8&, TRequestStatus&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+esock{000a0000}[10003d3f].dll	19	20	0x001322D0	FUNC	_ZN11RConnection24IsConnectionActiveCancelEv	RConnection::IsConnectionActiveCancel()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/esock.dso
+euser{000a0000}[100039e5].dll	0	1	0x0009D954	FUNC	_Z16PanicTFixedArrayv	PanicTFixedArray()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	1	2	0x0013E6B0	FUNC	_ZN10CCirBuffer3GetEv	CCirBuffer::Get()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	2	3	0x0013E6E8	FUNC	_ZN10CCirBuffer3PutEi	CCirBuffer::Put(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	3	4	0x0013E720	FUNC	_ZN10CCirBufferC1Ev	CCirBuffer::CCirBuffer()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	4	5	0x0013E758	FUNC	_ZN10CCirBufferC2Ev	CCirBuffer::CCirBuffer()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	5	6	0x0013E778	FUNC	_ZN10CCirBufferD0Ev	CCirBuffer::~CCirBuffer()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	6	7	0x00144938	FUNC	_ZN10CCirBufferD1Ev	CCirBuffer::~CCirBuffer()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	7	8	0x00145140	FUNC	_ZN10CCirBufferD2Ev	CCirBuffer::~CCirBuffer()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	8	9	0x00145CA0	FUNC	_ZN10CHeartbeat3NewEi	CHeartbeat::New(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	9	10	0x001517D8	FUNC	_ZN10CHeartbeat4NewLEi	CHeartbeat::NewL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	10	11	0x001517F8	FUNC	_ZN10CHeartbeat4RunLEv	CHeartbeat::RunL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	11	12	0x0013E7D0	FUNC	_ZN10CHeartbeat5StartE14TTimerLockSpecP8MBeating	CHeartbeat::Start(TTimerLockSpec, MBeating*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	12	13	0x0013E7EC	FUNC	_ZN10CHeartbeatC1Ei	CHeartbeat::CHeartbeat(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	13	14	0x0013E808	FUNC	_ZN10CHeartbeatC2Ei	CHeartbeat::CHeartbeat(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	14	15	0x00144958	FUNC	_ZN10CHeartbeatD0Ev	CHeartbeat::~CHeartbeat()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	15	16	0x001451CC	FUNC	_ZN10CHeartbeatD1Ev	CHeartbeat::~CHeartbeat()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	16	17	0x00145CE4	FUNC	_ZN10CHeartbeatD2Ev	CHeartbeat::~CHeartbeat()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	17	18	0x00151824	FUNC	_ZN10CObjectCon4AddLEP7CObject	CObjectCon::AddL(CObject*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	18	19	0x00151848	FUNC	_ZN10CObjectCon4NewLEv	CObjectCon::NewL()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	19	20	0x00144944	FUNC	_ZN10CObjectCon6RemoveEP7CObject	CObjectCon::Remove(CObject*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	20	21	0x0014514C	FUNC	_ZN10CObjectConC1Ei	CObjectCon::CObjectCon(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	21	22	0x00145CAC	FUNC	_ZN10CObjectConC2Ei	CObjectCon::CObjectCon(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	22	23	0x001517E4	FUNC	_ZN10CObjectConD0Ev	CObjectCon::~CObjectCon()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	23	24	0x00151804	FUNC	_ZN10CObjectConD1Ev	CObjectCon::~CObjectCon()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	24	25	0x00145128	FUNC	_ZN10CObjectConD2Ev	CObjectCon::~CObjectCon()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	25	26	0x00145160	FUNC	_ZN10CObjectConixEi	CObjectCon::operator[](int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	26	27	0x0019CA48	FUNC	_ZN10RAllocator12__DbgMarkEndEi	RAllocator::__DbgMarkEnd(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	27	28	0x0019D1A8	FUNC	_ZN10RAllocator14__DbgMarkCheckEiiRK6TDesC8i	RAllocator::__DbgMarkCheck(int, int, TDesC8 const&, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	28	29	0x0019DC68	FUNC	_ZN10RAllocator14__DbgMarkStartEv	RAllocator::__DbgMarkStart()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	29	30	0x001A3E68	FUNC	_ZN10RAllocator17__DbgSetAllocFailENS_10TAllocFailEi	RAllocator::__DbgSetAllocFail(RAllocator::TAllocFail, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	30	31	0x001451A4	FUNC	_ZN10RAllocator4OpenEv	RAllocator::Open()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	31	32	0x001451EC	FUNC	_ZN10RAllocator5CloseEv	RAllocator::Close()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	32	33	0x00131C78	FUNC	_ZN10RAllocator5FreeZERPv	RAllocator::FreeZ(void*&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	33	34	0x00131C88	FUNC	_ZN10RAllocator6AllocLEi	RAllocator::AllocL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	34	35	0x00131C98	FUNC	_ZN10RAllocator6AllocZEi	RAllocator::AllocZ(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	35	36	0x00131CC8	FUNC	_ZN10RAllocator7AllocLCEi	RAllocator::AllocLC(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	36	37	0x00131CE8	FUNC	_ZN10RAllocator7AllocZLEi	RAllocator::AllocZL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	37	38	0x00131D00	FUNC	_ZN10RAllocator7DoCloseEv	RAllocator::DoClose()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	38	39	0x00131D08	FUNC	_ZN10RAllocator8ReAllocLEPvii	RAllocator::ReAllocL(void*, int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	39	40	0x00131D38	FUNC	_ZN10RArrayBase13GetElementPtrEPK5CBasei	RArrayBase::GetElementPtr(CBase const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	40	41	0x00131D48	FUNC	_ZN10RArrayBase14HeapSortSignedEv	RArrayBase::HeapSortSigned()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	41	42	0x00131D50	FUNC	_ZN10RArrayBase15InsertIsqSignedEPKvi	RArrayBase::InsertIsqSigned(void const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	42	43	0x00131D58	FUNC	_ZN10RArrayBase16GranularCompressEv	RArrayBase::GranularCompress()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	43	44	0x00131D70	FUNC	_ZN10RArrayBase16HeapSortUnsignedEv	RArrayBase::HeapSortUnsigned()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	44	45	0x00131D78	FUNC	_ZN10RArrayBase17InsertIsqUnsignedEPKvi	RArrayBase::InsertIsqUnsigned(void const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	45	46	0x00131D88	FUNC	_ZN10RArrayBase5CloseEv	RArrayBase::Close()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	46	47	0x00131D98	FUNC	_ZN10RArrayBase5ResetEv	RArrayBase::Reset()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	47	48	0x00131DA8	FUNC	_ZN10RArrayBase6AppendEPKv	RArrayBase::Append(void const*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	48	49	0x00131DB0	FUNC	_ZN10RArrayBase6InsertEPKvi	RArrayBase::Insert(void const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	49	50	0x00131DD0	FUNC	_ZN10RArrayBase6RemoveEi	RArrayBase::Remove(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	50	51	0x00131E10	FUNC	_ZN10RArrayBase8CompressEv	RArrayBase::Compress()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	51	52	0x00131E18	FUNC	_ZN10RArrayBase8GetCountEPK5CBase	RArrayBase::GetCount(CBase const*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	52	53	0x00131E20	FUNC	_ZN10RArrayBase8HeapSortEPFiPKvS1_E	RArrayBase::HeapSort(int (*)(void const*, void const*))	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	53	54	0x00131E38	FUNC	_ZN10RArrayBase9InsertIsqEPKvPFiS1_S1_Ei	RArrayBase::InsertIsq(void const*, int (*)(void const*, void const*), int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	54	55	0x00131E48	FUNC	_ZN10RArrayBaseC1Ei	RArrayBase::RArrayBase(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	55	56	0x00131E70	FUNC	_ZN10RArrayBaseC1EiPvi	RArrayBase::RArrayBase(int, void*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	56	57	0x00131E78	FUNC	_ZN10RArrayBaseC1Eii	RArrayBase::RArrayBase(int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	57	58	0x00131E88	FUNC	_ZN10RArrayBaseC1Eiii	RArrayBase::RArrayBase(int, int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	58	59	0x00131E98	FUNC	_ZN10RArrayBaseC2Ei	RArrayBase::RArrayBase(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	59	60	0x00131EA0	FUNC	_ZN10RArrayBaseC2EiPvi	RArrayBase::RArrayBase(int, void*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	60	61	0x00131EB0	FUNC	_ZN10RArrayBaseC2Eii	RArrayBase::RArrayBase(int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	61	62	0x00131EC0	FUNC	_ZN10RArrayBaseC2Eiii	RArrayBase::RArrayBase(int, int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	62	63	0x00131EC8	FUNC	_ZN10RSemaphore10OpenGlobalERK7TDesC1610TOwnerType	RSemaphore::OpenGlobal(TDesC16 const&, TOwnerType)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	63	64	0x00131ED0	FUNC	_ZN10RSemaphore11CreateLocalEi10TOwnerType	RSemaphore::CreateLocal(int, TOwnerType)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	64	65	0x00131EF0	FUNC	_ZN10RSemaphore12CreateGlobalERK7TDesC16i10TOwnerType	RSemaphore::CreateGlobal(TDesC16 const&, int, TOwnerType)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	65	66	0x00131EF8	FUNC	_ZN10RSemaphore4OpenE12RMessagePtr2i10TOwnerType	RSemaphore::Open(RMessagePtr2, int, TOwnerType)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	66	67	0x00131F18	FUNC	_ZN10RSemaphore4OpenEi10TOwnerType	RSemaphore::Open(int, TOwnerType)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	67	68	0x00131F48	FUNC	_ZN10RSemaphore4WaitEi	RSemaphore::Wait(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	68	69	0x00131F58	FUNC	_ZN10RSemaphore4WaitEv	RSemaphore::Wait()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	69	70	0x00131F80	FUNC	_ZN10RSemaphore6SignalEi	RSemaphore::Signal(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	70	71	0x00131F88	FUNC	_ZN10RSemaphore6SignalEv	RSemaphore::Signal()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	71	72	0x00131FA0	FUNC	_ZN10TBitOutput4PadLEj	TBitOutput::PadL(unsigned int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	72	73	0x00131FB0	FUNC	_ZN10TBitOutput6WriteLEji	TBitOutput::WriteL(unsigned int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	73	74	0x00131FB8	FUNC	_ZN10TBitOutput8HuffmanLEj	TBitOutput::HuffmanL(unsigned int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	74	75	0x00131FE0	FUNC	_ZN10TBitOutputC1EPhi	TBitOutput::TBitOutput(unsigned char*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	75	76	0x00132010	FUNC	_ZN10TBitOutputC1Ev	TBitOutput::TBitOutput()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	76	77	0x00132018	FUNC	_ZN10TBitOutputC2EPhi	TBitOutput::TBitOutput(unsigned char*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	77	78	0x00132020	FUNC	_ZN10TBitOutputC2Ev	TBitOutput::TBitOutput()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	78	79	0x00132030	FUNC	_ZN10TBufBase16C1EPKti	TBufBase16::TBufBase16(unsigned short const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	79	80	0x00132048	FUNC	_ZN10TBufBase16C1ERK7TDesC16i	TBufBase16::TBufBase16(TDesC16 const&, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	80	81	0x00132050	FUNC	_ZN10TBufBase16C1Ei	TBufBase16::TBufBase16(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	81	82	0x00132080	FUNC	_ZN10TBufBase16C1Eii	TBufBase16::TBufBase16(int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	82	83	0x00132088	FUNC	_ZN10TBufBase16C2EPKti	TBufBase16::TBufBase16(unsigned short const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	83	84	0x00132098	FUNC	_ZN10TBufBase16C2ERK7TDesC16i	TBufBase16::TBufBase16(TDesC16 const&, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	84	85	0x001320A0	FUNC	_ZN10TBufBase16C2Ei	TBufBase16::TBufBase16(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	85	86	0x001320C0	FUNC	_ZN10TBufBase16C2Eii	TBufBase16::TBufBase16(int, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	86	87	0x001320C8	FUNC	_ZN10TBufCBase84CopyEPKhi	TBufCBase8::Copy(unsigned char const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	87	88	0x00132100	FUNC	_ZN10TBufCBase84CopyERK6TDesC8i	TBufCBase8::Copy(TDesC8 const&, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	88	89	0x00132110	FUNC	_ZN10TBufCBase8C1EPKhi	TBufCBase8::TBufCBase8(unsigned char const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	89	90	0x00132120	FUNC	_ZN10TBufCBase8C1ERK6TDesC8i	TBufCBase8::TBufCBase8(TDesC8 const&, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	90	91	0x00132140	FUNC	_ZN10TBufCBase8C1Ev	TBufCBase8::TBufCBase8()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	91	92	0x00132148	FUNC	_ZN10TBufCBase8C2EPKhi	TBufCBase8::TBufCBase8(unsigned char const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	92	93	0x00132160	FUNC	_ZN10TBufCBase8C2ERK6TDesC8i	TBufCBase8::TBufCBase8(TDesC8 const&, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	93	94	0x00132178	FUNC	_ZN10TBufCBase8C2Ev	TBufCBase8::TBufCBase8()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	94	95	0x00132180	FUNC	_ZN10TFindChunk4NextER4TBufILi256EE	TFindChunk::Next(TBuf<256>&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	95	96	0x00132198	FUNC	_ZN10TFindMutex4NextER4TBufILi256EE	TFindMutex::Next(TBuf<256>&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	96	97	0x001321B0	FUNC	_ZN10TMonthName3SetE6TMonth	TMonthName::Set(TMonth)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	97	98	0x001321C0	FUNC	_ZN10TMonthNameC1E6TMonth	TMonthName::TMonthName(TMonth)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	98	99	0x001321D8	FUNC	_ZN10TMonthNameC1Ev	TMonthName::TMonthName()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	99	100	0x001321E8	FUNC	_ZN10TMonthNameC2E6TMonth	TMonthName::TMonthName(TMonth)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	100	101	0x00132218	FUNC	_ZN10TMonthNameC2Ev	TMonthName::TMonthName()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	101	102	0x00132220	FUNC	_ZN11CCirBufBase10SetLengthLEi	CCirBufBase::SetLengthL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	102	103	0x00132248	FUNC	_ZN11CCirBufBase5DoAddEPKh	CCirBufBase::DoAdd(unsigned char const*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	103	104	0x00132258	FUNC	_ZN11CCirBufBase5DoAddEPKhi	CCirBufBase::DoAdd(unsigned char const*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	104	105	0x00132260	FUNC	_ZN11CCirBufBase5ResetEv	CCirBufBase::Reset()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	105	106	0x00132270	FUNC	_ZN11CCirBufBase8DoRemoveEPh	CCirBufBase::DoRemove(unsigned char*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	106	107	0x00132280	FUNC	_ZN11CCirBufBase8DoRemoveEPhi	CCirBufBase::DoRemove(unsigned char*, int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	107	108	0x001322B8	FUNC	_ZN11CCirBufBaseC1Ei	CCirBufBase::CCirBufBase(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	108	109	0x001322C8	FUNC	_ZN11CCirBufBaseC2Ei	CCirBufBase::CCirBufBase(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	109	110	0x001322E0	FUNC	_ZN11CCirBufBaseD0Ev	CCirBufBase::~CCirBufBase()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	110	111	0x001322F0	FUNC	_ZN11CCirBufBaseD1Ev	CCirBufBase::~CCirBufBase()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	111	112	0x00132300	FUNC	_ZN11CCirBufBaseD2Ev	CCirBufBase::~CCirBufBase()	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+euser{000a0000}[100039e5].dll	112	113	0x00132308	FUNC	_ZN11CDeltaTimer4NewLEi	CDeltaTimer::NewL(int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/euser.dso
+insock{000a0000}[10003d44].dll	0	1	0x00131DB8	FUNC	_ZN9TInetAddrC1Emj	TInetAddr::TInetAddr(unsigned long, unsigned int)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/insock.dso
+insock{000a0000}[10003d44].dll	1	2	0x00131FA8	FUNC	_ZNK9TInetAddr7CmpAddrERKS_	TInetAddr::CmpAddr(TInetAddr const&) const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/insock.dso
+insock{000a0000}[10003d44].dll	2	3	0x00131FD8	FUNC	_ZN9TInetAddr5InputERK7TDesC16	TInetAddr::Input(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/insock.dso
+insock{000a0000}[10003d44].dll	3	4	0x001320E8	FUNC	_ZNK9TInetAddr5MatchERKS_	TInetAddr::Match(TInetAddr const&) const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/insock.dso
+insock{000a0000}[10003d44].dll	4	5	0x00132170	FUNC	_ZNK9TInetAddr5MatchERKS_S1_	TInetAddr::Match(TInetAddr const&, TInetAddr const&) const	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/insock.dso
+scppnwdl{000a0000}.dll	0	1	0x00131F50	FUNC	_ZdaPv	operator delete[](void*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/scppnwdl.dso
+scppnwdl{000a0000}.dll	1	2	0x00132090	FUNC	_ZdaPvRKSt9nothrow_t	operator delete[](void*, std::nothrow_t const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/scppnwdl.dso
+scppnwdl{000a0000}.dll	2	3	0x00132190	FUNC	_ZdlPv	operator delete(void*)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/scppnwdl.dso
+scppnwdl{000a0000}.dll	3	4	0x001322D8	FUNC	_ZdlPvRKSt9nothrow_t	operator delete(void*, std::nothrow_t const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/scppnwdl.dso
+sendas2{000a0000}[10204285].dll	0	1	0x00131CD8	FUNC	_ZN14RSendAsMessage11SendMessageER14TRequestStatus	RSendAsMessage::SendMessage(TRequestStatus&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/sendas2.dso
+sendas2{000a0000}[10204285].dll	1	2	0x00131E68	FUNC	_ZN14RSendAsMessage11SetBioTypeLE4TUid	RSendAsMessage::SetBioTypeL(TUid)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/sendas2.dso
+sendas2{000a0000}[10204285].dll	2	3	0x001321C8	FUNC	_ZN14RSendAsMessage11SetSubjectLERK7TDesC16	RSendAsMessage::SetSubjectL(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/sendas2.dso
+sendas2{000a0000}[10204285].dll	3	4	0x00132250	FUNC	_ZN14RSendAsMessage12SetBodyTextLERK7TDesC16	RSendAsMessage::SetBodyTextL(TDesC16 const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/sendas2.dso
+sendas2{000a0000}[10204285].dll	4	5	0x00132288	FUNC	_ZN14RSendAsMessage12SetBodyTextLERK9CRichText	RSendAsMessage::SetBodyTextL(CRichText const&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/sendas2.dso
+sendas2{000a0000}[10204285].dll	5	6	0x00132290	FUNC	_ZN14RSendAsMessage13AddAttachmentER5RFileR14TRequestStatus	RSendAsMessage::AddAttachment(RFile&, TRequestStatus&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/sendas2.dso
+sendas2{000a0000}[10204285].dll	6	7	0x001322A8	FUNC	_ZN14RSendAsMessage13AddAttachmentER5RFileRK6TDesC8R14TRequestStatus	RSendAsMessage::AddAttachment(RFile&, TDesC8 const&, TRequestStatus&)	SDK/devices/S60_3rd_FP2_SDK_v1.1/epoc32/release/armv5/lib/sendas2.dso
