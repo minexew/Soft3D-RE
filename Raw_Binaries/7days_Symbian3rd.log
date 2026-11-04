@@ -642,7 +642,7 @@ Import table: offset = 0x001B8BAC, size = 3136 bytes, libraries = 19
     [5] code offset = 0x00132290
     [6] code offset = 0x001322A8
 Import address table: entries = 0
-ode relocations: offset = 0x001B97EC, size = 13532 bytes, header count = 5785, parsed count = 5902, blocks = 216
+Code relocations: offset = 0x001B97EC, size = 13532 bytes, header count = 5785, parsed count = 5902, blocks = 216
  Block 0: base = 0x00002000, size = 12 bytes, entries = 2
    [0] raw = 0x1A90, page offset = 0xA90, address = 0x00002A90, type = text
    [1] raw = 0x1A94, page offset = 0xA94, address = 0x00002A94, type = text
