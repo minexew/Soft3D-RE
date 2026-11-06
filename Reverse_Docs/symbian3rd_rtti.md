@@ -236,6 +236,12 @@ Vtable addresses in this table are structure starts; add eight bytes for the add
 | Worm | `0x0013b180` | `0x0013b178` | single | Enemy @ `0x0` | `0x0013b0a8` (0) |
 | XLeaveException | `0x0014c8f0` | `0x0014c8f8` | class | — | — |
 
+## Audio/video follow-up
+
+The RTTI-guided audio and video passes are documented in `symbian3rd_audio.md` and `symbian3rd_video.md`. Their vtable targets have been defined and named in Ghidra, including the previously missing ARM functions for `AudioData`, `s3dAudioDevice`, `CMixerThread`, `CMixerActive`, `VID_impl`, `Raster`, `Texture`, and `Lensflare`. Odd vtable values in these records point to ARM code at the corresponding even addresses; they are not evidence of Thumb mode.
+
+Recovered behavior now includes SAU decoding, the 16-voice mono software mixer, positional distance attenuation, the `VID_impl` lifecycle, CPU texture allocation, triangle rasterization, texture blitting, and the frame presentation path. The documents distinguish concrete RTTI names from behavioral names assigned to the audio manager and sound-instance objects.
+
 ## Recommended next recovery steps
 
-Use constructor and destructor writes to establish actual class sizes and ordinary fields, then extend the partial `RTTI_*` structures. Vtable function slots can be recovered systematically from each address point, but slot names still require behavioral analysis or leaked-source correlation. Applying the reconstructed class types to known `this` parameters will make those later passes substantially clearer.
+Use constructor and destructor writes to establish actual class sizes and ordinary fields, then extend the partial `RTTI_*` structures. Vtable function slots can be recovered systematically from each address point, but slot names still require behavioral analysis or leaked-source correlation. Applying the reconstructed class types to known `this` parameters will make those later passes substantially clearer. For video, the highest-value remaining link is the writer and concrete type of the presenter pointer at `Raster + 0x1a7c`.

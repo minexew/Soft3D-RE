@@ -251,3 +251,5 @@ cmake -S Reversed_Game -B Reversed_Game/build
 cmake --build Reversed_Game/build --parallel
 ctest --test-dir Reversed_Game/build --output-on-failure
 ```
+
+The reconstructed archive is also the SAU resource source in the audio path documented by `symbian3rd_audio.md`; `symbian3rd_video.md` covers the corresponding software-rendering and presentation paths.
