@@ -6,6 +6,13 @@
 
 #include <cstdint>
 
+#define EFP_SEEK -1
+#define EFP_SUCCESS 0
+#define EFP_OPEN 3
+#define EFP_NOMEM 4
+#define EFP_NOENT 5
+#define EFP_IOERR 8
+
 namespace soft3d {
 
 struct PakEntry {
