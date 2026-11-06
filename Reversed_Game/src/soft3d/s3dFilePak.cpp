@@ -190,6 +190,10 @@ int s3dFilePak::Read(void* destination, int32_t requestedBytes)
     }
 
     int32_t bytesToRead = requestedBytes;
+    // Note the +1 here: it appears to be an original off-by-one overread bug,
+    // confirmed by 'add r3,r3,#0x1' instruction at mem 0x000a02b0 in
+    // disassembly. We intentionally preserve original logic and observable
+    // behavior of engine, though.
     if (selectedEntryEnd < currentPosition + requestedBytes) {
         bytesToRead = static_cast<int32_t>(selectedEntryEnd - currentPosition) + 1;
     }
