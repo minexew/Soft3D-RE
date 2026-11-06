@@ -19,6 +19,22 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(soft3d PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+option(SOFT3D_BUILD_APP "Build the SDL3 application shell" ON)
+if(SOFT3D_BUILD_APP)
+    find_package(SDL3 REQUIRED CONFIG)
+    add_executable(seven_days
+        src/app/Application.cpp
+        src/app/EngineStubs.cpp
+        src/app/main.cpp
+    )
+    target_include_directories(seven_days PRIVATE src)
+    target_compile_features(seven_days PRIVATE cxx_std_17)
+    target_link_libraries(seven_days PRIVATE SDL3::SDL3)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(seven_days PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+endif()
+
 include(CTest)
 if(BUILD_TESTING)
     add_executable(soft3d_filepak_tests tests/test_s3dfilepak.cpp)
@@ -30,4 +46,10 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_filepak_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_filepak COMMAND soft3d_filepak_tests)
+    if(TARGET seven_days)
+        add_test(NAME seven_days_smoke
+            COMMAND seven_days --frames 3 --renderer software --no-audio)
+        set_tests_properties(seven_days_smoke PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy")
+    endif()
 endif()
