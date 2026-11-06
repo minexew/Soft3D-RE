@@ -88,7 +88,9 @@ Class structures contain only fields supported by RTTI:
 
 Single-inheritance bases are at object offset zero. Multiple-inheritance base offsets come from `offset_flags >> 8` and are independently confirmed by secondary-vtable offset-to-top values. For example, `RTTI_Player` has `base_Creature` at `0x0`, `base_StateMachine_Player` at `0x6f0`, and `base_CameraSpot` at `0x704`.
 
-RTTI does **not** reveal ordinary member variables, their names, or the total class size. Ghidra structure sizes are only minimum known extents. `RTTI_State_Player`, `RTTI_XLeaveException`, `RTTI_MEikStatusPaneObserver`, and `RTTI_MAknTouchPaneObserver` contain a one-byte `layout_unknown` placeholder because no field layout is currently proven; the placeholder does not assert a real size of one byte.
+RTTI does **not** reveal ordinary member variables, their names, or the total class size. Most Ghidra structure sizes are therefore only minimum known extents. `RTTI_State_Player`, `RTTI_XLeaveException`, `RTTI_MEikStatusPaneObserver`, and `RTTI_MAknTouchPaneObserver` contain a one-byte `layout_unknown` placeholder because no field layout is currently proven; the placeholder does not assert a real size of one byte.
+
+Subsequent constructor analysis has fully recovered the layouts of `s3dBase`, `s3dIO`, `s3dLog`, and `s3dFilePak`; these are exceptions to the partial-layout rule. `s3dBase` is 8 bytes (vptr plus engine/context pointer), `s3dIO` is 12 bytes (base plus platform-file pointer), `s3dLog` is 20 bytes (base plus embedded `s3dIO`), and `s3dFilePak` is `0x48` bytes. See `filepak_api.md` for the complete FilePak layout and evidence.
 
 Unresolved external base references occur in `CIMEI`, `CMixerActive`, `CMixerThread`, `CPhoneObserver`, `CSmsSessionObserver`, `CSocketReader`, `CSocketWriter`, `CSymbian3rdApplication`, `CSymbian3rdAppUi`, `CSymbian3rdAppView`, `CSymbian3rdDocument`, `s3dAudioDevice`, `SessionDevice`, and `VID_impl`.
 
