@@ -34,3 +34,6 @@ The English alphabet takes up 26 letters, which is clearly visible in the parser
 * digits 56 to 66.
 Next are special characters.
 !all values ​​from the code are written in DEC!
+
+S2D SDK correlation:
+The S2D Font accessors use the same 12-byte glyph records (width at +0, height at +4, data at +8) and the same character-code mapping. Soft3D adds a 0x14-byte s3dBase/s3dIO prefix to the Font and StringManager layouts. The constructor at 0x000de9ec is StringManager_Ctor, not BaseFont_ctor; Font_Ctor is at 0x000dc7f8. See s2dsdk_correlation.md for offsets and accessor addresses.

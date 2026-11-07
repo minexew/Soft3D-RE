@@ -55,6 +55,10 @@ Each compressed byte produces two PCM samples, so the stored value is a sample c
 
 `GetAudioDataPcmSampleCount` (`0x001145c8`) returns `+0x12c`; `GetAudioDataPcmBuffer` (`0x001145f0`) returns `+0x130`.
 
+The S2D SDK's `AudioData::DecoderVer` uses the same step/index tables and predictor algorithm, confirming shared ancestry. It consumes the high nibble first, whereas the examined Soft3D SAU build consumes the low nibble first. WAR is the same format with high-nibble-first order; because each runtime has hardcoded order and no runtime swap, this was probably selected by a compile-time option rather than representing a Soft2D/Soft3D format change. S2D's eight-channel `AudioPlayer` also expands into the 16-voice Soft3D mixer. See `s2dsdk_correlation.md` for the evidence and lifecycle mapping.
+
+The reconstruction defaults to SAU order. Configure with `-DSOFT3D_AUDIO_REVERSE_NIBBLE_ORDER=ON` to build its decoder for WAR order; the option is compile-time and adds no runtime format detection.
+
 ## High-level audio manager
 
 The object constructed by `AudioManager_Ctor` (`0x00112fe0`) is `0x9c` bytes. It owns a pointer to the platform/mixer wrapper at `+0x04`, uses the resource manager at `+0x30`, keeps a dynamic sound-instance list at `+0x38`, a 16-pointer scheduling array at `+0x48`, and embeds `s3dLog` at `+0x88`.

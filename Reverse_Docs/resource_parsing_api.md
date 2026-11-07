@@ -39,9 +39,9 @@ SOJ, SAI, and STX select the entry, seek to its end to obtain its size, allocate
 | 6 | Object/subrecord parse failure. |
 | 8 | Size/tell failure. |
 
-SAU and SAI propagate FilePak's selection status directly (normally 5). SOJ and STX translate it to 3. The original logging calls have no useful recovered output and are omitted from the portable implementation.
+SAU and SAI propagate FilePak's selection status directly (normally 5). SOJ and STX translate it to 3. These values match the S2D SDK's `s2d::result` enum: 3 is `S2D_FILE`, 4 is `S2D_MEMORY`, 5 is `S2D_ACCESS`, 6 is `S2D_FORMAT`, and 8 is `S2D_UNKNOWN`. The original logging calls have no useful recovered output and are omitted from the portable implementation. See `s2dsdk_correlation.md` for the comparison.
 
-## SAU: `AudioData`
+## SAU/WAR: `AudioData`
 
 `AudioData` adds two words to `Resource`, giving a total size of 0x134:
 
@@ -54,7 +54,7 @@ SAU and SAI propagate FilePak's selection status directly (normally 5). SOJ and 
 
 `GetAudioDataPcmSampleCount` (`0x001145c8`) and `GetAudioDataPcmBuffer` (`0x001145f0`) expose these fields. The mixer compares its sample position against the sample count, so its indexing is consistent.
 
-`DecodeSauAdpcm` (`0x00114ce0`) is headerless mono ADPCM. It consumes low nibbles before high nibbles in the little-endian input stream, starts predictor and step index at zero, clamps the index to `0..88`, and saturates output to signed 16-bit range. Each compressed byte produces two samples.
+`DecodeSauAdpcm` (`0x00114ce0`) is headerless mono ADPCM. SAU consumes low nibbles before high nibbles in the little-endian input stream; WAR is the same format with the opposite nibble order. The decoder starts predictor and step index at zero, clamps the index to `0..88`, saturates output to signed 16-bit range, and produces two samples per compressed byte. Since each original runtime has a fixed order without runtime conversion, this was probably a compile-time engine option. The reconstruction defaults to SAU and provides `SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER=ON` for WAR.
 
 ## STX: `TextureRes` and `Texture`
 

@@ -33,7 +33,7 @@ RTTI identifies `VID_impl` as having an unresolved primary base and `MDirectScre
 | `0x000a6904` / `0x000a6a1c` | `VidImpl_Dtor` / deleting destructor | Releases the screen object and destroys embedded state. |
 | `0x000a6b34` | `VidImpl_Start` | Acquires/initializes the screen and starts direct-screen access. |
 | `0x000a6c88` | `VidImpl_Stop` | Stops direct-screen access and marks the device stopped. |
-| `0x000a6cf4` | `VidImpl_CompleteFrame` | Completes direct-screen access for the frame. |
+| `0x000a6cf4` | `VidImpl_Update` | Completes direct-screen access for the frame; corresponds to S2D `VID_impl::Update`. |
 | `0x000a6de0` | `VidImpl_GetScreenDescriptor` | Queries screen state when needed and returns the descriptor cached at `+0x4c`. |
 | `0x000a6340` / `0x000a635c` / `0x000a6e78` / `0x000a6e98` | direct-screen callbacks/no-ops | Empty bodies; exact interface slot mapping remains incomplete. |
 
@@ -42,7 +42,9 @@ Thin `s3dVideo` forwarders are:
 - `S3dVideo_Start` `0x000a6f68`;
 - `S3dVideo_Stop` `0x000a6f98`;
 - `S3dVideo_GetScreenDescriptor` `0x000a702c`;
-- `S3dVideo_CompleteFrame` `0x000a705c`.
+- `S3dVideo_Update` `0x000a705c`.
+
+The `VID_impl` name and start/stop/update lifecycle also exist in the S2D SDK. The Symbian backend replaces Dingoo LCD presentation rather than sharing its platform code; see `s2dsdk_correlation.md`.
 
 The start/resume path passes the descriptor to `Renderer_SetScreenDescriptor` (`0x000f36bc`), which writes it to the embedded raster object. It also passes the renderer's current texture to `ScreenBlitter_SetTexture` (`0x000f367c`), which caches both the texture and its pixel pointer.
 
