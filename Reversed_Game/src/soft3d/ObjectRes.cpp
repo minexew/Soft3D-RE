@@ -94,6 +94,7 @@ int ObjectRes::Load(const char16_t* entryName, s3dFilePak* filePak)
 {
     int status = filePak->Select(entryName);
     if (status != 0) {
+        S3D_LOG(log, u"file %s not found!\n", entryName);
         return 3;
     }
     filePak->Seek(0, SEEK_END);
@@ -122,6 +123,7 @@ int ObjectRes::ParseSoj(const void* data)
         objects.resize(objectCount);
         for (uint32_t i = 0; i < objectCount; ++i) {
             if (ParseObject(objects[i], input) != 0) {
+                S3D_LOG(log, u"Object::LoadFromMemory: failed 1!\n");
                 objects.clear();
                 surfaces.clear();
                 return 6;

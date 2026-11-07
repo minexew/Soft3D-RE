@@ -40,6 +40,7 @@ int AudioData::Load(const char16_t* entryName, s3dFilePak* filePak)
 {
     int status = filePak->Select(entryName);
     if (status != 0) {
+        S3D_LOG(log, u" open file error %s \n", entryName);
         return status;
     }
 
@@ -49,6 +50,7 @@ int AudioData::Load(const char16_t* entryName, s3dFilePak* filePak)
     filePak->Seek(0, SEEK_SET);
     void* compressed = std::malloc(static_cast<size_t>(compressedBytes));
     if (compressed == nullptr) {
+        S3D_LOG(log, u" memory out %s \n", entryName);
         return 4;
     }
 
@@ -56,6 +58,7 @@ int AudioData::Load(const char16_t* entryName, s3dFilePak* filePak)
     pcmBuffer = static_cast<int16_t*>(std::malloc(static_cast<size_t>(pcmSampleCount) << 1));
     if (pcmBuffer == nullptr) {
         std::free(compressed);
+        S3D_LOG(log, u" memory out %s \n", entryName);
         return 4;
     }
 

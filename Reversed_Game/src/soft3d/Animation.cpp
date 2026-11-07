@@ -47,15 +47,18 @@ int Animation::Load(const char16_t* entryName, s3dFilePak* filePak)
 {
     int status = filePak->Select(entryName);
     if (status != 0) {
+        S3D_LOG(log, u"Load Animation %s: can't find!\n", entryName);
         return status;
     }
     filePak->Seek(0, SEEK_END);
     int32_t bytes = filePak->Tell();
     if (bytes == -1) {
+        S3D_LOG(log, u"Load Animation %s: ftell return EOF!\n", entryName);
         return 8;
     }
     void* data = std::malloc(static_cast<size_t>(bytes));
     if (data == nullptr) {
+        S3D_LOG(log, u"Load Animation %s: memory out!\n", entryName);
         return 4;
     }
     filePak->Seek(0, SEEK_SET);

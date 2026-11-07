@@ -24,9 +24,11 @@ public:
 
     virtual int Load(const char16_t* entryName, s3dFilePak* filePak) = 0;
 
-private:
+protected:
     s3dIO io;
     s3dLog log;
+
+private:
     char16_t path[64];
     char16_t fileName[32];
     char16_t directory[32];

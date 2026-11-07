@@ -65,4 +65,9 @@ uint32_t File::Read(void* destination, uint32_t size, uint32_t count)
     return Read(destination, size * count);
 }
 
+int File::Write(const void* source, uint32_t bytes)
+{
+    return std::fwrite(source, 1, bytes, handle) == bytes ? 0 : -1;
+}
+
 } // namespace soft3d::platform

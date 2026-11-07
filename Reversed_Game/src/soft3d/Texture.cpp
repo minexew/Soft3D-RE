@@ -63,16 +63,19 @@ int Texture::LoadStx(const char16_t* entryName, s3dFilePak* filePak)
     Reset();
     int status = filePak->Select(entryName);
     if (status != 0) {
+        S3D_LOG(log, u"Texture::CreateFromPak %s: can't find!\n", entryName);
         return 3;
     }
 
     filePak->Seek(0, SEEK_END);
     int32_t bytes = filePak->Tell();
     if (bytes == -1) {
+        S3D_LOG(log, u"Texture::CreateFromFile %s: ftell return EOF!\n", entryName);
         return 8;
     }
     void* data = std::malloc(static_cast<size_t>(bytes));
     if (data == nullptr) {
+        S3D_LOG(log, u"Texture::CreateFromFile %s: memory out!\n", entryName);
         return 4;
     }
     filePak->Seek(0, SEEK_SET);
@@ -119,6 +122,7 @@ int Texture::ParseStx(const void* data)
     pixelSize = height * width * bytesPerPixel;
     pixelsAllocation = static_cast<uint8_t*>(std::malloc(pixelSize + 4));
     if (pixelsAllocation == nullptr) {
+        S3D_LOG(log, u"Texture::Create: failed to alloc %d memory!\n", pixelSize + 4);
         return 4;
     }
     pixels = reinterpret_cast<uint8_t*>(

@@ -5,8 +5,13 @@ if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
     message(FATAL_ERROR "The reconstructed game currently has only a Linux platform backend")
 endif()
 
+set(SOFT3D_LOG_BACKEND "NULL" CACHE STRING "Logging backend: NULL or STDIO")
+set_property(CACHE SOFT3D_LOG_BACKEND PROPERTY STRINGS NULL STDIO)
+string(TOUPPER "${SOFT3D_LOG_BACKEND}" SOFT3D_LOG_BACKEND)
+
 add_library(soft3d
     src/platform/linux/File.cpp
+    src/platform/linux/StdioLog.cpp
     src/soft3d/Animation.cpp
     src/soft3d/AudioData.cpp
     src/soft3d/ObjectRes.cpp
@@ -21,6 +26,11 @@ add_library(soft3d
 )
 target_include_directories(soft3d PUBLIC src)
 target_compile_features(soft3d PUBLIC cxx_std_17)
+if(SOFT3D_LOG_BACKEND STREQUAL "STDIO")
+    target_compile_definitions(soft3d PUBLIC SOFT3D_LOG_BACKEND_STDIO=1)
+elseif(NOT SOFT3D_LOG_BACKEND STREQUAL "NULL")
+    message(FATAL_ERROR "SOFT3D_LOG_BACKEND must be NULL or STDIO")
+endif()
 option(SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER
     "Decode high-nibble-first WAR audio instead of low-nibble-first SAU audio" OFF)
 if(SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER)
@@ -68,6 +78,20 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_resmanager_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_resmanager COMMAND soft3d_resmanager_tests)
+
+    add_executable(soft3d_io_tests tests/test_s3dio.cpp)
+    target_link_libraries(soft3d_io_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_io_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_io COMMAND soft3d_io_tests)
+
+    add_executable(soft3d_log_tests tests/test_s3dlog.cpp)
+    target_link_libraries(soft3d_log_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_log_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_log COMMAND soft3d_log_tests)
 
     if(TARGET seven_days)
         add_test(NAME seven_days_smoke

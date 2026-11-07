@@ -20,6 +20,7 @@ public:
     uint32_t Tell() const;
     uint32_t Read(void* destination, uint32_t bytes);
     uint32_t Read(void* destination, uint32_t size, uint32_t count);
+    int Write(const void* source, uint32_t bytes);
 
 private:
     std::FILE* handle = nullptr;
