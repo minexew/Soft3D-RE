@@ -17,6 +17,7 @@ Upstream: `git@github.com:minexew/Soft3D-RE.git`. The README's file-format table
 
 | Path | Contents |
 |---|---|
+| `AGENTS.md` | Documentaion for AI agents. Upon changing project layout, adding new files, directories or doing major changes, be sure to re-read and fix inconsistencies and mention new additions. |
 | `README.md` | Main documentation: file-format status table, platforms, links. |
 | `Releases/` | Archived original game builds per platform (`.7z`, `.sis`, `.sisx`, `.zip`). Reference material — do not modify or "clean up". |
 | `Tools/` | The main working code (see below). |
@@ -26,7 +27,7 @@ Upstream: `git@github.com:minexew/Soft3D-RE.git`. The README's file-format table
 | `Leaked_Docs/` | `音效列表.xls` — sound-effects list (Excel, codepage 936). |
 | `Leaked_Tools/` | Original Windows tools for WAR audio playback. |
 | `Other/S2DSDK/` | Vendored S2D SDK (predecessor engine) plus a sample game. Marked `linguist-vendored` in `.gitattributes`; original URLs are in `Other/S2DSDK/readme.txt`. Treat as read-only reference. |
-| `Reverse_Docs/` | Hand-written format and binary-analysis notes. In addition to FilePak/RTTI documentation, `symbian3rd_audio.md` and `symbian3rd_video.md` record the recovered software mixer, positional audio, renderer, texture, and presentation APIs. `resmanager_api.md` covers the four-level resource cache; `resource_parsing_api.md` covers `Resource` and SAU/SOJ/SAI/STX loaders and parsers. |
+| `Reverse_Docs/` | Knowledge base and main library of format and binary-analysis notes. Highly useful, since it both provides a birds-eye on reversing progress and gives important technical details, such as class and structure layouts. In addition to FilePak/RTTI documentation, `symbian3rd_audio.md` and `symbian3rd_video.md` record the recovered software mixer, positional audio, renderer, texture, and presentation APIs. `resmanager_api.md` covers the four-level resource cache; `resource_parsing_api.md` covers `Resource` and SAU/SOJ/SAI/STX loaders and parsers. Be sure to read them, but be wary that it can contain inconsistencies or be incomplete. Upon discovering new or misunderstood facts during research, correct any inconsistencies there. If none of existing .md files suits well (such as documenting new class that doesn't yet have documentation or covering a new research topic/domain), create a new .md file for it. |
 | `Reversed_Game/` | CMake-based C++17 reconstruction. Contains `s3dBase`, `s3dIO`, `s3dLog`, `s3dFilePak`, `s3dResManager`, `Resource`, `AudioData`, `ObjectRes`, `Animation`, `TextureRes`, and `Texture`, a Linux stdio backend in `src/platform/linux/`, tests, and a reference `src/resources/res.spk`. `src/app/` is the SDL3 entrypoint with CPU-framebuffer presentation and audio/control/timer stubs; engine subsystems are not attached yet. Preserve original behavior, including known bugs. |
 
 ### Tools/ in detail
