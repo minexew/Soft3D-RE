@@ -31,15 +31,15 @@ The `CMixerThread` secondary-vtable callbacks adjust `this` by `-4` and forward 
 
 | Offset | Type | Meaning |
 |---:|---|---|
-| `+0x12c` | `uint32_t` | Decoded PCM byte count; assigned `sauByteCount * 2`. |
+| `+0x12c` | `uint32_t` | Decoded PCM sample count; assigned `sauByteCount * 2`. |
 | `+0x130` | `int16_t *` | Decoded mono PCM buffer. |
 
 `LoadSauResource(audioData, entryName, filePak)`:
 
 1. Selects the entry in `s3dFilePak` and obtains its size by seeking to its end and calling `Tell`.
 2. Reads the complete SAU payload into a temporary allocation.
-3. Sets `pcmByteCount = sauByteCount * 2`.
-4. Allocates and zeroes `pcmByteCount * 2` bytes, twice the decoded payload size.
+3. Sets `pcmSampleCount = sauByteCount * 2`.
+4. Allocates and zeroes `pcmSampleCount * 2` bytes, exactly two bytes per decoded sample.
 5. Calls `DecodeSauAdpcm` and releases the compressed allocation.
 6. Returns the FilePak selection error, or `4` on allocation failure, otherwise zero.
 
@@ -51,9 +51,9 @@ The `CMixerThread` secondary-vtable callbacks adjust `this` by `-4` and forward 
 - step index is clamped to `0..88` and predictor to signed 16-bit range;
 - output is native little-endian signed 16-bit mono PCM.
 
-Each compressed byte produces two PCM samples, hence the `sauByteCount * 2` decoded byte count. The larger zeroed allocation leaves a zero-filled region after the decoded samples. No sample rate or channel count is stored by this loader.
+Each compressed byte produces two PCM samples, so the stored value is a sample count rather than a byte count. The allocation is exactly large enough for the decoded samples; there is no extra decoded-data tail. No sample rate or channel count is stored by this loader.
 
-`GetAudioDataPcmSize` (`0x001145c8`) returns `+0x12c`; `GetAudioDataPcmBuffer` (`0x001145f0`) returns `+0x130`.
+`GetAudioDataPcmSampleCount` (`0x001145c8`) returns `+0x12c`; `GetAudioDataPcmBuffer` (`0x001145f0`) returns `+0x130`.
 
 ## High-level audio manager
 
@@ -85,7 +85,7 @@ The low-level voice-state block is embedded in `s3dAudioDevice`, beginning at de
 |---:|---|---|
 | `+0x00` | `int32_t` | Shared output right-shift amount. |
 | `+0x10` | `int16_t *[16]` | PCM source pointers. |
-| `+0x50` | `uint32_t[16]` | Source end values supplied from `AudioData::pcmByteCount`. |
+| `+0x50` | `uint32_t[16]` | Source end values supplied from `AudioData::pcmSampleCount`. |
 | `+0x90` | `uint32_t[16]` | Current sample positions. |
 | `+0xd0` | `uint32_t[16]` | Direct volume or left-shift amount, depending on volume mode. |
 | `+0x110` | `uint32_t[16]` | Loop flags. |
@@ -118,7 +118,7 @@ Recovered operations:
 6. Converts 400 accumulated samples to signed 16-bit output in an 800-byte buffer, applying the shared shift and saturating to `-32768..32767`.
 7. Submits the output descriptor through the stream object at mixer-thread offset `+0x10`.
 
-The mixer compares the sample position against the supplied PCM **byte count**, not that count divided by two. Because the loader allocates and zeroes twice the decoded byte count, this observed behavior reads the zero-filled tail rather than immediately exceeding the allocation. Preserve this behavior in any exact reconstruction.
+The mixer compares the sample position against the supplied PCM **sample count**. Because the loader allocates two bytes per sample, this indexing stays within the decoded allocation. Earlier notes describing a byte count and zero-filled tail were corrected after tracing the decoder's two-samples-per-byte output.
 
 No stereo panning is present in this mixing loop. Its output is a single mono sample sequence. Spatialization is currently explained by distance-dependent volume rather than left/right transforms.
 

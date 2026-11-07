@@ -90,7 +90,7 @@ Single-inheritance bases are at object offset zero. Multiple-inheritance base of
 
 RTTI does **not** reveal ordinary member variables, their names, or the total class size. Most Ghidra structure sizes are therefore only minimum known extents. `RTTI_State_Player`, `RTTI_XLeaveException`, `RTTI_MEikStatusPaneObserver`, and `RTTI_MAknTouchPaneObserver` contain a one-byte `layout_unknown` placeholder because no field layout is currently proven; the placeholder does not assert a real size of one byte.
 
-Subsequent constructor analysis has fully recovered the layouts of `s3dBase`, `s3dIO`, `s3dLog`, and `s3dFilePak`; these are exceptions to the partial-layout rule. `s3dBase` is 8 bytes (vptr plus engine/context pointer), `s3dIO` is 12 bytes (base plus platform-file pointer), `s3dLog` is 20 bytes (base plus embedded `s3dIO`), and `s3dFilePak` is `0x48` bytes. See `filepak_api.md` for the complete FilePak layout and evidence.
+Subsequent constructor analysis has fully recovered the layouts of `s3dBase`, `s3dIO`, `s3dLog`, `s3dFilePak`, `Resource`, and `ResManager`; these are exceptions to the partial-layout rule. `s3dBase` is 8 bytes (vptr plus engine/context pointer), `s3dIO` is 12 bytes (base plus platform-file pointer), `s3dLog` is 20 bytes (base plus embedded `s3dIO`), and `s3dFilePak` is `0x48` bytes. `Resource` is `0x12c` bytes and `ResManager` is `0x70` bytes, including four cache objects and an embedded FilePak. See `filepak_api.md`, `resource_parsing_api.md`, and `resmanager_api.md` for complete layouts and evidence.
 
 Unresolved external base references occur in `CIMEI`, `CMixerActive`, `CMixerThread`, `CPhoneObserver`, `CSmsSessionObserver`, `CSocketReader`, `CSocketWriter`, `CSymbian3rdApplication`, `CSymbian3rdAppUi`, `CSymbian3rdAppView`, `CSymbian3rdDocument`, `s3dAudioDevice`, `SessionDevice`, and `VID_impl`.
 
@@ -240,7 +240,7 @@ Vtable addresses in this table are structure starts; add eight bytes for the add
 
 The RTTI-guided audio and video passes are documented in `symbian3rd_audio.md` and `symbian3rd_video.md`. Their vtable targets have been defined and named in Ghidra, including the previously missing ARM functions for `AudioData`, `s3dAudioDevice`, `CMixerThread`, `CMixerActive`, `VID_impl`, `Raster`, `Texture`, and `Lensflare`. Odd vtable values in these records point to ARM code at the corresponding even addresses; they are not evidence of Thumb mode.
 
-Recovered behavior now includes SAU decoding, the 16-voice mono software mixer, positional distance attenuation, the `VID_impl` lifecycle, CPU texture allocation, triangle rasterization, texture blitting, and the frame presentation path. The documents distinguish concrete RTTI names from behavioral names assigned to the audio manager and sound-instance objects.
+Recovered behavior now includes SAU decoding, the 16-voice mono software mixer, positional distance attenuation, the `VID_impl` lifecycle, CPU texture allocation, triangle rasterization, texture blitting, and the frame presentation path. The documents distinguish concrete RTTI names from behavioral names assigned to the audio manager and sound-instance objects. Resource follow-up analysis also recovered the `ResManager` cache API and the SAU/SOJ/SAI/STX parsing paths; see `resmanager_api.md` and `resource_parsing_api.md`.
 
 ## Recommended next recovery steps
 
