@@ -21,6 +21,11 @@ add_library(soft3d
 )
 target_include_directories(soft3d PUBLIC src)
 target_compile_features(soft3d PUBLIC cxx_std_17)
+option(SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER
+    "Decode high-nibble-first WAR audio instead of low-nibble-first SAU audio" OFF)
+if(SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER)
+    target_compile_definitions(soft3d PUBLIC SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(soft3d PRIVATE -Wall -Wextra -Wpedantic)

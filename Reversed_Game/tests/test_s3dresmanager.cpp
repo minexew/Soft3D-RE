@@ -277,6 +277,18 @@ void TestRealArchive()
     CHECK(animation->GetTrackCount() > 0);
 }
 
+void TestDecoderNibbleOrder()
+{
+    uint32_t input = 1;
+    std::array<int16_t, 2> output{};
+    soft3d::DecodeSauAdpcm(&input, 1, output.data());
+#ifdef SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER
+    CHECK(output[0] == 0 && output[1] == 1);
+#else
+    CHECK(output[0] == 1 && output[1] == 1);
+#endif
+}
+
 template <typename Test>
 void Run(const char* name, Test test)
 {
@@ -290,6 +302,7 @@ int main()
 {
     try {
         Run("synthetic resources and cache semantics", TestSyntheticResourcesAndCache);
+        Run("decoder nibble order", TestDecoderNibbleOrder);
         Run("real archive resource loading", TestRealArchive);
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

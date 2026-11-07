@@ -96,7 +96,11 @@ void DecodeSauAdpcm(const void* compressed, int32_t compressedBytes, int16_t* pc
             ++input;
         }
 
+#ifdef SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER
+        uint32_t code = (word >> (bitOffset ^ 4)) & 0xf;
+#else
         uint32_t code = (word >> bitOffset) & 0xf;
+#endif
         uint32_t magnitude = code & 7;
         int32_t step = stepTable[static_cast<size_t>(stepIndex)];
         int32_t difference = static_cast<int32_t>(magnitude * static_cast<uint32_t>(step) >> 2)
