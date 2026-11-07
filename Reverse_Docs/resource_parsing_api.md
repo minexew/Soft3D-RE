@@ -39,7 +39,7 @@ SOJ, SAI, and STX select the entry, seek to its end to obtain its size, allocate
 | 6 | Object/subrecord parse failure. |
 | 8 | Size/tell failure. |
 
-SAU and SAI propagate FilePak's selection status directly (normally 5). SOJ and STX translate it to 3. These values match the S2D SDK's `s2d::result` enum: 3 is `S2D_FILE`, 4 is `S2D_MEMORY`, 5 is `S2D_ACCESS`, 6 is `S2D_FORMAT`, and 8 is `S2D_UNKNOWN`. The original logging calls have no useful recovered output and are omitted from the portable implementation. See `s2dsdk_correlation.md` for the comparison.
+SAU and SAI propagate FilePak's selection status directly (normally 5). SOJ and STX translate it to 3. These values match the S2D SDK's `s2d::result` enum: 3 is `S2D_FILE`, 4 is `S2D_MEMORY`, 5 is `S2D_ACCESS`, 6 is `S2D_FORMAT`, and 8 is `S2D_UNKNOWN`. The original debug calls target an empty `NullLog` in this release; the reconstruction preserves those calls through `S3D_LOG`, with an optional stdio backend. See `symbian3rd_logging.md` and `s2dsdk_correlation.md`.
 
 ## SAU/WAR: `AudioData`
 

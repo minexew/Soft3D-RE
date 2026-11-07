@@ -55,6 +55,12 @@ Soft3D is not merely a header-compatible newer S2D build. Several core details w
 
 This is an exact enum-level match across independently recovered Soft3D loaders. It also explains why SAU/SAI propagate FilePak status 5 while SOJ/STX translate selection failure to 3.
 
+## Logging: exact compile-time design, adapted output type
+
+S2D's `LOG_OUT` macro selects `Log::On`/`Log::Output` or an empty variadic `NullLog`. The Symbian binary contains both sides of the same design: functional `s3dLog::On`/`Output` methods and a 24-byte empty `NullLog` with 43 callers. This is an exact architectural match, not an inference based only on surviving strings.
+
+The implementation changed from static narrow-character functions writing `log.s2dlog` to an `s3dBase`-derived object with embedded `s3dIO`, wide formatting, and UTF-16LE `log.log` output. The general resource/debug macro calls are disabled in the examined release, while one direct `s3dLog::Output` caller remains. See `symbian3rd_logging.md` for addresses, signatures, the formatting chain, and the configurable Linux reconstruction.
+
 ## Input: exact state machine, changed key layout
 
 S2D uses these flags:
