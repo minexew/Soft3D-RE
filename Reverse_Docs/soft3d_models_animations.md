@@ -29,7 +29,7 @@ A material record is 52 bytes serialized and 0x34 bytes internally. It describes
 
 | Serialized offset | Internal offset | Meaning |
 |---:|---:|---|
-| `+0x00` | `+0x00` | Unknown fixed-point material parameter, forwarded to the renderer. |
+| `+0x00` | `+0x00` | Likely fixed-point material intensity/brightness. Usually approximates the average RGB intensity, but authored exceptions exist. Not a UV scale. |
 | `+0x04` | `+0x04` | Second unknown fixed-point material parameter. |
 | `+0x08` | `+0x08` | RGB bytes packed to RGB565. |
 | `+0x0b` | `+0x0c` | Blend mode byte. |
@@ -42,6 +42,8 @@ A material record is 52 bytes serialized and 0x34 bytes internally. It describes
 | `+0x2c`, `+0x30` | `+0x30` | Texture-coordinate generation mode: first nonzero → 3; otherwise second nonzero → 4; both zero → 0. |
 
 The last field was incorrectly called `primitiveType` in the earlier reconstruction. Topology belongs to the surface, not the material.
+
+An archive scan supports the intensity interpretation of the first field: 850 of 883 parsed materials satisfy `unknown00 = gray * 257`, and many non-gray materials approximately satisfy `unknown00 = average(rgb) * 257`. Examples such as 38550 for RGB(150,150,150) and 34781 for RGB(155,134,117) fit this relationship. Other values, including 20303 for RGB(45,16,16) and 38535 for RGB(149,149,149), show that it is authored independently or transformed by an additional rule. It should not be used for UV normalization.
 
 ### Packed texture names
 
@@ -168,3 +170,22 @@ Each morph record contains a 32-bit time followed by `targetCount` fixed-point 3
 `ObjectRes.*` and `Animation.*` use the corrected names and layouts. `Object.*` implements material loading, animation timing, matrix-palette construction, and indexed surface submission. `Fixed.hpp` documents the matrix convention in code.
 
 `Renderer.*` and `Raster.*` provide a functional fixed-point software path to `BasicShader` and `VID_impl`. They implement the verified vertex layouts and primitive modes, but do not yet reproduce every original clipping, lighting, perspective-correct texturing, blend, or specialized inner-loop case bit-for-bit. Those remain reconstruction work; the portable implementation must not be cited as proof for details that are only established in the disassembly.
+
+## Converter and animation-frame export
+
+`Tools/sojconv.py` supports all documented materials, surfaces, vertex streams, primitive modes, bounds, and packed texture names:
+
+```sh
+python3 Tools/sojconv.py soj-to-obj model.soj model.obj
+python3 Tools/sojconv.py obj-to-soj model.obj model.soj
+python3 Tools/sojconv.py sai-to-obj animation.sai model.soj frame \
+    --start 0 --end 66000 --step 1000
+```
+
+SOJ export writes a sibling MTL by default; `--mtl` selects another path. Normalized OBJ UVs are now the default: the converter reads each texture's PNG dimensions from the model directory, or from `--texture-dir DIR`. Serialized UVs are fixed-point texel coordinates, so the normalized value is `raw_uv / (texture_size * 0x10000)` in floating-point OBJ terms. Without normalization, Blender interprets large texel values as repeated textures. `--raw-uv` explicitly selects the data-only raw representation when no PNG is available. The MTL records texture dimensions, and `# s3d_uv_raw` metadata preserves exact source coordinates for byte-exact reimport. `sai-to-obj` supports the same `--texture-dir` and `--raw-uv` options.
+
+OBJ and MTL custom comments/directives preserve unknown material fields, raw RGB8 colors, packed names, detail-texture selection, texture-coordinate modes, vertex colors, matrix-palette indices, per-vertex extra bytes, primitive types, index formats/tails, top-level unknown words, and bounds. Per-surface source-vertex maps preserve original ordering and unused vertices. Other OBJ readers may ignore these comments. New OBJ files without the metadata default to triangle lists, computed bounds, and a vertex format inferred from their streams.
+
+SAI export samples the matrix palette at each requested time, transforms vertices with a leading matrix index, and writes numbered `prefix_00000000.obj` files. Sampling preserves exact-key handling and reciprocal-table truncation. The inclusive end time is emitted even when it is not on a step boundary. Morph-target vectors are written as `# s3d_morph` comments because their mapping to arbitrary OBJ geometry is not established; they are not blindly applied to every vertex.
+
+Run `python3 Tools/test_sojconv.py -v` from the repository root. The six-test suite covers synthetic binary/OBJ round trips, all primitive modes and vertex fields, packed names, normalized UVs with negative V coordinates, SAI interpolation, and real SOJ/SAI resources from `Reversed_Game/src/resources/res.spk`. Real SOJ→OBJ/MTL→SOJ and direct binary serialization are verified byte-for-byte.
