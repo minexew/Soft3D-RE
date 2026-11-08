@@ -1,10 +1,10 @@
 #pragma once
 
 #include "app/EngineStubs.hpp"
-
-#include <SDL3/SDL.h>
+#include "soft3d/VID_impl.hpp"
 
 #include <cstdint>
+#include <memory>
 #include <string>
 
 namespace app {
@@ -32,13 +32,10 @@ private:
     void Shutdown();
 
     ApplicationConfig config;
-    SDL_Window* window = nullptr;
-    SDL_Renderer* renderer = nullptr;
-    SDL_Texture* frameTexture = nullptr;
+    std::unique_ptr<soft3d::VID_impl> video;
     AudioStub audio;
     ControlsStub controls;
     TimerStub timer;
-    SoftwareFrame frame;
     float markerX = 148.0F;
     float markerY = 108.0F;
 };

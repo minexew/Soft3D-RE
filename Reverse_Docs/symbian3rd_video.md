@@ -2,7 +2,7 @@
 
 ## Scope and reliability
 
-This document covers `SymbianBin/out.bin` (`out.bin` in Ghidra) at image base zero. Names listed as recovered have been applied to the program. Platform-specific behavior is inferred from local control flow, RTTI, and direct-screen-access interfaces. The current import-derived Symbian names are not consistently trustworthy: several calls in `VID_impl` and engine setup are labeled as unrelated APIs. Conclusions below therefore rely on the ARM instructions and class/data relationships, not those labels.
+This document covers `SymbianBin/out.bin` (`out.bin` in Ghidra) at image base zero. Names listed as recovered have been applied to the program. Platform behavior is established from local control flow, RTTI, the corrected E32 import names, and the S60 3rd FP2 headers in `SDK/devices/`. The `CDirectScreenAccess` and `CDirectScreenBitmap` calls in this path now match those SDK declarations.
 
 ## Application and engine initialization
 
@@ -20,33 +20,55 @@ The engine constructor (`S3dEngine_ctor`, `0x000f1584`) establishes the relevant
 | `+0x94` | `Renderer *` | `0x1a388`-byte allocation and `Renderer_ctor` `0x000b0454`. |
 | `+0x98` | screen blitter | `0x134`-byte allocation and `ScreenBlitter_Ctor` `0x000d4568`. |
 
-`CreateSymbianVideoDevice` (`0x000a6eb8`) allocates a `0xa8`-byte `VID_impl` at `s3dVideo + 0x08`. The constructor at `0x000a65b4` is now named `VidImpl_Ctor`; `0x000a6378` is a duplicate-code variant.
+`CreateSymbianVideoDevice` (`0x000a6eb8`) allocates a `0xa8`-byte `VID_impl` at `s3dVideo + 0x08`. Its three platform arguments are a window-server session, screen device, and window. The constructor at `0x000a65b4` is named `VidImpl_Ctor`; `0x000a6378` is the byte-for-byte-equivalent `VidImpl_CtorDuplicate`.
 
 `GameEngine_Init` passes the renderer and screen-blitter pointers to the UI through `SetUiRenderer` (`0x0001dbbc`) and `SetUiScreenDescriptor` (`0x00049728`). Those names are accurate as simple field setters, but they do not themselves render anything.
 
 ## Platform video lifecycle
 
-RTTI identifies `VID_impl` as having an unresolved primary base and `MDirectScreenAccess` at object offset `+0x1c`. Its vtables start at `0x0014dc90` and `0x0014dcb8`.
+RTTI and the constructor identify `CActive` as the primary base and `MDirectScreenAccess` as a secondary interface at object offset `+0x1c`. The vtables start at `0x0014dc90` and `0x0014dcb8`. The complete object size is `0xa8` bytes:
+
+| Offset | Type | Recovered field |
+|---:|---|---|
+| `+0x00` | `CActive`, `0x1c` bytes | Active-object base; `iStatus` at `+0x04` tracks bitmap presentation. |
+| `+0x1c` | vptr | `MDirectScreenAccess` secondary vtable. |
+| `+0x20` | `s3dLog`, `0x14` bytes | Embedded logger. |
+| `+0x34` / `+0x38` / `+0x3c` | pointers | Window-server session, screen device, and window. |
+| `+0x40` | `int32_t` | Started flag. |
+| `+0x44` | `CDirectScreenAccess *` | Direct-screen-access owner. |
+| `+0x48` | `CFbsBitGc *` | Graphics context returned by `CDirectScreenAccess::Gc()`. |
+| `+0x4c` | `uint8_t *` | Cached back-buffer address. |
+| `+0x50` | `uint32_t` | Zero-initialized handle; no subsequent use established. |
+| `+0x54` | `0x1c` bytes | Unidentified state. |
+| `+0x70` | `CDirectScreenBitmap *` | Double-buffered direct-screen bitmap. |
+| `+0x74` | `TAcceleratedBitmapInfo`, `0x1c` bytes | Current bitmap description. |
+| `+0x90` | `uint8_t` | Buffer-ready flag, initialized and cleared to zero. |
+| `+0x94` | `TRect` | Window rectangle used to create the bitmap. |
+| `+0xa4` | font pointer | `LatinPlain12()` result used by the graphics context. |
+
+`TAcceleratedBitmapInfo` contains `iDisplayMode` at `+0x00`, `iAddress` at `+0x04`, a `TSize` at `+0x08`, `iLinePitch` at `+0x10`, `iPixelShift` at `+0x14`, and `iPhysicalAddress` at `+0x18`. Ghidra now has explicit `CActive`, `TSize`, `TRect`, `TAcceleratedBitmapInfo`, `VID_impl`, and `s3dVideo` structures.
 
 | Address | Function | Observed behavior |
 |---:|---|---|
-| `0x000a6904` / `0x000a6a1c` | `VidImpl_Dtor` / deleting destructor | Releases the screen object and destroys embedded state. |
-| `0x000a6b34` | `VidImpl_Start` | Acquires/initializes the screen and starts direct-screen access. |
-| `0x000a6c88` | `VidImpl_Stop` | Stops direct-screen access and marks the device stopped. |
-| `0x000a6cf4` | `VidImpl_Update` | Completes direct-screen access for the frame; corresponds to S2D `VID_impl::Update`. |
-| `0x000a6de0` | `VidImpl_GetScreenDescriptor` | Queries screen state when needed and returns the descriptor cached at `+0x4c`. |
-| `0x000a6340` / `0x000a635c` / `0x000a6e78` / `0x000a6e98` | direct-screen callbacks/no-ops | Empty bodies; exact interface slot mapping remains incomplete. |
+| `0x000a65b4` | `VidImpl_Ctor` | Creates direct-screen access and bitmap, starts access, installs clipping, and creates the bitmap with `EDoubleBuffer`. It leaves `started` at zero. |
+| `0x000a6904` / `0x000a6a1c` | `VidImpl_Dtor` / deleting destructor | Releases `CDirectScreenAccess` and embedded state. Bitmap shutdown is performed by `Stop`, not this destructor. |
+| `0x000a6b34` | `VidImpl_Start` | If stopped, repeats `StartL`, refreshes the GC and clipping region, calls `Create(screenRect, EDoubleBuffer)`, then sets `started = 1`. |
+| `0x000a6c88` | `VidImpl_Stop` | If started, calls `CDirectScreenBitmap::Close()` and clears `started`. |
+| `0x000a6cf4` | `VidImpl_Update` | Calls `CDirectScreenBitmap::EndUpdate(iStatus)`, marks the active object active, and clears `bufferReady`. |
+| `0x000a6de0` | `VidImpl_GetBackBufferPtr` | If `bufferReady` is zero, calls `BeginUpdate(bitmapInfo)` and logs `GetBackBufferPtr Error Code: %d` on failure. Returns `bitmapInfo.iAddress`, cached at `+0x4c`, even after an error. |
+| `0x000a6d6c` | `VidImpl_DrawText` | Wraps UTF-16 text in `TPtrC16` and invokes the GC text-drawing virtual at `+0xac` with an `(x, y)` position. |
+| `0x000a6340` | `VidImpl_RunError` | Empty active-object error handler. |
+| `0x000a635c` | `VidImpl_RunL` | Empty completion handler. No local code sets `bufferReady`, so `GetBackBufferPtr` attempts `BeginUpdate` on every call. |
+| `0x000a6e78` / `0x000a6e98` | `VidImpl_RestartDirectScreenAccess` / `VidImpl_AbortNow` | Empty direct-screen callbacks. |
+| `0x000a729c` / `0x000a72a4` | `VidImpl_RestartThunk` / `VidImpl_AbortNowThunk` | Secondary-vtable thunks subtract `0x1c` from the interface pointer and tail-call the corresponding callback. |
 
-Thin `s3dVideo` forwarders are:
+The `CDirectScreenBitmap` vtable slots are established directly from `cdsb.h`: `+0x0c` is `Create`, `+0x10` is `BeginUpdate`, `+0x14` is the whole-bitmap `EndUpdate(TRequestStatus&)`, and `+0x1c` is `Close`. Local inline helpers `CDirectScreenAccess_Gc` (`0x000a7124`) and `CDirectScreenAccess_DrawingRegion` (`0x000a70fc`) return the fields at direct-access offsets `+0x1c` and `+0x24`. `CActive_IsActive` is `0x000a2594`.
 
-- `S3dVideo_Start` `0x000a6f68`;
-- `S3dVideo_Stop` `0x000a6f98`;
-- `S3dVideo_GetScreenDescriptor` `0x000a702c`;
-- `S3dVideo_Update` `0x000a705c`.
+Thin `s3dVideo` forwarders are `S3dVideo_Start` (`0x000a6f68`), `S3dVideo_Stop` (`0x000a6f98`), `S3dVideo_GetBackBufferPtr` (`0x000a702c`), `S3dVideo_Update` (`0x000a705c`), and `S3dVideo_DrawText` (`0x000a708c`). `S3dVideo_SetTextColor` (`0x000a70d4`) is empty; its name and RGB parameters follow the matching S2D API. `S3dVideo_Dtor` (`0x000a6fc8`) deletes the implementation.
 
 The `VID_impl` name and start/stop/update lifecycle also exist in the S2D SDK. The Symbian backend replaces Dingoo LCD presentation rather than sharing its platform code; see `s2dsdk_correlation.md`.
 
-The start/resume path passes the descriptor to `Renderer_SetScreenDescriptor` (`0x000f36bc`), which writes it to the embedded raster object. It also passes the renderer's current texture to `ScreenBlitter_SetTexture` (`0x000f367c`), which caches both the texture and its pixel pointer.
+The start/resume path passes the returned pixel address to `Renderer_SetBackBufferPtr` (`0x000f36bc`), formerly misnamed `Renderer_SetScreenDescriptor`, which writes it to the embedded raster object. It also passes the renderer's current texture to `ScreenBlitter_SetTexture` (`0x000f367c`), which caches both the texture and its pixel pointer.
 
 ## Renderer, raster, and texture objects
 
@@ -121,12 +143,12 @@ Its two paths differ in traversal direction. Alpha is not set by this routine.
 
 | Offset | Type | Meaning |
 |---:|---|---|
-| `+0x1a60` | pointer | Current platform screen descriptor. |
+| `+0x1a60` | `uint8_t *` | Current platform back-buffer address returned by `VID_impl`. |
 | `+0x1a64` | `Texture *` | Previous texture. |
 | `+0x1a68` | `Texture *` | Current texture. |
 | `+0x1a7c` | pointer | Presenter object; concrete type and initialization remain unresolved. |
 
-`Renderer_Present` (`0x000f3794`) calls `Raster_Present` (`0x000ca118`). The latter obtains `currentTexture->pixels` and invokes the presenter's virtual slot `+0x08` with the pixel pointer and screen descriptor. This is the preferred future SDL hook: upload/copy these CPU pixels to the SDL streaming texture, then present the window.
+`Renderer_Present` (`0x000f3794`) calls `Raster_Present` (`0x000ca118`). The latter obtains `currentTexture->pixels` and invokes the presenter's virtual slot `+0x08` with the source texture pixels and destination back-buffer address. `VidImpl_Update` then presents that destination through `EndUpdate`. The original path therefore has two distinct stages: software texture-to-back-buffer composition, followed by platform presentation.
 
 The presenter's concrete class is not yet proven. Do not equate it with `VID_impl` without a constructor/write chain for `Raster + 0x1a7c`.
 
@@ -142,29 +164,25 @@ The `FogShader` construction path at `0x000aeff4` allocates `0x20000` bytes and 
 
 `Engine_RunFrame` (`0x000f2ec4`) is called by the application timer path. Its observed order is:
 
-1. Get the current screen descriptor and bind it to the renderer.
+1. Acquire the current back-buffer address with `S3dVideo_GetBackBufferPtr` and bind it with `Renderer_SetBackBufferPtr`.
 2. Run enabled pre-update virtual handlers.
 3. Call `Engine_UpdateFrame` (`0x000f30e8`), clearing render queues and invoking the game update.
 4. Run enabled game-specific handlers.
 5. Call `Engine_RenderFrame` (`0x000f3138`), including `Renderer_Present` when rendering is enabled.
 6. Update the audio manager.
-7. Complete platform video and clear transient input flags.
+7. Complete platform video with `S3dVideo_Update` and clear transient input flags.
 8. Call `Engine_LimitFrameRate` (`0x000f31bc`).
 
-`Engine_Start` (`0x000f2ce0`), `Engine_Suspend` (`0x000f2dac`), and `Engine_Resume` (`0x000f2e20`) coordinate video, audio, and exit state. `StartGameEngineTimer` (`0x000f2c8c`) receives `0x11` during game initialization, but its exact platform unit should not be inferred from the currently unreliable import label.
+`Engine_Start` (`0x000f2ce0`), `Engine_Suspend` (`0x000f2dac`), and `Engine_Resume` (`0x000f2e20`) coordinate video, audio, and exit state. `StartGameEngineTimer` (`0x000f2c8c`) receives `0x11` during game initialization; its exact platform unit remains unconfirmed.
 
 The frame limiter reads the current platform tick, computes elapsed time against the configured interval, sleeps for the remainder when positive, and records a new tick. SDL's monotonic `SDL_GetTicksNS` plus `SDL_Delay` is the direct replacement for this responsibility.
 
-## SDL replacement boundary
+## Portable and SDL implementations
 
-The draft app in `Reversed_Game/src/app/` deliberately mirrors these boundaries without attaching engine code:
+`Reversed_Game/src/soft3d/VID_impl.hpp` and `.cpp` reproduce the recovered lifecycle behind a platform-neutral `VideoBackend` interface. The class owns a CPU `uint32_t` back buffer and a `VideoBufferInfo` containing its address, dimensions, byte pitch, and pixel shift. Construction performs initial backend acquisition without setting `started`; the first public `Start` repeats acquisition and sets the flag, matching the original constructor's unusual state transition. `Update` has no additional started-state guard, and failed `BeginUpdate` calls preserve the cached address as in the original.
 
-- a fixed 320×240 CPU-generated RGBA framebuffer;
-- an SDL streaming texture used only after CPU rendering is complete;
-- nearest-neighbor, aspect-preserving presentation;
-- explicit fallback to SDL's `software` renderer when the requested/default renderer fails;
-- SDL events mapped by an isolated controls stub;
-- SDL nanosecond timing and frame pacing;
-- no engine renderer, sound mixer, or game object hooked in yet.
+`src/platform/dummy/DummyVideoBackend.*` is SDL-independent and serves as the reference backend. It records lifecycle calls and copies presented pixels for `tests/test_vidimpl.cpp`. Tests cover construction and first-start behavior, idempotent start/stop, restart, repeated `BeginUpdate`, error propagation and cached-address behavior, buffer metadata, and exact presented pixel contents.
 
-When reconstruction continues, recover the `Raster + 0x1a7c` presenter and the exact 32-bit channel order before replacing the placeholder frame generator.
+`src/platform/sdl/SdlVideoBackend.*` implements the host presentation stage. `BeginUpdate` exposes the CPU buffer, while `EndUpdate` uploads it to an SDL streaming texture, renders with nearest-neighbor aspect-preserving logical presentation, and calls `SDL_RenderPresent`. Resource creation is idempotent, and renderer creation retains the explicit fallback to SDL's `software` renderer. The app main loop now follows `GetBackBufferPtr` → placeholder CPU rendering → `Update`; it no longer owns SDL window, renderer, or texture objects directly.
+
+The engine renderer, presenter, sound mixer, and game object remain unhooked. When reconstruction continues, recover the `Raster + 0x1a7c` presenter and exact 32-bit channel order before replacing the placeholder frame generator.

@@ -109,36 +109,4 @@ uint64_t TimerStub::NowNanoseconds() const
     return SDL_GetTicksNS();
 }
 
-void SoftwareFrame::Resize(int newWidth, int newHeight)
-{
-    width = newWidth;
-    height = newHeight;
-    pixels.resize(static_cast<std::size_t>(width) * static_cast<std::size_t>(height));
-}
-
-uint32_t* SoftwareFrame::Pixels()
-{
-    return pixels.data();
-}
-
-const uint32_t* SoftwareFrame::Pixels() const
-{
-    return pixels.data();
-}
-
-int SoftwareFrame::Pitch() const
-{
-    return width * static_cast<int>(sizeof(uint32_t));
-}
-
-int SoftwareFrame::Width() const
-{
-    return width;
-}
-
-int SoftwareFrame::Height() const
-{
-    return height;
-}
-
 } // namespace app

@@ -1,5 +1,7 @@
 #include "app/Application.hpp"
 
+#include "platform/sdl/SdlVideoBackend.hpp"
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -18,14 +20,15 @@ uint32_t Rgba(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha = 255)
            (static_cast<uint32_t>(blue) << 8) | alpha;
 }
 
-void FillRectangle(SoftwareFrame& frame, int left, int top, int width, int height, uint32_t color)
+void FillRectangle(const soft3d::VideoBufferInfo& frame, int left, int top, int width, int height,
+                   uint32_t color)
 {
-    const int right = std::min(left + width, frame.Width());
-    const int bottom = std::min(top + height, frame.Height());
+    const int right = std::min(left + width, frame.width);
+    const int bottom = std::min(top + height, frame.height);
     left = std::max(left, 0);
     top = std::max(top, 0);
     for (int y = top; y < bottom; ++y) {
-        std::fill_n(frame.Pixels() + y * frame.Width() + left, right - left, color);
+        std::fill_n(frame.address + y * frame.width + left, right - left, color);
     }
 }
 
@@ -56,11 +59,10 @@ int Application::Run()
         audio.Stop();
     }
 
-    std::cout << "Renderer: " << SDL_GetRendererName(renderer) << '\n'
+    std::cout << "Renderer: " << video->GetBackendName() << '\n'
               << "Framebuffer: " << frameWidth << 'x' << frameHeight
               << " (CPU), audio: " << (audio.IsRunning() ? "ready" : "disabled") << '\n';
 
-    frame.Resize(frameWidth, frameHeight);
     timer.Reset();
     bool running = true;
     uint64_t frameNumber = 0;
@@ -77,11 +79,13 @@ int Application::Run()
         }
 
         const double deltaSeconds = timer.NextDeltaSeconds();
+        if (video->GetBackBufferPtr() == nullptr) {
+            std::cerr << "Framebuffer acquisition failed: " << SDL_GetError() << '\n';
+            Shutdown();
+            return 1;
+        }
         RenderPlaceholder(frameNumber, deltaSeconds);
-        if (!SDL_UpdateTexture(frameTexture, nullptr, frame.Pixels(), frame.Pitch()) ||
-            !SDL_RenderClear(renderer) ||
-            !SDL_RenderTexture(renderer, frameTexture, nullptr, nullptr) ||
-            !SDL_RenderPresent(renderer)) {
+        if (!video->Update()) {
             std::cerr << "Frame presentation failed: " << SDL_GetError() << '\n';
             Shutdown();
             return 1;
@@ -101,40 +105,16 @@ int Application::Run()
 
 bool Application::InitializeVideo()
 {
-    window = SDL_CreateWindow("7 Days: Salvation - Soft3D reconstruction",
-                              frameWidth * config.scale, frameHeight * config.scale,
-                              SDL_WINDOW_RESIZABLE);
-    if (window == nullptr) {
-        std::cerr << "Window creation failed: " << SDL_GetError() << '\n';
-        return false;
-    }
-
-    const char* requestedRenderer = config.renderer == "auto" ? nullptr : config.renderer.c_str();
-    renderer = SDL_CreateRenderer(window, requestedRenderer);
-    if (renderer == nullptr && config.renderer != "software") {
-        std::cerr << "Requested renderer unavailable; trying SDL software renderer: "
-                  << SDL_GetError() << '\n';
-        renderer = SDL_CreateRenderer(window, "software");
-    }
-    if (renderer == nullptr) {
-        std::cerr << "Renderer creation failed: " << SDL_GetError() << '\n';
-        return false;
-    }
-
-    frameTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
-                                     SDL_TEXTUREACCESS_STREAMING, frameWidth, frameHeight);
-    if (frameTexture == nullptr) {
-        std::cerr << "Framebuffer texture creation failed: " << SDL_GetError() << '\n';
-        return false;
-    }
-    SDL_SetTextureScaleMode(frameTexture, SDL_SCALEMODE_NEAREST);
-    return SDL_SetRenderLogicalPresentation(renderer, frameWidth, frameHeight,
-                                            SDL_LOGICAL_PRESENTATION_LETTERBOX);
+    auto backend = std::make_unique<soft3d::platform::SdlVideoBackend>(
+        config.scale, config.renderer);
+    video = std::make_unique<soft3d::VID_impl>(frameWidth, frameHeight, std::move(backend));
+    return video->Start();
 }
 
 void Application::RenderPlaceholder(uint64_t frameNumber, double deltaSeconds)
 {
     const ControlState& input = controls.State();
+    const soft3d::VideoBufferInfo& frame = video->GetBufferInfo();
     const float distance = static_cast<float>(90.0 * deltaSeconds);
     markerX += (static_cast<float>(input.right) - static_cast<float>(input.left)) * distance;
     markerY += (static_cast<float>(input.down) - static_cast<float>(input.up)) * distance;
@@ -142,9 +122,9 @@ void Application::RenderPlaceholder(uint64_t frameNumber, double deltaSeconds)
     markerY = std::clamp(markerY, 32.0F, static_cast<float>(frameHeight - 32));
 
     const uint8_t pulse = static_cast<uint8_t>(32 + (frameNumber % 48));
-    for (int y = 0; y < frame.Height(); ++y) {
-        for (int x = 0; x < frame.Width(); ++x) {
-            frame.Pixels()[y * frame.Width() + x] =
+    for (int y = 0; y < frame.height; ++y) {
+        for (int x = 0; x < frame.width; ++x) {
+            frame.address[y * frame.width + x] =
                 Rgba(static_cast<uint8_t>(8 + x / 16),
                      static_cast<uint8_t>(12 + y / 12), pulse);
         }
@@ -173,17 +153,9 @@ void Application::RenderPlaceholder(uint64_t frameNumber, double deltaSeconds)
 void Application::Shutdown()
 {
     audio.Stop();
-    if (frameTexture != nullptr) {
-        SDL_DestroyTexture(frameTexture);
-        frameTexture = nullptr;
-    }
-    if (renderer != nullptr) {
-        SDL_DestroyRenderer(renderer);
-        renderer = nullptr;
-    }
-    if (window != nullptr) {
-        SDL_DestroyWindow(window);
-        window = nullptr;
+    if (video != nullptr) {
+        video->Stop();
+        video.reset();
     }
     SDL_Quit();
 }

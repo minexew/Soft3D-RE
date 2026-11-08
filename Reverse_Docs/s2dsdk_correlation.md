@@ -163,11 +163,11 @@ The pause/resume functions conditionally change the platform stream state and up
 
 ## Video and frame lifecycle
 
-The exact RTTI name `VID_impl` occurs in both engines. S2D provides `vidinit`, `vidstart`, `vidstop`, `vidupdate`, `videxit`, and `vidptr`; its implementation owns an offscreen backbuffer and presents it to the Dingoo LCD. Soft3D replaces the backend with Symbian direct-screen access but retains the same start/stop/update responsibilities.
+The exact RTTI name `VID_impl` occurs in both engines. S2D provides `vidinit`, `vidstart`, `vidstop`, `vidupdate`, `videxit`, and `vidptr`; its implementation owns an offscreen backbuffer and presents it to the Dingoo LCD. Soft3D replaces the backend with Symbian direct-screen access but retains the same start/stop/update responsibilities. `VidImpl_GetBackBufferPtr` (`0x000a6de0`) and `S3dVideo_GetBackBufferPtr` (`0x000a702c`) are the direct counterparts of `vidptr`: they return the bitmap address, not a screen descriptor.
 
-Soft3D `VidImpl_Update` (`0x000a6cf4`, formerly `VidImpl_CompleteFrame`) and `S3dVideo_Update` (`0x000a705c`, formerly `S3dVideo_CompleteFrame`) complete the direct-screen frame after software rendering. The new names align them with S2D `VID_impl::Update`/`vidupdate`; they do not imply identical platform code.
+Soft3D `VidImpl_Update` (`0x000a6cf4`, formerly `VidImpl_CompleteFrame`) and `S3dVideo_Update` (`0x000a705c`, formerly `S3dVideo_CompleteFrame`) complete the direct-screen frame after software rendering. The new names align them with S2D `VID_impl::Update`/`vidupdate`; they do not imply identical platform code. `VidImpl_DrawText` and the empty `S3dVideo_SetTextColor` likewise correspond to S2D `vidtext` and `vidtextcolor`.
 
-S2D `Engine::Start`, `Stop`, and `Resume` closely match Soft3D `Engine_Start`, `Engine_Suspend`, and `Engine_Resume`: start video, update running state, clear input on initial start, and pause/resume audio. Soft3D adds renderer/screen-descriptor rebinding.
+S2D `Engine::Start`, `Stop`, and `Resume` closely match Soft3D `Engine_Start`, `Engine_Suspend`, and `Engine_Resume`: start video, update running state, clear input on initial start, and pause/resume audio. Soft3D adds renderer/back-buffer rebinding.
 
 S2D `Engine::Sync` sleeps for the unexpired frame interval and records timing. Soft3D `Engine_LimitFrameRate` performs the same core operation at the end of its expanded frame. S2D also calculates real FPS and synchronizes at frame start; Soft3D moves additional virtual handlers and audio/video work around that limiter, so `Engine_LimitFrameRate` remains the more precise name.
 

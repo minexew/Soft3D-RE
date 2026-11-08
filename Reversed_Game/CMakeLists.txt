@@ -10,6 +10,7 @@ set_property(CACHE SOFT3D_LOG_BACKEND PROPERTY STRINGS NULL STDIO)
 string(TOUPPER "${SOFT3D_LOG_BACKEND}" SOFT3D_LOG_BACKEND)
 
 add_library(soft3d
+    src/platform/dummy/DummyVideoBackend.cpp
     src/platform/linux/File.cpp
     src/platform/linux/StdioLog.cpp
     src/soft3d/Animation.cpp
@@ -18,6 +19,7 @@ add_library(soft3d
     src/soft3d/Resource.cpp
     src/soft3d/Texture.cpp
     src/soft3d/TextureRes.cpp
+    src/soft3d/VID_impl.cpp
     src/soft3d/s3dBase.cpp
     src/soft3d/s3dFilePak.cpp
     src/soft3d/s3dIO.cpp
@@ -48,10 +50,11 @@ if(SOFT3D_BUILD_APP)
         src/app/Application.cpp
         src/app/EngineStubs.cpp
         src/app/main.cpp
+        src/platform/sdl/SdlVideoBackend.cpp
     )
     target_include_directories(seven_days PRIVATE src)
     target_compile_features(seven_days PRIVATE cxx_std_17)
-    target_link_libraries(seven_days PRIVATE SDL3::SDL3)
+    target_link_libraries(seven_days PRIVATE soft3d SDL3::SDL3)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(seven_days PRIVATE -Wall -Wextra -Wpedantic)
     endif()
@@ -92,6 +95,13 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_log_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_log COMMAND soft3d_log_tests)
+
+    add_executable(soft3d_vidimpl_tests tests/test_vidimpl.cpp)
+    target_link_libraries(soft3d_vidimpl_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_vidimpl_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_vidimpl COMMAND soft3d_vidimpl_tests)
 
     if(TARGET seven_days)
         add_test(NAME seven_days_smoke
