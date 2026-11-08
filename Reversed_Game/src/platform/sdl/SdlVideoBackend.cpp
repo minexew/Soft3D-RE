@@ -41,7 +41,7 @@ bool SdlVideoBackend::Start(int width, int height)
         return false;
     }
 
-    frameTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888,
+    frameTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888,
                                      SDL_TEXTUREACCESS_STREAMING, width, height);
     if (frameTexture == nullptr) {
         std::cerr << "Framebuffer texture creation failed: " << SDL_GetError() << '\n';

@@ -111,8 +111,8 @@ std::vector<uint8_t> MakeSoj()
     Append32(bytes, 2);
     Append32(bytes, 32);
     Append32(bytes, 4);
+    Append32(bytes, 2);
     Append32(bytes, 8);
-    Append32(bytes, 0);
     Append32(bytes, 0x05040302);
     Append32(bytes, 0x09080706);
     Append32(bytes, 1);
@@ -215,27 +215,31 @@ void TestSyntheticResourcesAndCache()
     CHECK(object->GetSurfaceCount() == 1);
     CHECK(object->GetObjects()[0].color == 0x241f);
     CHECK(object->GetObjects()[0].textureIndex == 7);
-    CHECK(object->GetObjects()[0].primitiveType == 4);
+    CHECK(object->GetObjects()[0].textureCoordinateMode == 4);
     CHECK(object->GetSurfaces()[0].indexCount == 6);
-    CHECK(object->GetSurfaces()[0].vertices.count == 1);
+    CHECK(object->GetSurfaces()[0].vertices.strideBytes == 4);
+    CHECK(object->GetSurfaces()[0].vertices.vertexCount == 2);
+    CHECK(object->GetSurfaces()[0].vertices.dataByteSize == 8);
     CHECK(object->GetSurfaces()[0].vertices.data.size() == 8);
     CHECK(object->GetTrailer()[5] == 45);
 
     auto* animation = dynamic_cast<soft3d::Animation*>(
         manager.GetResource(soft3d::ResourceAnimation, 2, u"anim"));
     CHECK(animation != nullptr);
-    CHECK(animation->GetHeader0() == 0x111);
-    CHECK(animation->GetHeader1() == 0x222);
-    CHECK(animation->GetTransformCount() == 1);
-    CHECK(animation->GetFirstTransform() == animation->GetSecondTransform());
+    CHECK(animation->GetStartTime() == 0x111);
+    CHECK(animation->GetEndTime() == 0x222);
+    CHECK(animation->GetBoundingVolumeCount() == 1);
+    CHECK(animation->GetFirstBounds() == animation->GetSecondBounds());
     CHECK(animation->GetTrackCount() == 1);
     const auto& keyframe = animation->GetTracks()[0].keyframes[0];
     CHECK(keyframe.time == 100);
-    CHECK(keyframe.value0 == -1 && keyframe.value1 == 2 && keyframe.value8 == -9);
-    CHECK((keyframe.translation == std::array<int32_t, 3>{10, 11, 12}));
-    CHECK(keyframe.scale == 0x10000);
-    CHECK(animation->GetMorphFrameCount() == 2);
-    CHECK(animation->GetMorphs()[0].frames[1][2] == 55);
+    CHECK(keyframe.transform.values[0] == -1 && keyframe.transform.values[1] == 2 &&
+          keyframe.transform.values[10] == -9);
+    CHECK(keyframe.transform.values[12] == 10 && keyframe.transform.values[13] == 11 &&
+          keyframe.transform.values[14] == 12);
+    CHECK(keyframe.transform.values[15] == 0x10000);
+    CHECK(animation->GetMorphTargetCount() == 2);
+    CHECK(animation->GetMorphs()[0].targets[1][2] == 55);
 
     manager.ClearCache(3);
     CHECK(audio->GetPcmSampleCount() == 16);

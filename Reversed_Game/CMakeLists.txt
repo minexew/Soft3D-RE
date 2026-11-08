@@ -15,7 +15,14 @@ add_library(soft3d
     src/platform/linux/StdioLog.cpp
     src/soft3d/Animation.cpp
     src/soft3d/AudioData.cpp
+    src/soft3d/BasicShader.cpp
+    src/soft3d/Engine.cpp
+    src/soft3d/GameEngine.cpp
+    src/soft3d/Object.cpp
     src/soft3d/ObjectRes.cpp
+    src/soft3d/Raster.cpp
+    src/soft3d/Renderable.cpp
+    src/soft3d/Renderer.cpp
     src/soft3d/Resource.cpp
     src/soft3d/Texture.cpp
     src/soft3d/TextureRes.cpp
@@ -102,6 +109,13 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_vidimpl_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_vidimpl COMMAND soft3d_vidimpl_tests)
+
+    add_executable(soft3d_engine_tests tests/test_engine.cpp)
+    target_link_libraries(soft3d_engine_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_engine_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_engine COMMAND soft3d_engine_tests)
 
     if(TARGET seven_days)
         add_test(NAME seven_days_smoke

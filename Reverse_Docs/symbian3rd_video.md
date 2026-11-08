@@ -127,7 +127,7 @@ It builds scanline state and invokes selected inner loops through function descr
 
 `BlitTexture` (`0x000d49c8`) clips source/destination rectangles, computes byte addresses using four bytes per pixel, and dispatches through a selected blitter. `SelectTextureBlitter` (`0x000d53c0`) chooses that function from format/state flags.
 
-`ConvertRgb565To32Bit` (`0x000aec98`) expands packed pixels with:
+`BasicShader_Render` (`0x000aec98`, formerly `ConvertRgb565To32Bit`) expands packed pixels with:
 
 ```c
 rgba = ((pixel & 0xf800) << 8) |
@@ -146,11 +146,13 @@ Its two paths differ in traversal direction. Alpha is not set by this routine.
 | `+0x1a60` | `uint8_t *` | Current platform back-buffer address returned by `VID_impl`. |
 | `+0x1a64` | `Texture *` | Previous texture. |
 | `+0x1a68` | `Texture *` | Current texture. |
-| `+0x1a7c` | pointer | Presenter object; concrete type and initialization remain unresolved. |
+| `+0x1a7c` | `BasicShader *` | Active presenter selected by `Raster_SelectShader`. |
+| `+0x1a80` | `BasicShader *` | Default 0x14-byte shader. |
+| `+0x1a84` | `FogShader *` | Optional 0x38-byte depth-fog shader. |
 
-`Renderer_Present` (`0x000f3794`) calls `Raster_Present` (`0x000ca118`). The latter obtains `currentTexture->pixels` and invokes the presenter's virtual slot `+0x08` with the source texture pixels and destination back-buffer address. `VidImpl_Update` then presents that destination through `EndUpdate`. The original path therefore has two distinct stages: software texture-to-back-buffer composition, followed by platform presentation.
+`Renderer_Present` (`0x000f3794`) calls `Raster_Present` (`0x000ca118`). The latter obtains `currentTexture->pixels` and invokes the active shader's virtual slot `+0x08` with the source texture pixels and destination back-buffer address. `VidImpl_Update` then presents that destination through `EndUpdate`. The original path therefore has two distinct stages: software texture-to-back-buffer composition, followed by platform presentation.
 
-The presenter's concrete class is not yet proven. Do not equate it with `VID_impl` without a constructor/write chain for `Raster + 0x1a7c`.
+`Raster_SelectShader` (`0x00031dc4`) chooses the default or fog shader when passed null, or an explicit `BasicShader` otherwise. `BasicShader_Render` (`0x000aec98`) is the default virtual implementation. Internal pixels carry RGB565 in the low 16 bits and depth in the high 16 bits. The presenter writes `0x00RRGGBB` without channel-bit replication. See `gameengine_api.md` for the complete queue-to-raster path.
 
 ## Software effects
 
@@ -183,6 +185,6 @@ The frame limiter reads the current platform tick, computes elapsed time against
 
 `src/platform/dummy/DummyVideoBackend.*` is SDL-independent and serves as the reference backend. It records lifecycle calls and copies presented pixels for `tests/test_vidimpl.cpp`. Tests cover construction and first-start behavior, idempotent start/stop, restart, repeated `BeginUpdate`, error propagation and cached-address behavior, buffer metadata, and exact presented pixel contents.
 
-`src/platform/sdl/SdlVideoBackend.*` implements the host presentation stage. `BeginUpdate` exposes the CPU buffer, while `EndUpdate` uploads it to an SDL streaming texture, renders with nearest-neighbor aspect-preserving logical presentation, and calls `SDL_RenderPresent`. Resource creation is idempotent, and renderer creation retains the explicit fallback to SDL's `software` renderer. The app main loop now follows `GetBackBufferPtr` → placeholder CPU rendering → `Update`; it no longer owns SDL window, renderer, or texture objects directly.
+`src/platform/sdl/SdlVideoBackend.*` implements the host presentation stage. `BeginUpdate` exposes the CPU buffer, while `EndUpdate` uploads `0x00RRGGBB` words to an `SDL_PIXELFORMAT_XRGB8888` streaming texture, renders with nearest-neighbor aspect-preserving logical presentation, and calls `SDL_RenderPresent`. Resource creation is idempotent, and renderer creation retains the explicit fallback to SDL's `software` renderer.
 
-The engine renderer, presenter, sound mixer, and game object remain unhooked. When reconstruction continues, recover the `Raster + 0x1a7c` presenter and exact 32-bit channel order before replacing the placeholder frame generator.
+The app uses `GameEngine::RunFrame`: its host placeholder writes RGB565/depth words to the renderer texture, and `BasicShader` expands them into the `VID_impl` back buffer. The SDL window/renderer/texture objects remain encapsulated in the backend. `tests/test_engine.cpp` verifies the complete engine-to-dummy-video path with exact pixels. Audio, scene/gameplay, and other higher-level facilities remain stubs. The portable rasterizer does not yet reproduce every specialized original inner loop; see `gameengine_api.md`.

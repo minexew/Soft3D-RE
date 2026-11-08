@@ -85,62 +85,15 @@ If type bits 6–7 are nonzero, palette data precedes pixels. Bits equal to `0x4
 
 ## SOJ: `ObjectRes`
 
-`ObjectRes` is 0x15c bytes. Its important fields are:
+`ObjectRes` is 0x15c bytes. `LoadSojResource` is `0x000e8198`; `ParseSojModel` is `0x000e829c`. The parser allocates 0x34-byte material records and 0x30-byte surfaces, checks material errors, ignores surface parser return values, and frees both arrays when surface count is zero.
 
-| Offset | Type | Meaning |
-|---:|---|---|
-| `+0x12c` | `uint32_t` | Object count. |
-| `+0x130` | pointer | Array of 0x34-byte internal object records. |
-| `+0x134` | `uint32_t` | Surface count. |
-| `+0x138`, `+0x13c` | `uint32_t` | Unknown serialized words. |
-| `+0x140` | pointer | Array of 0x30-byte internal surfaces. |
-| `+0x144`–`+0x158` | six `int32_t` | Serialized trailer values. |
-
-`LoadSojResource` is `0x000e8198`; `ParseSojModel` is `0x000e829c`.
-
-Each serialized object record is 52 bytes. It contains two raw 32-bit values, three RGB bytes packed into an internal RGB565 value, a byte field, a 16-bit texture selector, and additional raw fields. Texture selector `0x00ff` maps to internal index zero and sets the flag at internal `+0x16`; other values retain the low 16 bits. The final two serialized words determine the internal primitive type: first nonzero gives 3; otherwise second nonzero gives 4; both zero give 0.
-
-Each surface starts with three 32-bit words, followed by:
-
-1. Four vertex-header words and `vertexByteSize` bytes of vertex data. The vertex count is the second header word divided by four.
-2. Two index-header words and `indexByteSize` bytes of index data.
-
-Both variable blocks advance by `byteSize & ~3`, not by rounding up. Surface index count becomes `primitiveCount * 3` when surface primitive type is 4, otherwise `primitiveCount + 2`.
-
-The top-level parser checks object-record status and returns 6 on error, but **ignores surface parser return values**. If surface count is zero, it releases both arrays before returning success.
+Rendering analysis corrected several earlier interpretations: the records called “objects” are materials; the trailer is a bounding box; surface words are material index, primitive type, and primitive count; and the vertex header is `format`, `strideBytes`, `vertexCount`, `dataByteSize`. The material texture name is packed into four words using 24 five-bit symbols. See `soft3d_models_animations.md` for the complete corrected layout and vertex flags.
 
 ## SAI: `Animation`
 
 `Animation` is 0x178 bytes. `LoadSaiResource` is `0x00115184`; `ParseSaiAnimation` is `0x001152b0`.
 
-The serialized layout is:
-
-```text
-u32 header0
-u32 header1
-u32 flagsAndTransformCount
-six s32 first transform values       if count >= 1
-six s32 second transform values      if count >= 2
-s16 trackCount
-s16 padding                          // track count occupies a 32-bit slot
-tracks[trackCount]
-optional morph section               if flags bit 8 is set
-```
-
-Transform count is flags byte zero. If exactly one transform is serialized, all six values are copied to the second internal transform. The two internal transform blocks begin at `+0x12c` and `+0x144`.
-
-Each track has a 32-bit keyframe count followed by 36-byte serialized keyframes:
-
-```text
-s32 time
-u16 signFlags
-u16 magnitude[9]
-s32 translation[3]
-```
-
-A set sign bit negates the corresponding magnitude. Internally, keyframes are 0x44 bytes: the nine values occupy sparse offsets `+0x04`, `+0x08`, `+0x0c`, `+0x14`, `+0x18`, `+0x1c`, `+0x24`, `+0x28`, and `+0x2c`; fields `+0x10`, `+0x20`, and `+0x30` are zeroed; translation is at `+0x34`; scale at `+0x40` is set to `0x10000`.
-
-When morph data is enabled, a 16-bit morph frame count follows the tracks. Only the value **2** is accepted. Any other value is replaced by zero and no morph records are consumed. For the accepted form, a signed 16-bit morph count follows; each morph has one 32-bit word and two serialized three-`int32_t` frames.
+The first two words are animation start/end times. Flags byte zero counts 24-byte bounding-volume records, not transforms. Each keyframe is a time followed by nine sign/magnitude rotation terms and three translation words, expanded into a 16.16 fixed-point 4×4 matrix. The optional morph section contains time-keyed pairs of 3D vectors. `Animation_SampleTransform` (`0x00115f30`) and `Animation_SampleMorph` (`0x001166b4`) establish interpolation and reciprocal-table truncation behavior. See `soft3d_models_animations.md` for the complete corrected layout and timing semantics.
 
 ## Reconstruction and verification
 

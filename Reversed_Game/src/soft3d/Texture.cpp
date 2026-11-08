@@ -132,6 +132,29 @@ result Texture::ParseStx(const void* data)
     return S3D_OK;
 }
 
+result Texture::Resize(uint32_t newWidth, uint32_t newHeight, uint16_t newType)
+{
+    Reset();
+    width = newWidth;
+    height = newHeight;
+    type = newType;
+    fixedWidth = static_cast<int32_t>(width << 16);
+    fixedHeight = static_cast<int32_t>(height << 16);
+    widthLog2 = static_cast<uint32_t>(IntegerLog2(width));
+    bytesPerPixel = static_cast<uint8_t>((type & 0x30) >> 4);
+    if (bytesPerPixel == 0) {
+        bytesPerPixel = 4;
+    }
+    pixelSize = width * height * bytesPerPixel;
+    pixelsAllocation = static_cast<uint8_t*>(std::malloc(pixelSize + 4));
+    if (pixelsAllocation == nullptr) {
+        return S3D_MEMORY;
+    }
+    pixels = reinterpret_cast<uint8_t*>(
+        (reinterpret_cast<uintptr_t>(pixelsAllocation) + 3) & ~uintptr_t(3));
+    return S3D_OK;
+}
+
 void Texture::Reset()
 {
     if (pixelsAllocation != nullptr) {
@@ -151,7 +174,12 @@ void Texture::Reset()
 
 uint32_t Texture::GetWidth() const { return width; }
 uint32_t Texture::GetHeight() const { return height; }
+int32_t Texture::GetFixedWidth() const { return fixedWidth; }
+int32_t Texture::GetFixedHeight() const { return fixedHeight; }
+int32_t Texture::GetWidthLog2() const { return static_cast<int32_t>(widthLog2); }
+uint16_t Texture::GetType() const { return type; }
 uint32_t Texture::GetPixelSize() const { return pixelSize; }
+uint8_t* Texture::GetPixels() { return pixels; }
 const uint8_t* Texture::GetPixels() const { return pixels; }
 const uint8_t* Texture::GetPalette() const { return palette; }
 uint32_t Texture::GetPaletteSize() const { return paletteSize; }

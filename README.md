@@ -8,14 +8,14 @@
 |--|----------------|-------------|------------------------|
 |✔️|S3DTEX||images/textures, well-understood
 |❌|S3DSTY||
-|❌|SAI||probably 3D model animations
+|🔧|SAI||<p>3D model animations, mostly understood</p><ul><li>Fixed-point transform tracks, bounds, morph targets, timing, and interpolation documented in `Reverse_Docs/soft3d_models_animations.md`</li></ul>
 |✔️|SAU|DA320 (all), GA330, S60v1 (chi), S60v2, S60v3, Win32 (chi)|AMI ADPCM audio, low nibble first; same format as WAR except nibble order, well-understood
 |🔧|SBN|GA330|<p>font (glyphs) + text data (32-bit encoding), mostly understood</p><ul><li>Why is the header length not always the same?</li><li>How to calculate glyph indexes across SBNs?</li></ul>
 |🔧|SBN|Win32|font (glyphs) + text data (7-bit encoding), mostly understood
 |🔧|SBP|GA330|<p>maps, based on [Quake 2 map format](https://www.flipcode.com/archives/Quake_2_BSP_File_Format.shtml), mostly understood</p><ul><li>How to interpret all the chunks?</li><li>How are lightmaps applied?</li></ul>
 |❌|SDT||various _data tables_ without a common format?
 |🔧|SPL||Camera settings|
-|🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Skinning? Animations?</li></ul>
+|🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Materials, packed texture names, vertex streams, primitive modes, bounds, and skinning links documented in `Reverse_Docs/soft3d_models_animations.md`</li><li>Some material and renderer-state fields remain unidentified</li></ul>
 |🔧|SST||“simple script”, mostly understood
 |✔️|STX||images/textures (RGB444), well-understood
 |✔️|STX||images/textures (RGB565), well-understood

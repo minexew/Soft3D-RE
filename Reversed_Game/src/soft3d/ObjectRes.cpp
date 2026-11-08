@@ -24,18 +24,18 @@ result ParseObject(SojObject& object, const uint8_t*& input)
     object.color = static_cast<uint16_t>((input[0] >> 3) << 11)
                    | static_cast<uint16_t>((input[1] >> 2) << 5)
                    | static_cast<uint16_t>(input[2] >> 3);
-    object.unknown0c = input[3];
+    object.blendMode = input[3];
     input += 4;
     uint32_t texture = Read32(input);
     if (static_cast<int16_t>(texture) == 0xff) {
-        object.unknown16 = 1;
+        object.hasDetailTexture = 1;
         object.textureIndex = 0;
     } else {
-        object.unknown16 = 0;
+        object.hasDetailTexture = 0;
         object.textureIndex = texture & 0xffff;
     }
-    object.unknown14 = static_cast<uint16_t>(Read32(input));
-    for (int32_t& value : object.unknown18) {
+    object.hasTexture = static_cast<uint16_t>(Read32(input));
+    for (int32_t& value : object.packedTextureName) {
         value = static_cast<int32_t>(Read32(input));
     }
     object.unknown28 = static_cast<int32_t>(Read32(input));
@@ -43,9 +43,9 @@ result ParseObject(SojObject& object, const uint8_t*& input)
     uint32_t first = Read32(input);
     uint32_t second = Read32(input);
     if (first == 0) {
-        object.primitiveType = second == 0 ? 0 : 4;
+        object.textureCoordinateMode = second == 0 ? 0 : 4;
     } else {
-        object.primitiveType = 3;
+        object.textureCoordinateMode = 3;
     }
     return S3D_OK;
 }
@@ -53,12 +53,11 @@ result ParseObject(SojObject& object, const uint8_t*& input)
 result ParseVertices(SojVertices& vertices, const uint8_t*& input)
 {
     vertices.format = Read32(input);
-    vertices.count = Read32(input);
-    vertices.byteSize = Read32(input);
-    vertices.unknown0c = Read32(input);
-    vertices.data.assign(input, input + vertices.byteSize);
-    input += vertices.byteSize & 0xfffffffc;
-    vertices.count >>= 2;
+    vertices.strideBytes = Read32(input);
+    vertices.vertexCount = Read32(input);
+    vertices.dataByteSize = Read32(input);
+    vertices.data.assign(input, input + vertices.dataByteSize);
+    input += vertices.dataByteSize & 0xfffffffc;
     return S3D_OK;
 }
 
@@ -73,7 +72,7 @@ result ParseIndices(SojIndices& indices, const uint8_t*& input)
 
 result ParseSurface(SojSurface& surface, const uint8_t*& input)
 {
-    surface.unknown00 = Read32(input);
+    surface.materialIndex = static_cast<int32_t>(Read32(input));
     surface.primitiveType = Read32(input);
     surface.primitiveCount = Read32(input);
     result status = ParseVertices(surface.vertices, input);
@@ -155,5 +154,21 @@ uint32_t ObjectRes::GetSurfaceCount() const { return surfaceCount; }
 const std::vector<SojObject>& ObjectRes::GetObjects() const { return objects; }
 const std::vector<SojSurface>& ObjectRes::GetSurfaces() const { return surfaces; }
 const std::array<int32_t, 6>& ObjectRes::GetTrailer() const { return trailer; }
+
+std::u16string DecodeSojTextureName(const std::array<int32_t, 4>& packedName)
+{
+    static constexpr char16_t alphabet[] = u"abcdefghijklmnopqrstuvwxyz_1234";
+    std::u16string result;
+    for (uint32_t word : packedName) {
+        for (unsigned shift = 0; shift < 30; shift += 5) {
+            const uint32_t code = (word >> shift) & 0x1f;
+            if (code == 0x1f) {
+                return result;
+            }
+            result.push_back(alphabet[code]);
+        }
+    }
+    return result;
+}
 
 } // namespace soft3d

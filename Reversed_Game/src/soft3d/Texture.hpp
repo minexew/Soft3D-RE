@@ -18,11 +18,17 @@ public:
 
     result LoadStx(const char16_t* entryName, s3dFilePak* filePak);
     result ParseStx(const void* data);
+    result Resize(uint32_t newWidth, uint32_t newHeight, uint16_t newType);
     void Reset();
 
     uint32_t GetWidth() const;
     uint32_t GetHeight() const;
+    int32_t GetFixedWidth() const;
+    int32_t GetFixedHeight() const;
+    int32_t GetWidthLog2() const;
+    uint16_t GetType() const;
     uint32_t GetPixelSize() const;
+    uint8_t* GetPixels();
     const uint8_t* GetPixels() const;
     const uint8_t* GetPalette() const;
     uint32_t GetPaletteSize() const;
