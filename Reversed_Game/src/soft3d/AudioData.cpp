@@ -36,10 +36,10 @@ AudioData::~AudioData()
     std::free(pcmBuffer);
 }
 
-int AudioData::Load(const char16_t* entryName, s3dFilePak* filePak)
+result AudioData::Load(const char16_t* entryName, s3dFilePak* filePak)
 {
-    int status = filePak->Select(entryName);
-    if (status != 0) {
+    result status = filePak->Select(entryName);
+    if (status != S3D_OK) {
         S3D_LOG(log, u" open file error %s \n", entryName);
         return status;
     }
@@ -51,7 +51,7 @@ int AudioData::Load(const char16_t* entryName, s3dFilePak* filePak)
     void* compressed = std::malloc(static_cast<size_t>(compressedBytes));
     if (compressed == nullptr) {
         S3D_LOG(log, u" memory out %s \n", entryName);
-        return 4;
+        return S3D_MEMORY;
     }
 
     filePak->Read(compressed, compressedBytes);
@@ -59,13 +59,13 @@ int AudioData::Load(const char16_t* entryName, s3dFilePak* filePak)
     if (pcmBuffer == nullptr) {
         std::free(compressed);
         S3D_LOG(log, u" memory out %s \n", entryName);
-        return 4;
+        return S3D_MEMORY;
     }
 
     std::memset(pcmBuffer, 0, static_cast<size_t>(pcmSampleCount) << 1);
     DecodeSauAdpcm(compressed, compressedBytes, pcmBuffer);
     std::free(compressed);
-    return 0;
+    return S3D_OK;
 }
 
 uint32_t AudioData::GetPcmSampleCount() const

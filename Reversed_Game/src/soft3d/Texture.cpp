@@ -58,25 +58,25 @@ Texture::~Texture()
     std::free(palette);
 }
 
-int Texture::LoadStx(const char16_t* entryName, s3dFilePak* filePak)
+result Texture::LoadStx(const char16_t* entryName, s3dFilePak* filePak)
 {
     Reset();
-    int status = filePak->Select(entryName);
-    if (status != 0) {
+    result status = filePak->Select(entryName);
+    if (status != S3D_OK) {
         S3D_LOG(log, u"Texture::CreateFromPak %s: can't find!\n", entryName);
-        return 3;
+        return S3D_FILE;
     }
 
     filePak->Seek(0, SEEK_END);
     int32_t bytes = filePak->Tell();
-    if (bytes == -1) {
+    if (bytes == S3D_EOF) {
         S3D_LOG(log, u"Texture::CreateFromFile %s: ftell return EOF!\n", entryName);
-        return 8;
+        return S3D_UNKNOWN;
     }
     void* data = std::malloc(static_cast<size_t>(bytes));
     if (data == nullptr) {
         S3D_LOG(log, u"Texture::CreateFromFile %s: memory out!\n", entryName);
-        return 4;
+        return S3D_MEMORY;
     }
     filePak->Seek(0, SEEK_SET);
     filePak->Read(data, bytes);
@@ -85,7 +85,7 @@ int Texture::LoadStx(const char16_t* entryName, s3dFilePak* filePak)
     return status;
 }
 
-int Texture::ParseStx(const void* data)
+result Texture::ParseStx(const void* data)
 {
     const uint8_t* input = static_cast<const uint8_t*>(data);
     uint32_t header = Read32(input);
@@ -123,13 +123,13 @@ int Texture::ParseStx(const void* data)
     pixelsAllocation = static_cast<uint8_t*>(std::malloc(pixelSize + 4));
     if (pixelsAllocation == nullptr) {
         S3D_LOG(log, u"Texture::Create: failed to alloc %d memory!\n", pixelSize + 4);
-        return 4;
+        return S3D_MEMORY;
     }
     pixels = reinterpret_cast<uint8_t*>(
         (reinterpret_cast<uintptr_t>(pixelsAllocation) + 3) & ~uintptr_t(3));
     std::memcpy(pixels, input, pixelSize);
     widthLog2 = IntegerLog2(width);
-    return 0;
+    return S3D_OK;
 }
 
 void Texture::Reset()

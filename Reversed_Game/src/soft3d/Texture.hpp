@@ -1,6 +1,7 @@
 #pragma once
 
 #include "soft3d/s3dBase.hpp"
+#include "soft3d/s3dCommon.hpp"
 #include "soft3d/s3dIO.hpp"
 #include "soft3d/s3dLog.hpp"
 
@@ -15,8 +16,8 @@ public:
     Texture();
     ~Texture() override;
 
-    int LoadStx(const char16_t* entryName, s3dFilePak* filePak);
-    int ParseStx(const void* data);
+    result LoadStx(const char16_t* entryName, s3dFilePak* filePak);
+    result ParseStx(const void* data);
     void Reset();
 
     uint32_t GetWidth() const;

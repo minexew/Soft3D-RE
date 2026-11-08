@@ -276,7 +276,7 @@ Resource* s3dResManager::GetResource(uint32_t type, int cacheLevel, const char16
         return nullptr;
     }
     resource->SetEngine(engine);
-    if (resource->Initialize(fileName, directory, &filePak) == 0) {
+    if (resource->Initialize(fileName, directory, &filePak) == S3D_OK) {
         caches[cacheLevel].Insert(path, resource);
         return resource;
     }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "soft3d/s3dBase.hpp"
+#include "soft3d/s3dCommon.hpp"
 #include "soft3d/s3dIO.hpp"
 #include "soft3d/s3dLog.hpp"
 
@@ -16,13 +17,13 @@ public:
     ~Resource() override = default;
 
     void SetEngine(Engine* engine) override;
-    int Initialize(const char16_t* fileName, const char16_t* directory,
-                   s3dFilePak* filePak);
+    result Initialize(const char16_t* fileName, const char16_t* directory,
+                      s3dFilePak* filePak);
     const char16_t* GetPath() const;
     const char16_t* GetFileName() const;
     const char16_t* GetDirectory() const;
 
-    virtual int Load(const char16_t* entryName, s3dFilePak* filePak) = 0;
+    virtual result Load(const char16_t* entryName, s3dFilePak* filePak) = 0;
 
 protected:
     s3dIO io;

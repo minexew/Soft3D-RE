@@ -1,17 +1,11 @@
 #pragma once
 
 #include "soft3d/s3dBase.hpp"
+#include "soft3d/s3dCommon.hpp"
 #include "soft3d/s3dIO.hpp"
 #include "soft3d/s3dLog.hpp"
 
 #include <cstdint>
-
-#define EFP_SEEK -1
-#define EFP_SUCCESS 0
-#define EFP_OPEN 3
-#define EFP_NOMEM 4
-#define EFP_NOENT 5
-#define EFP_IOERR 8
 
 namespace soft3d {
 
@@ -27,12 +21,12 @@ public:
     s3dFilePak();
     ~s3dFilePak() override;
 
-    int Open(const char16_t* fileName, uint32_t loadIntoMemory);
+    result Open(const char16_t* fileName, uint32_t loadIntoMemory);
     void Close();
-    int Select(const char16_t* fileName);
-    int Seek(int32_t offset, int whence);
+    result Select(const char16_t* fileName);
+    result Seek(int32_t offset, int whence);
     int Tell() const;
-    int Read(void* destination, int32_t requestedBytes);
+    result Read(void* destination, int32_t requestedBytes);
     int GetEntryCount() const;
 
     void SetEngine(Engine* engine) override;

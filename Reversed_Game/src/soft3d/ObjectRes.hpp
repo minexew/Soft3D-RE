@@ -50,8 +50,8 @@ class ObjectRes : public Resource {
 public:
     ObjectRes() = default;
 
-    int Load(const char16_t* entryName, s3dFilePak* filePak) override;
-    int ParseSoj(const void* data);
+    result Load(const char16_t* entryName, s3dFilePak* filePak) override;
+    result ParseSoj(const void* data);
 
     uint32_t GetObjectCount() const;
     uint32_t GetSurfaceCount() const;

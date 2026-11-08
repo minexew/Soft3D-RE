@@ -75,7 +75,7 @@ int main()
         S3D_LOG(log, u"value=%d text=%s narrow=%S hex=%05x\n",
                 -7, u"wide", "ascii", 0x2a);
         S3D_LOG(log, u"append=%05u|%4s|%-4S|%c\n", 42, u"x", "yz", u'!');
-        CHECK(texture.LoadStx(u"missing.stx", &filePak) == 3);
+        CHECK(texture.LoadStx(u"missing.stx", &filePak) == soft3d::S3D_FILE);
 
         const std::u16string expected =
             u"===== Log On =====\n"
@@ -91,7 +91,7 @@ int main()
         S3D_LOG_ON(log);
         S3D_LOG(log, u"ignored %d %s\n", 7, u"message");
         soft3d::NullLog(u"also ignored\n");
-        CHECK(texture.LoadStx(u"missing.stx", &filePak) == 3);
+        CHECK(texture.LoadStx(u"missing.stx", &filePak) == soft3d::S3D_FILE);
         CHECK(!std::filesystem::exists("log.log"));
 #endif
     } catch (const std::exception& error) {

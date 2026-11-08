@@ -8,7 +8,7 @@ void TextureRes::SetEngine(Engine* value)
     Resource::SetEngine(value);
 }
 
-int TextureRes::Load(const char16_t* entryName, s3dFilePak* filePak)
+result TextureRes::Load(const char16_t* entryName, s3dFilePak* filePak)
 {
     return texture.LoadStx(entryName, filePak);
 }

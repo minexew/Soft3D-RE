@@ -43,23 +43,23 @@ void ReadTransform(std::array<int32_t, 6>& transform, const uint8_t*& input)
 
 } // namespace
 
-int Animation::Load(const char16_t* entryName, s3dFilePak* filePak)
+result Animation::Load(const char16_t* entryName, s3dFilePak* filePak)
 {
-    int status = filePak->Select(entryName);
-    if (status != 0) {
+    result status = filePak->Select(entryName);
+    if (status != S3D_OK) {
         S3D_LOG(log, u"Load Animation %s: can't find!\n", entryName);
         return status;
     }
     filePak->Seek(0, SEEK_END);
     int32_t bytes = filePak->Tell();
-    if (bytes == -1) {
+    if (bytes == S3D_EOF) {
         S3D_LOG(log, u"Load Animation %s: ftell return EOF!\n", entryName);
-        return 8;
+        return S3D_UNKNOWN;
     }
     void* data = std::malloc(static_cast<size_t>(bytes));
     if (data == nullptr) {
         S3D_LOG(log, u"Load Animation %s: memory out!\n", entryName);
-        return 4;
+        return S3D_MEMORY;
     }
     filePak->Seek(0, SEEK_SET);
     filePak->Read(data, bytes);
@@ -68,7 +68,7 @@ int Animation::Load(const char16_t* entryName, s3dFilePak* filePak)
     return status;
 }
 
-int Animation::ParseSai(const void* data)
+result Animation::ParseSai(const void* data)
 {
     tracks.clear();
     morphs.clear();
@@ -137,7 +137,7 @@ int Animation::ParseSai(const void* data)
             morphFrameCount = 0;
         }
     }
-    return 0;
+    return S3D_OK;
 }
 
 uint32_t Animation::GetHeader0() const { return header0; }

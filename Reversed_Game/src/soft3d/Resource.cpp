@@ -48,8 +48,8 @@ void Resource::SetEngine(Engine* value)
     s3dBase::SetEngine(value);
 }
 
-int Resource::Initialize(const char16_t* name, const char16_t* pathPrefix,
-                         s3dFilePak* filePak)
+result Resource::Initialize(const char16_t* name, const char16_t* pathPrefix,
+                            s3dFilePak* filePak)
 {
     CopyString(directory, pathPrefix);
     CopyString(fileName, name);

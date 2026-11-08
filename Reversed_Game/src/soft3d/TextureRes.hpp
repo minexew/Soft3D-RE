@@ -10,7 +10,7 @@ public:
     TextureRes() = default;
 
     void SetEngine(Engine* engine) override;
-    int Load(const char16_t* entryName, s3dFilePak* filePak) override;
+    result Load(const char16_t* entryName, s3dFilePak* filePak) override;
     Texture* GetTexture();
     const Texture* GetTexture() const;
 

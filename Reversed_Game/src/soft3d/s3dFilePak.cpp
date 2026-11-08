@@ -46,7 +46,7 @@ s3dFilePak::~s3dFilePak()
     Close();
 }
 
-int s3dFilePak::Open(const char16_t* fileName, uint32_t loadIntoMemory)
+result s3dFilePak::Open(const char16_t* fileName, uint32_t loadIntoMemory)
 {
     if (allocationBase != nullptr) {
         std::free(allocationBase);
@@ -60,13 +60,13 @@ int s3dFilePak::Open(const char16_t* fileName, uint32_t loadIntoMemory)
     } while (*fileName++ != u'\0');
 
     if (!file.Open(resolvedPath.data(), u"rb")) {
-        return EFP_OPEN;
+        return S3D_FILE;
     }
 
     file.Seek(0, SEEK_END);
     archiveSize = file.Tell();
-    if (archiveSize == EFP_SEEK) {
-        return EFP_IOERR;
+    if (archiveSize == static_cast<uint32_t>(S3D_EOF)) {
+        return S3D_UNKNOWN;
     }
 
     memoryResident = loadIntoMemory;
@@ -81,7 +81,7 @@ int s3dFilePak::Open(const char16_t* fileName, uint32_t loadIntoMemory)
         allocationBase = static_cast<uint8_t*>(std::malloc(archiveSize));
         if (allocationBase == nullptr) {
             file.Close();
-            return EFP_NOMEM;
+            return S3D_MEMORY;
         }
         file.Read(allocationBase, archiveSize);
         file.Close();
@@ -90,7 +90,7 @@ int s3dFilePak::Open(const char16_t* fileName, uint32_t loadIntoMemory)
     }
 
     selectedEntryIndex = -1;
-    return EFP_SUCCESS;
+    return S3D_OK;
 }
 
 void s3dFilePak::Close()
@@ -104,10 +104,10 @@ void s3dFilePak::Close()
     entryCount = 0;
 }
 
-int s3dFilePak::Select(const char16_t* fileName)
+result s3dFilePak::Select(const char16_t* fileName)
 {
     if (allocationBase == nullptr) {
-        return EFP_NOENT;
+        return S3D_ACCESS;
     }
 
     selectedEntryIndex = -1;
@@ -138,7 +138,7 @@ int s3dFilePak::Select(const char16_t* fileName)
     }
 
     if (selectedEntryIndex < 0) {
-        return EFP_NOENT;
+        return S3D_ACCESS;
     }
 
     selectedEntryStart = allocationBase + EntryOffset(selected);
@@ -148,13 +148,13 @@ int s3dFilePak::Select(const char16_t* fileName)
         selectedEntryEnd = allocationBase + EntryOffset(selected + 1);
     }
     currentPosition = selectedEntryStart;
-    return EFP_SUCCESS;
+    return S3D_OK;
 }
 
-int s3dFilePak::Seek(int32_t offset, int whence)
+result s3dFilePak::Seek(int32_t offset, int whence)
 {
     if (selectedEntryIndex == -1) {
-        return EFP_NOENT;
+        return S3D_ACCESS;
     }
 
     if (whence == SEEK_SET) {
@@ -172,21 +172,21 @@ int s3dFilePak::Seek(int32_t offset, int whence)
     if (selectedEntryEnd < currentPosition) {
         currentPosition = selectedEntryEnd;
     }
-    return EFP_SUCCESS;
+    return S3D_OK;
 }
 
 int s3dFilePak::Tell() const
 {
     if (selectedEntryIndex == -1) {
-        return EFP_SEEK;
+        return S3D_EOF;
     }
     return static_cast<int>(currentPosition - selectedEntryStart);
 }
 
-int s3dFilePak::Read(void* destination, int32_t requestedBytes)
+result s3dFilePak::Read(void* destination, int32_t requestedBytes)
 {
     if (selectedEntryIndex == -1) {
-        return EFP_NOENT;
+        return S3D_ACCESS;
     }
 
     int32_t bytesToRead = requestedBytes;
@@ -204,7 +204,7 @@ int s3dFilePak::Read(void* destination, int32_t requestedBytes)
         std::memcpy(destination, currentPosition, static_cast<size_t>(bytesToRead));
     }
     currentPosition += bytesToRead;
-    return EFP_SUCCESS;
+    return S3D_OK;
 }
 
 int s3dFilePak::GetEntryCount() const

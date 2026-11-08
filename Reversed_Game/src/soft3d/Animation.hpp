@@ -40,8 +40,8 @@ class Animation : public Resource {
 public:
     Animation() = default;
 
-    int Load(const char16_t* entryName, s3dFilePak* filePak) override;
-    int ParseSai(const void* data);
+    result Load(const char16_t* entryName, s3dFilePak* filePak) override;
+    result ParseSai(const void* data);
 
     uint32_t GetHeader0() const;
     uint32_t GetHeader1() const;

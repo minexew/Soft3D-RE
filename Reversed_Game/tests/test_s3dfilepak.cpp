@@ -16,7 +16,7 @@
 
 namespace {
 
-using soft3d::s3dFilePak;
+using namespace soft3d;
 
 void Check(bool condition, int line)
 {
@@ -127,14 +127,14 @@ void TestInitialStateAndOpenFailure()
     s3dFilePak archive;
     std::array<uint8_t, 4> output{};
     CHECK(archive.GetEntryCount() == 0);
-    CHECK(archive.Tell() == -1);
-    CHECK(archive.Select(u"") == 5);
-    CHECK(archive.Seek(0, SEEK_SET) == 5);
-    CHECK(archive.Read(output.data(), 1) == 5);
+    CHECK(archive.Tell() == S3D_EOF);
+    CHECK(archive.Select(u"") == S3D_ACCESS);
+    CHECK(archive.Seek(0, SEEK_SET) == S3D_ACCESS);
+    CHECK(archive.Read(output.data(), 1) == S3D_ACCESS);
 
     const std::u16string missing = Wide(
         (std::filesystem::temp_directory_path() / "soft3d-no-such-archive.spk").string());
-    CHECK(archive.Open(missing.c_str(), 0) == 3);
+    CHECK(archive.Open(missing.c_str(), 0) == S3D_FILE);
     CHECK(archive.GetEntryCount() == 0);
 }
 
@@ -143,52 +143,52 @@ void TestStandardArchive(uint32_t memoryResident)
     TempArchive file(MakeArchive(standardEntries));
     const std::u16string path = file.path.u16string();
     s3dFilePak archive;
-    CHECK(archive.Open(path.c_str(), memoryResident) == 0);
+    CHECK(archive.Open(path.c_str(), memoryResident) == S3D_OK);
     CHECK(archive.GetEntryCount() == 3);
-    CHECK(archive.Tell() == -1);
+    CHECK(archive.Tell() == S3D_EOF);
 
-    CHECK(archive.Select(Wide(".\\a.txt").c_str()) == 0);
+    CHECK(archive.Select(Wide(".\\a.txt").c_str()) == S3D_OK);
     CHECK(archive.Tell() == 0);
     std::array<uint8_t, 4> output{};
-    CHECK(archive.Read(output.data(), output.size()) == 0);
+    CHECK(archive.Read(output.data(), output.size()) == S3D_OK);
     CHECK(std::equal(output.begin(), output.end(), standardEntries[0].data.begin()));
     CHECK(archive.Tell() == 4);
 
-    CHECK(archive.Seek(-100, SEEK_SET) == 0);
+    CHECK(archive.Seek(-100, SEEK_SET) == S3D_OK);
     CHECK(archive.Tell() == 0);
-    CHECK(archive.Seek(100, SEEK_CUR) == 0);
+    CHECK(archive.Seek(100, SEEK_CUR) == S3D_OK);
     CHECK(archive.Tell() == 4);
-    CHECK(archive.Seek(-2, SEEK_END) == 0);
+    CHECK(archive.Seek(-2, SEEK_END) == S3D_OK);
     CHECK(archive.Tell() == 2);
-    CHECK(archive.Seek(0, 99) == 0);
+    CHECK(archive.Seek(0, 99) == S3D_OK);
     CHECK(archive.Tell() == 2);
     std::array<uint8_t, 2> tail{};
-    CHECK(archive.Read(tail.data(), tail.size()) == 0);
+    CHECK(archive.Read(tail.data(), tail.size()) == S3D_OK);
     CHECK(tail[0] == 0x12 && tail[1] == 0x13);
 
-    CHECK(archive.Select(Wide(".\\b.bin").c_str()) == 0);
+    CHECK(archive.Select(Wide(".\\b.bin").c_str()) == S3D_OK);
     std::array<uint8_t, 2> second{};
-    CHECK(archive.Read(second.data(), second.size()) == 0);
+    CHECK(archive.Read(second.data(), second.size()) == S3D_OK);
     CHECK(std::equal(second.begin(), second.end(), standardEntries[1].data.begin()));
 
-    CHECK(archive.Select(Wide(".\\last.dat").c_str()) == 0);
+    CHECK(archive.Select(Wide(".\\last.dat").c_str()) == S3D_OK);
     std::array<uint8_t, 3> last{};
-    CHECK(archive.Read(last.data(), last.size()) == 0);
+    CHECK(archive.Read(last.data(), last.size()) == S3D_OK);
     CHECK(std::equal(last.begin(), last.end(), standardEntries[2].data.begin()));
 
-    CHECK(archive.Select(Wide(".\\A.txt").c_str()) == 5);
-    CHECK(archive.Tell() == -1);
-    CHECK(archive.Select(Wide(".\\missing").c_str()) == 5);
-    CHECK(archive.Seek(0, SEEK_SET) == 5);
+    CHECK(archive.Select(Wide(".\\A.txt").c_str()) == S3D_ACCESS);
+    CHECK(archive.Tell() == S3D_EOF);
+    CHECK(archive.Select(Wide(".\\missing").c_str()) == S3D_ACCESS);
+    CHECK(archive.Seek(0, SEEK_SET) == S3D_ACCESS);
 
     archive.Close();
     CHECK(archive.GetEntryCount() == 0);
-    CHECK(archive.Tell() == -1);
+    CHECK(archive.Tell() == S3D_EOF);
     archive.Close();
 
-    CHECK(archive.Open(path.c_str(), memoryResident) == 0);
+    CHECK(archive.Open(path.c_str(), memoryResident) == S3D_OK);
     CHECK(archive.GetEntryCount() == 3);
-    CHECK(archive.Select(Wide(".\\a.txt").c_str()) == 0);
+    CHECK(archive.Select(Wide(".\\a.txt").c_str()) == S3D_OK);
 }
 
 void TestReadBoundaryBug(uint32_t memoryResident)
@@ -199,19 +199,19 @@ void TestReadBoundaryBug(uint32_t memoryResident)
     };
     TempArchive file(MakeArchive(entries));
     s3dFilePak archive;
-    CHECK(archive.Open(file.path.u16string().c_str(), memoryResident) == 0);
-    CHECK(archive.Select(u".\\a") == 0);
+    CHECK(archive.Open(file.path.u16string().c_str(), memoryResident) == S3D_OK);
+    CHECK(archive.Select(u".\\a") == S3D_OK);
 
-    CHECK(archive.Seek(0, SEEK_END) == 0);
+    CHECK(archive.Seek(0, SEEK_END) == S3D_OK);
     std::array<uint8_t, 2> output{0xcc, 0xcc};
-    CHECK(archive.Read(output.data(), 1) == 0);
+    CHECK(archive.Read(output.data(), 1) == S3D_OK);
     CHECK(output[0] == 0x51);
     CHECK(output[1] == 0xcc);
     CHECK(archive.Tell() == 3);
 
-    CHECK(archive.Seek(-1, SEEK_END) == 0);
+    CHECK(archive.Seek(-1, SEEK_END) == S3D_OK);
     output = {0xcc, 0xcc};
-    CHECK(archive.Read(output.data(), 2) == 0);
+    CHECK(archive.Read(output.data(), 2) == S3D_OK);
     CHECK(output[0] == 0x42);
     CHECK(output[1] == 0x51);
     CHECK(archive.Tell() == 3);
@@ -231,10 +231,10 @@ std::vector<uint8_t> ReadFileBytes(const std::filesystem::path& path, uint32_t o
 void CheckRealEntry(s3dFilePak& archive, const std::filesystem::path& path,
                     const std::string& name, uint32_t offset, size_t size)
 {
-    CHECK(archive.Select(Wide(name).c_str()) == 0);
+    CHECK(archive.Select(Wide(name).c_str()) == S3D_OK);
     const size_t readSize = std::min<size_t>(size, 256);
     std::vector<uint8_t> actual(readSize);
-    CHECK(archive.Read(actual.data(), static_cast<int32_t>(actual.size())) == 0);
+    CHECK(archive.Read(actual.data(), static_cast<int32_t>(actual.size())) == S3D_OK);
     CHECK(actual == ReadFileBytes(path, offset, readSize));
     CHECK(archive.Tell() == static_cast<int>(readSize));
 }
@@ -258,7 +258,7 @@ void TestRealArchive(uint32_t memoryResident)
     const uint32_t archiveSize = static_cast<uint32_t>(std::filesystem::file_size(path));
 
     s3dFilePak archive;
-    CHECK(archive.Open(path.u16string().c_str(), memoryResident) == 0);
+    CHECK(archive.Open(path.u16string().c_str(), memoryResident) == S3D_OK);
     CHECK(archive.GetEntryCount() == count);
     CheckRealEntry(archive, path, ".\\audio\\7DaysPiano03.sau", 0x3726a, 512);
     CheckRealEntry(archive, path, lastName, lastOffset, archiveSize - lastOffset);

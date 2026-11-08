@@ -11,7 +11,7 @@ public:
     AudioData();
     ~AudioData() override;
 
-    int Load(const char16_t* entryName, s3dFilePak* filePak) override;
+    result Load(const char16_t* entryName, s3dFilePak* filePak) override;
     uint32_t GetPcmSampleCount() const;
     int16_t* GetPcmBuffer() const;
 

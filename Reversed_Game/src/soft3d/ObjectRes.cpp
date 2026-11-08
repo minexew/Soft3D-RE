@@ -17,7 +17,7 @@ uint32_t Read32(const uint8_t*& input)
     return value;
 }
 
-int ParseObject(SojObject& object, const uint8_t*& input)
+result ParseObject(SojObject& object, const uint8_t*& input)
 {
     object.unknown00 = static_cast<int32_t>(Read32(input));
     object.unknown04 = static_cast<int32_t>(Read32(input));
@@ -47,10 +47,10 @@ int ParseObject(SojObject& object, const uint8_t*& input)
     } else {
         object.primitiveType = 3;
     }
-    return 0;
+    return S3D_OK;
 }
 
-int ParseVertices(SojVertices& vertices, const uint8_t*& input)
+result ParseVertices(SojVertices& vertices, const uint8_t*& input)
 {
     vertices.format = Read32(input);
     vertices.count = Read32(input);
@@ -59,27 +59,27 @@ int ParseVertices(SojVertices& vertices, const uint8_t*& input)
     vertices.data.assign(input, input + vertices.byteSize);
     input += vertices.byteSize & 0xfffffffc;
     vertices.count >>= 2;
-    return 0;
+    return S3D_OK;
 }
 
-int ParseIndices(SojIndices& indices, const uint8_t*& input)
+result ParseIndices(SojIndices& indices, const uint8_t*& input)
 {
     indices.format = Read32(input);
     indices.byteSize = Read32(input);
     indices.data.assign(input, input + indices.byteSize);
     input += indices.byteSize & 0xfffffffc;
-    return 0;
+    return S3D_OK;
 }
 
-int ParseSurface(SojSurface& surface, const uint8_t*& input)
+result ParseSurface(SojSurface& surface, const uint8_t*& input)
 {
     surface.unknown00 = Read32(input);
     surface.primitiveType = Read32(input);
     surface.primitiveCount = Read32(input);
-    int status = ParseVertices(surface.vertices, input);
-    if (status == 0) {
+    result status = ParseVertices(surface.vertices, input);
+    if (status == S3D_OK) {
         status = ParseIndices(surface.indices, input);
-        if (status == 0) {
+        if (status == S3D_OK) {
             surface.indexCount = surface.primitiveType == 4
                                      ? surface.primitiveCount * 3
                                      : surface.primitiveCount + 2;
@@ -90,21 +90,21 @@ int ParseSurface(SojSurface& surface, const uint8_t*& input)
 
 } // namespace
 
-int ObjectRes::Load(const char16_t* entryName, s3dFilePak* filePak)
+result ObjectRes::Load(const char16_t* entryName, s3dFilePak* filePak)
 {
-    int status = filePak->Select(entryName);
-    if (status != 0) {
+    result status = filePak->Select(entryName);
+    if (status != S3D_OK) {
         S3D_LOG(log, u"file %s not found!\n", entryName);
-        return 3;
+        return S3D_FILE;
     }
     filePak->Seek(0, SEEK_END);
     int32_t bytes = filePak->Tell();
-    if (bytes == -1) {
-        return 8;
+    if (bytes == S3D_EOF) {
+        return S3D_UNKNOWN;
     }
     void* data = std::malloc(static_cast<size_t>(bytes));
     if (data == nullptr) {
-        return 4;
+        return S3D_MEMORY;
     }
     filePak->Seek(0, SEEK_SET);
     filePak->Read(data, bytes);
@@ -113,7 +113,7 @@ int ObjectRes::Load(const char16_t* entryName, s3dFilePak* filePak)
     return status;
 }
 
-int ObjectRes::ParseSoj(const void* data)
+result ObjectRes::ParseSoj(const void* data)
 {
     objects.clear();
     surfaces.clear();
@@ -122,11 +122,11 @@ int ObjectRes::ParseSoj(const void* data)
     if (objectCount != 0) {
         objects.resize(objectCount);
         for (uint32_t i = 0; i < objectCount; ++i) {
-            if (ParseObject(objects[i], input) != 0) {
+            if (ParseObject(objects[i], input) != S3D_OK) {
                 S3D_LOG(log, u"Object::LoadFromMemory: failed 1!\n");
                 objects.clear();
                 surfaces.clear();
-                return 6;
+                return S3D_FORMAT;
             }
         }
     }
@@ -147,7 +147,7 @@ int ObjectRes::ParseSoj(const void* data)
         objects.clear();
         surfaces.clear();
     }
-    return 0;
+    return S3D_OK;
 }
 
 uint32_t ObjectRes::GetObjectCount() const { return objectCount; }
