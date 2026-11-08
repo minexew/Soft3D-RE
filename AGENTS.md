@@ -61,3 +61,7 @@ For research tools without automated tests, verification means running the tool 
 
 - `Releases/` and `Leaked_*` contain proprietary third-party binaries and documents preserved for research. Do not execute the Windows executables on sensitive systems, do not redistribute modified copies, and do not delete or "deduplicate" them.
 - Do not commit large extracted game assets; `.gitignore` excludes `__pycache__/`, `Thumbs.db`, and `Reversed_Game/build/` — check `git status` before committing and leave generated outputs (extracted resources, decoded WAVs, build directories) out.
+
+## Notes for Ghidra MCP Usage
+
+- Ghidra will likely be run with inline scripting disabled, so for bulk changes and batch operations prefer running Python scripts that are directly calling into MCP server via REST API over using inline script tool.
