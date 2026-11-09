@@ -28,7 +28,7 @@ int CompareNames(const char* left, const char* right)
 uint32_t EntryOffset(const PakEntry* entry)
 {
     uint32_t offset;
-    std::memcpy(&offset, reinterpret_cast<const uint8_t*>(entry) + 64, sizeof(offset));
+    std::memcpy(&offset, reinterpret_cast<const uint8_t*>(entry) + pakPathBytes, sizeof(offset));
     return offset;
 }
 
@@ -73,7 +73,7 @@ result s3dFilePak::Open(const char16_t* fileName, uint32_t loadIntoMemory)
     file.Seek(0, SEEK_SET);
     if (memoryResident == 0) {
         file.Read(&entryCount, 2, 1);
-        int32_t tableBytes = static_cast<int32_t>(entryCount) * 0x44;
+        int32_t tableBytes = static_cast<int32_t>(entryCount) * pakEntryBytes;
         allocationBase = static_cast<uint8_t*>(std::malloc(static_cast<size_t>(tableBytes)));
         file.Read(allocationBase, static_cast<uint32_t>(tableBytes));
         entryTable = reinterpret_cast<PakEntry*>(allocationBase);
@@ -113,7 +113,7 @@ result s3dFilePak::Select(const char16_t* fileName)
     selectedEntryIndex = -1;
     int32_t low = 0;
     int32_t high = static_cast<int32_t>(entryCount) - 1;
-    std::array<char, 64> name;
+    std::array<char, pakPathBytes> name;
     char* output = name.data();
     for (; *fileName != u'\0'; ++fileName, ++output) {
         *output = static_cast<char>(*fileName);
@@ -124,7 +124,7 @@ result s3dFilePak::Select(const char16_t* fileName)
     while (low <= high) {
         int32_t middle = (low + high) >> 1;
         selected = reinterpret_cast<PakEntry*>(reinterpret_cast<uint8_t*>(entryTable)
-                                               + middle * 0x44);
+                                               + middle * pakEntryBytes);
         int comparison = CompareNames(selected->name, name.data());
         if (comparison == 0) {
             selectedEntryIndex = static_cast<int16_t>(middle);

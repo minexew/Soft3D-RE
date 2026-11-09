@@ -6,6 +6,7 @@
 
 |  | File extension | Platform(s) | Notes & open questions |
 |--|----------------|-------------|------------------------|
+|✔️|SPK|Chinese and English variants|resource archives; 64-byte and 32-byte path layouts documented in `Reverse_Docs/filepak_api.md`
 |✔️|S3DTEX||images/textures, well-understood
 |❌|S3DSTY||
 |🔧|SAI||<p>3D model animations, mostly understood</p><ul><li>Fixed-point transform tracks, bounds, morph targets, timing, and interpolation documented in `Reverse_Docs/soft3d_models_animations.md`</li></ul>

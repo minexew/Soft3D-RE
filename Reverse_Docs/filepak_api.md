@@ -41,6 +41,32 @@ Validation of `SymbianBin/res.spk` confirms:
 
 The entry paths in this archive look like `.\audio\7DaysPiano03.sau`.
 
+## English and Chinese entry layouts
+
+`Tools/extractspk.py` documents a second, smaller record layout used for English archives:
+
+| Variant | Path area | Offset | Record size | C++ constants |
+|---|---:|---:|---:|---|
+| Chinese (default) | 64 bytes | 4 bytes | `0x44` (68) | `pakPathBytes = 64`, `pakEntryBytes = 68` |
+| English | 32 bytes | 4 bytes | `0x24` (36) | `pakPathBytes = 32`, `pakEntryBytes = 36` |
+
+The entry count, little-endian absolute payload offsets, binary-search lookup, and payload-size derivation are shared. There is no runtime format marker or auto-detection in the original parser.
+
+The Python code's extra `fo.read(1)` for Chinese archives is not evidence of a separate binary prefix field. In the real archive the first path byte is `'.'`; skipping it removes the root marker before the C-string read. The subsequent padding calculations (`31 - length` for English and `62 - length` for Chinese) produce the 32- and 64-byte path areas respectively.
+
+No English archive is currently available for direct comparison. The layout difference may reflect packaging-tool versions or a need for longer paths, but a language/encoding-specific reason is **not established** by the code. The examined Symbian 3rd binary only implements the 68-byte Chinese layout.
+
+The reconstruction retains Chinese layout by default. English support is selected at configure time:
+
+```sh
+cmake -S Reversed_Game -B Reversed_Game/build/eng-spk \
+    -DSOFT3D_SPK_ENGLISH_LAYOUT=ON -DSOFT3D_BUILD_APP=OFF
+cmake --build Reversed_Game/build/eng-spk --parallel
+ctest --test-dir Reversed_Game/build/eng-spk --output-on-failure
+```
+
+`SOFT3D_SPK_ENGLISH_LAYOUT` is a public compile definition for the `soft3d` target and its tests. The reader uses the shared constants for table allocation, record traversal, offset access, and name conversion instead of hardcoded `0x44`/`64` values. Tests generate the active layout and verify both streaming and memory-resident reads. Real Chinese archive tests are explicitly skipped in the English configuration.
+
 ## Class layout
 
 `s3dFilePak` inherits directly from `s3dBase`. It also owns an `s3dIO` file member at `+0x08` and an `s3dLog` member at `+0x34`; these are members, not additional RTTI bases. The unknown word formerly recorded at `+0x10` is the `s3dIO` platform-file pointer.
@@ -244,7 +270,7 @@ The normal game resource path uses streaming mode. Memory-resident support is pr
 
 The reconstructed classes live in `Reversed_Game/src/soft3d/`: `s3dBase.*`, `s3dIO.*`, `s3dLog.*`, and `s3dFilePak.*`. The Linux file counterpart is in `Reversed_Game/src/platform/linux/File.*`; it accepts the original UTF-16-style path/mode arguments, converts them bytewise, and maps backslashes to POSIX separators.
 
-`Reversed_Game/tests/test_s3dfilepak.cpp` covers construction, open failures, selection, case-sensitive lookup, seeking/clamping, telling, reading, closing/reopening, both storage modes, and the intentional boundary overread. It also reads the real 3,322-entry `Reversed_Game/src/resources/res.spk` in both modes. Build and run with:
+`Reversed_Game/tests/test_s3dfilepak.cpp` covers construction, open failures, selection, case-sensitive lookup, seeking/clamping, telling, reading, closing/reopening, both storage modes, selected layout constants/synthetic archive sizes, and the intentional boundary overread. The default build also reads the real 3,322-entry `Reversed_Game/src/resources/res.spk` in both modes. Build and run with:
 
 ```sh
 cmake -S Reversed_Game -B Reversed_Game/build

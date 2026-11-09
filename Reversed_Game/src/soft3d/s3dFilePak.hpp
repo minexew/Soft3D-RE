@@ -9,12 +9,19 @@
 
 namespace soft3d {
 
+#ifdef SOFT3D_SPK_ENGLISH_LAYOUT
+inline constexpr uint32_t pakPathBytes = 32;
+#else
+inline constexpr uint32_t pakPathBytes = 64;
+#endif
+inline constexpr uint32_t pakEntryBytes = pakPathBytes + sizeof(uint32_t);
+
 struct PakEntry {
-    char name[64];
+    char name[pakPathBytes];
     uint32_t dataOffset;
 };
 
-static_assert(sizeof(PakEntry) == 0x44);
+static_assert(sizeof(PakEntry) == pakEntryBytes);
 
 class s3dFilePak : public s3dBase {
 public:

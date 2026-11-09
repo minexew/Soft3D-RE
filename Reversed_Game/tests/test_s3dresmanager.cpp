@@ -45,11 +45,11 @@ struct EntrySpec {
 
 std::vector<uint8_t> MakeArchive(const std::vector<EntrySpec>& entries)
 {
-    uint32_t nextOffset = static_cast<uint32_t>(2 + entries.size() * 0x44);
+    uint32_t nextOffset = static_cast<uint32_t>(2 + entries.size() * soft3d::pakEntryBytes);
     std::vector<uint8_t> bytes;
     Append16(bytes, static_cast<uint16_t>(entries.size()));
     for (const EntrySpec& entry : entries) {
-        std::array<char, 64> name{};
+        std::array<char, soft3d::pakPathBytes> name{};
         std::copy(entry.name.begin(), entry.name.end(), name.begin());
         bytes.insert(bytes.end(), name.begin(), name.end());
         Append32(bytes, nextOffset);
@@ -254,6 +254,10 @@ void TestSyntheticResourcesAndCache()
 
 void TestRealArchive()
 {
+#ifdef SOFT3D_SPK_ENGLISH_LAYOUT
+    std::cout << "SKIP: real archive uses the Chinese layout\n";
+    return;
+#else
     soft3d::s3dResManager manager;
     manager.GetFilePak()->Open(std::filesystem::path(SOFT3D_TEST_ARCHIVE).u16string().c_str(), 0);
     CHECK(manager.GetFilePak()->GetEntryCount() == 3322);
@@ -279,6 +283,7 @@ void TestRealArchive()
         manager.GetResource(soft3d::ResourceAnimation, 0, u"cg_bully_cc_aa"));
     CHECK(animation != nullptr);
     CHECK(animation->GetTrackCount() > 0);
+#endif
 }
 
 void TestDecoderNibbleOrder()

@@ -45,6 +45,11 @@ option(SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER
 if(SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER)
     target_compile_definitions(soft3d PUBLIC SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER)
 endif()
+option(SOFT3D_SPK_ENGLISH_LAYOUT
+    "Use 32-byte-path English SPK entries instead of 64-byte-path Chinese entries" OFF)
+if(SOFT3D_SPK_ENGLISH_LAYOUT)
+    target_compile_definitions(soft3d PUBLIC SOFT3D_SPK_ENGLISH_LAYOUT=1)
+endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(soft3d PRIVATE -Wall -Wextra -Wpedantic)

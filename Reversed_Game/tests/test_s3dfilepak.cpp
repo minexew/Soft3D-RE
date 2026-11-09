@@ -56,12 +56,12 @@ struct EntrySpec {
 
 std::vector<uint8_t> MakeArchive(const std::vector<EntrySpec>& entries)
 {
-    uint32_t nextOffset = static_cast<uint32_t>(2 + entries.size() * 0x44);
+    uint32_t nextOffset = static_cast<uint32_t>(2 + entries.size() * pakEntryBytes);
     std::vector<uint8_t> bytes;
     Append16(bytes, static_cast<uint16_t>(entries.size()));
     for (const EntrySpec& entry : entries) {
-        CHECK(entry.name.size() < 64);
-        std::array<char, 64> name{};
+        CHECK(entry.name.size() < pakPathBytes);
+        std::array<char, pakPathBytes> name{};
         std::copy(entry.name.begin(), entry.name.end(), name.begin());
         bytes.insert(bytes.end(), name.begin(), name.end());
         Append32(bytes, nextOffset);
@@ -217,6 +217,7 @@ void TestReadBoundaryBug(uint32_t memoryResident)
     CHECK(archive.Tell() == 3);
 }
 
+#ifndef SOFT3D_SPK_ENGLISH_LAYOUT
 std::vector<uint8_t> ReadFileBytes(const std::filesystem::path& path, uint32_t offset,
                                    size_t size)
 {
@@ -227,7 +228,9 @@ std::vector<uint8_t> ReadFileBytes(const std::filesystem::path& path, uint32_t o
     CHECK(input.good());
     return bytes;
 }
+#endif
 
+#ifndef SOFT3D_SPK_ENGLISH_LAYOUT
 void CheckRealEntry(s3dFilePak& archive, const std::filesystem::path& path,
                     const std::string& name, uint32_t offset, size_t size)
 {
@@ -238,9 +241,15 @@ void CheckRealEntry(s3dFilePak& archive, const std::filesystem::path& path,
     CHECK(actual == ReadFileBytes(path, offset, readSize));
     CHECK(archive.Tell() == static_cast<int>(readSize));
 }
+#endif
 
 void TestRealArchive(uint32_t memoryResident)
 {
+#ifdef SOFT3D_SPK_ENGLISH_LAYOUT
+    (void)memoryResident;
+    std::cout << "SKIP: real archive uses the Chinese layout\n";
+    return;
+#else
     const std::filesystem::path path = SOFT3D_TEST_ARCHIVE;
     CHECK(std::filesystem::exists(path));
     std::ifstream input(path, std::ios::binary);
@@ -248,13 +257,13 @@ void TestRealArchive(uint32_t memoryResident)
     input.read(reinterpret_cast<char*>(&count), sizeof(count));
     CHECK(count == 3322);
 
-    std::array<char, 68> lastRecord{};
-    input.seekg(2 + (static_cast<std::streamoff>(count) - 1) * 0x44);
+    std::array<char, pakEntryBytes> lastRecord{};
+    input.seekg(2 + (static_cast<std::streamoff>(count) - 1) * pakEntryBytes);
     input.read(lastRecord.data(), lastRecord.size());
     CHECK(input.good());
     const std::string lastName(lastRecord.data());
     uint32_t lastOffset;
-    std::memcpy(&lastOffset, lastRecord.data() + 64, sizeof(lastOffset));
+    std::memcpy(&lastOffset, lastRecord.data() + pakPathBytes, sizeof(lastOffset));
     const uint32_t archiveSize = static_cast<uint32_t>(std::filesystem::file_size(path));
 
     s3dFilePak archive;
@@ -262,6 +271,24 @@ void TestRealArchive(uint32_t memoryResident)
     CHECK(archive.GetEntryCount() == count);
     CheckRealEntry(archive, path, ".\\audio\\7DaysPiano03.sau", 0x3726a, 512);
     CheckRealEntry(archive, path, lastName, lastOffset, archiveSize - lastOffset);
+#endif
+}
+
+void TestLayoutConstants()
+{
+#ifdef SOFT3D_SPK_ENGLISH_LAYOUT
+    CHECK(pakPathBytes == 32);
+    CHECK(pakEntryBytes == 36);
+#else
+    CHECK(pakPathBytes == 64);
+    CHECK(pakEntryBytes == 68);
+#endif
+    std::size_t payloadBytes = 0;
+    for (const EntrySpec& entry : standardEntries) {
+        payloadBytes += entry.data.size();
+    }
+    CHECK(MakeArchive(standardEntries).size() ==
+          2 + standardEntries.size() * pakEntryBytes + payloadBytes);
 }
 
 template <typename Test>
@@ -278,6 +305,7 @@ int main()
     try {
         Run("s3dBase and engine propagation", TestBase);
         Run("initial state and open failure", TestInitialStateAndOpenFailure);
+        Run("selected SPK layout", TestLayoutConstants);
         Run("streaming archive", [] { TestStandardArchive(0); });
         Run("memory-resident archive", [] { TestStandardArchive(1); });
         Run("streaming read boundary bug", [] { TestReadBoundaryBug(0); });
