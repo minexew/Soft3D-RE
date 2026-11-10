@@ -111,6 +111,14 @@ y = m[1]*x + m[5]*y + m[9]*z + m[13]
 z = m[2]*x + m[6]*y + m[10]*z + m[14]
 ```
 
+### Bone-local geometry is not a default pose
+
+A SOJ with matrix-indexed vertices is not necessarily in a meaningful global pose when viewed without SAI. `Object_UpdateMatrixPalette` fills the palette from sampled SAI matrices, and `Renderer_TransformVertex` directly transforms the raw vertex by `palette[matrixIndex]`. There is no additional inverse-bind matrix, T-pose correction, or hidden default-pose transform in this path.
+
+For example, `r_ken_a.soj` has 365 matrix-indexed vertices and `r_ken_run_a.sai` has 21 tracks. The raw per-bone vertex centers are clustered near the origin, so a raw `soj-to-obj` export looks collapsed or twisted. Sampling the SAI matrices distributes those vertices into a recognizable body. This is expected bone-local source geometry, not evidence of an exporter defect. Static models without matrix indices do not undergo this change.
+
+Use `sai-to-obj` to obtain a meaningful posed mesh. Raw `soj-to-obj` output for a skinned model should be treated as a local-space/debug view, not as an intended character posture.
+
 ## SAI top-level layout
 
 ```text
