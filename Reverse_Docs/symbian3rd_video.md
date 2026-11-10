@@ -125,6 +125,18 @@ destination = texturePixels + 4 * (y * textureWidth + x)
 
 It builds scanline state and invokes selected inner loops through function descriptors. This is a fixed-point, CPU triangle rasterizer; no GPU command submission appears in this path.
 
+`Raster_ComputeAttributeDeltas` (`0x000cdcb8`) computes affine UV deltas from screen-space edge geometry; no depth reciprocal appears in that calculation. `Raster_SetupEdge` (`0x000ce170`) and `Raster_EmitScanline` (`0x000ce27c`) maintain the scanline state.
+
+The indexed-texture inner loop `Raster_InnerLoopIndexedTexture` (`0x000b60c8`) addresses source pixels as:
+
+```text
+maxU = (textureWidth - 1) << 16
+maxV = (textureHeight - 1) << 16
+sourceOffset = ((v & maxV) << textureWidthShift) + ((u & maxU) >> 16)
+```
+
+Thus V selects the serialized texture row directly, with no vertical inversion. `Texture_GetPaletteEntry` (`0x000c8024`) reads the indexed color. `Tools/stx.py` likewise writes PNG rows in serialized top-to-bottom order. The portable `Raster.cpp` sampler also uses direct texture rows and must not flip V internally. Blender's OBJ texture origin differs, so the required `1 - v` conversion belongs in `sojconv.py`, not in the engine rasterizer.
+
 `BlitTexture` (`0x000d49c8`) clips source/destination rectangles, computes byte addresses using four bytes per pixel, and dispatches through a selected blitter. `SelectTextureBlitter` (`0x000d53c0`) chooses that function from format/state flags.
 
 `BasicShader_Render` (`0x000aec98`, formerly `ConvertRgb565To32Bit`) expands packed pixels with:

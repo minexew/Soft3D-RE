@@ -336,7 +336,7 @@ def write_mtl(model, path):
 
 
 def write_obj(model, output, mtl_path=None, positions=None, frame_time=None, morphs=None,
-              uv_normalized=False, raw_uv=None):
+              uv_normalized=False, raw_uv=None, v_flipped=True):
     vertices = [vertex for surface in model.surfaces for vertex in surface.vertices]
     if positions is not None and len(positions) != len(vertices):
         raise ValueError("Animated position count does not match model")
@@ -348,6 +348,7 @@ def write_obj(model, output, mtl_path=None, positions=None, frame_time=None, mor
     print("# s3d_bounds_min " + " ".join(str(value) for value in model.bounds_min), file=output)
     print("# s3d_bounds_max " + " ".join(str(value) for value in model.bounds_max), file=output)
     print("# s3d_uv normalized" if uv_normalized else "# s3d_uv texels", file=output)
+    print(f"# s3d_v_origin {'bottom' if uv_normalized and v_flipped else 'top'}", file=output)
     if frame_time is not None:
         print(f"# s3d_frame_time {frame_time}", file=output)
     if morphs:
@@ -411,7 +412,7 @@ def write_obj(model, output, mtl_path=None, positions=None, frame_time=None, mor
         normal_offset += sum(vertex.normal is not None for vertex in surface.vertices)
 
 
-def normalize_model_uv(model, texture_dir):
+def normalize_model_uv(model, texture_dir, flip_v=True):
     raw_uv = [vertex.uv for surface in model.surfaces for vertex in surface.vertices]
     for material in model.materials:
         if not material.texture_name:
@@ -430,18 +431,22 @@ def normalize_model_uv(model, texture_dir):
             if vertex.uv is not None:
                 vertex.uv = (round(vertex.uv[0] / material.texture_width),
                              round(vertex.uv[1] / material.texture_height))
+                if flip_v:
+                    vertex.uv = (vertex.uv[0], FIXED_ONE - vertex.uv[1])
     return raw_uv
 
 
-def convert_soj_to_obj(input_path, output_path, mtl_path=None, texture_dir=None, normalize_uv=True):
+def convert_soj_to_obj(input_path, output_path, mtl_path=None, texture_dir=None, normalize_uv=True,
+                       flip_v=True):
     model = Model.from_bytes(input_path.read_bytes())
-    raw_uv = normalize_model_uv(model, input_path.parent if texture_dir is None else texture_dir) \
-        if normalize_uv else None
+    raw_uv = normalize_model_uv(model, input_path.parent if texture_dir is None else texture_dir,
+                                flip_v) if normalize_uv else None
     if mtl_path is None:
         mtl_path = output_path.with_suffix(".mtl")
     write_mtl(model, mtl_path)
     with output_path.open("w", encoding="utf-8") as output:
-        write_obj(model, output, mtl_path, uv_normalized=normalize_uv, raw_uv=raw_uv)
+        write_obj(model, output, mtl_path, uv_normalized=normalize_uv, raw_uv=raw_uv,
+                  v_flipped=flip_v)
     return model
 
 
@@ -512,6 +517,7 @@ def read_obj(path):
     unknown138 = unknown13c = 0
     bounds_min = bounds_max = None
     uv_normalized = False
+    v_flipped = True
     mtl_path = None
 
     def start_surface(name):
@@ -538,6 +544,8 @@ def read_obj(path):
                 bounds_max = tuple(map(parse_int, args))
             elif key == "s3d_uv":
                 uv_normalized = args[0] == "normalized"
+            elif key == "s3d_v_origin":
+                v_flipped = args[0] == "bottom"
             elif key == "s3d_uv_raw":
                 raw_uvs[parse_int(args[0])] = (parse_int(args[1]), parse_int(args[2]))
             elif key == "s3d_color":
@@ -659,8 +667,9 @@ def read_obj(path):
                 raise ValueError("Normalized OBJ needs s3d_texture_size in its MTL")
             for vertex in vertices:
                 if vertex.uv is not None:
-                    vertex.uv = (round(vertex.uv[0] * material.texture_width / FIXED_ONE),
-                                 round(vertex.uv[1] * material.texture_height / FIXED_ONE))
+                    game_v = FIXED_ONE - vertex.uv[1] if v_flipped else vertex.uv[1]
+                    vertex.uv = (round(vertex.uv[0] * material.texture_width),
+                                 round(game_v * material.texture_height))
         result_surfaces.append(Surface(
             material_index, primitive_type, vertices, indices, vertex_format,
             stride_bytes, obj_surface.index_format, obj_surface.index_tail, obj_surface.name))
@@ -789,11 +798,11 @@ def transform_position(matrix, position):
 
 
 def convert_sai_to_obj(input_path, model_path, output_prefix, start=None, end=None,
-                       step=1, mtl_path=None, texture_dir=None, normalize_uv=True):
+                       step=1, mtl_path=None, texture_dir=None, normalize_uv=True, flip_v=True):
     animation = Animation.from_bytes(input_path.read_bytes())
     model = Model.from_bytes(model_path.read_bytes())
-    raw_uv = normalize_model_uv(model, model_path.parent if texture_dir is None else texture_dir) \
-        if normalize_uv else None
+    raw_uv = normalize_model_uv(model, model_path.parent if texture_dir is None else texture_dir,
+                                flip_v) if normalize_uv else None
     start = animation.start_time if start is None else start
     end = animation.end_time if end is None else end
     if step <= 0:
@@ -822,7 +831,7 @@ def convert_sai_to_obj(input_path, model_path, output_prefix, start=None, end=No
         frame_path = Path(f"{output_prefix}_{frame_index:08d}.obj")
         with frame_path.open("w", encoding="utf-8") as output:
             write_obj(model, output, mtl_path, positions, time, morphs,
-                      uv_normalized=normalize_uv, raw_uv=raw_uv)
+                      uv_normalized=normalize_uv, raw_uv=raw_uv, v_flipped=flip_v)
         written.append(frame_path)
     return written
 
@@ -841,6 +850,8 @@ def main():
                             help="Normalize UVs (default; retained for compatibility)")
     soj_parser.add_argument("--raw-uv", action="store_true",
                             help="Write fixed-point texel UVs instead of normalized UVs")
+    soj_parser.add_argument("--no-flip-v", action="store_true",
+                            help="Keep game/top-left V coordinates instead of Blender's bottom-left origin")
 
     obj_parser = subparsers.add_parser("obj-to-soj", help="Convert OBJ/MTL to SOJ")
     obj_parser.add_argument("input", type=Path)
@@ -857,17 +868,19 @@ def main():
     sai_parser.add_argument("--texture-dir", type=Path)
     sai_parser.add_argument("--raw-uv", action="store_true",
                             help="Write fixed-point texel UVs instead of normalized UVs")
+    sai_parser.add_argument("--no-flip-v", action="store_true",
+                            help="Keep game/top-left V coordinates instead of Blender's bottom-left origin")
 
     args = parser.parse_args()
     if args.command == "soj-to-obj":
         convert_soj_to_obj(args.input, args.output, args.mtl,
-                           args.texture_dir, not args.raw_uv)
+                           args.texture_dir, not args.raw_uv, not args.no_flip_v)
     elif args.command == "obj-to-soj":
         convert_obj_to_soj(args.input, args.output)
     else:
         frames = convert_sai_to_obj(args.input, args.model, args.output_prefix,
                                     args.start, args.end, args.step, args.mtl,
-                                    args.texture_dir, not args.raw_uv)
+                                    args.texture_dir, not args.raw_uv, not args.no_flip_v)
         print(f"Wrote {len(frames)} OBJ frames")
 
 

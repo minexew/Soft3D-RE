@@ -176,10 +176,30 @@ class SojConvTests(unittest.TestCase):
                                if line.startswith("vt "))
                 actual_uv = tuple(map(float, uv_line.split()[1:3]))
                 self.assertAlmostEqual(actual_uv[0], expected_uv[0], places=4)
-                self.assertAlmostEqual(actual_uv[1], expected_uv[1], places=4)
+                self.assertAlmostEqual(actual_uv[1], 1.0 - expected_uv[1], places=4)
                 self.assertIn("# s3d_uv normalized", text)
+                self.assertIn("# s3d_v_origin bottom", text)
                 self.assertIn("# s3d_uv_raw", text)
                 self.assertEqual(sojconv.read_obj(output).to_bytes(), original)
+
+                stripped = self.directory / f"case{index}_stripped.obj"
+                stripped.write_text("\n".join(line for line in text.splitlines()
+                                               if not line.startswith("# s3d_uv_raw")) + "\n",
+                                    encoding="utf-8")
+                stripped_model = sojconv.read_obj(stripped)
+                original_model = sojconv.Model.from_bytes(original)
+                for original_vertex, recovered_vertex in zip(
+                        original_model.surfaces[0].vertices, stripped_model.surfaces[0].vertices):
+                    self.assertLessEqual(abs(original_vertex.uv[0] - recovered_vertex.uv[0]), 32)
+                    self.assertLessEqual(abs(original_vertex.uv[1] - recovered_vertex.uv[1]), 32)
+
+                no_flip = self.directory / f"case{index}_top.obj"
+                sojconv.convert_soj_to_obj(source, no_flip, flip_v=False)
+                no_flip_line = next(line for line in no_flip.read_text(encoding="utf-8").splitlines()
+                                    if line.startswith("vt "))
+                no_flip_uv = tuple(map(float, no_flip_line.split()[1:3]))
+                self.assertAlmostEqual(no_flip_uv[1], expected_uv[1], places=4)
+                self.assertIn("# s3d_v_origin top", no_flip.read_text(encoding="utf-8"))
 
     @unittest.skipUnless(ARCHIVE.exists(), "reference SPK archive is unavailable")
     def test_real_resources(self):
@@ -194,6 +214,20 @@ class SojConvTests(unittest.TestCase):
         with obj.open("w", encoding="utf-8") as output:
             sojconv.write_obj(model, output, mtl)
         self.assertEqual(sojconv.read_obj(obj).to_bytes(), raw_model)
+
+        textured = next(material for material in model.materials if material.texture_name)
+        raw_texture = archive_resource(f".\\common\\{textured.texture_name}.stx")
+        width, height = struct.unpack_from("<II", raw_texture, 4)
+        (self.directory / f"{textured.texture_name}.png").write_bytes(
+            b"\x89PNG\r\n\x1a\n" + b"\x00\x00\x00\rIHDR" +
+            struct.pack(">II", width, height) + b"\x00\x00\x00\x00")
+        normalized_source = self.directory / "real_normalized.soj"
+        normalized_obj = self.directory / "real_normalized.obj"
+        normalized_source.write_bytes(raw_model)
+        sojconv.convert_soj_to_obj(normalized_source, normalized_obj)
+        self.assertIn("# s3d_v_origin bottom",
+                      normalized_obj.read_text(encoding="utf-8"))
+        self.assertEqual(sojconv.read_obj(normalized_obj).to_bytes(), raw_model)
 
         raw_animation = archive_resource(r".\common\cg_bully_cc_aa.sai")
         animation = sojconv.Animation.from_bytes(raw_animation)
