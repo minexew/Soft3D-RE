@@ -100,4 +100,4 @@ This is the current boundary between the identified Symbian startup boilerplate 
 3. Explicitly disassemble `0x80010` in Thumb mode; do not treat the entire image as ARM.
 4. Label the functions in the startup chain above.
 5. Examine `CSymbian3rdAppUi` at `0x138304` and the internal function pointers in its virtual table at `0x1A5C60`. Its construction and initialization methods are promising routes into game initialization.
-6. Use the original E32Image import directory to name imported functions. In `out.bin`, these calls currently appear as stubs containing ordinals, and `out.log` does not contain their DLL/name mappings.
+6. Use `symbian3rd_imports.tsv` for the resolved import inventory. It is derived from the original E32Image import directory and the SDK's ARMv5 DSO exports. For each import cell, the low 16 bits are the real DLL ordinal and the high 16 bits are the address adjustment; an import-list index is not an ordinal. Actual `LDR PC, [PC, #-4]` veneers are four bytes before their cells.

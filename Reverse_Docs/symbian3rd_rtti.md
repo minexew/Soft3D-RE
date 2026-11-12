@@ -17,14 +17,12 @@ The inheritance graph is acyclic. Every nonzero base offset in a multiple-inheri
 
 The import table contains the following RTTI-related facilities:
 
-- `__dynamic_cast`, with its import veneer at `0x00139cf4`;
-- `std::type_info`, `std::bad_cast`, and `std::bad_typeid` methods and RTTI objects;
-- `__cxxabiv1` class, single-inheritance, multiple-inheritance, pointer, function, and other type-info implementations;
-- exception support including `__cxa_throw`, `__cxa_begin_catch`, `__cxa_end_catch`, `__cxa_bad_cast`, and `__cxa_bad_typeid`;
-- 65 imported type-info objects: 10 `__cxxabiv1` runtime types, 17 fundamental types, 17 pointer types, 17 const-pointer types, three standard exception/type-info types, and `XLeaveException`;
-- 15 imported vtables associated with runtime type-info classes, standard exception/type-info classes, `XLeaveException`, and `CCommsDbConnectionPrefTableView`.
+- imported vtables for `__cxxabiv1::__class_type_info`, `__cxxabiv1::__si_class_type_info`, and `__cxxabiv1::__vmi_class_type_info`;
+- exception and runtime support including `__cxa_begin_catch`, `__cxa_end_catch`, `__cxa_pure_virtual`, `__cxa_call_unexpected`, `__cxa_call_terminate`, `__cxa_type_match`, `__cxa_begin_cleanup`, and `__cxa_end_cleanup`;
+- 14 imported type-info cells referencing six distinct types: `CActive`, `CBase`, `CCoeControl`, `CAknApplication`, `CAknDocument`, and `CAknAppUi`;
+- 165 imported vtable cells referencing seven distinct vtables: the three `__cxxabiv1` runtime types above, `CBase`, `CAknApplication`, `CAknDocument`, and `CAknAppUi`.
 
-There is a direct `__dynamic_cast` call at `0x000a4140` in `FUN_000a4090`. Its result is stored at object offset `+0x10` and then used through a virtual call. This demonstrates active RTTI use rather than unused runtime linkage.
+There is no `__dynamic_cast` import. The call at `0x000a4140` in `FUN_000a4090` targets `CMdaAudioOutputStream::NewL` through its veneer at `0x00139cf4`; it initializes an audio stream and is not an RTTI cast. Earlier claims about `__dynamic_cast`, standard exception RTTI imports, and larger imported-object inventories came from treating import-list indices as DLL ordinals.
 
 ## Binary layouts
 
