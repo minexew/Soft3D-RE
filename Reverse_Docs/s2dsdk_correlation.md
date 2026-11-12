@@ -218,7 +218,7 @@ The following ARM functions now have their SDK-validated names:
 | `0x000dc5a4` | `Font_GetCharWidth` |
 | `0x000dc688` | `Font_GetFontRes` |
 
-`VisString_AppendText` (`0x000de3f8`) and `VisString_AppendNumber` (`0x000de72c`) preserve S2D's coded-character representation: lowercase starts at 4, uppercase at 30, digits at 56, and punctuation uses the remaining codes. This independently agrees with `basefont.sbn_info.txt`.
+`VisString_AppendText` (`0x000de3f8`) and `VisString_AppendNumber` (`0x000de72c`) preserve S2D's coded-character representation: lowercase starts at 4, uppercase at 30, digits at 56, and punctuation uses the remaining codes. This independently agrees with `sbn_format.md`.
 
 ## FadeShader: conceptual lineage, incompatible implementation
 
