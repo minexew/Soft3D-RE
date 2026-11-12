@@ -24,24 +24,24 @@ void BasicShader::Render(const void* source, uint32_t* destination)
 {
     const uint16_t* input = static_cast<const uint16_t*>(source);
     if (enabled == 1) {
-        destination += static_cast<std::size_t>(width) * (height - 1);
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
+        destination += static_cast<std::size_t>(height) * (width - 1);
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
                 *destination = ExpandRgb565(*input);
                 input += 2;
-                destination -= width;
+                destination -= height;
             }
-            destination += width * height + 1;
+            destination += height * width + 1;
         }
     } else {
-        --destination;
-        for (int x = 0; x < width; ++x) {
-            for (int y = 0; y < height; ++y) {
+        destination += height - 1;
+        for (int y = 0; y < height; ++y) {
+            for (int x = 0; x < width; ++x) {
                 *destination = ExpandRgb565(*input);
                 input += 2;
-                destination += width;
+                destination += height;
             }
-            destination -= width * height + 1;
+            destination -= height * width + 1;
         }
     }
 }
@@ -127,12 +127,12 @@ void FogShader::Render(const void* source, uint32_t* destination)
     const uint16_t* input = static_cast<const uint16_t*>(source);
     const int direction = enabled == 1 ? -1 : 1;
     if (enabled == 1) {
-        destination += static_cast<std::size_t>(width) * (height - 1);
+        destination += static_cast<std::size_t>(height) * (width - 1);
     } else {
-        --destination;
+        destination += height - 1;
     }
-    for (int x = 0; x < width; ++x) {
-        for (int y = 0; y < height; ++y) {
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
             uint16_t color = input[0];
             const uint16_t depth = input[1];
             if (depth != 0 && depth < fullFogDepth) {
@@ -147,9 +147,9 @@ void FogShader::Render(const void* source, uint32_t* destination)
             }
             *destination = ExpandRgb565(color);
             input += 2;
-            destination += direction * width;
+            destination += direction * height;
         }
-        destination += direction == -1 ? width * height + 1 : -(width * height + 1);
+        destination += direction == -1 ? height * width + 1 : -(height * width + 1);
     }
 }
 

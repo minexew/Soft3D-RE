@@ -183,5 +183,7 @@ uint8_t* Texture::GetPixels() { return pixels; }
 const uint8_t* Texture::GetPixels() const { return pixels; }
 const uint8_t* Texture::GetPalette() const { return palette; }
 uint32_t Texture::GetPaletteSize() const { return paletteSize; }
+bool Texture::HasTransparentColor() const { return hasTransparentColor != 0; }
+uint8_t Texture::GetTransparentColor() const { return transparentColor; }
 
 } // namespace soft3d

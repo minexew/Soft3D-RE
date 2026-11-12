@@ -66,6 +66,21 @@ The `Engine` vtable at `0x0015d7b0` and `GameEngine` vtable at `0x00141888` esta
 
 The remaining large game-state and embedded structures have not been assigned invented field names.
 
+### Early initialization order
+
+`AppUi_ConstructL` creates `GameView`; `GameView_ConstructL` creates the 320×240 descriptor and `GameEngine`, invokes virtual `Init`, and then starts it. `GameEngine_Init` (`0x0006ebc0`) performs the significant early work in this order:
+
+1. Select the language/resource variant and open `res.spk`.
+2. Construct/initialize the script engine and load `str.sdt` into the dialog manager.
+3. Bind the renderer and screen blitter to the UI and initialize resource-name arrays.
+4. Start the `0x11` frame interval.
+5. Allocate both 0x30-byte `StringManager` objects and load the language-specific `basefont.sbn` into each.
+6. Load `system.sbn` into the secondary manager, adding local glyphs and packed `VisString` records.
+7. Bind both managers to the renderer texture, then construct and initialize `GameMenu` and its dialogs.
+8. Load `state.sdt`, read configuration data, bind scene subsystems, and enter the non-game initial state.
+
+The initial `GameMenu` update selects state index 7 with time/selection zero. This is the handedness screen documented in `sdt_format.md`; it needs neither a BSP map nor the 3D scene. Its labels and phone are palettized STX images, although SBN font initialization precedes them.
+
 ## Frame lifecycle
 
 `Engine_RunFrame` performs:
@@ -142,8 +157,8 @@ The default enabled traversal walks source pixels linearly while writing destina
 
 ## Portable reconstruction and tests
 
-`Reversed_Game/src/soft3d/` now includes `Engine`, `GameEngine`, `Renderable`, `Renderer`, `Raster`, `BasicShader`, `Object`, and `Fixed`. `GameEngine` retains scene/UI ownership and hook ordering. Scene/gameplay, script, font, and audio internals are explicit stubs.
+`Reversed_Game/src/soft3d/` now includes `Engine`, `GameEngine`, `Renderable`, `Renderer`, `Raster`, `BasicShader`, `Object`, `Fixed`, `Font`, `VisString`, `StringManager`, `ScreenBlitter`, `UiManager`, and the initial `GameMenu` state. `GameEngine` retains scene/UI ownership and hook ordering. Scene/gameplay, later menu states, script internals, and audio internals remain explicit stubs.
 
-`tests/test_engine.cpp` checks queue capacity and ordering, exact RGB565/XRGB mapping, a complete `GameEngine` → dummy `VID_impl` frame, indexed SOJ rasterization, packed material names, animation interpolation truncation, and animation wrapping. The SDL app renders its placeholder through the same engine presentation path rather than writing the backend framebuffer directly.
+`tests/test_engine.cpp` checks queue capacity and ordering, exact RGB565/XRGB mapping including a non-square portrait mapping, a complete `GameEngine` → dummy `VID_impl` frame, indexed SOJ rasterization, packed material names, animation interpolation truncation, and animation wrapping. `test_font.cpp` exercises the real SBN resources and glyph drawing; `test_ui.cpp` validates the real SDT tables and both handedness frames. The SDL app loads `res.spk` and renders the initial screen through the normal overlay and presentation path.
 
 The portable rasterizer is functional but not yet bit-identical for every original clipping, lighting, perspective-correct texturing, blending, and specialized scanline case. See `soft3d_models_animations.md` for format details and `symbian3rd_video.md` for platform video.

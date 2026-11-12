@@ -11,10 +11,10 @@
 |❌|S3DSTY||
 |🔧|SAI||<p>3D model animations, mostly understood</p><ul><li>Fixed-point transform tracks, bounds, morph targets, timing, and interpolation documented in `Reverse_Docs/soft3d_models_animations.md`</li></ul>
 |✔️|SAU|DA320 (all), GA330, S60v1 (chi), S60v2, S60v3, Win32 (chi)|AMI ADPCM audio, low nibble first; same format as WAR except nibble order, well-understood
-|🔧|SBN|GA330|<p>font (glyphs) + text data (32-bit encoding), mostly understood</p><ul><li>Why is the header length not always the same?</li><li>How to calculate glyph indexes across SBNs?</li></ul>
+|🔧|SBN|GA330, S60v3|font (glyphs) + text data (32-bit encoding); Symbian base/local glyphs, string tables, character lookup, and drawing documented in `Reverse_Docs/basefont.sbn_info.txt`
 |🔧|SBN|Win32|font (glyphs) + text data (7-bit encoding), mostly understood
 |🔧|SBP|GA330|<p>maps, based on [Quake 2 map format](https://www.flipcode.com/archives/Quake_2_BSP_File_Format.shtml), mostly understood</p><ul><li>How to interpret all the chunks?</li><li>How are lightmaps applied?</li></ul>
-|❌|SDT||various _data tables_ without a common format?
+|🔧|SDT|S60v3|Various data tables; UI string/resource and dialog-state formats documented in `Reverse_Docs/sdt_format.md`; other SDT families remain unconfirmed
 |🔧|SPL||Camera settings|
 |🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Materials, packed texture names, vertex streams, primitive modes, bounds, and skinning links documented in `Reverse_Docs/soft3d_models_animations.md`</li><li>Some material and renderer-state fields remain unidentified</li></ul>
 |🔧|SST||“simple script”, mostly understood

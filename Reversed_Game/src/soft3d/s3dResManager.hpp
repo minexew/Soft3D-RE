@@ -34,6 +34,6 @@ private:
 };
 
 s3dFilePak* GetFilePakFromManager(s3dResManager* manager);
-void OpenGameResourceArchive(s3dResManager* manager, const char16_t* fileName);
+result OpenGameResourceArchive(s3dResManager* manager, const char16_t* fileName);
 
 } // namespace soft3d

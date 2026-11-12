@@ -21,8 +21,9 @@ bool SdlVideoBackend::Start(int width, int height)
     if (frameTexture != nullptr) {
         return true;
     }
+    presentationWidth = height;
     window = SDL_CreateWindow("7 Days: Salvation - Soft3D reconstruction",
-                              width * scale, height * scale, SDL_WINDOW_RESIZABLE);
+                              height * scale, width * scale, SDL_WINDOW_RESIZABLE);
     if (window == nullptr) {
         std::cerr << "Window creation failed: " << SDL_GetError() << '\n';
         return false;
@@ -42,14 +43,14 @@ bool SdlVideoBackend::Start(int width, int height)
     }
 
     frameTexture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_XRGB8888,
-                                     SDL_TEXTUREACCESS_STREAMING, width, height);
+                                     SDL_TEXTUREACCESS_STREAMING, height, width);
     if (frameTexture == nullptr) {
         std::cerr << "Framebuffer texture creation failed: " << SDL_GetError() << '\n';
         Stop();
         return false;
     }
     SDL_SetTextureScaleMode(frameTexture, SDL_SCALEMODE_NEAREST);
-    if (!SDL_SetRenderLogicalPresentation(renderer, width, height,
+    if (!SDL_SetRenderLogicalPresentation(renderer, height, width,
                                           SDL_LOGICAL_PRESENTATION_LETTERBOX)) {
         Stop();
         return false;
@@ -80,7 +81,8 @@ int SdlVideoBackend::BeginUpdate(VideoBufferInfo&)
 
 bool SdlVideoBackend::EndUpdate(const VideoBufferInfo& buffer)
 {
-    return SDL_UpdateTexture(frameTexture, nullptr, buffer.address, buffer.pitch) &&
+    return SDL_UpdateTexture(frameTexture, nullptr, buffer.address,
+                             presentationWidth * static_cast<int>(sizeof(uint32_t))) &&
            SDL_RenderClear(renderer) &&
            SDL_RenderTexture(renderer, frameTexture, nullptr, nullptr) &&
            SDL_RenderPresent(renderer);

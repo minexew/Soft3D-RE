@@ -17,6 +17,7 @@ add_library(soft3d
     src/soft3d/AudioData.cpp
     src/soft3d/BasicShader.cpp
     src/soft3d/Engine.cpp
+    src/soft3d/Font.cpp
     src/soft3d/GameEngine.cpp
     src/soft3d/Object.cpp
     src/soft3d/ObjectRes.cpp
@@ -24,8 +25,10 @@ add_library(soft3d
     src/soft3d/Renderable.cpp
     src/soft3d/Renderer.cpp
     src/soft3d/Resource.cpp
+    src/soft3d/ScreenBlitter.cpp
     src/soft3d/Texture.cpp
     src/soft3d/TextureRes.cpp
+    src/soft3d/UiManager.cpp
     src/soft3d/VID_impl.cpp
     src/soft3d/s3dBase.cpp
     src/soft3d/s3dFilePak.cpp
@@ -121,6 +124,26 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_engine_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_engine COMMAND soft3d_engine_tests)
+
+    add_executable(soft3d_font_tests tests/test_font.cpp)
+    target_link_libraries(soft3d_font_tests PRIVATE soft3d)
+    target_compile_definitions(soft3d_font_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_font_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_font COMMAND soft3d_font_tests)
+
+    add_executable(soft3d_ui_tests tests/test_ui.cpp)
+    target_link_libraries(soft3d_ui_tests PRIVATE soft3d)
+    target_compile_definitions(soft3d_ui_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_ui_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_ui COMMAND soft3d_ui_tests)
 
     if(TARGET seven_days)
         add_test(NAME seven_days_smoke

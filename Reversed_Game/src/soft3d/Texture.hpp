@@ -32,6 +32,8 @@ public:
     const uint8_t* GetPixels() const;
     const uint8_t* GetPalette() const;
     uint32_t GetPaletteSize() const;
+    bool HasTransparentColor() const;
+    uint8_t GetTransparentColor() const;
 
 private:
     s3dIO io;

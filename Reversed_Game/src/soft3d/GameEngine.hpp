@@ -1,6 +1,8 @@
 #pragma once
 
 #include "soft3d/Engine.hpp"
+#include "soft3d/Font.hpp"
+#include "soft3d/UiManager.hpp"
 
 #include <string>
 
@@ -15,23 +17,10 @@ public:
     // Game-specific scene, BSP, creature, and script behavior remains to be reconstructed.
 };
 
-class UiManagerStub : public Renderable {
-public:
-    void Render() override {}
-};
-
-class GameMenuStub {
-public:
-    void Update() {}
-};
-
 class ScriptEngineStub {
 public:
     void Init() {}
     void Update() {}
-};
-
-class StringManagerStub {
 };
 
 class GameEngine : public Engine {
@@ -48,18 +37,23 @@ public:
 
     void SetResourceArchive(std::u16string path);
     void SetInGame(bool inGame);
+    void SetLanguage(int value);
+    void SetMenuInput(bool left, bool right, bool accept);
+    StringManager* GetBaseFont();
+    StringManager* GetSecondaryFont();
+    UiManager* GetUiManager();
 
 private:
     std::unique_ptr<SceneStub> scene;
-    std::unique_ptr<UiManagerStub> uiManager;
-    std::unique_ptr<GameMenuStub> gameMenu;
-    std::unique_ptr<StringManagerStub> baseFont;
-    std::unique_ptr<StringManagerStub> secondaryFont;
+    std::unique_ptr<UiManager> uiManager;
+    std::unique_ptr<GameMenu> gameMenu;
+    std::unique_ptr<StringManager> baseFont;
+    std::unique_ptr<StringManager> secondaryFont;
     ScriptEngineStub scriptEngine;
     std::u16string resourceArchive;
     bool inGame = false;
     bool menuActive = false;
-    int language = 0;
+    int language = 2;
 };
 
 } // namespace soft3d

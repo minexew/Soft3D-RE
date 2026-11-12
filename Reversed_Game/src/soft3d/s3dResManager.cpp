@@ -318,9 +318,9 @@ s3dFilePak* GetFilePakFromManager(s3dResManager* manager)
     return manager->GetFilePak();
 }
 
-void OpenGameResourceArchive(s3dResManager* manager, const char16_t* fileName)
+result OpenGameResourceArchive(s3dResManager* manager, const char16_t* fileName)
 {
-    manager->GetFilePak()->Open(fileName, 0);
+    return manager->GetFilePak()->Open(fileName, 0);
 }
 
 } // namespace soft3d

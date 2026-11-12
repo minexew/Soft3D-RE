@@ -203,7 +203,7 @@ MIPS accessors establish S2D's layout and semantics. Soft3D has the same fields 
 | `+0x10` | `+0x24` | Local glyph-record array. |
 | `+0x14` | `+0x28` | Language. |
 
-Both use 12-byte glyph records with width at `+0x00`, height at `+0x04`, and glyph data at `+0x08`. Character code 3 returns the base array's first glyph width through a special path. Base/local lookup is selected by subtracting 4 from the character code and comparing against the base count.
+Both use 12-byte glyph records with width at `+0x00`, height at `+0x04`, and glyph data at `+0x08`. Character code 3 is special: its height comes from base glyph 0, while its width comes from base glyph 3 (record offset `+0x24`). Base/local lookup is selected by subtracting 4 from the character code and comparing against the base count.
 
 The following ARM functions now have their SDK-validated names:
 

@@ -147,7 +147,7 @@ rgba = ((pixel & 0xf800) << 8) |
        ((pixel & 0x001f) << 3);
 ```
 
-Its two paths differ in traversal direction. Alpha is not set by this routine.
+Its enabled path loops over `y` outside and `x` inside. For a 320×240 source it starts at destination word `240 * 319`, steps backward by 240 words for each source `x`, and advances one word after each source row. Thus destination index is `240 * (319 - x) + y`, producing a 240×320 portrait result. Alpha is not set by this routine.
 
 ## Presentation path
 
@@ -197,6 +197,6 @@ The frame limiter reads the current platform tick, computes elapsed time against
 
 `src/platform/dummy/DummyVideoBackend.*` is SDL-independent and serves as the reference backend. It records lifecycle calls and copies presented pixels for `tests/test_vidimpl.cpp`. Tests cover construction and first-start behavior, idempotent start/stop, restart, repeated `BeginUpdate`, error propagation and cached-address behavior, buffer metadata, and exact presented pixel contents.
 
-`src/platform/sdl/SdlVideoBackend.*` implements the host presentation stage. `BeginUpdate` exposes the CPU buffer, while `EndUpdate` uploads `0x00RRGGBB` words to an `SDL_PIXELFORMAT_XRGB8888` streaming texture, renders with nearest-neighbor aspect-preserving logical presentation, and calls `SDL_RenderPresent`. Resource creation is idempotent, and renderer creation retains the explicit fallback to SDL's `software` renderer.
+`src/platform/sdl/SdlVideoBackend.*` implements the host presentation stage. `BeginUpdate` exposes the CPU buffer, while `EndUpdate` uploads `0x00RRGGBB` words to a 240×320 `SDL_PIXELFORMAT_XRGB8888` streaming texture with the portrait row pitch, renders with nearest-neighbor aspect-preserving logical presentation, and calls `SDL_RenderPresent`. Resource creation is idempotent, and renderer creation retains the explicit fallback to SDL's `software` renderer.
 
-The app uses `GameEngine::RunFrame`: its host placeholder writes RGB565/depth words to the renderer texture, and `BasicShader` expands them into the `VID_impl` back buffer. The SDL window/renderer/texture objects remain encapsulated in the backend. `tests/test_engine.cpp` verifies the complete engine-to-dummy-video path with exact pixels. Audio, scene/gameplay, and other higher-level facilities remain stubs. The portable rasterizer does not yet reproduce every specialized original inner loop; see `gameengine_api.md`.
+The app uses `GameEngine::RunFrame` with real SBN/SDT/STX resources from `res.spk`; the initial handedness screen replaces the former host placeholder. `BasicShader` expands RGB565/depth words into the `VID_impl` back buffer using the original portrait mapping. The SDL window/renderer/texture objects remain encapsulated in the backend. `tests/test_engine.cpp` verifies the complete engine-to-dummy-video path with exact pixels. Audio, scene/gameplay, later menu states, and other higher-level facilities remain stubs. The portable rasterizer does not yet reproduce every specialized original inner loop; see `gameengine_api.md`.

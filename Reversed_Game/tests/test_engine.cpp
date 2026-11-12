@@ -64,6 +64,18 @@ void TestBasicShader()
     CHECK(destination[3] == 0x000000f8);
     shader.SetEnabled(0);
     CHECK(shader.enabled == 1);
+
+    soft3d::BasicShader portraitShader(3, 2);
+    const std::array<uint32_t, 6> portraitSource = {1, 2, 3, 4, 5, 6};
+    const std::array<uint32_t, 6> portraitOrder = {3, 6, 2, 5, 1, 4};
+    std::array<uint32_t, 6> portraitDestination{};
+    portraitShader.Render(portraitSource.data(), portraitDestination.data());
+    for (std::size_t index = 0; index < portraitDestination.size(); ++index) {
+        const uint32_t pixel = portraitOrder[index];
+        const uint32_t expected = ((pixel & 0xf800) << 8) |
+                                  ((pixel & 0x07e0) << 5) | ((pixel & 0x001f) << 3);
+        CHECK(portraitDestination[index] == expected);
+    }
 }
 
 void TestFogShader()

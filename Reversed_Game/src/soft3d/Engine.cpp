@@ -10,6 +10,7 @@ Engine::Engine(EngineConfig config)
     , renderer(config.width, config.height)
     , video(config.width, config.height, std::move(config.videoBackend))
 {
+    screenBlitter.SetTexture(renderer.GetCurrentTexture());
     frameStart = std::chrono::steady_clock::now();
     previousFrameStart = frameStart;
 }
@@ -149,6 +150,11 @@ Renderer& Engine::GetRenderer()
 s3dResManager& Engine::GetResourceManager()
 {
     return resourceManager;
+}
+
+ScreenBlitter& Engine::GetScreenBlitter()
+{
+    return screenBlitter;
 }
 
 VID_impl& Engine::GetVideo()

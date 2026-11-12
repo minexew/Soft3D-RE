@@ -34,9 +34,11 @@ public:
     void ProcessEvent(const SDL_Event& event);
 
     const ControlState& State() const;
+    int ConsumeMenuSelection();
 
 private:
     ControlState state;
+    int menuSelection = 0;
 };
 
 class TimerStub {

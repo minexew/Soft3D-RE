@@ -2,6 +2,7 @@
 
 #include "soft3d/Renderable.hpp"
 #include "soft3d/Renderer.hpp"
+#include "soft3d/ScreenBlitter.hpp"
 #include "soft3d/VID_impl.hpp"
 #include "soft3d/s3dBase.hpp"
 #include "soft3d/s3dResManager.hpp"
@@ -58,6 +59,7 @@ public:
     RenderQueues& GetRenderQueues();
     Renderer& GetRenderer();
     s3dResManager& GetResourceManager();
+    ScreenBlitter& GetScreenBlitter();
     VID_impl& GetVideo();
     bool IsRunning() const;
 
@@ -82,6 +84,7 @@ protected:
     AudioManagerStub audioManager;
     InputStub input;
     Renderer renderer;
+    ScreenBlitter screenBlitter;
     VID_impl video;
 };
 

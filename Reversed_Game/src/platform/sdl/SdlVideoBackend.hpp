@@ -21,6 +21,7 @@ public:
 
 private:
     int scale;
+    int presentationWidth = 0;
     std::string requestedRenderer;
     SDL_Window* window = nullptr;
     SDL_Renderer* renderer = nullptr;

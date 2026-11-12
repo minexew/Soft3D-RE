@@ -12,8 +12,8 @@ void PrintUsage(const char* executable)
 {
     std::cout << "Usage: " << executable
               << " [--renderer auto|software|NAME] [--scale 1..4]"
-                 " [--frames N] [--no-audio]\n"
-                 "Controls: arrows/WASD move, Space/Enter action, Escape quits.\n";
+                 " [--frames N] [--resources PATH] [--no-audio]\n"
+                 "Controls: arrows/WASD select, Space/Enter action, Escape quits.\n";
 }
 
 bool ParseInteger(std::string_view text, int& value)
@@ -38,7 +38,8 @@ int main(int argc, char** argv)
             config.enableAudio = false;
             continue;
         }
-        if (argument == "--renderer" || argument == "--scale" || argument == "--frames") {
+        if (argument == "--renderer" || argument == "--scale" || argument == "--frames" ||
+            argument == "--resources") {
             if (index + 1 >= argc) {
                 std::cerr << "Missing value for " << argument << '\n';
                 return 2;
@@ -46,6 +47,8 @@ int main(int argc, char** argv)
             const std::string_view value = argv[++index];
             if (argument == "--renderer") {
                 config.renderer = std::string(value);
+            } else if (argument == "--resources") {
+                config.resourceArchive = std::string(value);
             } else if (!ParseInteger(value, argument == "--scale" ? config.scale
                                                                   : config.maximumFrames)) {
                 std::cerr << "Invalid value for " << argument << ": " << value << '\n';
