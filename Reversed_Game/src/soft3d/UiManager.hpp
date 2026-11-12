@@ -2,6 +2,7 @@
 
 #include "soft3d/Renderable.hpp"
 #include "soft3d/ScreenBlitter.hpp"
+#include "soft3d/s3dBase.hpp"
 #include "soft3d/s3dResManager.hpp"
 
 #include <cstddef>
@@ -54,7 +55,7 @@ struct SdtDialog {
     std::vector<SdtState> states;
 };
 
-class UiManager : public Renderable {
+class UiManager : public Renderable, public s3dBase {
 public:
     UiManager() = default;
 
@@ -68,6 +69,8 @@ public:
 
     void SelectState(uint32_t stateIndex, int32_t time);
     void Render() override;
+    virtual void Update(uint32_t context);
+    void SetEngine(Engine* engine) override;
 
     size_t GetDialogCount() const;
     const SdtDialog* GetDialog(size_t index) const;

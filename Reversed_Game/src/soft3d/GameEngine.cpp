@@ -56,6 +56,14 @@ void GameEngine::Shutdown()
     menuActive = false;
 }
 
+void GameEngine::LoadGameState()
+{
+}
+
+void GameEngine::SaveGameState()
+{
+}
+
 void GameEngine::PreUpdate()
 {
     if (inGame) {
@@ -90,6 +98,14 @@ void GameEngine::PrepareRender()
         scene->PrepareRender();
     }
     gameMenu->Update(*uiManager);
+}
+
+void GameEngine::PostRender()
+{
+}
+
+void GameEngine::DrawFPS()
+{
 }
 
 void GameEngine::SetResourceArchive(std::u16string path)

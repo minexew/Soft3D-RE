@@ -20,23 +20,6 @@ Engine::~Engine()
     video.Stop();
 }
 
-int Engine::Init()
-{
-    return 0;
-}
-
-void Engine::Shutdown()
-{
-}
-
-void Engine::LoadGameState()
-{
-}
-
-void Engine::SaveGameState()
-{
-}
-
 void Engine::Start()
 {
     if (!running) {
@@ -130,12 +113,7 @@ void Engine::LimitFrameRate()
     frameStart = std::chrono::steady_clock::now();
 }
 
-void Engine::PreUpdate() {}
-void Engine::PostUpdate() {}
-void Engine::Update() {}
-void Engine::SubmitRenderables() {}
-void Engine::PrepareRender() {}
-void Engine::PostRender() {}
+void Engine::DrawFPS() {}
 
 RenderQueues& Engine::GetRenderQueues()
 {

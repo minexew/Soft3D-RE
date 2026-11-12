@@ -159,6 +159,6 @@ Acceptance stores control orientation 1 or 2 through `0x000719ac`, then advances
 
 ## Portable implementation and verification
 
-`Reversed_Game/src/soft3d/UiManager.*` implements both parsers and the exact-key image path. `ScreenBlitter.*` handles palettized STX sources, transparent indices, clipping, and destination scaling. `GameEngine` loads the real tables during initialization, and the SDL application displays the initial state and accepts direction input.
+`Reversed_Game/src/soft3d/UiManager.*` implements both parsers and the exact-key image path under a portable functional name. RTTI identifies the original class as `DialogManager`, with `Renderable` as the primary base and `s3dBase` as a secondary base. Its virtual order is `Render`, `Update(context)`, then `SetEngine`; `Render` calls `Update(0)`, and the secondary `s3dBase` vtable uses an adjustment thunk for `SetEngine`. The portable class now retains that interface and dispatch structure. `ScreenBlitter.*` handles palettized STX sources, transparent indices, clipping, and destination scaling. `GameEngine` loads the real tables during initialization, and the SDL application displays the initial state and accepts direction input.
 
 `tests/test_ui.cpp` validates the complete real archive parse, seven-dialog hierarchy, handedness resources and state, presented frame size, and deterministic switching between left and right selections. `tests/test_engine.cpp` includes a non-square 3×2 presentation mapping check so the transposed traversal cannot be accidentally reversed.

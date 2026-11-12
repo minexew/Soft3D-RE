@@ -29,11 +29,15 @@ public:
 
     int Init() override;
     void Shutdown() override;
+    void LoadGameState() override;
+    void SaveGameState() override;
     void PreUpdate() override;
     void PostUpdate() override;
     void Update() override;
-    void SubmitRenderables() override;
     void PrepareRender() override;
+    void SubmitRenderables() override;
+    void PostRender() override;
+    void DrawFPS() override;
 
     void SetResourceArchive(std::u16string path);
     void SetInGame(bool inGame);

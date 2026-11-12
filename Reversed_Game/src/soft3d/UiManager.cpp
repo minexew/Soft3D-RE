@@ -221,6 +221,12 @@ void UiManager::SelectState(uint32_t stateIndex, int32_t time)
 
 void UiManager::Render()
 {
+    Update(0);
+}
+
+void UiManager::Update(uint32_t context)
+{
+    (void)context;
     if (screenBlitter == nullptr || dialogs.empty() || selectedState >= dialogs[0].states.size()) {
         return;
     }
@@ -248,6 +254,11 @@ void UiManager::Render()
             break;
         }
     }
+}
+
+void UiManager::SetEngine(Engine* value)
+{
+    s3dBase::SetEngine(value);
 }
 
 size_t UiManager::GetDialogCount() const

@@ -38,23 +38,24 @@ public:
     explicit Engine(EngineConfig config);
     ~Engine() override;
 
-    virtual int Init();
-    virtual void Shutdown();
-    virtual void LoadGameState();
-    virtual void SaveGameState();
+    virtual int Init() = 0;
+    virtual void Shutdown() = 0;
+    virtual void LoadGameState() = 0;
+    virtual void SaveGameState() = 0;
 
     void Start();
-    void Suspend();
-    void Resume();
+    virtual void Suspend();
+    virtual void Resume();
     bool RunFrame();
     void StartGameEngineTimer(uint32_t interval);
 
-    virtual void PreUpdate();
-    virtual void PostUpdate();
-    virtual void Update();
-    virtual void SubmitRenderables();
-    virtual void PrepareRender();
-    virtual void PostRender();
+    virtual void PreUpdate() = 0;
+    virtual void PostUpdate() = 0;
+    virtual void Update() = 0;
+    virtual void PrepareRender() = 0;
+    virtual void SubmitRenderables() = 0;
+    virtual void PostRender() = 0;
+    virtual void DrawFPS();
 
     RenderQueues& GetRenderQueues();
     Renderer& GetRenderer();
@@ -64,8 +65,8 @@ public:
     bool IsRunning() const;
 
 protected:
-    virtual void UpdateFrame();
-    virtual void RenderFrame();
+    void UpdateFrame();
+    void RenderFrame();
     void LimitFrameRate();
 
     bool running = false;

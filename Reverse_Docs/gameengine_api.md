@@ -49,6 +49,9 @@ The `Engine` vtable at `0x0015d7b0` and `GameEngine` vtable at `0x00141888` esta
 | `+0x30` | PrepareRender | `0x00070958` → `Scene_PrepareRender` |
 | `+0x34` | SubmitRenderables | `0x000709e4` → `Scene_SubmitRenderables`, UI submission |
 | `+0x38` | PostRender | `0x00070a70`, empty in this game build |
+| `+0x44` | DrawFPS | `0x00070ab0`, empty in this game build |
+
+The reusable `Engine` declares the initialization, state, update, submission, and rendering hooks as pure virtual. `Suspend` and `Resume` are concrete virtual methods. `UpdateFrame` and `RenderFrame` are nonvirtual helpers called directly by `RunFrame`, not vtable slots. The final `DrawFPS` implementation at `Engine_DrawFPS` (`0x000f2c30`) formats the real-FPS field with `"%d"` and draws it through `s3dVideo`; `GameEngine` overrides it with an empty method.
 
 ### Game-specific ownership points
 

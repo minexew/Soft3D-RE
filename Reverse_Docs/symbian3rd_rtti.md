@@ -4,14 +4,14 @@
 
 This document covers `SymbianBin/out.bin`, also opened in Ghidra as `/7days.bin` (`out.bin`). All addresses are Ghidra memory addresses in the loaded image; the file offsets from the E32Image import inventory have already been rebased by `0x8000` where applicable.
 
-The binary contains Itanium/ARM-EABI-style C++ RTTI for its own engine and game classes, not merely references to an external C++ runtime. A total of 133 local type-info records were recovered:
+The binary contains Itanium/ARM-EABI-style C++ RTTI for its own engine and game classes, not merely references to an external C++ runtime. A total of 153 local type-info records were recovered:
 
 - 17 `__class_type_info` records for classes without RTTI base links;
-- 109 `__si_class_type_info` records for single inheritance;
+- 129 `__si_class_type_info` records for single inheritance;
 - 7 `__vmi_class_type_info` records for multiple inheritance;
-- 133 vtable structures referencing 125 of the 133 type-info records.
+- 153 vtable structures referencing 145 of the 153 type-info records.
 
-The inheritance graph is acyclic. Every nonzero base offset in a multiple-inheritance record has a matching secondary vtable with the corresponding negative offset-to-top. All 133 demangled class names are unique.
+The inheritance graph is acyclic. Every nonzero base offset in a multiple-inheritance record has a matching secondary vtable with the corresponding negative offset-to-top. All 153 demangled class names are unique. The final 20 single-inheritance classes and their vtables were recovered by following the E32 code relocations documented in `symbian3rd_relocations.md`.
 
 ## Runtime support and direct use
 
@@ -70,13 +70,13 @@ For example, the `s3dFilePak` vtable starts at `0x00146618`, while its address p
 
 The following artifacts have been applied to the Ghidra program:
 
-- 133 `rtti_name_*` labels on encoded type-name strings;
-- 133 `typeinfo_*` labels on local type-info records;
-- 133 `vtable_*` labels on vtable starts and 133 `vtable_*_functions*` labels on their address points;
+- 153 `rtti_name_*` labels on encoded type-name strings;
+- 153 `typeinfo_*` labels on local type-info records;
+- 153 `vtable_*` labels on vtable starts and 153 `vtable_*_functions*` labels on their address points;
 - seven `rtti_bases_*` labels on multiple-inheritance base arrays;
 - typed `RTTI_ClassTypeInfo`, `RTTI_SIClassTypeInfo`, and `RTTI_VMIClassTypeInfo` records;
 - typed `RTTI_VMIClassBase` arrays and typed vtable headers, producing data references from vtables to type-info records;
-- 133 partial class structures named `RTTI_<ClassName>`.
+- 153 partial class structures named `RTTI_<ClassName>`.
 
 Class structures contain only fields supported by RTTI:
 
@@ -86,7 +86,7 @@ Class structures contain only fields supported by RTTI:
 
 Single-inheritance bases are at object offset zero. Multiple-inheritance base offsets come from `offset_flags >> 8` and are independently confirmed by secondary-vtable offset-to-top values. For example, `RTTI_Player` has `base_Creature` at `0x0`, `base_StateMachine_Player` at `0x6f0`, and `base_CameraSpot` at `0x704`.
 
-RTTI does **not** reveal ordinary member variables, their names, or the total class size. Most Ghidra structure sizes are therefore only minimum known extents. `RTTI_State_Player`, `RTTI_XLeaveException`, `RTTI_MEikStatusPaneObserver`, and `RTTI_MAknTouchPaneObserver` contain a one-byte `layout_unknown` placeholder because no field layout is currently proven; the placeholder does not assert a real size of one byte.
+RTTI does **not** reveal ordinary member variables, their names, or the total class size. Most Ghidra structure sizes are therefore only minimum known extents. `RTTI_XLeaveException`, `RTTI_MEikStatusPaneObserver`, and `RTTI_MAknTouchPaneObserver` contain a one-byte `layout_unknown` placeholder because no field layout is currently proven; the placeholder does not assert a real size of one byte. `RTTI_State_Player` formerly used this placeholder, but the 20 derived state vtables prove that it starts with a vptr.
 
 Subsequent constructor analysis has fully recovered the layouts of `s3dBase`, `s3dIO`, `s3dLog`, `s3dFilePak`, `Resource`, and `ResManager`; these are exceptions to the partial-layout rule. `s3dBase` is 8 bytes (vptr plus engine/context pointer), `s3dIO` is 12 bytes (base plus platform-file pointer), `s3dLog` is 20 bytes (base plus embedded `s3dIO`), and `s3dFilePak` is `0x48` bytes. `Resource` is `0x12c` bytes and `ResManager` is `0x70` bytes, including four cache objects and an embedded FilePak. See `filepak_api.md`, `resource_parsing_api.md`, and `resmanager_api.md` for complete layouts and evidence.
 
@@ -191,6 +191,26 @@ Vtable addresses in this table are structure starts; add eight bytes for the add
 | PlayDlg | `0x0013e5d4` | `0x0013e5c8` | single | Dialog @ `0x0` | `0x0013e4c8` (0) |
 | Player | `0x0013dc34` | `0x0013dc2c` | multiple | Creature @ `0x0`, StateMachine<Player> @ `0x6f0`, CameraSpot @ `0x704` | `0x0013db28` (0), `0x0013dbc0` (-1776), `0x0013dbd0` (-1796) |
 | PlayerStateSet | `0x0013d8ec` | `0x0013d8d8` | single | StateSet<Player> @ `0x0` | `0x0013d310` (0) |
+| PlayerStateSet::CAttackA1 | `0x0013d610` | `0x0013d5f0` | single | State<Player> @ `0x0` | `0x0013d548` (0) |
+| PlayerStateSet::CAttackA2 | `0x0013d63c` | `0x0013d61c` | single | State<Player> @ `0x0` | `0x0013d528` (0) |
+| PlayerStateSet::CAttackA3 | `0x0013d668` | `0x0013d648` | single | State<Player> @ `0x0` | `0x0013d508` (0) |
+| PlayerStateSet::CAttackB1 | `0x0013d694` | `0x0013d674` | single | State<Player> @ `0x0` | `0x0013d4e8` (0) |
+| PlayerStateSet::CAttackB2 | `0x0013d6c0` | `0x0013d6a0` | single | State<Player> @ `0x0` | `0x0013d4c8` (0) |
+| PlayerStateSet::CAttackB3 | `0x0013d6ec` | `0x0013d6cc` | single | State<Player> @ `0x0` | `0x0013d4a8` (0) |
+| PlayerStateSet::CAttackC1 | `0x0013d718` | `0x0013d6f8` | single | State<Player> @ `0x0` | `0x0013d488` (0) |
+| PlayerStateSet::CAttackC2 | `0x0013d744` | `0x0013d724` | single | State<Player> @ `0x0` | `0x0013d468` (0) |
+| PlayerStateSet::CAttackC3 | `0x0013d770` | `0x0013d750` | single | State<Player> @ `0x0` | `0x0013d448` (0) |
+| PlayerStateSet::CDie | `0x0013d834` | `0x0013d81c` | single | State<Player> @ `0x0` | `0x0013d3a8` (0) |
+| PlayerStateSet::CFPS | `0x0013d8cc` | `0x0013d8b4` | single | State<Player> @ `0x0` | `0x0013d328` (0) |
+| PlayerStateSet::CHide | `0x0013d8a8` | `0x0013d88c` | single | State<Player> @ `0x0` | `0x0013d348` (0) |
+| PlayerStateSet::CHurt | `0x0013d798` | `0x0013d77c` | single | State<Player> @ `0x0` | `0x0013d428` (0) |
+| PlayerStateSet::CHurt2 | `0x0013d7c0` | `0x0013d7a4` | single | State<Player> @ `0x0` | `0x0013d408` (0) |
+| PlayerStateSet::CHurt3 | `0x0013d7e8` | `0x0013d7cc` | single | State<Player> @ `0x0` | `0x0013d3e8` (0) |
+| PlayerStateSet::CHurt4 | `0x0013d810` | `0x0013d7f4` | single | State<Player> @ `0x0` | `0x0013d3c8` (0) |
+| PlayerStateSet::CPush | `0x0013d85c` | `0x0013d840` | single | State<Player> @ `0x0` | `0x0013d388` (0) |
+| PlayerStateSet::CQTE | `0x0013d880` | `0x0013d868` | single | State<Player> @ `0x0` | `0x0013d368` (0) |
+| PlayerStateSet::CRun | `0x0013d5e4` | `0x0013d5cc` | single | State<Player> @ `0x0` | `0x0013d568` (0) |
+| PlayerStateSet::CStand | `0x0013d5c0` | `0x0013d5a4` | single | State<Player> @ `0x0` | `0x0013d588` (0) |
 | Prisoner | `0x0013b754` | `0x0013b748` | single | Enemy @ `0x0` | `0x0013b678` (0) |
 | Pushable | `0x0013d210` | `0x0013d204` | single | Things @ `0x0` | `0x0013d1a0` (0) |
 | Raster | `0x0015b98c` | `0x0015b984` | single | s3dBase @ `0x0` | `0x0015b970` (0) |
