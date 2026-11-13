@@ -1,4 +1,4 @@
-﻿using BspViewer.IO;
+using BspViewer.IO;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,9 +14,14 @@ namespace BspViewer.Data.Bsp.Lumps
         {
             public ushort planeIndex;
             public ushort firstEdgeIndex;
+            public ushort unused04;
             public ushort edgesCount;
             public short texInfoIndex;
+            public short unknown0a;
+            public short textureMinU;
+            public short textureMinV;
             public int lightmapOffset;
+            public byte[] styles;
         }
 
         public Face[] Faces { get; private set; }
@@ -32,22 +37,14 @@ namespace BspViewer.Data.Bsp.Lumps
                 Face face = new Face();
                 face.planeIndex = reader.ReadUInt16();
                 face.firstEdgeIndex = reader.ReadUInt16();
-                int b = reader.ReadUInt16(); //unused?
+                face.unused04 = reader.ReadUInt16();
                 face.edgesCount = reader.ReadUInt16();
                 face.texInfoIndex = reader.ReadInt16();
-                /*
-                int texInfoIndexInFace = 0;
-                if (texInfoIndex == -1)
-                    texInfoIndexInFace = 0;
-                else
-                    texInfoIndexInFace = texInfo[texInfoIndex];
-                    sub_402B44
-                */
-                int d = reader.ReadInt16();
-                int e = reader.ReadUInt16();
-                int f = reader.ReadUInt16();
-                int g = reader.ReadInt32();
+                face.unknown0a = reader.ReadInt16();
+                face.textureMinU = reader.ReadInt16();
+                face.textureMinV = reader.ReadInt16();
                 face.lightmapOffset = reader.ReadInt32();
+                face.styles = reader.ReadBytes(4);
 
                 Faces[i] = face;
             }

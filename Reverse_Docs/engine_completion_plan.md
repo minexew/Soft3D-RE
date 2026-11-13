@@ -14,13 +14,14 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - SAU/WAR decoding, the 16-voice mixer, music/SFX/fade controls, positional audio, dummy audio, and SDL audio output;
 - STX loading, SBN fonts/strings, the initial SDT resource/state tables, and exact-key image drawing;
 - SOJ/SAI resource parsing and a functional Object → Renderer → Raster → BasicShader → VID_impl path;
+- SBP container/runtime loading, all chunk readers, incremental progress, map-model resources, generic entity-factory ownership, and link cleanup;
 - engine queue ordering and presentation, dummy video, and the SDL application shell.
 
 These foundations still have partial areas: material fields, Object loading/control APIs, raster feature parity, generic dialog behavior, and the game hooks that invoke audio are not automatically supplied by the audio implementation.
 
 ### Missing or incomplete engine facilities
 
-- `Bsp` map loading, runtime ownership, BSP/PVS rendering, lightmaps, collision, map models, and map-linked entities;
+- `Bsp` rendering, PVS evaluation, lightstyle playback, collision, and integration of the loaded map models/entities into later unit systems;
 - SPL curve/path loading, camera evaluation, and menu-background orchestration;
 - real engine input state, Symbian-to-SDL key mapping, target-FPS timing, and restorable FPS drawing;
 - generic `Dialog` interpolation/text/secondary-texture behavior, later `GameMenu` states, and menu dialog classes;
@@ -44,7 +45,7 @@ The menu background directly depends on three engine facilities:
 
 Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated final-format cleanup. S3DSTY is now known to contain 256 terminated lightmap-frame sequences. SPL is a counted collection of 180-byte Bezier camera-path records. SBP's actual chunk order and loader addresses are documented in `sbp_format.md`.
 
-## Stage 1 — SBP container, `Bsp` ownership, and all chunk readers
+## Stage 1 — SBP container, `Bsp` ownership, and all chunk readers — complete
 
 **Scope**
 
@@ -60,12 +61,16 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 - Validate counts, offsets, fixed-point conversion, cross-links, cleanup, and error codes with synthetic malformed chunks.
 - Compare basic geometry with `Tools/sbp.py`/BspViewer after correcting the tool's chunk names.
 
+**Completion**
+
+`Bsp.*` and `test_bsp.cpp` implement and test every item. The real map completes in 26 calls with all five models and six generic factory entities. Chunk 25 is confirmed as PVS, chunk 17 is unused, entities/links are chunks 14/15, and the apparent render target is invalid mid-function code rather than a recoverable `Bsp::Render` entry. Exact lightmap metadata conversion is included. The complete CTest suite and standalone geometry comparison pass; see `sbp_format.md` for layouts and safety/ownership differences.
+
 ## Stage 2 — BSP rendering, PVS, lightmaps, and S3DSTY runtime
 
 **Scope**
 
 - Implement face construction, node/leaf traversal, PVS selection, visible brush/face submission, and map-model submission.
-- Recover face lightmap offsets/dimensions, style bytes, and current-frame modulation.
+- Use the recovered face lightmap offsets/dimensions and style bytes; implement current-frame modulation.
 - Implement S3DSTY loading and its sequence-advance cadence.
 - Add only the raster features needed by real map faces; leave unrelated specialized paths for stage 7.
 
@@ -73,7 +78,7 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 - Render `menu.sbp` from a fixed camera through dummy video and check exact framed output against recovered ARM arithmetic.
 - Test PVS bit selection, leaf/node boundaries, style wrapping, and lightmap sampling with small synthetic maps.
-- Document the render-vtable resolution and any newly recovered `Bsp` fields in Ghidra.
+- Document the actual rendering path and any newly recovered `Bsp` fields in Ghidra; do not use the already-refuted `0x000f0e20` target.
 
 ## Stage 3 — SPL evaluation and the complete menu 3D background
 

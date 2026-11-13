@@ -12,10 +12,27 @@ class ChunkType(Enum):
     FACE_EDGE = 2
     PLANE = 3
     TEXINFO = 4
-    LIGHTMAP = 5
-    FACE = 6
-    OBJECT = 12
-
+    FACE = 5
+    BRUSH = 6
+    BRUSH_SIDE = 7
+    VIS_BRUSH = 8
+    VIS_FACE = 9
+    VERTEX_LIGHT = 10
+    MODEL = 11
+    EPAIR = 12
+    EBRUSH = 13
+    ENT = 14
+    ELINK = 15
+    VIS_ENT_IDX = 16
+    UNUSED = 17
+    EDICT_IDX = 18
+    LEAF_BRUSH = 19
+    LEAF_VBRUSH = 20
+    PATH_PAIRS = 21
+    PATH_NODES = 22
+    LEAF = 23
+    NODE = 24
+    PVS = 25
     LIGHTMAP_DATA = 26
     NUM = 27
 
@@ -38,7 +55,7 @@ def load(f, dump_geometry_to=None, verbose=False):
             if t == ChunkType.FACE_EDGE: print(f"\t{length // 4} face edge indices")
             if t == ChunkType.PLANE: print(f"\t{length // 20} planes")
             if t == ChunkType.TEXINFO: print(f"\t{length // 48} texinfo entries")
-            if t == ChunkType.LIGHTMAP: print(f"\t{length // 24} lightmap entries")
+            if t == ChunkType.FACE: print(f"\t{length // 24} faces")
         except ValueError:
             print(f"BLOCK_{i:02X}h {start:06X}h {length:06X}h")
 

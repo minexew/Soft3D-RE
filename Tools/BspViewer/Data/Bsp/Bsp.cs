@@ -1,4 +1,4 @@
-﻿using BspViewer.Data.Bsp.Lumps;
+using BspViewer.Data.Bsp.Lumps;
 using BspViewer.Data.Model;
 using BspViewer.Data.Texture;
 using BspViewer.Graphics;
@@ -187,9 +187,9 @@ namespace BspViewer.Data.Bsp
                 {
                     ushort vertexIndex;
                     if (FaceEdges[face.firstEdgeIndex + j] < 0)
-                        vertexIndex = Edges[Math.Abs(FaceEdges[index])].a;
+                        vertexIndex = Edges[Math.Abs(FaceEdges[index])].b;
                     else
-                        vertexIndex = Edges[FaceEdges[index]].b;
+                        vertexIndex = Edges[FaceEdges[index]].a;
 
                     meshPositions.Add(positions[vertexIndex]);
                     //!!!

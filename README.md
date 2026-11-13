@@ -13,7 +13,7 @@
 |✔️|SAU|DA320 (all), GA330, S60v1 (chi), S60v2, S60v3, Win32 (chi)|AMI ADPCM audio, low nibble first; same format as WAR except nibble order, well-understood
 |🔧|SBN|GA330, S60v3|font (glyphs) + text data (32-bit encoding); Symbian base/local glyphs, string tables, character lookup, and drawing documented in `Reverse_Docs/sbn_format.md`
 |🔧|SBN|Win32|font (glyphs) + text data (7-bit encoding), mostly understood
-|🔧|SBP|GA330|<p>maps, based on [Quake 2 map format](https://www.flipcode.com/archives/Quake_2_BSP_File_Format.shtml), mostly understood</p><ul><li>Actual chunk order, serialized records, incremental loader, and remaining visibility/lightmap work documented in `Reverse_Docs/sbp_format.md`</li></ul>
+|🔧|SBP|GA330, S60v3|<p>maps, based on [Quake 2 map format](https://www.flipcode.com/archives/Quake_2_BSP_File_Format.shtml), mostly understood</p><ul><li>Corrected chunk order, serialized records, all chunk readers, incremental loader, map models/entities, and remaining rendering/visibility work documented in `Reverse_Docs/sbp_format.md`; portable real-map loading is tested</li></ul>
 |🔧|SDT|S60v3|Various data tables; UI string/resource and dialog-state formats documented in `Reverse_Docs/sdt_format.md`; other SDT families remain unconfirmed
 |🔧|SPL||Counted Bezier camera-path records; container/layout and remaining evaluation work documented in `Reverse_Docs/spl_format.md`
 |🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Materials, packed texture names, vertex streams, primitive modes, bounds, and skinning links documented in `Reverse_Docs/soft3d_models_animations.md`</li><li>Some material and renderer-state fields remain unidentified</li></ul>
