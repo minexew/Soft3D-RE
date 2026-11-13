@@ -15,20 +15,6 @@ struct ControlState {
     bool action = false;
 };
 
-class AudioStub {
-public:
-    ~AudioStub();
-
-    bool Start();
-    void Stop();
-    bool SubmitPcm16(const int16_t* samples, std::size_t bytes);
-
-    bool IsRunning() const;
-
-private:
-    SDL_AudioStream* stream = nullptr;
-};
-
 class ControlsStub {
 public:
     void ProcessEvent(const SDL_Event& event);

@@ -10,11 +10,14 @@ set_property(CACHE SOFT3D_LOG_BACKEND PROPERTY STRINGS NULL STDIO)
 string(TOUPPER "${SOFT3D_LOG_BACKEND}" SOFT3D_LOG_BACKEND)
 
 add_library(soft3d
+    src/platform/dummy/DummyAudioBackend.cpp
     src/platform/dummy/DummyVideoBackend.cpp
     src/platform/linux/File.cpp
     src/platform/linux/StdioLog.cpp
     src/soft3d/Animation.cpp
     src/soft3d/AudioData.cpp
+    src/soft3d/AudioDevice.cpp
+    src/soft3d/AudioManager.cpp
     src/soft3d/BasicShader.cpp
     src/soft3d/Engine.cpp
     src/soft3d/Font.cpp
@@ -26,6 +29,7 @@ add_library(soft3d
     src/soft3d/Renderer.cpp
     src/soft3d/Resource.cpp
     src/soft3d/ScreenBlitter.cpp
+    src/soft3d/SoundInstance.cpp
     src/soft3d/Texture.cpp
     src/soft3d/TextureRes.cpp
     src/soft3d/UiManager.cpp
@@ -65,6 +69,7 @@ if(SOFT3D_BUILD_APP)
         src/app/Application.cpp
         src/app/EngineStubs.cpp
         src/app/main.cpp
+        src/platform/sdl/SdlAudioBackend.cpp
         src/platform/sdl/SdlVideoBackend.cpp
     )
     target_include_directories(seven_days PRIVATE src)
@@ -145,10 +150,24 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME soft3d_ui COMMAND soft3d_ui_tests)
 
+    add_executable(soft3d_audio_tests tests/test_audio.cpp)
+    target_link_libraries(soft3d_audio_tests PRIVATE soft3d)
+    target_compile_definitions(soft3d_audio_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE="${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_audio_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_audio COMMAND soft3d_audio_tests)
+
     if(TARGET seven_days)
         add_test(NAME seven_days_smoke
             COMMAND seven_days --frames 3 --renderer software --no-audio)
         set_tests_properties(seven_days_smoke PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy")
+        add_test(NAME seven_days_audio_smoke
+            COMMAND seven_days --frames 3 --renderer software)
+        set_tests_properties(seven_days_audio_smoke PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy")
     endif()
 endif()

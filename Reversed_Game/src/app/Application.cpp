@@ -1,5 +1,6 @@
 #include "app/Application.hpp"
 
+#include "platform/sdl/SdlAudioBackend.hpp"
 #include "platform/sdl/SdlVideoBackend.hpp"
 
 #include <algorithm>
@@ -64,14 +65,14 @@ int Application::Run()
         Shutdown();
         return 1;
     }
-    if (config.enableAudio && !audio.Start()) {
+    if (config.enableAudio && !engine->GetAudioManager().IsRunning()) {
         std::cerr << "Audio unavailable; continuing silently: " << SDL_GetError() << '\n';
-        audio.Stop();
     }
 
     std::cout << "Renderer: " << engine->GetVideo().GetBackendName() << '\n'
               << "Framebuffer: " << frameWidth << 'x' << frameHeight
-              << " (CPU), audio: " << (audio.IsRunning() ? "ready" : "disabled") << '\n';
+              << " (CPU), audio: "
+              << (engine->GetAudioManager().IsRunning() ? "16 kHz mono" : "disabled") << '\n';
 
     timer.Reset();
     bool running = true;
@@ -115,6 +116,9 @@ bool Application::InitializeVideo()
     engineConfig.height = frameHeight;
     engineConfig.videoBackend = std::make_unique<soft3d::platform::SdlVideoBackend>(
         config.scale, config.renderer);
+    if (config.enableAudio) {
+        engineConfig.audioBackend = std::make_unique<soft3d::platform::SdlAudioBackend>();
+    }
     engine = std::make_unique<soft3d::GameEngine>(std::move(engineConfig));
     config.resourceArchive = FindResourceArchive(config.resourceArchive);
     engine->SetResourceArchive(WidePath(config.resourceArchive));
@@ -128,7 +132,6 @@ bool Application::InitializeVideo()
 
 void Application::Shutdown()
 {
-    audio.Stop();
     if (engine != nullptr) {
         engine->GetVideo().Stop();
         engine->Shutdown();

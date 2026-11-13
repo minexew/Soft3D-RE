@@ -33,7 +33,6 @@ private:
 
     ApplicationConfig config;
     std::unique_ptr<soft3d::GameEngine> engine;
-    AudioStub audio;
     ControlsStub controls;
     TimerStub timer;
     uint64_t currentFrame = 0;

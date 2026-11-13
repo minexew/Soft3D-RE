@@ -160,7 +160,7 @@ The default enabled traversal walks source pixels linearly while writing destina
 
 ## Portable reconstruction and tests
 
-`Reversed_Game/src/soft3d/` now includes `Engine`, `GameEngine`, `Renderable`, `Renderer`, `Raster`, `BasicShader`, `Object`, `Fixed`, `Font`, `VisString`, `StringManager`, `ScreenBlitter`, `UiManager`, and the initial `GameMenu` state. `GameEngine` retains scene/UI ownership and hook ordering. Scene/gameplay, later menu states, script internals, and audio internals remain explicit stubs.
+`Reversed_Game/src/soft3d/` now includes `Engine`, `GameEngine`, `Renderable`, `Renderer`, `Raster`, `BasicShader`, `Object`, `Fixed`, `Font`, `VisString`, `StringManager`, `ScreenBlitter`, `UiManager`, and the initial `GameMenu` state. `GameEngine` retains scene/UI ownership and hook ordering. Scene/gameplay, later menu states, and script internals remain explicit stubs. `AudioDevice`, `AudioManager`, and `SoundInstance` implement the recovered audio update, mixing, control, fade, and positional paths; see `symbian3rd_audio.md`.
 
 `tests/test_engine.cpp` checks queue capacity and ordering, exact RGB565/XRGB mapping including a non-square portrait mapping, a complete `GameEngine` → dummy `VID_impl` frame, indexed SOJ rasterization, packed material names, animation interpolation truncation, and animation wrapping. `test_font.cpp` exercises the real SBN resources and glyph drawing; `test_ui.cpp` validates the real SDT tables and both handedness frames. The SDL app loads `res.spk` and renders the initial screen through the normal overlay and presentation path.
 

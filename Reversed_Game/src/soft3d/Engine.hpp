@@ -1,5 +1,6 @@
 #pragma once
 
+#include "soft3d/AudioManager.hpp"
 #include "soft3d/Renderable.hpp"
 #include "soft3d/Renderer.hpp"
 #include "soft3d/ScreenBlitter.hpp"
@@ -17,14 +18,7 @@ struct EngineConfig {
     int width = 320;
     int height = 240;
     std::unique_ptr<VideoBackend> videoBackend;
-};
-
-class AudioManagerStub {
-public:
-    void Update() {}
-    void Pause() {}
-    void Resume() {}
-    // The software mixer and Symbian streaming device are not reconstructed yet.
+    std::unique_ptr<AudioBackend> audioBackend;
 };
 
 class InputStub {
@@ -60,6 +54,7 @@ public:
     RenderQueues& GetRenderQueues();
     Renderer& GetRenderer();
     s3dResManager& GetResourceManager();
+    AudioManager& GetAudioManager();
     ScreenBlitter& GetScreenBlitter();
     VID_impl& GetVideo();
     bool IsRunning() const;
@@ -82,7 +77,7 @@ protected:
     int height;
     RenderQueues renderQueues;
     s3dResManager resourceManager;
-    AudioManagerStub audioManager;
+    AudioManager audioManager;
     InputStub input;
     Renderer renderer;
     ScreenBlitter screenBlitter;

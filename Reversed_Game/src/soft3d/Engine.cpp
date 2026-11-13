@@ -7,6 +7,7 @@ namespace soft3d {
 Engine::Engine(EngineConfig config)
     : width(config.width)
     , height(config.height)
+    , audioManager(&resourceManager, std::move(config.audioBackend))
     , renderer(config.width, config.height)
     , video(config.width, config.height, std::move(config.videoBackend))
 {
@@ -128,6 +129,11 @@ Renderer& Engine::GetRenderer()
 s3dResManager& Engine::GetResourceManager()
 {
     return resourceManager;
+}
+
+AudioManager& Engine::GetAudioManager()
+{
+    return audioManager;
 }
 
 ScreenBlitter& Engine::GetScreenBlitter()
