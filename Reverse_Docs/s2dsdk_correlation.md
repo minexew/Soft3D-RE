@@ -244,7 +244,7 @@ The S2D fade fields and `GetPow2(fadeSpeed)` algorithm must **not** be imported 
 - **3D rendering**: S2D `Draw2D` explains the software-blitting heritage but not Soft3D's `Raster`, `Renderer`, fixed-point triangle pipeline, SOJ/SAI data, or 32-bit framebuffer.
 - **Blitter identities**: hundreds of SDK `DrawOL_*` symbols are not evidence for matching ARM function names without independent control-flow comparison. No wholesale renaming was performed.
 - **Audio spatialization**: the reviewed S2D player does not establish Soft3D's 16-voice behavior or `285 - 3.5 * distance` attenuation.
-- **Fade layouts**, key repeat threshold, STX header layout, and Symbian timer units differ or remain platform-dependent. SAU/WAR nibble order is a compile-time format variant, not evidence of a changed decoder generation.
+- **Fade layouts**, key repeat threshold, and STX header layout differ. The Symbian target-FPS interval is now established as `1000000 / fps` microseconds; SDK timing must not replace that ARM-derived behavior. SAU/WAR nibble order is a compile-time format variant, not evidence of a changed decoder generation.
 - **Binary formats**: MIPS objects help with symbols and logic but cannot establish ARM addresses or instruction identity.
 
 ## Ghidra changes from this pass

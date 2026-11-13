@@ -4,7 +4,6 @@
 
 This document covers `SymbianBin/out.bin` (`out.bin` in Ghidra), whose image base is zero. Function names below have been applied to that program. Names ending in `AudioManager`, `AudioPlayer`, and `SoundInstance` describe behavior inferred from call graphs and field use; they are not RTTI names. `AudioData`, `s3dAudioDevice`, `CMixerThread`, `CMixerActive`, and `MMdaAudioOutputStreamCallback` do have RTTI records.
 
-
 Ghidra has `Audio`/`SoftwareMixer` function tags, concrete `AudioVoiceState`, `s3dAudioDevice`, `AudioPlayer`, `AudioManager`, `SoundInstance`, `SoundInstanceVector`, and `CMixerThread` structure types, and `AudioRecovery`, `AudioVoiceStateLayout`, `AudioManagerLayout`, `SoundInstanceLayout`, and `AudioThreadLayout` property maps containing the recovered facts and offsets. The principal forwarding routines, manager methods, thread operations, parameters, and decompiler locals have also been renamed or typed. Voice-control prototypes use the device base; `CMixerThread::state` points to the embedded state at device `+0x04`.
 
 ## RTTI and vtables

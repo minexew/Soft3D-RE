@@ -157,6 +157,12 @@ This produces the 240×320 portrait image in which the phone and labels appear h
 
 Acceptance stores control orientation 1 or 2 through `0x000719ac`, then advances into logo/loading states. Those later states and full dialog text behavior remain reconstruction work.
 
+## Other SDT families and scope
+
+The extension is also used by unrelated game-data tables. `LoadItemDataSdt` (`0x00045d98`) reads `.\common\itemdata.sdt`; `LoadNumberedSdtResourceA` (`0x00046288`) reads numbered `gameitem` tables; and `LoadNumberedSdtResourceB` (`0x00046750`) reads numbered `einfo` tables with nested fixed-size records. Strings also identify `message.sdt` and `config.sdt`. These are not variants of the UI hierarchy and should not be parsed with `ParseStateSdtTable`.
+
+The item/enemy/message content belongs to later game-specific work. Generic menu configuration and the remaining `Dialog` element behavior are included in `engine_completion_plan.md`.
+
 ## Portable implementation and verification
 
 `Reversed_Game/src/soft3d/UiManager.*` implements both parsers and the exact-key image path under a portable functional name. RTTI identifies the original class as `DialogManager`, with `Renderable` as the primary base and `s3dBase` as a secondary base. Its virtual order is `Render`, `Update(context)`, then `SetEngine`; `Render` calls `Update(0)`, and the secondary `s3dBase` vtable uses an adjustment thunk for `SetEngine`. The portable class now retains that interface and dispatch structure. `ScreenBlitter.*` handles palettized STX sources, transparent indices, clipping, and destination scaling. `GameEngine` loads the real tables during initialization, and the SDL application displays the initial state and accepts direction input.
