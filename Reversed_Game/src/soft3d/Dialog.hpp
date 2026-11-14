@@ -65,14 +65,36 @@ struct SdtDialog {
 class Dialog {
 public:
     Dialog(UiManager* manager, uint16_t index, bool active = false);
+    virtual ~Dialog() = default;
 
     int SetStateTime(int32_t stateIndex, int32_t time);
+    void SetTime(int32_t time);
     int SelectState(int32_t stateIndex);
     int ApplyState(int32_t stateIndex);
     int SetElementTime(int32_t stateIndex, int32_t elementIndex, int32_t time);
     void RenderElement(int32_t stateIndex, int32_t elementIndex);
     int RenderElementAtTime(int32_t stateIndex, int32_t elementIndex, int32_t time);
+    bool AdvanceStateTime(int32_t stateIndex);
+    bool AdvanceStateTimeToward(int32_t stateIndex, int32_t start, int32_t target);
+    bool AdvanceElementTime(int32_t stateIndex, int32_t elementIndex);
+    int32_t GetStateEndTime(int32_t stateIndex) const;
+    const SdtAnimationKey* GetKey(int32_t stateIndex, int32_t elementIndex,
+                                  int32_t keyIndex) const;
+    int32_t GetKeyX(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const;
+    int32_t GetKeyY(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const;
+    int32_t GetKeyWidth(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const;
+    int32_t GetKeyHeight(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const;
+    void SetKeyX(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
+    void SetKeyY(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
+    ScreenRect GetKeyDestinationRect(int32_t stateIndex, int32_t elementIndex,
+                                     int32_t keyIndex) const;
+    int RenderNumber(uint32_t value, int32_t x, int32_t y,
+                     int32_t stateIndex, int32_t elementIndex);
+    virtual int HandleInput(int32_t type, int32_t key, int32_t context);
+    virtual int Render(uint32_t context);
+    virtual int Update(uint32_t context);
     int UpdateAndRender(uint32_t context);
+    void InitializeRuntimeTimes();
 
     void SetActive(bool active);
     bool IsActive() const;
@@ -82,12 +104,15 @@ public:
     const SdtVisual* GetVisual(uint32_t index) const;
     SdtDialog& GetData();
     const SdtDialog& GetData() const;
+    UiManager* GetManager() const;
 
 private:
     UiManager* manager;
     SdtDialog data;
+    std::vector<std::vector<int32_t>> elementTimes;
     uint16_t index;
     int32_t stateTime = 0;
+    bool advanceInitialized = true;
     bool active;
 };
 

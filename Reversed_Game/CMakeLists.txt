@@ -28,9 +28,12 @@ add_library(soft3d
     src/soft3d/Dialog.cpp
     src/soft3d/Engine.cpp
     src/soft3d/Font.cpp
+    src/soft3d/GameConfig.cpp
     src/soft3d/GameEngine.cpp
+    src/soft3d/GameUIDlg.cpp
     src/soft3d/Input.cpp
     src/soft3d/MenuBackdrop.cpp
+    src/soft3d/MenuDialogs.cpp
     src/soft3d/Object.cpp
     src/soft3d/ObjectRes.cpp
     src/soft3d/Raster.cpp
@@ -196,6 +199,16 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_ui_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_ui COMMAND soft3d_ui_tests)
+
+    add_executable(soft3d_menu_tests tests/test_menu.cpp)
+    target_link_libraries(soft3d_menu_tests PRIVATE soft3d)
+    target_compile_definitions(soft3d_menu_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_menu_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_menu COMMAND soft3d_menu_tests)
 
     add_executable(soft3d_audio_tests tests/test_audio.cpp)
     target_link_libraries(soft3d_audio_tests PRIVATE soft3d)

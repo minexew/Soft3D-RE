@@ -30,6 +30,8 @@ public:
     result ParseStateSdt(const void* data, size_t size);
 
     void SelectState(uint32_t stateIndex, int32_t time);
+    void AddDialog(std::unique_ptr<Dialog> dialog);
+    int DispatchInput(int32_t type, int32_t key, int32_t context);
     void Render() override;
     virtual void Update(uint32_t context);
     void SetEngine(Engine* engine) override;
@@ -40,6 +42,7 @@ public:
     const Dialog* GetDialogRuntime(size_t index) const;
     TextureRes* GetResourceByIndex(size_t index) const;
     ScreenBlitter* GetScreenBlitter() const;
+    StringManager* GetFont() const;
     const std::vector<std::u16string>& GetResourceNames() const;
     const std::vector<std::u16string>& GetSoundNames() const;
     uint32_t GetStrReserved0() const;
@@ -58,17 +61,6 @@ private:
     uint32_t strReserved0 = 0;
     uint32_t declaredVisualTotal = 0;
     int language = 0;
-};
-
-class Input;
-
-class GameMenu {
-public:
-    void Update(UiManager& uiManager, const Input& input);
-    int32_t GetSelection() const;
-
-private:
-    int32_t selection = 0;
 };
 
 } // namespace soft3d

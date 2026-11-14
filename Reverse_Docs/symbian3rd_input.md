@@ -52,10 +52,28 @@ The query helpers match the S2D inline definitions: `IsKeyDown` and `IsKeyUp` te
 
 `Engine_RunFrame` calls `Input_Update` after video presentation, so consumers see transient flags for one complete frame before they are cleared.
 
+## Menu control map
+
+The scene control object has eight secondary bindings at `+0x28` and eight primary bindings at `+0x48`. `ControlMap_SetOrientation` (`0x000534a4`) installs both sets; changing handedness therefore resets customized secondary bindings as well as the primary directions.
+
+| Action | Up | Down | Left | Right |
+|---|---:|---:|---:|---:|
+| Action number | 1 | 2 | 3 | 4 |
+| Orientation 0 primary | Up (15) | Down (16) | Left (13) | Right (14) |
+| Orientation 1 primary | Left (13) | Right (14) | Down (16) | Up (15) |
+| Orientation 2 primary | Right (14) | Left (13) | Up (15) | Down (16) |
+| Orientation 0 secondary | Number4 (5) | Number0 (11) | Number7 (7) | Number9 (9) |
+| Orientation 1 secondary | Number7 (7) | Number9 (9) | Number0 (11) | Number4 (5) |
+| Orientation 2 secondary | Number9 (9) | Number7 (7) | Number4 (5) | Number0 (11) |
+
+Action 6 defaults to Number1 for map and action 7 to Number3 for menu. The eight words serialized at the start of `config.sdt` are the secondary bindings, including the unused action-zero slot. `ControlMap_IsActionClicked` (`0x00053dc0`) tests `CLICK`; `ControlMap_IsActionDown` (`0x00053a84`) tests `DOWN`. Their mode argument selects primary-only or primary-plus-secondary matching, and the action-gate argument honors the corresponding action-enable word.
+
+`GameEngine_SetControlOrientation` (`0x000719ac`) stores the orientation, updates the renderer, and calls `ControlMap_SetOrientation`. Options can reassign secondary bindings while excluding duplicates. See `sdt_format.md` for the configuration file and concrete dialogs.
+
 ## Portable and SDL implementation
 
 `Reversed_Game/src/soft3d/Input.*` implements the state machine and exact Symbian translation table. `Engine::GetInput` replaces `InputStub`; the initial menu now reads this state directly rather than accepting app-specific booleans.
 
 `src/platform/sdl/SdlInput.*` is the only SDL event-mapping layer. Arrows and WASD map to engine directions, digits to number keys, Q/E to soft keys, and Space/Enter/keypad Enter to `Accept`. Every SDL key-down, including repeats, calls `KeyDown`, preserving the engine repeat counter. Escape remains an application quit command and maps to no engine key.
 
-`tests/test_input.cpp` covers all 23 keys and aliases, first-down/click clearing, six-call repeat threshold, persistent press state, simultaneous keys, lifecycle clearing, deterministic 17 FPS timing, and opt-in FPS text. `tests/test_sdlinput.cpp` covers SDL orientation aliases, digits, soft/accept keys, repeat events, simultaneous keys, and ignored non-key events.
+`GameConfig.*` implements the recovered control map and exact config serialization. `tests/test_input.cpp` covers all 23 keys and aliases, first-down/click clearing, six-call repeat threshold, persistent press state, simultaneous keys, lifecycle clearing, deterministic 17 FPS timing, and opt-in FPS text. `tests/test_sdlinput.cpp` covers SDL orientation aliases, digits, soft/accept keys, repeat events, simultaneous keys, and ignored non-key events. `tests/test_menu.cpp` exercises orientation-dependent navigation and configuration round trips.

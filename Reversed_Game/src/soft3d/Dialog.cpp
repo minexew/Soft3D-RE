@@ -2,6 +2,9 @@
 
 #include "soft3d/TextureRes.hpp"
 #include "soft3d/UiManager.hpp"
+#include "soft3d/s3dIO.hpp"
+
+#include <algorithm>
 
 namespace soft3d {
 namespace {
@@ -32,6 +35,11 @@ int Dialog::SetStateTime(int32_t stateIndex, int32_t time)
     stateTime = time;
     SelectState(stateIndex);
     return 1;
+}
+
+void Dialog::SetTime(int32_t time)
+{
+    stateTime = time;
 }
 
 int Dialog::SelectState(int32_t stateIndex)
@@ -157,8 +165,8 @@ void Dialog::RenderElement(int32_t stateIndex, int32_t elementIndex)
     const ScreenRect destination{visual->x, visual->y,
         visual->x + visual->sourceWidth * visual->width / visual->widthDivisor,
         visual->y + visual->sourceHeight * visual->height / visual->heightDivisor};
-    manager->GetScreenBlitter()->Blit(visual->resource->GetTexture(), destination, source,
-                                      static_cast<uint32_t>(visual->blitMode), secondary);
+    blitter->Blit(visual->resource->GetTexture(), destination, source,
+                  static_cast<uint32_t>(visual->blitMode), secondary);
 }
 
 int Dialog::RenderElementAtTime(int32_t stateIndex, int32_t elementIndex, int32_t time)
@@ -168,10 +176,219 @@ int Dialog::RenderElementAtTime(int32_t stateIndex, int32_t elementIndex, int32_
     return 1;
 }
 
-int Dialog::UpdateAndRender(uint32_t context)
+bool Dialog::AdvanceStateTime(int32_t stateIndex)
+{
+    SelectState(stateIndex);
+    ++stateTime;
+    if (stateTime < GetStateEndTime(stateIndex)) {
+        return false;
+    }
+    stateTime = 0;
+    return true;
+}
+
+bool Dialog::AdvanceStateTimeToward(int32_t stateIndex, int32_t start, int32_t target)
+{
+    if (advanceInitialized) {
+        stateTime = start;
+        advanceInitialized = false;
+    }
+    SelectState(stateIndex);
+    if (start < target) {
+        ++stateTime;
+        if (stateTime <= target) {
+            return false;
+        }
+    } else {
+        --stateTime;
+        if (stateTime >= target) {
+            return false;
+        }
+    }
+    stateTime = start;
+    advanceInitialized = true;
+    return true;
+}
+
+bool Dialog::AdvanceElementTime(int32_t stateIndex, int32_t elementIndex)
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
+        static_cast<size_t>(stateIndex) >= elementTimes.size() || elementIndex < 0 ||
+        static_cast<size_t>(elementIndex) >= elementTimes[stateIndex].size()) {
+        return true;
+    }
+    int32_t& time = elementTimes[stateIndex][elementIndex];
+    RenderElementAtTime(stateIndex, elementIndex, time);
+    const SdtElement& element = data.states[stateIndex].elements[elementIndex];
+    const int32_t endTime = element.keys.empty() ? 0 : KeyValue(element.keys.back().time);
+    ++time;
+    if (time <= endTime) {
+        return false;
+    }
+    time = 0;
+    return true;
+}
+
+int32_t Dialog::GetStateEndTime(int32_t stateIndex) const
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size()) {
+        return 0;
+    }
+    int32_t result = 0;
+    for (const SdtElement& element : data.states[stateIndex].elements) {
+        if (!element.keys.empty()) {
+            result = std::max(result, static_cast<int32_t>(KeyValue(element.keys.back().time)));
+        }
+    }
+    return result;
+}
+
+const SdtAnimationKey* Dialog::GetKey(int32_t stateIndex, int32_t elementIndex,
+                                      int32_t keyIndex) const
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
+        elementIndex < 0 || keyIndex < 0) {
+        return nullptr;
+    }
+    const SdtState& state = data.states[stateIndex];
+    if (static_cast<size_t>(elementIndex) >= state.elements.size()) {
+        return nullptr;
+    }
+    const SdtElement& element = state.elements[elementIndex];
+    return static_cast<size_t>(keyIndex) < element.keys.size() ? &element.keys[keyIndex] : nullptr;
+}
+
+int32_t Dialog::GetKeyX(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const
+{
+    const SdtAnimationKey* key = GetKey(stateIndex, elementIndex, keyIndex);
+    return key != nullptr ? KeyValue(key->x) : 0;
+}
+
+int32_t Dialog::GetKeyY(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const
+{
+    const SdtAnimationKey* key = GetKey(stateIndex, elementIndex, keyIndex);
+    return key != nullptr ? KeyValue(key->y) : 0;
+}
+
+int32_t Dialog::GetKeyWidth(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const
+{
+    const SdtAnimationKey* key = GetKey(stateIndex, elementIndex, keyIndex);
+    return key != nullptr ? KeyValue(key->width) : 0;
+}
+
+int32_t Dialog::GetKeyHeight(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const
+{
+    const SdtAnimationKey* key = GetKey(stateIndex, elementIndex, keyIndex);
+    return key != nullptr ? KeyValue(key->height) : 0;
+}
+
+void Dialog::SetKeyX(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value)
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
+        elementIndex < 0 || keyIndex < 0) {
+        return;
+    }
+    SdtState& state = data.states[stateIndex];
+    if (static_cast<size_t>(elementIndex) >= state.elements.size()) {
+        return;
+    }
+    SdtElement& element = state.elements[elementIndex];
+    if (static_cast<size_t>(keyIndex) < element.keys.size()) {
+        element.keys[keyIndex].x = value;
+    }
+}
+
+void Dialog::SetKeyY(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value)
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
+        elementIndex < 0 || keyIndex < 0) {
+        return;
+    }
+    SdtState& state = data.states[stateIndex];
+    if (static_cast<size_t>(elementIndex) >= state.elements.size()) {
+        return;
+    }
+    SdtElement& element = state.elements[elementIndex];
+    if (static_cast<size_t>(keyIndex) < element.keys.size()) {
+        element.keys[keyIndex].y = value;
+    }
+}
+
+ScreenRect Dialog::GetKeyDestinationRect(int32_t stateIndex, int32_t elementIndex,
+                                         int32_t keyIndex) const
+{
+    const int32_t x = GetKeyX(stateIndex, elementIndex, keyIndex);
+    const int32_t y = GetKeyY(stateIndex, elementIndex, keyIndex);
+    return {x, y, x + GetKeyWidth(stateIndex, elementIndex, keyIndex),
+            y + GetKeyHeight(stateIndex, elementIndex, keyIndex)};
+}
+
+int Dialog::RenderNumber(uint32_t value, int32_t x, int32_t y,
+                         int32_t stateIndex, int32_t elementIndex)
+{
+    const int32_t signedValue = static_cast<int32_t>(value);
+    const uint32_t magnitude = signedValue < 0
+        ? 0U - static_cast<uint32_t>(signedValue) : static_cast<uint32_t>(signedValue);
+    if (magnitude > 100000) {
+        return 0;
+    }
+    const SdtAnimationKey* widthKey = GetKey(stateIndex, elementIndex, 1);
+    if (widthKey == nullptr) {
+        return 0;
+    }
+    char16_t text[10];
+    WideSprintf(text, u"%d", signedValue);
+    const int32_t digitWidth = KeyValue(widthKey->sourceWidth);
+    int32_t length = 0;
+    while (text[length] != u'\0') {
+        ++length;
+    }
+    for (int32_t index = length - 1; index >= 0; --index) {
+        const int32_t digit = static_cast<int32_t>(text[index]) - 0x30;
+        if (digit >= 0) {
+            SetKeyX(stateIndex, elementIndex, digit + 1, x);
+            SetKeyY(stateIndex, elementIndex, digit + 1, y);
+            RenderElementAtTime(stateIndex, elementIndex, digit + 1);
+            x -= digitWidth;
+        }
+    }
+    return length * digitWidth;
+}
+
+int Dialog::HandleInput(int32_t type, int32_t key, int32_t context)
+{
+    (void)type;
+    (void)key;
+    (void)context;
+    return 0;
+}
+
+int Dialog::Render(uint32_t context)
 {
     (void)context;
     return 1;
+}
+
+int Dialog::Update(uint32_t context)
+{
+    (void)context;
+    return 1;
+}
+
+int Dialog::UpdateAndRender(uint32_t context)
+{
+    Render(context);
+    Update(context);
+    return 1;
+}
+
+void Dialog::InitializeRuntimeTimes()
+{
+    elementTimes.clear();
+    elementTimes.reserve(data.states.size());
+    for (const SdtState& state : data.states) {
+        elementTimes.emplace_back(state.elements.size(), 0);
+    }
 }
 
 void Dialog::SetActive(bool value)
@@ -212,6 +429,11 @@ SdtDialog& Dialog::GetData()
 const SdtDialog& Dialog::GetData() const
 {
     return data;
+}
+
+UiManager* Dialog::GetManager() const
+{
+    return manager;
 }
 
 } // namespace soft3d

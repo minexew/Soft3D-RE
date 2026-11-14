@@ -124,6 +124,11 @@ void TestFixedPointDistance()
 
 void TestManagerWithRealAudio()
 {
+    const std::array<uint8_t, 1> shortInput = {0};
+    std::array<int16_t, 2> shortPcm = {-1, -1};
+    soft3d::DecodeSauAdpcm(shortInput.data(), shortInput.size(), shortPcm.data());
+    CHECK(shortPcm[0] == 0 && shortPcm[1] == 0);
+
     soft3d::s3dResManager resources;
     const std::filesystem::path archive = SOFT3D_TEST_ARCHIVE;
     CHECK(soft3d::OpenGameResourceArchive(&resources, archive.u16string().c_str()) == soft3d::S3D_OK);
@@ -153,6 +158,11 @@ void TestManagerWithRealAudio()
     for (int voice = 0; voice < 16; ++voice) {
         CHECK(manager.IsVoiceFinished(voice));
     }
+    auto* uiData = static_cast<soft3d::AudioData*>(resources.GetResource(
+        soft3d::ResourceAudio, 3, u"ui_selectitem", u".\\audio\\"));
+    CHECK(uiData != nullptr);
+    CHECK(manager.PlaySound(uiData) == 1);
+    manager.StopAllSounds();
 
     manager.PlayMusic(u"7DaysPiano03", false, 4);
     const std::array<int, 5> fadeVolumes = {0, 192, 224, 224, 256};

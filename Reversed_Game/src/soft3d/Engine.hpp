@@ -37,6 +37,7 @@ public:
     virtual void SaveGameState() = 0;
 
     void Start();
+    void Stop();
     virtual void Suspend();
     virtual void Resume();
     bool RunFrame();

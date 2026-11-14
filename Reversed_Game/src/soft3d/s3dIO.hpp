@@ -28,7 +28,7 @@ public:
     bool Reopen(const char16_t* path, const char16_t* mode);
 
 private:
-    platform::File* file;
+    platform::File* file = nullptr;
 };
 
 int FormatWideString(char16_t* output, const char16_t* format, va_list arguments);

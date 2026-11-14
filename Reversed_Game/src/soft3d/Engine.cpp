@@ -39,6 +39,11 @@ void Engine::Start()
     }
 }
 
+void Engine::Stop()
+{
+    running = false;
+}
+
 void Engine::Suspend()
 {
     if (running) {

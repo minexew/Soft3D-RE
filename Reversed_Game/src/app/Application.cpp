@@ -74,7 +74,7 @@ int Application::Run()
               << (engine->GetAudioManager().IsRunning() ? "16 kHz mono" : "disabled") << '\n';
 
     bool running = true;
-    while (running && (config.maximumFrames == 0 ||
+    while (running && engine->IsRunning() && (config.maximumFrames == 0 ||
                        currentFrame < static_cast<uint64_t>(config.maximumFrames))) {
         SDL_Event event{};
         while (SDL_PollEvent(&event)) {

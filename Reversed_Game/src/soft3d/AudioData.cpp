@@ -2,6 +2,7 @@
 
 #include "soft3d/s3dFilePak.hpp"
 
+#include <algorithm>
 #include <array>
 #include <cstdio>
 #include <cstdlib>
@@ -92,7 +93,9 @@ void DecodeSauAdpcm(const void* compressed, int32_t compressedBytes, int16_t* pc
         if (bitOffset < 28) {
             bitOffset += 4;
         } else {
-            std::memcpy(&word, input, sizeof(word));
+            word = 0;
+            const size_t remaining = static_cast<size_t>(end - input);
+            std::memcpy(&word, input, std::min(remaining, sizeof(word)));
             bitOffset = 0;
         }
         if (((bitOffset >> 2) & 1) != 0) {

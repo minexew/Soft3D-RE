@@ -18,14 +18,15 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - BSP/PVS visibility, fixed-point face rendering, RGB444 lightmaps, S3DSTY loading/advancement, and visible map-model submission;
 - SPL parsing/evaluation/derivatives, chord-weighted path timing, camera projection, `CameraSpot`/`DummySpot`, and the complete menu 3D backdrop;
 - engine queue ordering and presentation, dummy video, and the SDL application shell;
-- 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text.
+- 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text;
+- complete startup/sound/main-menu flow, all seven concrete dialog classes, orientation-aware controls, and `config.sdt`/save-slot persistence.
 
 These foundations still have partial areas: material fields, Object loading/control APIs, raster feature parity, and the game hooks that invoke audio are not automatically supplied by the audio implementation.
 
 ### Missing or incomplete engine facilities
 
 - `Bsp` collision and integration of loaded map models/entities into later unit systems;
-- later `GameMenu` states and concrete menu dialog classes;
+- episode-specific `Scene` gameplay, concrete units, and game-data semantics;
 - SST parsing/execution and the generic script interface;
 - specialized raster clipping, depth, perspective, blend, lighting, texture-coordinate, detail-texture, and inner-loop paths;
 - Fade, Gray, MotionBlur, Blind, Ink, and Twist presentation shaders;
@@ -144,11 +145,11 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 All 26 blitter entries are implemented: six modes with scaled/unscaled and opaque/color-key variants, plus two secondary-alpha loops. Tests cover exact RGB565 arithmetic, fixed-point clipping/scaling, interpolation boundaries, primary/secondary pixels, the scaled secondary color-key bug, and the clear loop's unchanged pixel zero. Text coverage includes wrapping, right/center anchoring, and ranged drawing. The full 16-test CTest suite and both SDL smoke tests pass; the new UI and font suites also pass under AddressSanitizer and UndefinedBehaviorSanitizer. See `sdt_format.md` and `symbian3rd_video.md` for layouts, formulas, addresses, and original quirks.
 
-## Stage 6 — Menu flow, remaining dialogs, and configuration SDT
+## Stage 6 — Menu flow, remaining dialogs, and configuration SDT — complete
 
 **Scope**
 
-- Recover `GameMenu`, `MainUIDlg`, `PlayDlg`, `OptionDlg`, `LoadDlg`, `HelpDlg`, `AboutDlg`, and `GameUIDlg` engine-facing behavior.
+- Recover `MainUIDlg`, `PlayDlg`, `OptionDlg`, `LoadDlg`, `HelpDlg`, `AboutDlg`, and `GameUIDlg` engine-facing behavior. RTTI corrected the earlier `GameMenu` name to `MainUIDlg`.
 - Implement handedness acceptance, logo/loading transitions, main-menu navigation, options/load/help/about flow, and their audio/video calls.
 - Recover `config.sdt` as the menu/configuration persistence facility.
 - Reuse the stage 3 background and stage 4 input rather than adding parallel menu-only input or rendering paths.
@@ -157,6 +158,12 @@ All 26 blitter entries are implemented: six modes with scaled/unscaled and opaqu
 
 - Drive handedness → startup → main menu and each dialog with deterministic input and dummy video.
 - Test configuration round trips, menu audio triggers, and returning to the background without resource leaks.
+
+**Completion**
+
+`MenuDialogs.*`, `GameUIDlg.*`, `GameConfig.*`, `GameContent.*`, and the expanded `GameEngine`/`Dialog`/`UiManager` implement the recovered behavior. Construction order matches SDT indices 0–6: Main, Option, About, Help, Play, Load, GameUI. Startup includes the previously missed state-3 sound-enable prompt before the main menu. The exact 1,252-byte `config.sdt` layout and 44-byte save-slot headers are implemented and documented. UI sound indices use the separate `ui_select`/`ui_selectitem`/etc. table, not `str.sdt` sound names.
+
+`tests/test_menu.cpp` drives real startup resources through handedness, logos, sound selection, every concrete dialog family, model/document/photo navigation, GameUI inventory/options/map states, UI voices, and configuration round trips. All 17 CTest tests and both SDL smoke tests pass. UI, menu, and audio also pass under AddressSanitizer and UndefinedBehaviorSanitizer; sanitizer testing exposed and fixed the SAU decoder's final overlapping-word out-of-bounds read without changing decoded samples. Episode map/HUD/model rendering and item effects remain host hooks, while GameUI resource acquisition and portable menu state behavior are implemented. See `sdt_format.md`, `gameengine_api.md`, `symbian3rd_input.md`, and `symbian3rd_audio.md`.
 
 ## Stage 7 — Rasterizer and renderer feature parity
 

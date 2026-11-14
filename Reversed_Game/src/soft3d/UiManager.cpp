@@ -151,10 +151,16 @@ result UiManager::ParseStateSdt(const void* data, size_t size)
     if (!input.Read32(declaredVisualTotal) || !input.Read32(dialogCount)) {
         return S3D_FORMAT;
     }
-    dialogs.clear();
     dialogs.reserve(dialogCount);
     for (uint32_t dialogIndex = 0; dialogIndex < dialogCount; ++dialogIndex) {
-        auto dialog = std::make_unique<Dialog>(this, static_cast<uint16_t>(dialogIndex));
+        Dialog* dialog;
+        if (dialogIndex < dialogs.size()) {
+            dialog = dialogs[dialogIndex].get();
+        } else {
+            auto newDialog = std::make_unique<Dialog>(this, static_cast<uint16_t>(dialogIndex));
+            dialog = newDialog.get();
+            dialogs.push_back(std::move(newDialog));
+        }
         SdtDialog& definition = dialog->GetData();
         uint32_t visualCount;
         if (!input.Read32(visualCount) || input.size / 12 < visualCount) {
@@ -227,7 +233,7 @@ result UiManager::ParseStateSdt(const void* data, size_t size)
                 }
             }
         }
-        dialogs.push_back(std::move(dialog));
+        dialog->InitializeRuntimeTimes();
     }
     return input.size == 0 ? S3D_OK : S3D_FORMAT;
 }
@@ -238,6 +244,22 @@ void UiManager::SelectState(uint32_t stateIndex, int32_t time)
     if (dialog != nullptr) {
         dialog->SetStateTime(static_cast<int32_t>(stateIndex), time);
     }
+}
+
+void UiManager::AddDialog(std::unique_ptr<Dialog> dialog)
+{
+    dialogs.push_back(std::move(dialog));
+}
+
+int UiManager::DispatchInput(int32_t type, int32_t key, int32_t context)
+{
+    for (auto iterator = dialogs.rbegin(); iterator != dialogs.rend(); ++iterator) {
+        Dialog* dialog = iterator->get();
+        if (dialog->IsActive() && dialog->HandleInput(type, key, context) != 0) {
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void UiManager::Render()
@@ -290,6 +312,11 @@ ScreenBlitter* UiManager::GetScreenBlitter() const
     return screenBlitter;
 }
 
+StringManager* UiManager::GetFont() const
+{
+    return font;
+}
+
 const std::vector<std::u16string>& UiManager::GetResourceNames() const
 {
     return resourceNames;
@@ -331,22 +358,6 @@ uint32_t UiManager::InternTextureName(const std::u16string& name)
     resourceNames.push_back(name);
     resources.push_back(resource);
     return static_cast<uint32_t>(resourceNames.size() - 1);
-}
-
-void GameMenu::Update(UiManager& uiManager, const soft3d::Input& input)
-{
-    if (input.IsKeyDown(Key::Left)) {
-        selection = 0;
-    }
-    if (input.IsKeyDown(Key::Right)) {
-        selection = 1;
-    }
-    uiManager.SelectState(7, selection);
-}
-
-int32_t GameMenu::GetSelection() const
-{
-    return selection;
 }
 
 } // namespace soft3d

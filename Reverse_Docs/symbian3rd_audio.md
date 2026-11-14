@@ -53,6 +53,10 @@ The `CMixerThread` secondary-vtable callbacks adjust `this` by `-4` and forward 
 
 Each compressed byte produces two PCM samples, so the stored value is a sample count rather than a byte count. The allocation is exactly large enough for the decoded samples; there is no extra decoded-data tail. No sample rate or channel count is stored by this loader.
 
+The original overlapping 32-bit reload can request four bytes with fewer than four bytes remaining in the compressed allocation. The portable decoder copies the remaining bytes into a zero-initialized word instead of reading past the buffer; the bits consumed by the final samples are unchanged. `ui_selectitem.sau` (1,010 bytes) exercises this boundary in the real menu path, and a one-byte synthetic case covers it directly.
+
+Menu sound indices use a separate table, not the three names in `str.sdt`: indices 0–7 are `ui_select`, `ui_selectitem`, `ui_confirm`, `ui_cancel`, `ui_item`, `ui_false`, `ui_paper`, and `t_lock_open`. `GameEngine` binds this table before constructing the menu dialogs.
+
 `GetAudioDataPcmSampleCount` (`0x001145c8`) returns `+0x12c`; `GetAudioDataPcmBuffer` (`0x001145f0`) returns `+0x130`.
 
 The S2D SDK's `AudioData::DecoderVer` uses the same step/index tables and predictor algorithm, confirming shared ancestry. It consumes the high nibble first, whereas the examined Soft3D SAU build consumes the low nibble first. WAR is the same format with high-nibble-first order; because each runtime has hardcoded order and no runtime swap, this was probably selected by a compile-time option rather than representing a Soft2D/Soft3D format change. S2D's eight-channel `AudioPlayer` also expands into the 16-voice Soft3D mixer. See `s2dsdk_correlation.md`.
@@ -266,4 +270,4 @@ The reconstruction now implements the recovered pipeline in:
 
 `AudioBackend` is the platform boundary corresponding to the device stream, not to SDL's voice mixer. `s3dAudioDevice` retains a worker analogous to `CMixerThread`; SDL receives completed **mono signed-16-bit 16 kHz** PCM through `SDL_PutAudioStreamData`. SDL's stream handles device-format conversion only. Pause/resume closes and recreates the SDL stream, matching the original command semantics rather than resetting voices. A null backend leaves the manager and manually driven `MixBlock` usable for tests and silent builds.
 
-`tests/test_audio.cpp` checks exact direct and shift arithmetic, negative rounding, saturation, looping and completion, mode reset, voice allocation, real `7DaysPiano03.sau` playback, fade quantization, global-volume gating, fixed-point distances, positional muting, threaded pause/resume, and backend start failure. CTest also runs the SDL app with dummy video and audio drivers so the actual SDL stream lifecycle is exercised headlessly.
+`tests/test_audio.cpp` checks exact direct and shift arithmetic, negative rounding, saturation, looping and completion, mode reset, voice allocation, real `7DaysPiano03.sau` and `ui_selectitem.sau` playback, the one-byte/final-word decoder boundary, fade quantization, global-volume gating, fixed-point distances, positional muting, threaded pause/resume, and backend start failure. The audio suite also passes under AddressSanitizer and UndefinedBehaviorSanitizer. CTest runs the SDL app with dummy video and audio drivers so the actual SDL stream lifecycle is exercised headlessly.

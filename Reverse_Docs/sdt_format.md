@@ -224,10 +224,10 @@ The portable `Font` now implements `CountCodesOnWidth`, `CountTextWidthRange`, a
 
 ## Initial handedness state
 
-`GameMenu` is the first dialog in the manager. Its initial game-state code calls:
+`MainUIDlg` is the first dialog in the manager. Its initial game-state code calls:
 
 ```c
-Dialog_SetStateTime(gameMenu, 7, selection);
+Dialog_SetStateTime(this, 7, selection);
 ```
 
 Thus the first screen is **state array index 7**, whose stored `stateId` is 2. It contains five behavior-zero elements:
@@ -251,7 +251,82 @@ destinationIndex = height * (width - 1 - x) + y
 
 This produces the 240×320 portrait image in which the phone and labels appear horizontal. The portable SDL backend presents that portrait result directly.
 
-Acceptance stores control orientation 1 or 2 through `0x000719ac`, then advances into logo/loading states. Those later menu states belong to stage 6 rather than the generic dialog implementation.
+The original renders the current selection before reading directional clicks, so a changed palette appears on the following frame. Direction actions use click, not merely down. Acceptance stores control orientation 1 or 2 through `GameEngine_SetControlOrientation` (`0x000719ac`), then advances into the logo/loading states documented below.
+
+## Startup modes and the sound-enable prompt
+
+RTTI identifies the first dialog as `MainUIDlg`, not `GameMenu`; `GameMenu` was a convenient but incorrect name used by earlier notes. `MainUIDlg_Ctor` is `0x0004e9c0`, `MainUIDlg_Init` is `0x0004eca0`, and `MainUIDlg_Update` is `0x0004f0cc`.
+
+After handedness, `MainUIDlg` uses these modes:
+
+| Mode | Behavior |
+|---:|---|
+| 1 | Publisher logo in state 9; leaves after animation completion or more than 12 frames. |
+| 100 | Soft3D logo in state 0, with manual advancement of behavior-one elements 8 and 9. |
+| 2 | Disclaimer in state 1, then loads three save-slot headers. |
+| 3 | Sound-enable prompt, described below. |
+| 4 | Authorization/registration flow. Its platform services remain outside the portable engine boundary. |
+| 5 | Seven-entry main menu in state 5. |
+| 6 | Exit confirmation; acceptance saves `config.sdt` and exits, cancel returns to mode 5. |
+| 7 | Extra notice in state 1 with manual element 3. |
+| 8 | New-game weapon/outfit selection, gated by the three final config flags. |
+
+Mode 3 is the previously undocumented screen shown immediately before the main menu. It is not a separate dialog class: it is `MainUIDlg` state 3 with six elements. The base-rendered resources are `beijing_01`, `activate`, `yes`, `no`, and `tishi_a`; `tishi_b` is behavior one.
+
+Left/up selects **No**, while right/down selects **Yes**. Each change plays UI sound index 1. Acceptance with Accept, Number6, or either soft key:
+
+1. stops music and all sounds;
+2. sets global volume to 0 for No or 255 for Yes;
+3. resets the main-menu selection and advances directly to mode 5;
+4. loads the menu BSP/SPL backdrop if it is not active;
+5. loops `e_wind01`.
+
+The prompt's state selection is 1 for No and 0 for Yes. As in handedness, the current visual is drawn before processing that frame's direction click.
+
+## Concrete dialog mapping and behavior
+
+Construction order and SDT indices match exactly. `ParseStateSdtTable` populates objects already registered with `DialogManager`; it does not create replacements.
+
+| Index | RTTI class | Important entries |
+|---:|---|---|
+| 0 | `MainUIDlg` | Ctor `0x0004e9c0`, update `0x0004f0cc`. |
+| 1 | `OptionDlg` | Ctor `0x00049c6c`, update `0x00049ec0`, controls `0x0004a760`. |
+| 2 | `AboutDlg` | Ctor `0x0004b5c0`, update `0x0004bbc8`, model preparation `0x0004b78c`. |
+| 3 | `HelpDlg` | Ctor `0x0004d460`, update `0x0004d650`, credits `0x0004dd84`, input `0x0004dfd0`. |
+| 4 | `PlayDlg` | Ctor `0x0004e34c`, update `0x0004e65c`, input `0x0004e5a8`. |
+| 5 | `LoadDlg` | Ctor `0x0004ad4c`, update `0x0004af0c`, play-time drawing `0x0004b2b8`. |
+| 6 | `GameUIDlg` | Ctor `0x00055130`, initialization `0x00055360`, update `0x000566cc`. |
+
+`Dialog_UpdateAndRender` (`0x000f8480`) invokes the derived vtable `+0x14` render/state handler first and vtable `+0x10` input/update handler second. `DialogManager_DispatchInput` (`0x000f6c44`) walks active dialogs in reverse list order and stops at the first handler returning nonzero. Non-game `GameEngine_PreUpdate` dispatches the first clicked key in this priority order: Up, Left, Down, Right, soft left, soft right, Accept, then Number1 through Number0.
+
+- `OptionDlg` has main, control-binding, handedness, and confirmation pages. Volume uses the highest set bit of `masterVolume + 1`, clamped to levels 0–8, and writes `1 << level`. Vibration toggles on either horizontal action. Binding changes skip keys already assigned to another action.
+- `AboutDlg` is the extras viewer. It browses unlocked models with 16-frame transitions and fixed-point zoom, and browses documents/photos in one circular sequence: documents ascend/descend first, then photos. Document text uses the recovered StringManager range APIs; photos use `photo_200%d` for 1–9 and `photo_20%d` afterward.
+- `HelpDlg` draws 140 credit strings at indices 450–589, scrolling two pixels per frame. Ordinary credits loop after the animation; they do not automatically open statistics. Statistics use SDT state 2 and the generic digit renderer for five counters and hours/minutes/seconds.
+- `PlayDlg` advances state 0 every frame and deactivates at completion. Accept or Number6 skips directly to new-game startup.
+- `LoadDlg` shows three slots and renders empty records or day/play-time information. Acceptance first checks `slot%d.sav`; failure plays UI sound 6, while success enters the game load path.
+- `GameUIDlg` owns the large in-game table. Its menu modes are 0/11 transitions, 1 pause, 2 inventory, 3 map, 4 files, 5 options, 6 examine, 7 controls, 8 return-to-menu confirmation, 9 exit confirmation, 10 item action, 12 game over, and 14 combination. Initialization acquires the prompt/QTE/story/door texture set. Episode map/HUD drawing, model submission, and item effects remain host operations rather than invented portable episode logic.
+
+## `config.sdt`
+
+`config.sdt` is an external file opened through `s3dIO`, not an SPK entry and not a `state.sdt` hierarchy. `GameEngine_LoadConfigSdt` is `0x0006f39c`; `GameEngine_SaveConfigSdt` is `0x0006f6a4`. The fixed little-endian layout is 1,252 bytes:
+
+| Offset | Size | Meaning |
+|---:|---:|---|
+| `0x000` | 32 | Eight secondary-control binding words. |
+| `0x020` | 4 | Master-volume word. |
+| `0x024` | 4 | Vibration-enabled word. |
+| `0x028` | 400 | One hundred unlocked-model words. |
+| `0x1b8` | 400 | One hundred unlocked-document words. |
+| `0x348` | 400 | One hundred unlocked-photo words. |
+| `0x4d8` | 4 | Extra weapon 0 unlock. |
+| `0x4dc` | 4 | Extra weapon 1 unlock. |
+| `0x4e0` | 4 | New-game options/completion flag. |
+
+The original loader reads the entire file without a layout-size guard. The portable parser requires at least 1,252 bytes and ignores trailing data. Saving refreshes the volume from the audio device before writing. The unlock arrays contain persistence flags only; model names, text indices, item definitions, and other episode content do not belong to this file.
+
+The three `str.sdt` sound names are not the menu sound table used by `AudioManager_PlaySoundByIndex`. UI indices 0–7 instead resolve to `ui_select`, `ui_selectitem`, `ui_confirm`, `ui_cancel`, `ui_item`, `ui_false`, `ui_paper`, and `t_lock_open`.
+
+Each save slot is a separate 44-byte `slot%d.sav` header. Its confirmed fields are day at `0x00`, play time at `0x14`, and present flag at `0x18`; the other words are consumed by the later game loader and are not reinterpreted here.
 
 ## Other SDT families and scope
 
@@ -263,6 +338,6 @@ The item/enemy/message content belongs to later game-specific work. Generic menu
 
 `Reversed_Game/src/soft3d/UiManager.*` implements both parsers and manager ownership under a portable functional name. RTTI identifies the original manager as `DialogManager`, with `Renderable` as the primary base and `s3dBase` as a secondary base. Its virtual order is `Render`, `Update(context)`, then `SetEngine`; `Render` calls `Update(0)`, and the secondary `s3dBase` vtable uses an adjustment thunk for `SetEngine`.
 
-`Dialog.*` supplies a runtime object for every parsed dialog, active flags, state selection, exact/interpolated key application, out-of-range visibility, behavior filtering, and primary/secondary rendering. `ScreenBlitter.*` implements all 26 mode-table paths, fixed-point clipping/scaling, color keys, RGB565 blend arithmetic, and secondary alpha behavior. `Font.*` supplies the rectangle/range text integration. `GameEngine` activates dialog 0 for the initial handedness screen; the other six generic dialogs are available through `GetDialogRuntime`.
+`Dialog.*` supplies active flags, virtual derived handlers, state selection, exact/interpolated key application, visibility, advancement, key accessors, and digit rendering. `MenuDialogs.*` implements the six menu-family classes; `GameUIDlg.*` implements the in-game dialog and its resource/menu lifecycle. `GameConfig.*` implements exact serialization and orientation-aware controls. `GameEngine` constructs all seven classes before parsing `state.sdt`, dispatches input in the recovered order, loads/saves configuration, and binds the actual UI audio names.
 
-`tests/test_ui.cpp` validates the complete real archive, all 923 exact keys, all 30 state selections, behavior counts, secondary resource naming, every blit mode in scaled and unscaled opaque/color-key forms, interpolation boundaries, clipping, scaling, secondary-alpha bugs, and both handedness frames. `tests/test_font.cpp` covers real glyphs, wrapping, right/center anchoring, and ranged text. All 16 CTest tests and SDL smoke tests pass; the new UI and font suites also pass under AddressSanitizer and UndefinedBehaviorSanitizer.
+`tests/test_ui.cpp` validates the complete real archive, all 923 exact keys, all 30 state selections, behavior counts, secondary resources, every blitter path, interpolation, clipping, and handedness click/following-frame behavior. `tests/test_menu.cpp` drives the real startup through the sound prompt and main menu, every concrete dialog family, model/document/photo navigation, GameUI inventory/options/map behavior, UI voices, and a 1,252-byte configuration round trip in a temporary directory. All 17 CTest tests pass; the UI, menu, and audio suites also pass under AddressSanitizer and UndefinedBehaviorSanitizer.

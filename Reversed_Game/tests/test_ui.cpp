@@ -427,6 +427,8 @@ void TestInitialScreen(soft3d::GameEngine& engine,
     CHECK(dummy->GetPresentedPixels().size() == 320 * 240);
 
     engine.GetInput().KeyDown(soft3d::Key::Right);
+    engine.GetInput().KeyUp(soft3d::Key::Right);
+    CHECK(engine.RunFrame());
     CHECK(engine.RunFrame());
     const uint64_t rightFrame = HashFrame(*frame);
     CHECK(rightFrame != leftFrame);
@@ -435,6 +437,8 @@ void TestInitialScreen(soft3d::GameEngine& engine,
 
     engine.GetInput().KeyUp(soft3d::Key::Right);
     engine.GetInput().KeyDown(soft3d::Key::Left);
+    engine.GetInput().KeyUp(soft3d::Key::Left);
+    CHECK(engine.RunFrame());
     CHECK(engine.RunFrame());
     CHECK(HashFrame(*frame) == leftFrame);
 }
