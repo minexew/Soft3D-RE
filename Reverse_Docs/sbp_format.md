@@ -233,7 +233,7 @@ The full CTest suite passes. Running `Tools/sbp.py` on the real map exports the 
 
 - a one-face fixture verifies PVS selection, all 256 generated lightmap pixels, RGB444 value 62, and nonzero packed depth;
 - the real S3DSTY resource verifies allocation sizes, exact sequences, disabled styles, and a complete 20-frame wrap;
-- the real menu uses camera `(-66,-22,-43)` in cluster 0, selects 166 visible faces, submits all five model entities, and checks exact raw framebuffer and dummy-presented hashes `0xb10b52d9` and `0x8112c675`;
+- the real menu uses camera `(-66,-22,-43)` in cluster 0, selects 166 visible faces, and submits all five model entities; after Stage 3 installed the recovered default camera projection for map models, its exact raw framebuffer and dummy-presented hashes are `0x26bfdf7c` and `0x23fa83dd`;
 - normal and AddressSanitizer/UndefinedBehaviorSanitizer builds produce identical hashes with no new BSP memory errors.
 
 The older generic SOJ `Renderer`/`Raster` path used by map models still emits signed-overflow warnings under UBSan. Those warnings belong to the Stage 7 raster-parity work, not the BSP visibility/lightmap implementation.

@@ -9,6 +9,7 @@ Engine::Engine(EngineConfig config)
     , height(config.height)
     , audioManager(&resourceManager, std::move(config.audioBackend))
     , renderer(config.width, config.height)
+    , camera(config.width, config.height, &renderer)
     , video(config.width, config.height, std::move(config.videoBackend))
 {
     screenBlitter.SetTexture(renderer.GetCurrentTexture());
@@ -124,6 +125,11 @@ RenderQueues& Engine::GetRenderQueues()
 Renderer& Engine::GetRenderer()
 {
     return renderer;
+}
+
+Camera& Engine::GetCamera()
+{
+    return camera;
 }
 
 s3dResManager& Engine::GetResourceManager()

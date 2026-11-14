@@ -15,8 +15,9 @@ The engine constructor (`S3dEngine_ctor`, `0x000f1584`) establishes the relevant
 | `+0x58` | embedded `s3dTimer` | Constructor `S3dTimer_Ctor` `0x000f3640`; RTTI vtable. |
 | `+0x60` | embedded `s3dExit` | Constructor `S3dExit_Ctor` `0x000f3604`; RTTI vtable. |
 | `+0x74` | embedded `s3dVideo` | Constructor `S3dVideo_Ctor` `0x000f35c8`; RTTI vtable. |
-| `+0x88` | `ResManager *` | `0x70`-byte allocation and `ResManager_Ctor` `0x000f3450`. |
-| `+0x8c` | audio manager | `0x9c`-byte allocation and `AudioManager_Ctor` `0x00112fe0`. |
+| `+0x84` | `ResManager *` | `0x70`-byte allocation and `ResManager_Ctor` `0x000f3450`. |
+| `+0x88` | audio manager | `0x9c`-byte allocation and `AudioManager_Ctor` `0x00112fe0`. |
+| `+0x90` | `Camera *` | `0x168`-byte allocation and `Camera_Ctor` `0x000fc8c0`; see `spl_format.md`. |
 | `+0x94` | `Renderer *` | `0x1a388`-byte allocation and `Renderer_ctor` `0x000b0454`. |
 | `+0x98` | screen blitter | `0x134`-byte allocation and `ScreenBlitter_Ctor` `0x000d4568`. |
 
@@ -199,4 +200,4 @@ The frame limiter reads the current platform tick, computes elapsed time against
 
 `src/platform/sdl/SdlVideoBackend.*` implements the host presentation stage. `BeginUpdate` exposes the CPU buffer, while `EndUpdate` uploads `0x00RRGGBB` words to a 240×320 `SDL_PIXELFORMAT_XRGB8888` streaming texture with the portrait row pitch, renders with nearest-neighbor aspect-preserving logical presentation, and calls `SDL_RenderPresent`. Resource creation is idempotent, and renderer creation retains the explicit fallback to SDL's `software` renderer.
 
-The app uses `GameEngine::RunFrame` with real SBN/SDT/STX resources from `res.spk`; the initial handedness screen replaces the former host placeholder. `BasicShader` expands RGB565/depth words into the `VID_impl` back buffer using the original portrait mapping. The SDL window/renderer/texture objects remain encapsulated in the backend. `tests/test_engine.cpp` verifies the complete engine-to-dummy-video path with exact pixels. Audio is implemented in `AudioDevice`/`AudioManager` with SDL and dummy backends; scene/gameplay, later menu states, and other higher-level facilities remain stubs. The portable rasterizer does not yet reproduce every specialized original inner loop; see `gameengine_api.md` and `engine_completion_plan.md`.
+The app uses `GameEngine::RunFrame` with real SBN/SDT/STX resources from `res.spk`; the initial handedness screen replaces the former host placeholder. `BasicShader` expands RGB565/depth words into the `VID_impl` back buffer using the original portrait mapping. The SDL window/renderer/texture objects remain encapsulated in the backend. `tests/test_engine.cpp` verifies the complete engine-to-dummy-video path with exact pixels. `MenuBackdrop` and `test_spl.cpp` add the real moving SPL/BSP camera background and exact dummy-presented frames. Audio is implemented in `AudioDevice`/`AudioManager` with SDL and dummy backends; episode scene/gameplay, later menu states, and other higher-level facilities remain stubs. The portable rasterizer does not yet reproduce every specialized original inner loop; see `gameengine_api.md` and `engine_completion_plan.md`.

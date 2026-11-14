@@ -359,12 +359,12 @@ void TestRealMenuRender()
     const uint32_t* frame = reinterpret_cast<const uint32_t*>(
         engine.GetRenderer().GetCurrentTexture()->GetPixels());
     const uint32_t frameHash = HashPixels(frame, 320 * 240);
-    CHECK(frameHash == 0xb10b52d9);
+    CHECK(frameHash == 0x26bfdf7c);
     engine.GetRenderer().Present();
     CHECK(engine.GetVideo().Update());
     CHECK(dummy->GetPresentedPixels().size() == 320 * 240);
     const uint32_t presentedHash = HashPixels(dummy->GetPresentedPixels().data(), 320 * 240);
-    CHECK(presentedHash == 0x8112c675);
+    CHECK(presentedHash == 0x23fa83dd);
 #endif
 }
 

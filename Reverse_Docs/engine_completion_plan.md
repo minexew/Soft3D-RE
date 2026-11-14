@@ -16,6 +16,7 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - SOJ/SAI resource parsing and a functional Object → Renderer → Raster → BasicShader → VID_impl path;
 - SBP container/runtime loading, all chunk readers, incremental progress, map-model resources, generic entity-factory ownership, and link cleanup;
 - BSP/PVS visibility, fixed-point face rendering, RGB444 lightmaps, S3DSTY loading/advancement, and visible map-model submission;
+- SPL parsing/evaluation/derivatives, chord-weighted path timing, camera projection, `CameraSpot`/`DummySpot`, and the complete menu 3D backdrop;
 - engine queue ordering and presentation, dummy video, and the SDL application shell.
 
 These foundations still have partial areas: material fields, Object loading/control APIs, raster feature parity, generic dialog behavior, and the game hooks that invoke audio are not automatically supplied by the audio implementation.
@@ -23,7 +24,6 @@ These foundations still have partial areas: material fields, Object loading/cont
 ### Missing or incomplete engine facilities
 
 - `Bsp` collision and integration of loaded map models/entities into later unit systems;
-- SPL curve/path loading, camera evaluation, and menu-background orchestration;
 - real engine input state, Symbian-to-SDL key mapping, target-FPS timing, and restorable FPS drawing;
 - generic `Dialog` interpolation/text/secondary-texture behavior, later `GameMenu` states, and menu dialog classes;
 - SST parsing/execution and the generic script interface;
@@ -83,9 +83,9 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 **Completion**
 
-`BspRender.*` and `test_bsprender.cpp` implement and test every item. The real menu selects 166 faces in cluster 0, submits all five model entities, and produces exact raw/presented hashes `0xb10b52d9` and `0x8112c675`. PVS zero-run decoding, untextured faces, complete-block lightmap generation, and full style wrapping are covered. Normal and sanitizer builds agree; palette reads beyond the original small-palette bounds are deliberately clamped rather than reproducing heap corruption. Remaining UBSan messages are in the older generic SOJ raster path and belong to Stage 7.
+`BspRender.*` and `test_bsprender.cpp` implement and test every item. The real menu selects 166 faces in cluster 0 and submits all five model entities. After Stage 3 installed the recovered default camera projection, its exact raw/presented hashes became `0x26bfdf7c` and `0x23fa83dd`. PVS zero-run decoding, untextured faces, complete-block lightmap generation, and full style wrapping are covered. Normal and sanitizer builds agree; palette reads beyond the original small-palette bounds are deliberately clamped rather than reproducing heap corruption. Remaining UBSan messages are in the older generic SOJ raster path and belong to Stage 7.
 
-## Stage 3 — SPL evaluation and the complete menu 3D background
+## Stage 3 — SPL evaluation and the complete menu 3D background — complete
 
 **Scope**
 
@@ -98,6 +98,10 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 - Parse all 11 records in `1000.spl` and verify fixed-point conversion and curve samples.
 - Exercise the complete menu-background frame with dummy video, including camera movement over time.
 - Confirm that this path needs no concrete enemy, trigger, or episode classes.
+
+**Completion**
+
+`BezierCurve3.*`, `Camera.*`, `CameraSpot.*`, `MenuBackdrop.*`, and `test_spl.cpp` implement and test every item. All 11 real cubic records pass exact fixed-point and derivative checks; collection timing uses the recovered control-polygon lengths. `GameEngine::LoadMenuBackdrop` drives 120 real-map dummy-video frames with moving camera and exact hashes, without episode classes. See `spl_format.md` for layouts, projection arithmetic, update order, and hashes. Non-default camera tangent entries still use the mathematical equivalent rather than a copied original lookup table; this does not affect the default/menu camera.
 
 ## Stage 4 — Input, target-FPS timer, lifecycle, and restorable FPS display
 

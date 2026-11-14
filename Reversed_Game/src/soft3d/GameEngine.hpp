@@ -8,13 +8,15 @@
 
 namespace soft3d {
 
+class MenuBackdrop;
+
 class SceneStub {
 public:
     void Update() {}
     void PostUpdate() {}
     void PrepareRender() {}
     void SubmitRenderables() {}
-    // Game-specific scene, BSP, creature, and script behavior remains to be reconstructed.
+    // Episode-specific scene, creature, and script behavior remains to be reconstructed.
 };
 
 class ScriptEngineStub {
@@ -26,6 +28,7 @@ public:
 class GameEngine : public Engine {
 public:
     explicit GameEngine(EngineConfig config);
+    ~GameEngine() override;
 
     int Init() override;
     void Shutdown() override;
@@ -43,12 +46,15 @@ public:
     void SetInGame(bool inGame);
     void SetLanguage(int value);
     void SetMenuInput(bool left, bool right, bool accept);
+    result LoadMenuBackdrop();
     StringManager* GetBaseFont();
     StringManager* GetSecondaryFont();
     UiManager* GetUiManager();
+    MenuBackdrop* GetMenuBackdrop();
 
 private:
     std::unique_ptr<SceneStub> scene;
+    std::unique_ptr<MenuBackdrop> menuBackdrop;
     std::unique_ptr<UiManager> uiManager;
     std::unique_ptr<GameMenu> gameMenu;
     std::unique_ptr<StringManager> baseFont;

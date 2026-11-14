@@ -21,24 +21,6 @@ uint32_t Read32(const uint8_t* input)
            (static_cast<uint32_t>(input[3]) << 24);
 }
 
-Fixed AddFixed(Fixed left, Fixed right)
-{
-    return static_cast<Fixed>(static_cast<uint32_t>(left) + static_cast<uint32_t>(right));
-}
-
-Fixed SubtractFixed(Fixed left, Fixed right)
-{
-    return static_cast<Fixed>(static_cast<uint32_t>(left) - static_cast<uint32_t>(right));
-}
-
-Fixed Dot(const Vec3& left, const Vec3& right)
-{
-    const int64_t product = static_cast<int64_t>(left.x) * right.x +
-                            static_cast<int64_t>(left.y) * right.y +
-                            static_cast<int64_t>(left.z) * right.z;
-    return static_cast<Fixed>(static_cast<uint32_t>(static_cast<uint64_t>(product) >> 16));
-}
-
 Fixed PlaneDistance(const BspPlane& plane, const Vec3& point)
 {
     if (plane.type < 3) {

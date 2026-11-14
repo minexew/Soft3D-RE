@@ -70,18 +70,9 @@ bool RangeValid(uint64_t first, uint64_t count, std::size_t size)
     return first <= size && count <= static_cast<uint64_t>(size) - first;
 }
 
-Fixed AddFixed(Fixed left, Fixed right)
-{
-    return static_cast<Fixed>(static_cast<uint32_t>(left) + static_cast<uint32_t>(right));
-}
-
 Fixed Dot(const Vec3& left, const std::array<Fixed, 3>& right)
 {
-    const int64_t product = static_cast<int64_t>(left.x) * right[0] +
-                            static_cast<int64_t>(left.y) * right[1] +
-                            static_cast<int64_t>(left.z) * right[2];
-    const uint64_t bits = static_cast<uint64_t>(product);
-    return static_cast<Fixed>(static_cast<uint32_t>(bits >> 16));
+    return soft3d::Dot(left, Vec3{right[0], right[1], right[2]});
 }
 
 Fixed Divide(Fixed numerator, Fixed denominator)

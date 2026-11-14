@@ -1,5 +1,7 @@
 #include "soft3d/GameEngine.hpp"
 
+#include "soft3d/MenuBackdrop.hpp"
+
 #include <utility>
 
 namespace soft3d {
@@ -7,12 +9,15 @@ namespace soft3d {
 GameEngine::GameEngine(EngineConfig config)
     : Engine(std::move(config))
     , scene(std::make_unique<SceneStub>())
+    , menuBackdrop(std::make_unique<MenuBackdrop>(this))
     , uiManager(std::make_unique<UiManager>())
     , gameMenu(std::make_unique<GameMenu>())
     , baseFont(std::make_unique<StringManager>())
     , secondaryFont(std::make_unique<StringManager>())
 {
 }
+
+GameEngine::~GameEngine() = default;
 
 int GameEngine::Init()
 {
@@ -66,6 +71,9 @@ void GameEngine::SaveGameState()
 
 void GameEngine::PreUpdate()
 {
+    if (menuActive) {
+        menuBackdrop->Update();
+    }
     if (inGame) {
         scene->Update();
     } else {
@@ -94,8 +102,10 @@ void GameEngine::SubmitRenderables()
 
 void GameEngine::PrepareRender()
 {
-    if (inGame || menuActive) {
+    if (inGame) {
         scene->PrepareRender();
+    } else if (menuActive) {
+        menuBackdrop->PrepareRender();
     }
     gameMenu->Update(*uiManager);
 }
@@ -111,6 +121,13 @@ void GameEngine::DrawFPS()
 void GameEngine::SetResourceArchive(std::u16string path)
 {
     resourceArchive = std::move(path);
+}
+
+result GameEngine::LoadMenuBackdrop()
+{
+    const result status = menuBackdrop->Load();
+    menuActive = status == S3D_OK;
+    return status;
 }
 
 void GameEngine::SetInGame(bool value)
@@ -141,6 +158,11 @@ StringManager* GameEngine::GetSecondaryFont()
 UiManager* GameEngine::GetUiManager()
 {
     return uiManager.get();
+}
+
+MenuBackdrop* GameEngine::GetMenuBackdrop()
+{
+    return menuBackdrop.get();
 }
 
 } // namespace soft3d

@@ -15,7 +15,7 @@
 |🔧|SBN|Win32|font (glyphs) + text data (7-bit encoding), mostly understood
 |🔧|SBP|GA330, S60v3|<p>maps, based on [Quake 2 map format](https://www.flipcode.com/archives/Quake_2_BSP_File_Format.shtml), mostly understood</p><ul><li>Corrected chunk order, all chunk readers, incremental loading, PVS visibility, fixed-point rendering, lightmaps, and map-model submission documented in `Reverse_Docs/sbp_format.md`; portable real-map loading/rendering is tested, while collision and later unit integration remain</li></ul>
 |🔧|SDT|S60v3|Various data tables; UI string/resource and dialog-state formats documented in `Reverse_Docs/sdt_format.md`; other SDT families remain unconfirmed
-|🔧|SPL||Counted Bezier camera-path records; container/layout and remaining evaluation work documented in `Reverse_Docs/spl_format.md`
+|✔️|SPL||Counted degree-N Bezier camera paths; fixed-point evaluation, derivatives, chord-weighted timing, camera integration, and real-resource tests documented in `Reverse_Docs/spl_format.md`
 |🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Materials, packed texture names, vertex streams, primitive modes, bounds, and skinning links documented in `Reverse_Docs/soft3d_models_animations.md`</li><li>Some material and renderer-state fields remain unidentified</li></ul>
 |🔧|SST||“simple script”, mostly understood
 |✔️|STX||images/textures (RGB444), well-understood

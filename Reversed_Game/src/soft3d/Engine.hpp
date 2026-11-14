@@ -1,6 +1,7 @@
 #pragma once
 
 #include "soft3d/AudioManager.hpp"
+#include "soft3d/Camera.hpp"
 #include "soft3d/Renderable.hpp"
 #include "soft3d/Renderer.hpp"
 #include "soft3d/ScreenBlitter.hpp"
@@ -53,6 +54,7 @@ public:
 
     RenderQueues& GetRenderQueues();
     Renderer& GetRenderer();
+    Camera& GetCamera();
     s3dResManager& GetResourceManager();
     AudioManager& GetAudioManager();
     ScreenBlitter& GetScreenBlitter();
@@ -80,6 +82,7 @@ protected:
     AudioManager audioManager;
     InputStub input;
     Renderer renderer;
+    Camera camera;
     ScreenBlitter screenBlitter;
     VID_impl video;
 };
