@@ -8,12 +8,12 @@
 |--|----------------|-------------|------------------------|
 |✔️|SPK|Chinese and English variants|resource archives; 64-byte and 32-byte path layouts documented in `Reverse_Docs/filepak_api.md`
 |🔧|S3DTEX||S2D images/textures; observed grayscale8/RGB565 decoding and remaining header/engine-loader questions documented in `Reverse_Docs/s3dtex_format.md`
-|🔧|S3DSTY||BSP lightmap-frame animation sequences; 256-record layout and loader documented in `Reverse_Docs/s3dsty_format.md`; runtime timing/modulation remains under reconstruction
+|✔️|S3DSTY||BSP lightmap-frame animation sequences; 256-record layout, loader, update cadence, and lightmap modulation documented and tested in `Reverse_Docs/s3dsty_format.md`
 |🔧|SAI||<p>3D model animations, mostly understood</p><ul><li>Fixed-point transform tracks, bounds, morph targets, timing, and interpolation documented in `Reverse_Docs/soft3d_models_animations.md`</li></ul>
 |✔️|SAU|DA320 (all), GA330, S60v1 (chi), S60v2, S60v3, Win32 (chi)|AMI ADPCM audio, low nibble first; same format as WAR except nibble order, well-understood
 |🔧|SBN|GA330, S60v3|font (glyphs) + text data (32-bit encoding); Symbian base/local glyphs, string tables, character lookup, and drawing documented in `Reverse_Docs/sbn_format.md`
 |🔧|SBN|Win32|font (glyphs) + text data (7-bit encoding), mostly understood
-|🔧|SBP|GA330, S60v3|<p>maps, based on [Quake 2 map format](https://www.flipcode.com/archives/Quake_2_BSP_File_Format.shtml), mostly understood</p><ul><li>Corrected chunk order, serialized records, all chunk readers, incremental loader, map models/entities, and remaining rendering/visibility work documented in `Reverse_Docs/sbp_format.md`; portable real-map loading is tested</li></ul>
+|🔧|SBP|GA330, S60v3|<p>maps, based on [Quake 2 map format](https://www.flipcode.com/archives/Quake_2_BSP_File_Format.shtml), mostly understood</p><ul><li>Corrected chunk order, all chunk readers, incremental loading, PVS visibility, fixed-point rendering, lightmaps, and map-model submission documented in `Reverse_Docs/sbp_format.md`; portable real-map loading/rendering is tested, while collision and later unit integration remain</li></ul>
 |🔧|SDT|S60v3|Various data tables; UI string/resource and dialog-state formats documented in `Reverse_Docs/sdt_format.md`; other SDT families remain unconfirmed
 |🔧|SPL||Counted Bezier camera-path records; container/layout and remaining evaluation work documented in `Reverse_Docs/spl_format.md`
 |🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Materials, packed texture names, vertex streams, primitive modes, bounds, and skinning links documented in `Reverse_Docs/soft3d_models_animations.md`</li><li>Some material and renderer-state fields remain unidentified</li></ul>

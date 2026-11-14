@@ -13,19 +13,41 @@ record:
     u8 0xff                 # terminator
 ```
 
-Each value is a lightmap frame index, not a literal byte count or RGB value. Values above `0x10` produce format error 6. `allocationSize` controls the frame-array allocation. The file has no global header or count; the fixed 256-record count is implicit.
+Each value is a lightmap frame index, not a literal byte count or RGB value. Values above `0x10` produce format error 6. `allocationSize` controls the frame-array allocation. The file has no global header or count; the fixed 256-record count is implicit. Selection failure returns 3, size/tell failure returns 8, allocation failure returns 4, and malformed input returns 6.
 
 The runtime record at `Bsp + 0x2a2b4 + style * 8` is:
 
 | Offset | Type | Meaning |
 |---:|---|---|
-| `+0x00` | `uint8_t` | Current/reset light value, initialized to 8. |
+| `+0x00` | `uint8_t` | Current light value, initialized to 8. |
 | `+0x01` | `uint8_t` | Current sequence position, initialized to 0. |
 | `+0x02` | `uint8_t` | Allocation size. |
 | `+0x03` | `uint8_t` | Enabled/valid flag; loader sets 1. |
 | `+0x04` | `uint8_t *` | Allocated frame-index sequence. |
 
-The loader does not validate that the number of bytes before `0xff` equals `allocationSize`; a faithful parser should preserve the input behavior while the portable implementation can report truncation safely.
+The ARM loader does not validate that the number of bytes before `0xff` equals `allocationSize`. The portable parser rejects truncation and sequences exceeding the allocation instead of overflowing the frame array.
+
+## Update cadence
+
+`Bsp_AdvanceLightStyles` (`0x000fe9e8`) is called from `Bsp_Update` (`0x00106f88`) once per scene update, after dictionary-entity updates. It does not run during map loading or `Scene_PrepareRender`.
+
+For every style 1 through 254:
+
+- disabled styles have their light value cleared to 0;
+- enabled styles load `frames[position]` into the light value;
+- position increments and wraps to 0 at `allocationSize`.
+
+Styles 0 and 255 are not advanced. Loading resets light to 8 and position to 0, so a render performed before the first update still uses that initial light rather than automatically selecting frame zero. `SetLightStyleEnabled` changes the flag and immediately advances all styles, matching the ARM helper at `0x0006dd80`.
+
+## Lightmap consumption
+
+A face's first lightmap block is always scaled by `0x100`. For each additional nonzero style, the next block is shifted left by the style's current light and added. Values then become palette intensities:
+
+```text
+intensity = value < 0xff00 ? max((0xff00 - value) >> 3, 0x20) : 0x20
+```
+
+Only complete 16×16 blocks are rendered into the cached RGB444 lightmap. Width padding is zero. `sbp_format.md` documents interpolation, palette indexing, scrolling, and the safe handling of out-of-range palette reads.
 
 ## Reference asset
 
@@ -35,8 +57,8 @@ The loader does not validate that the number of bytes before `0xff` equals `allo
 - record 1: allocation size 203, with 203 frame indices;
 - record 6: allocation size 20, sequence `[0,1,2,1,0,1,2,3,4,5,6,7,8,7,6,5,4,3,2,1]`.
 
-Observed frame values include 0 through 8. The loader accepts up to 16. These sequences drive time-varying lightmap selection in `Bsp`; the precise update cadence belongs with the BSP lightstyle runtime recovery.
+Observed frame values include 0 through 8. The loader accepts up to 16.
 
 ## Reconstruction status
 
-The serialized layout and loader are understood. The remaining work is the consumer: style timing, current-frame advancement, and the exact lightmap/raster modulation path. The README status can therefore move from unknown to mostly understood, with that runtime caveat.
+The container, runtime ownership, update cadence, and lightmap consumer are implemented. `Reversed_Game/tests/test_bsprender.cpp` validates the real records, disabled styles, a complete 20-frame cycle, lightmap output, and a real menu frame through dummy video. The full CTest suite and sanitizer verification pass.

@@ -97,6 +97,7 @@ struct BspFace {
     std::array<int32_t, 2> textureMin{};
     std::array<uint8_t, 4> styles{};
     int32_t lightmapOffset = -1;
+    std::vector<uint16_t> lightmapPixels;
 };
 
 struct BspBrush {
@@ -107,20 +108,27 @@ struct BspBrush {
 
 struct BspVisBrush {
     uint32_t leafIndex = 0;
+    uint32_t renderMarker = 0;
     uint16_t firstFace = 0;
     uint16_t faceCount = 0;
+    int16_t planeMask = 0;
 };
 
 class BspEntity : public Renderable {
 public:
     ~BspEntity() override = default;
 
-    void Render() override {}
+    void Render() override;
+    virtual void Submit(RenderQueues& queues);
     void SetObject(std::unique_ptr<Object> value);
+    void SetObject(Object* value);
     Object* GetObject() const;
 
 private:
-    std::unique_ptr<Object> object;
+    friend class Bsp;
+    std::unique_ptr<Object> ownedObject;
+    Object* object = nullptr;
+    uint32_t lastVisibleFrame = 0;
 };
 
 struct BspModel {
@@ -195,11 +203,23 @@ struct BspNode {
 };
 
 struct BspLightStyle {
-    uint8_t frameCount = 8;
-    uint8_t currentFrame = 0;
-    uint8_t unknown06 = 0;
+    uint8_t light = 8;
+    uint8_t position = 0;
+    uint8_t frameCount = 0;
     uint8_t enabled = 0;
     std::vector<uint8_t> frames;
+};
+
+struct BspRenderState {
+    Vec3 cameraPosition;
+    Matrix4 worldToCamera = Matrix4::Identity();
+    Fixed screenScaleX = 0;
+    Fixed screenScaleY = 0;
+    Fixed screenCenterX = 0;
+    Fixed screenCenterY = 0;
+    Fixed inverseScreenScaleX = 0;
+    Fixed inverseScreenScaleY = 0;
+    std::vector<BspPlane> clipPlanes;
 };
 
 class Bsp : public Renderable, public s3dBase {
@@ -216,8 +236,17 @@ public:
     void FreeLastLevel();
     void FreeAll();
     void ResetLightStyles();
+    void AdvanceLightStyles();
+    void SetLightStyleEnabled(uint8_t index, uint8_t enabled);
+    void Update();
+    void PrepareRender(const BspRenderState& state);
+    void SubmitVisibleEntities(RenderQueues& queues);
 
     bool IsLoaded() const;
+    int32_t GetCurrentCluster() const;
+    uint32_t GetFrameCounter() const;
+    const std::vector<uint8_t>& GetDecompressedPVS() const;
+    const std::vector<uint32_t>& GetVisibleFaces() const;
     const SbpHeader& GetHeader() const;
     const std::array<Fixed, 6>& GetHeaderValues() const;
     const std::u16string& GetDirectory() const;
@@ -251,6 +280,7 @@ public:
 
 private:
     friend result LoadSbpMapChunks(Bsp*, const char16_t*, const char16_t*, int*);
+    friend result LoadS3dStyleResource(Bsp*, const char16_t*, s3dFilePak*);
 
     result LoadNext(const char16_t* directory, const char16_t* fileName, int& progress);
     result LoadSource(const char16_t* directory, const char16_t* fileName);
@@ -285,6 +315,36 @@ private:
     result LoadLeaves(const SbpChunkDescriptor& chunk);
     result LoadNodes(const SbpChunkDescriptor& chunk);
     result LoadPVS(const SbpChunkDescriptor& chunk);
+
+    struct ProjectedVertex {
+        Vec3 world;
+        Fixed x = 0;
+        Fixed y = 0;
+        Fixed depth = 0;
+    };
+    struct LightmapMapping {
+        Fixed rayUX = 0;
+        Fixed rayUY = 0;
+        Fixed rayUZ = 0;
+        Fixed rayVX = 0;
+        Fixed rayVY = 0;
+        Fixed rayVZ = 0;
+        Fixed baseU = 0;
+        Fixed baseV = 0;
+        Fixed maxU = 0;
+        Fixed maxV = 0;
+    };
+
+    int32_t FindLeaf(const Vec3& position) const;
+    std::vector<uint8_t> DecompressPVS(int32_t cluster) const;
+    void MarkVisibleLeaves();
+    void TraverseVisibleNode(int32_t index, uint32_t planeMask);
+    void SubmitFace(uint32_t index, uint32_t planeMask);
+    result BuildLightmap(BspFace& face);
+    LightmapMapping BuildLightmapMapping(const BspFace& face) const;
+    std::vector<ProjectedVertex> ProjectFace(const BspFace& face);
+    void RasterizeFace(const BspFace& face, const LightmapMapping& mapping,
+                       const std::vector<ProjectedVertex>& polygon);
 
     Renderer* renderer;
     s3dResManager* resourceManager;
@@ -324,9 +384,18 @@ private:
     std::vector<uint8_t> pvs;
     std::vector<uint8_t> lightmapData;
     std::array<BspLightStyle, 256> lightStyles{};
+    BspRenderState renderState;
+    uint32_t frameCounter = 0;
+    uint32_t leafMarkCounter = 0;
+    int32_t currentCluster = -1;
+    int32_t previousCluster = -1;
+    std::vector<uint8_t> decompressedPVS;
+    std::vector<uint32_t> visibleFaces;
+    std::vector<uint8_t> visibleFaceFlags;
 };
 
 result LoadSbpMapChunks(Bsp* bsp, const char16_t* directory, const char16_t* fileName,
                         int* progress);
+result LoadS3dStyleResource(Bsp* bsp, const char16_t* fileName, s3dFilePak* filePak);
 
 } // namespace soft3d

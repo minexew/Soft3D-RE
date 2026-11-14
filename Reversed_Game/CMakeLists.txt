@@ -20,6 +20,7 @@ add_library(soft3d
     src/soft3d/AudioManager.cpp
     src/soft3d/BasicShader.cpp
     src/soft3d/Bsp.cpp
+    src/soft3d/BspRender.cpp
     src/soft3d/Engine.cpp
     src/soft3d/Font.cpp
     src/soft3d/GameEngine.cpp
@@ -140,6 +141,16 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_bsp_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_bsp COMMAND soft3d_bsp_tests)
+
+    add_executable(soft3d_bsp_render_tests tests/test_bsprender.cpp)
+    target_link_libraries(soft3d_bsp_render_tests PRIVATE soft3d)
+    target_compile_definitions(soft3d_bsp_render_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_bsp_render_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_bsp_render COMMAND soft3d_bsp_render_tests)
 
     add_executable(soft3d_font_tests tests/test_font.cpp)
     target_link_libraries(soft3d_font_tests PRIVATE soft3d)

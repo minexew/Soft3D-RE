@@ -175,7 +175,7 @@ Each morph record contains a 32-bit time followed by `targetCount` fixed-point 3
 
 ## Portable reconstruction status
 
-`ObjectRes.*` and `Animation.*` use the corrected names and layouts. `Object.*` implements material loading, animation timing, matrix-palette construction, and indexed surface submission. `Fixed.hpp` documents the matrix convention in code.
+`ObjectRes.*` and `Animation.*` use the corrected names and layouts. `Object.*` implements material loading, animation timing, matrix-palette construction, indexed surface submission, and SBP map-model transforms. `Fixed.hpp` documents the matrix convention in code. For map models, transform vectors 2, 3, and 1 form matrix rows 0, 1, and 2 respectively, while vector 0 supplies translation; `Object::SetTransformVectors` applies this during loading.
 
 `Renderer.*` and `Raster.*` provide a functional fixed-point software path to `BasicShader` and `VID_impl`. They implement the verified vertex layouts and primitive modes, but do not yet reproduce every original clipping, lighting, perspective-correct texturing, blend, or specialized inner-loop case bit-for-bit. Those remain reconstruction work; the portable implementation must not be cited as proof for details that are only established in the disassembly.
 

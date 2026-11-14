@@ -167,11 +167,55 @@ until progress is 100. No episode-specific scene behavior is required to test th
 
 `Bsp_LoadTexInfo` optionally tries the resource directory at `Bsp + 0x2acec` when the flag at `+0x2ace8` is set, then tries the default common directory. In ARM, the returned `TextureRes *` has `0x12c` added before the null comparison. A null resource therefore becomes nonnull address `0x12c`, so the fallback and error check are defective. The portable reader uses a real null check and safe fallback rather than fabricating that invalid pointer.
 
-## PVS and render-vtable findings
+## Visibility and PVS
 
-Chunk 25 is definitively PVS, not an unknown block. In `menu.sbp` it begins with a 32-bit value 39 followed by increasing 32-bit offsets; evaluating that structure belongs with leaf/cluster visibility in Stage 2.
+Chunk 25 is definitively PVS, not an unknown block. Its first word is the cluster count, followed by 32-bit offsets to zero-run-compressed visibility streams. The decompressed size is `(clusterCount + 7) >> 3` bytes. A zero byte introduces a count of zero bits; a nonzero byte is copied literally. `Bsp_DecompressPVS` (`0x000feb4c`) implements this scheme, and `Bsp_IsClusterVisible` (`0x00106958`) tests bit `cluster & 7` of byte `cluster >> 3`.
 
-The primary Bsp vtable contains `0x000f0e20` in the apparent render slot. Direct disassembly shows this is the middle of `FUN_000f06e8`, an unrelated SOJ fallback-vertex builder: there is no function prologue and the instructions use the enclosing function's frame. It must not be created or named as `Bsp::Render`. The actual map-rendering path must be recovered from the Bsp rendering functions and their callers in Stage 2 rather than from this invalid target. The portable `Bsp::Render` remains an explicit non-rendering stub until then.
+`Bsp_FindLeaf` (`0x001070c8`) follows the splitting planes from node zero. Negative child values encode leaf `-child - 1`. The signed serialized field at leaf offset `+0x0e` terminates traversal; the separate `contents` word at `+0x0c` selects the current PVS cluster. `contents == 0xffff` marks outside/empty space. In `menu.sbp` there are 39 PVS clusters and five decompressed visibility bytes, while many leaves have `contents == 0xffff`.
+
+`Bsp_MarkLeaves` (`0x000fe524`) advances a separate leaf-mark counter only when the current cluster changes. `Bsp_TraverseVisibleNodes` (`0x000ff15c`) performs frustum checks and front-to-back node/leaf traversal. It marks visible faces, visible entities, and visible brushes with frame counters rather than clearing every record each frame. `Bsp_SubmitVisibleEntities` (`0x000fdf5c`) submits each marked visible entity once, selecting the opaque queue in the generic reconstruction. Host-specific transparency and behavior remain outside the generic BSP layer.
+
+## Rendering and projection
+
+The live rendering path is `Scene_PrepareRender` → `Bsp_PrepareRender` (`0x000fdd70`) → visibility/face construction and surface rendering. `Bsp::Render` is now implemented in the portable code; the invalid vtable target is not used.
+
+The primary Bsp vtable still contains `0x000f0e20` in the apparent render slot. Direct disassembly shows this is the middle of `FUN_000f06e8`, an unrelated SOJ fallback-vertex builder: there is no function prologue and the instructions use the enclosing function's frame. It must not be created or named as `Bsp::Render`.
+
+`Bsp_RenderFace` (`0x000ff964`) selects face edges and clips/projects them. Positive face edges use the first vertex; negative edges use the second. Faces are backface-culled from the camera-plane distance: distances above `0x28f` require flag bit `0x0800` to be clear, while distances below `-0x28f` require it set. Eight faces in `menu.sbp` have no texinfo and use the constant `0x00010000` black/depth-1 path rather than a lightmap lookup.
+
+Projection uses 16.16 fixed point and the global reciprocal table at `0x00160080`, whose entries are `0x40000000 / index` (index zero is `0x7fffffff`). Normalization varies by input range. The plane-derived depth gradient is not barycentric SOJ interpolation:
+
+```text
+reciprocal = ReciprocalSigned(-PlaneDistance(camera, facePlane)) << 8
+depthX = fixed_mul(fixed_mul(rotatedNormal.x, reciprocal), inverseScreenScaleX)
+depthY = -fixed_mul(fixed_mul(rotatedNormal.y, reciprocal), inverseScreenScaleY)
+if depthX == 0: depthX = 1
+depthBase = fixed_mul(rotatedNormal.z, reciprocal)
+depth = depthBase + dx * depthX + dy * depthY
+```
+
+The portable renderer uses vectors and direct polygon coverage instead of the original linked-span allocations, but retains the recovered clipping, fixed-point depth, palette, and high-16-bit depth behavior. It does not use the invalid vtable target or the generic SOJ triangle-depth path for BSP faces.
+
+## Lightmap generation and sampling
+
+`Bsp_PrepareLightmap` (`0x001031e4`) selects the three current style values and rebuilds a face cache when texture, style, visibility, or scrolling state requires it. `Bsp_GenerateLightmapIntensities` (`0x001039f0`) computes `(width / 16 + 1) * (height / 16 + 1)` samples:
+
+```text
+value = baseLightmapByte * 0x100
+for each nonzero additional style:
+    value += additionalLightmapByte << currentStyleLight
+intensity = value < 0xff00 ? max((0xff00 - value) >> 3, 0x20) : 0x20
+```
+
+`Bsp_GenerateLightmapTexture` (`0x00104364`) and its block routine (`0x001046e4`) emit only complete 16×16 blocks. Power-of-two width padding remains zero; generating that padding would read beyond the sample grid. Bilinear interpolation uses independently truncated `(delta >> 4) * fraction` terms. Texture coordinates wrap with the texture dimensions, and `face.textureMin` adds frame-counter scrolling.
+
+The palette byte offset is `texel * 64 + ((intensity & 0xff00) >> 7)`. The original can address beyond small palettes: these STX resources have 32 variants per color while dark lightmap values can select up to 64. Valid lookups are preserved in the portable implementation, while out-of-range reads clamp to the final palette entry instead of reading unrelated heap memory. This safety difference is intentional and covered by sanitizer verification.
+
+`Bsp_BuildLightmapMapping` (`0x00104b08`) rotates the texinfo axes, computes reciprocal-screen-scale terms, and derives lightmap UV bases from the camera position and face minima. `Bsp_RasterizeLightmappedSpans` (`0x00104e14`) clamps UV to face dimensions, masks V by the rounded-width shift, and writes RGB444 in the low 16 bits with depth in the high 16 bits.
+
+## Map-model transforms
+
+The four serialized model vectors form the object matrix in this order: vector 2 supplies matrix row 0, vector 3 row 1, vector 1 row 2, and vector 0 supplies translation. `Object::SetTransformVectors` now applies this mapping during model loading. Visible map entities submit their non-owning model pointers through the normal Object/Renderer path and advance animation once per submission.
 
 ## Portable verification
 
@@ -184,3 +228,12 @@ The primary Bsp vtable contains `0x000f0e20` in the apparent render slot. Direct
 - the original acceptance of arbitrary magic with a valid version.
 
 The full CTest suite passes. Running `Tools/sbp.py` on the real map exports the same 421 vertices and 316 polygons used by the portable checks.
+
+`Reversed_Game/tests/test_bsprender.cpp` adds Stage 2 coverage:
+
+- a one-face fixture verifies PVS selection, all 256 generated lightmap pixels, RGB444 value 62, and nonzero packed depth;
+- the real S3DSTY resource verifies allocation sizes, exact sequences, disabled styles, and a complete 20-frame wrap;
+- the real menu uses camera `(-66,-22,-43)` in cluster 0, selects 166 visible faces, submits all five model entities, and checks exact raw framebuffer and dummy-presented hashes `0xb10b52d9` and `0x8112c675`;
+- normal and AddressSanitizer/UndefinedBehaviorSanitizer builds produce identical hashes with no new BSP memory errors.
+
+The older generic SOJ `Renderer`/`Raster` path used by map models still emits signed-overflow warnings under UBSan. Those warnings belong to the Stage 7 raster-parity work, not the BSP visibility/lightmap implementation.

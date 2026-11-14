@@ -15,13 +15,14 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - STX loading, SBN fonts/strings, the initial SDT resource/state tables, and exact-key image drawing;
 - SOJ/SAI resource parsing and a functional Object → Renderer → Raster → BasicShader → VID_impl path;
 - SBP container/runtime loading, all chunk readers, incremental progress, map-model resources, generic entity-factory ownership, and link cleanup;
+- BSP/PVS visibility, fixed-point face rendering, RGB444 lightmaps, S3DSTY loading/advancement, and visible map-model submission;
 - engine queue ordering and presentation, dummy video, and the SDL application shell.
 
 These foundations still have partial areas: material fields, Object loading/control APIs, raster feature parity, generic dialog behavior, and the game hooks that invoke audio are not automatically supplied by the audio implementation.
 
 ### Missing or incomplete engine facilities
 
-- `Bsp` rendering, PVS evaluation, lightstyle playback, collision, and integration of the loaded map models/entities into later unit systems;
+- `Bsp` collision and integration of loaded map models/entities into later unit systems;
 - SPL curve/path loading, camera evaluation, and menu-background orchestration;
 - real engine input state, Symbian-to-SDL key mapping, target-FPS timing, and restorable FPS drawing;
 - generic `Dialog` interpolation/text/secondary-texture behavior, later `GameMenu` states, and menu dialog classes;
@@ -65,7 +66,7 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 `Bsp.*` and `test_bsp.cpp` implement and test every item. The real map completes in 26 calls with all five models and six generic factory entities. Chunk 25 is confirmed as PVS, chunk 17 is unused, entities/links are chunks 14/15, and the apparent render target is invalid mid-function code rather than a recoverable `Bsp::Render` entry. Exact lightmap metadata conversion is included. The complete CTest suite and standalone geometry comparison pass; see `sbp_format.md` for layouts and safety/ownership differences.
 
-## Stage 2 — BSP rendering, PVS, lightmaps, and S3DSTY runtime
+## Stage 2 — BSP rendering, PVS, lightmaps, and S3DSTY runtime — complete
 
 **Scope**
 
@@ -79,6 +80,10 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 - Render `menu.sbp` from a fixed camera through dummy video and check exact framed output against recovered ARM arithmetic.
 - Test PVS bit selection, leaf/node boundaries, style wrapping, and lightmap sampling with small synthetic maps.
 - Document the actual rendering path and any newly recovered `Bsp` fields in Ghidra; do not use the already-refuted `0x000f0e20` target.
+
+**Completion**
+
+`BspRender.*` and `test_bsprender.cpp` implement and test every item. The real menu selects 166 faces in cluster 0, submits all five model entities, and produces exact raw/presented hashes `0xb10b52d9` and `0x8112c675`. PVS zero-run decoding, untextured faces, complete-block lightmap generation, and full style wrapping are covered. Normal and sanitizer builds agree; palette reads beyond the original small-palette bounds are deliberately clamped rather than reproducing heap corruption. Remaining UBSan messages are in the older generic SOJ raster path and belong to Stage 7.
 
 ## Stage 3 — SPL evaluation and the complete menu 3D background
 

@@ -86,7 +86,7 @@ Fixed Dot(const Vec3& left, const std::array<Fixed, 3>& right)
 
 Fixed Divide(Fixed numerator, Fixed denominator)
 {
-    return static_cast<Fixed>((static_cast<int64_t>(numerator) << 16) / denominator);
+    return static_cast<Fixed>((static_cast<int64_t>(numerator) * 0x10000) / denominator);
 }
 
 int32_t FloorFixed(Fixed value)
@@ -135,12 +135,34 @@ std::array<int32_t, 4> ReadPackedName(const uint8_t* input)
 
 void BspEntity::SetObject(std::unique_ptr<Object> value)
 {
-    object = std::move(value);
+    ownedObject = std::move(value);
+    object = ownedObject.get();
+}
+
+void BspEntity::SetObject(Object* value)
+{
+    ownedObject.reset();
+    object = value;
 }
 
 Object* BspEntity::GetObject() const
 {
-    return object.get();
+    return object;
+}
+
+void BspEntity::Render()
+{
+    if (object != nullptr) {
+        object->Render();
+    }
+}
+
+void BspEntity::Submit(RenderQueues& queues)
+{
+    if (object != nullptr) {
+        object->AdvanceAnimation();
+        queues.Submit(object, 3);
+    }
 }
 
 Bsp::Bsp(Engine* value)
@@ -164,10 +186,6 @@ Bsp::~Bsp()
 void Bsp::SetEngine(Engine* value)
 {
     s3dBase::SetEngine(value);
-}
-
-void Bsp::Render()
-{
 }
 
 void Bsp::SetEntityFactory(BspEntityFactory factory, void* context)
@@ -216,10 +234,15 @@ void Bsp::FreeLastLevel()
     pvs.clear();
     lightmapData.clear();
     source.clear();
+    decompressedPVS.clear();
+    visibleFaces.clear();
+    visibleFaceFlags.clear();
+    currentCluster = -1;
+    previousCluster = -1;
     loaded = false;
     for (BspLightStyle& style : lightStyles) {
-        style.frameCount = 8;
-        style.currentFrame = 0;
+        style.light = 8;
+        style.position = 0;
         style.enabled = 1;
     }
 }
@@ -233,9 +256,9 @@ void Bsp::FreeAll()
 void Bsp::ResetLightStyles()
 {
     for (BspLightStyle& style : lightStyles) {
-        style.frameCount = 8;
-        style.currentFrame = 0;
-        style.unknown06 = 0;
+        style.light = 8;
+        style.position = 0;
+        style.frameCount = 0;
         style.enabled = 0;
         style.frames.clear();
     }
@@ -627,6 +650,7 @@ result Bsp::LoadModels(const SbpChunkDescriptor& chunk)
                 FloatToFixed(ReadFloat(input + offset + 8))
             };
         }
+        model.object->SetTransformVectors(model.transform);
         model.firstVertexLight = Read32(input + 0x50);
         model.vertexLightCount = Read16(input + 0x54);
         model.mode = input[0x56];

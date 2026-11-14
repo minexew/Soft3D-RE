@@ -15,6 +15,8 @@ public:
     explicit Object(Renderer* renderer);
 
     void SetModel(const ObjectRes* model);
+    void SetTransformVectors(const std::array<Vec3, 4>& transform);
+    const Matrix4& GetModelMatrix() const;
     result LoadMaterials(s3dResManager* manager, int cacheLevel,
                          const char16_t* directory = nullptr);
     void SetAnimation(const Animation* animation);

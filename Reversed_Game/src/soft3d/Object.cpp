@@ -17,6 +17,22 @@ void Object::SetModel(const ObjectRes* resource)
     detailTextures.assign(textures.size(), nullptr);
 }
 
+void Object::SetTransformVectors(const std::array<Vec3, 4>& transform)
+{
+    modelMatrix = Matrix4::Identity();
+    for (std::size_t axis = 0; axis < 3; ++axis) {
+        modelMatrix.values[axis] = (&transform[2].x)[axis];
+        modelMatrix.values[4 + axis] = (&transform[3].x)[axis];
+        modelMatrix.values[8 + axis] = (&transform[1].x)[axis];
+        modelMatrix.values[12 + axis] = (&transform[0].x)[axis];
+    }
+}
+
+const Matrix4& Object::GetModelMatrix() const
+{
+    return modelMatrix;
+}
+
 result Object::LoadMaterials(s3dResManager* manager, int cacheLevel,
                              const char16_t* directory)
 {
