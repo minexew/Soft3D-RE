@@ -11,17 +11,19 @@ RTTI distinguishes `Engine` from its game-specific `GameEngine` subclass. `S3dEn
 | `+0x00` | `s3dBase` | Base and engine link. |
 | `+0x08` | `int32_t` | Running flag. |
 | `+0x0c`, `+0x10` | `uint32_t` | Frame-limiter timestamps. |
-| `+0x1c` | `uint32_t` | Frame interval. |
+| `+0x14` | `uint32_t` | Target FPS, set to 17 by `GameEngine_Init`. |
+| `+0x18` | `int32_t` | Legacy real-FPS display field; not initialized or updated in this build. |
+| `+0x1c` | `uint32_t` | Frame interval in microseconds. |
 | `+0x20` | `int16_t` | Pre-update hook enable. |
 | `+0x22` | `int16_t` | Post-update hook enable. |
 | `+0x24` | `int16_t` | Renderable-submission hook enable. |
 | `+0x26` | `int16_t` | Render-preparation hook enable. |
 | `+0x28` | `int32_t` | Presentation enable. |
-| `+0x2c` | time source | Current-time provider. |
+| `+0x2c` | `s3dTimer` | Current-time provider, constructed at `0x000e47e8`. |
 | `+0x38` | `s3dIO` | Embedded IO. |
 | `+0x44` | `s3dLog` | Embedded logger. |
-| `+0x58` | `s3dTimer` | Embedded timer. |
-| `+0x60` | `s3dExit` | Exit-state helper. |
+| `+0x58` | `s3dMemInfo` | Empty memory-info class shell; see `symbian3rd_debug.md`. |
+| `+0x60` | `s3dExit` | Empty exit-state class shell with no exit operation. |
 | `+0x68`, `+0x6c` | `int32_t` | Width and height. |
 | `+0x74` | `s3dVideo` | Embedded platform-video forwarder. |
 | `+0x80` | `RenderQueues *` | 0xb0c-byte, seven-queue allocation. |
@@ -51,7 +53,7 @@ The `Engine` vtable at `0x0015d7b0` and `GameEngine` vtable at `0x00141888` esta
 | `+0x38` | PostRender | `0x00070a70`, empty in this game build |
 | `+0x44` | DrawFPS | `0x00070ab0`, empty in this game build |
 
-The reusable `Engine` declares the initialization, state, update, submission, and rendering hooks as pure virtual. `Suspend` and `Resume` are concrete virtual methods. `UpdateFrame` and `RenderFrame` are nonvirtual helpers called directly by `RunFrame`, not vtable slots. The final `DrawFPS` implementation at `Engine_DrawFPS` (`0x000f2c30`) formats the real-FPS field with `"%d"` and draws it through `s3dVideo`; `GameEngine` overrides it with an empty method.
+The reusable `Engine` declares the initialization, state, update, submission, and rendering hooks as pure virtual. `Suspend` and `Resume` are concrete virtual methods. `UpdateFrame` and `RenderFrame` are nonvirtual helpers called directly by `RunFrame`, not vtable slots. The final `DrawFPS` implementation at `Engine_DrawFPS` (`0x000f2c30`) formats the real-FPS field with `"%d"` and draws it through `s3dVideo`; `GameEngine` overrides it with an empty method. No `DrawFPS` caller exists in the recovered frame path, and the field is not initialized or updated in this build. See `symbian3rd_debug.md`.
 
 ### Game-specific ownership points
 
@@ -98,7 +100,7 @@ The initial `GameMenu` update selects state index 7 with time/selection zero. Th
 8. Run `PostUpdate` when enabled.
 9. Update audio, complete `VID_impl::Update`, update input, and limit the frame rate.
 
-The original `Engine_Resume` tests the running flag as nonzero, unlike `Engine_Start`; this unusual condition is retained in the portable reconstruction.
+The original `Engine_Resume` tests the running flag as nonzero, unlike `Engine_Start`; this unusual condition is retained in the portable reconstruction. Start and resume also rebind `ScreenBlitter` to the renderer's current texture. Start clears all key state, and `Input_Update` clears only `FIRSTDOWN` and `CLICK` at the end of each frame. `EngineClock` provides the microsecond limiter; the original `Engine::DrawFPS` helper is not called by this frame path.
 
 ## Render queues
 
@@ -160,8 +162,8 @@ The default enabled traversal walks source pixels linearly while writing destina
 
 ## Portable reconstruction and tests
 
-`Reversed_Game/src/soft3d/` now includes `Engine`, `GameEngine`, `Renderable`, `Renderer`, `Raster`, `BasicShader`, `Bsp`, `BezierCurve3`, `CameraPathCollection`, `Camera`, `CameraSpot`, `DummySpot`, `MenuBackdrop`, `Object`, `Fixed`, `Font`, `VisString`, `StringManager`, `ScreenBlitter`, `UiManager`, and the initial `GameMenu` state. `GameEngine` retains scene/UI ownership and hook ordering. `GameEngine::LoadMenuBackdrop` activates the real SPL/BSP/camera background; episode scene/gameplay, later menu states, BSP collision, and script internals remain explicit stubs. `AudioDevice`, `AudioManager`, and `SoundInstance` implement the recovered audio update, mixing, control, fade, and positional paths; see `symbian3rd_audio.md`.
+`Reversed_Game/src/soft3d/` now includes `Engine`, `GameEngine`, `Input`, `EngineClock`, `Renderable`, `Renderer`, `Raster`, `BasicShader`, `Bsp`, `BezierCurve3`, `CameraPathCollection`, `Camera`, `CameraSpot`, `DummySpot`, `MenuBackdrop`, `Object`, `Fixed`, `Font`, `VisString`, `StringManager`, `ScreenBlitter`, `UiManager`, and the initial `GameMenu` state. `GameEngine` retains scene/UI ownership and hook ordering. `GameEngine::LoadMenuBackdrop` activates the real SPL/BSP/camera background; episode scene/gameplay, later menu states, BSP collision, and script internals remain explicit stubs. `AudioDevice`, `AudioManager`, and `SoundInstance` implement the recovered audio update, mixing, control, fade, and positional paths; see `symbian3rd_audio.md`. `Input` and platform clock backends implement recovered key transitions and 17 FPS limiting; `SetFpsDisplayEnabled`/`--show-fps` provide explicit FPS restoration.
 
-`tests/test_engine.cpp` checks queue capacity and ordering, exact RGB565/XRGB mapping including a non-square portrait mapping, a complete `GameEngine` → dummy `VID_impl` frame, indexed SOJ rasterization, packed material names, animation interpolation truncation, and animation wrapping. `test_bsp.cpp` covers real/synthetic map loading, while `test_bsprender.cpp` verifies PVS selection, lightmaps, S3DSTY wrapping, visible model submission, and exact real-menu framebuffer/presented hashes. `test_spl.cpp` covers all real SPL records, exact evaluation and projection arithmetic, malformed inputs, path completion, and 120 moving menu-background frames through dummy video; see `spl_format.md`. `test_font.cpp` exercises the real SBN resources and glyph drawing; `test_ui.cpp` validates the real SDT tables and both handedness frames. The SDL app loads `res.spk` and renders the initial screen through the normal overlay and presentation path.
+`tests/test_engine.cpp` checks queue capacity and ordering, exact RGB565/XRGB mapping including a non-square portrait mapping, a complete `GameEngine` → dummy `VID_impl` frame, indexed SOJ rasterization, packed material names, animation interpolation truncation, and animation wrapping. `test_input.cpp` and `test_sdlinput.cpp` cover key transitions, translation, repeat thresholds, simultaneous keys, deterministic timing, lifecycle, and opt-in FPS text. `test_bsp.cpp` covers real/synthetic map loading, while `test_bsprender.cpp` verifies PVS selection, lightmaps, S3DSTY wrapping, visible model submission, and exact real-menu framebuffer/presented hashes. `test_spl.cpp` covers all real SPL records, exact evaluation and projection arithmetic, malformed inputs, path completion, and 120 moving menu-background frames through dummy video; see `spl_format.md`. `test_font.cpp` exercises the real SBN resources and glyph drawing; `test_ui.cpp` validates the real SDT tables and both handedness frames through engine input. The SDL app loads `res.spk` and renders the initial screen through the normal overlay and presentation path.
 
 The portable rasterizer is functional but not yet bit-identical for every original clipping, lighting, perspective-correct texturing, blending, and specialized scanline case. See `soft3d_models_animations.md` for format details and `symbian3rd_video.md` for platform video.

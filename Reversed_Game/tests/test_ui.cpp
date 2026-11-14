@@ -99,14 +99,15 @@ int main()
         const uint64_t leftFrame = HashFrame(*frame);
         CHECK(dummy->GetPresentedPixels().size() == 320 * 240);
 
-        engine.SetMenuInput(false, true, false);
+        engine.GetInput().KeyDown(soft3d::Key::Right);
         CHECK(engine.RunFrame());
         const uint64_t rightFrame = HashFrame(*frame);
         CHECK(rightFrame != leftFrame);
         CheckVisibleImage(*frame, *dialog->visuals[46].resource->GetTexture(), 106, 63);
         CheckVisibleImage(*frame, *dialog->visuals[48].resource->GetTexture(), 219, 54);
 
-        engine.SetMenuInput(true, false, false);
+        engine.GetInput().KeyUp(soft3d::Key::Right);
+        engine.GetInput().KeyDown(soft3d::Key::Left);
         CHECK(engine.RunFrame());
         CHECK(HashFrame(*frame) == leftFrame);
     } catch (const std::exception& error) {

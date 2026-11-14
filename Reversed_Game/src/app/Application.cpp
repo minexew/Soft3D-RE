@@ -1,9 +1,9 @@
 #include "app/Application.hpp"
 
 #include "platform/sdl/SdlAudioBackend.hpp"
+#include "platform/sdl/SdlClock.hpp"
+#include "platform/sdl/SdlInput.hpp"
 #include "platform/sdl/SdlVideoBackend.hpp"
-
-#include <algorithm>
 #include <filesystem>
 #include <iostream>
 #include <utility>
@@ -13,7 +13,6 @@ namespace {
 
 constexpr int frameWidth = 320;
 constexpr int frameHeight = 240;
-constexpr uint64_t frameIntervalNs = 1000000000ULL / 60ULL;
 
 std::u16string WidePath(const std::string& path)
 {
@@ -74,35 +73,24 @@ int Application::Run()
               << " (CPU), audio: "
               << (engine->GetAudioManager().IsRunning() ? "16 kHz mono" : "disabled") << '\n';
 
-    timer.Reset();
     bool running = true;
     while (running && (config.maximumFrames == 0 ||
                        currentFrame < static_cast<uint64_t>(config.maximumFrames))) {
-        const uint64_t frameStart = timer.NowNanoseconds();
         SDL_Event event{};
         while (SDL_PollEvent(&event)) {
             if (event.type == SDL_EVENT_QUIT ||
                 (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_ESCAPE)) {
                 running = false;
             }
-            controls.ProcessEvent(event);
+            soft3d::platform::ProcessSdlKeyEvent(engine->GetInput(), event);
         }
 
-        const ControlState& input = controls.State();
-        const int selection = controls.ConsumeMenuSelection();
-        engine->SetMenuInput(selection < 0, selection > 0, input.action);
         if (!engine->RunFrame()) {
             std::cerr << "Frame presentation failed: " << SDL_GetError() << '\n';
             Shutdown();
             return 1;
         }
         ++currentFrame;
-
-        const uint64_t remaining = frameIntervalNs -
-            std::min(frameIntervalNs, timer.NowNanoseconds() - frameStart);
-        if (remaining >= 1000000ULL) {
-            SDL_Delay(static_cast<uint32_t>(remaining / 1000000ULL));
-        }
     }
 
     Shutdown();
@@ -114,12 +102,14 @@ bool Application::InitializeVideo()
     soft3d::EngineConfig engineConfig;
     engineConfig.width = frameWidth;
     engineConfig.height = frameHeight;
+    engineConfig.clock = std::make_unique<soft3d::platform::SdlClock>();
     engineConfig.videoBackend = std::make_unique<soft3d::platform::SdlVideoBackend>(
         config.scale, config.renderer);
     if (config.enableAudio) {
         engineConfig.audioBackend = std::make_unique<soft3d::platform::SdlAudioBackend>();
     }
     engine = std::make_unique<soft3d::GameEngine>(std::move(engineConfig));
+    engine->SetFpsDisplayEnabled(config.showFps);
     config.resourceArchive = FindResourceArchive(config.resourceArchive);
     engine->SetResourceArchive(WidePath(config.resourceArchive));
     if (engine->Init() != 0) {

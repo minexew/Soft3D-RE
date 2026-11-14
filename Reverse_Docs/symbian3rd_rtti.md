@@ -220,12 +220,12 @@ Vtable addresses in this table are structure starts; add eight bytes for the add
 | Resource | `0x0013af94` | `0x0013aff0` | single | s3dBase @ `0x0` | `0x0013af38` (0) |
 | s3dAudioDevice | `0x0014d1e4` | `0x0014d1d0` | single | external `0x854` @ `0x0` | `0x0014d118` (0) |
 | s3dBase | `0x0013af80` | `0x0013afdc` | class | — | `0x0013af68` (0) |
-| s3dExit | `0x0015d970` | `0x0015d9a4` | single | s3dBase @ `0x0` | `0x0015d910` (0) |
+| s3dExit | `0x0015d970` | `0x0015d9a4` | single | s3dBase @ `0x0` | `0x0015d940` (0) |
 | s3dFilePak | `0x0014663c` | `0x0014662c` | single | s3dBase @ `0x0` | `0x00146618` (0) |
 | s3dImageLoader | `0x00146600` | `0x001465ec` | single | s3dBase @ `0x0` | `0x001465d8` (0) |
 | s3dIO | `0x0013af88` | `0x0013afe8` | single | s3dBase @ `0x0` | `0x0013af50` (0) |
 | s3dLog | `0x001464c4` | `0x001464bc` | single | s3dBase @ `0x0` | `0x001464a8` (0) |
-| s3dMemInfo | `0x0015d958` | `0x0015d988` | single | s3dBase @ `0x0` | `0x0015d940` (0) |
+| s3dMemInfo | `0x0015d958` | `0x0015d988` | single | s3dBase @ `0x0` | `0x0015d910` (0) |
 | s3dTimer | `0x0013e3e0` | `0x0013e3ec` | single | s3dBase @ `0x0` | `0x0013e3c8` (0) |
 | s3dVideo | `0x0015d964` | `0x0015d998` | single | s3dBase @ `0x0` | `0x0015d928` (0) |
 | Sam | `0x0013b560` | `0x0013b558` | single | Enemy @ `0x0` | `0x0013b488` (0) |

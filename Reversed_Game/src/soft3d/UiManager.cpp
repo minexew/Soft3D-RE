@@ -1,5 +1,6 @@
 #include "soft3d/UiManager.hpp"
 
+#include "soft3d/Input.hpp"
 #include "soft3d/TextureRes.hpp"
 
 #include <cstdio>
@@ -11,7 +12,7 @@ static_assert(sizeof(SdtAnimationKey) == 13 * sizeof(uint32_t));
 
 namespace {
 
-struct Input {
+struct SdtReader {
     const uint8_t* data;
     size_t size;
 
@@ -116,7 +117,7 @@ result UiManager::LoadStateSdt(const char16_t* entryName)
 
 result UiManager::ParseStrSdt(const void* data, size_t size)
 {
-    Input input{static_cast<const uint8_t*>(data), size};
+    SdtReader input{static_cast<const uint8_t*>(data), size};
     uint32_t textureCount;
     if (!input.Read32(textureCount) || !input.Skip(4)) {
         return S3D_FORMAT;
@@ -148,7 +149,7 @@ result UiManager::ParseStrSdt(const void* data, size_t size)
 
 result UiManager::ParseStateSdt(const void* data, size_t size)
 {
-    Input input{static_cast<const uint8_t*>(data), size};
+    SdtReader input{static_cast<const uint8_t*>(data), size};
     uint32_t totalStates;
     uint32_t dialogCount;
     if (!input.Read32(totalStates) || !input.Read32(dialogCount)) {
@@ -276,20 +277,15 @@ const std::vector<std::u16string>& UiManager::GetResourceNames() const
     return resourceNames;
 }
 
-void GameMenu::Update(UiManager& uiManager)
+void GameMenu::Update(UiManager& uiManager, const soft3d::Input& input)
 {
-    uiManager.SelectState(7, selection);
-}
-
-void GameMenu::SetInput(bool left, bool right, bool acceptInput)
-{
-    if (left) {
+    if (input.IsKeyDown(Key::Left)) {
         selection = 0;
     }
-    if (right) {
+    if (input.IsKeyDown(Key::Right)) {
         selection = 1;
     }
-    (void)acceptInput;
+    uiManager.SelectState(7, selection);
 }
 
 int32_t GameMenu::GetSelection() const

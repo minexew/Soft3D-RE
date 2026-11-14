@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <memory>
+#include <string_view>
 #include <vector>
 
 namespace soft3d {
@@ -22,6 +23,7 @@ public:
     virtual void Stop() = 0;
     virtual int BeginUpdate(VideoBufferInfo& buffer) = 0;
     virtual bool EndUpdate(const VideoBufferInfo& buffer) = 0;
+    virtual void DrawText(std::u16string_view text, int x, int y) = 0;
     virtual const char* GetName() const = 0;
 };
 
@@ -37,6 +39,7 @@ public:
     void Stop();
     uint32_t* GetBackBufferPtr();
     bool Update();
+    void DrawText(const char16_t* text, int x, int y);
 
     bool IsStarted() const;
     const VideoBufferInfo& GetBufferInfo() const;

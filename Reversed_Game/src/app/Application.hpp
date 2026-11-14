@@ -1,6 +1,5 @@
 #pragma once
 
-#include "app/EngineStubs.hpp"
 #include "soft3d/GameEngine.hpp"
 
 #include <cstdint>
@@ -15,6 +14,7 @@ struct ApplicationConfig {
     std::string renderer = "auto";
     std::string resourceArchive;
     bool enableAudio = true;
+    bool showFps = false;
 };
 
 class Application {
@@ -33,8 +33,6 @@ private:
 
     ApplicationConfig config;
     std::unique_ptr<soft3d::GameEngine> engine;
-    ControlsStub controls;
-    TimerStub timer;
     uint64_t currentFrame = 0;
 };
 

@@ -3,9 +3,16 @@
 #include "soft3d/VID_impl.hpp"
 
 #include <cstdint>
+#include <string>
 #include <vector>
 
 namespace soft3d::platform {
+
+struct DummyDrawnText {
+    std::u16string text;
+    int x;
+    int y;
+};
 
 class DummyVideoBackend final : public VideoBackend {
 public:
@@ -13,6 +20,7 @@ public:
     void Stop() override;
     int BeginUpdate(VideoBufferInfo& buffer) override;
     bool EndUpdate(const VideoBufferInfo& buffer) override;
+    void DrawText(std::u16string_view text, int x, int y) override;
     const char* GetName() const override;
 
     void SetStartResult(bool result);
@@ -25,6 +33,7 @@ public:
     int GetBeginUpdateCount() const;
     int GetUpdateCount() const;
     const std::vector<uint32_t>& GetPresentedPixels() const;
+    const std::vector<DummyDrawnText>& GetPresentedText() const;
 
 private:
     bool started = false;
@@ -36,6 +45,8 @@ private:
     int beginUpdateCount = 0;
     int updateCount = 0;
     std::vector<uint32_t> presentedPixels;
+    std::vector<DummyDrawnText> pendingText;
+    std::vector<DummyDrawnText> presentedText;
 };
 
 } // namespace soft3d::platform

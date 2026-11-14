@@ -2,14 +2,17 @@
 
 #include "soft3d/AudioManager.hpp"
 #include "soft3d/Camera.hpp"
+#include "soft3d/EngineClock.hpp"
+#include "soft3d/Input.hpp"
 #include "soft3d/Renderable.hpp"
 #include "soft3d/Renderer.hpp"
 #include "soft3d/ScreenBlitter.hpp"
 #include "soft3d/VID_impl.hpp"
 #include "soft3d/s3dBase.hpp"
+#include "soft3d/s3dExit.hpp"
+#include "soft3d/s3dMemInfo.hpp"
 #include "soft3d/s3dResManager.hpp"
 
-#include <chrono>
 #include <cstdint>
 #include <memory>
 
@@ -18,14 +21,9 @@ namespace soft3d {
 struct EngineConfig {
     int width = 320;
     int height = 240;
+    std::unique_ptr<EngineClock> clock;
     std::unique_ptr<VideoBackend> videoBackend;
     std::unique_ptr<AudioBackend> audioBackend;
-};
-
-class InputStub {
-public:
-    void Update() {}
-    void ClearKey() {}
 };
 
 class Engine : public s3dBase {
@@ -42,7 +40,7 @@ public:
     virtual void Suspend();
     virtual void Resume();
     bool RunFrame();
-    void StartGameEngineTimer(uint32_t interval);
+    void StartGameEngineTimer(uint32_t targetFps);
 
     virtual void PreUpdate() = 0;
     virtual void PostUpdate() = 0;
@@ -59,6 +57,10 @@ public:
     AudioManager& GetAudioManager();
     ScreenBlitter& GetScreenBlitter();
     VID_impl& GetVideo();
+    Input& GetInput();
+    uint32_t GetFrameIntervalMicroseconds() const;
+    int32_t GetRealFps() const;
+    void SetFpsDisplayEnabled(bool enabled);
     bool IsRunning() const;
 
 protected:
@@ -72,18 +74,24 @@ protected:
     bool submitEnabled = true;
     bool prepareEnabled = true;
     bool renderEnabled = true;
-    uint32_t frameIntervalMs = 0;
-    std::chrono::steady_clock::time_point frameStart;
-    std::chrono::steady_clock::time_point previousFrameStart;
+    uint32_t frameStart = 0;
+    uint32_t previousFrameStart = 0;
+    uint32_t targetFps = 0;
+    int32_t realFps = 0;
+    uint32_t frameIntervalMicroseconds = 0;
+    bool fpsDisplayEnabled = false;
+    std::unique_ptr<EngineClock> clock;
     int width;
     int height;
     RenderQueues renderQueues;
     s3dResManager resourceManager;
     AudioManager audioManager;
-    InputStub input;
+    Input input;
     Renderer renderer;
     Camera camera;
     ScreenBlitter screenBlitter;
+    s3dMemInfo memInfo;
+    s3dExit exitState;
     VID_impl video;
 };
 

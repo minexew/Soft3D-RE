@@ -12,7 +12,7 @@ void PrintUsage(const char* executable)
 {
     std::cout << "Usage: " << executable
               << " [--renderer auto|software|NAME] [--scale 1..4]"
-                 " [--frames N] [--resources PATH] [--no-audio]\n"
+                 " [--frames N] [--resources PATH] [--no-audio] [--show-fps]\n"
                  "Controls: arrows/WASD select, Space/Enter action, Escape quits.\n";
 }
 
@@ -36,6 +36,10 @@ int main(int argc, char** argv)
         }
         if (argument == "--no-audio") {
             config.enableAudio = false;
+            continue;
+        }
+        if (argument == "--show-fps") {
+            config.showFps = true;
             continue;
         }
         if (argument == "--renderer" || argument == "--scale" || argument == "--frames" ||

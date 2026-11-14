@@ -88,10 +88,11 @@ private:
     int32_t stateTime = 0;
 };
 
+class Input;
+
 class GameMenu {
 public:
-    void Update(UiManager& uiManager);
-    void SetInput(bool left, bool right, bool accept);
+    void Update(UiManager& uiManager, const Input& input);
     int32_t GetSelection() const;
 
 private:

@@ -1,20 +1,26 @@
 #include "soft3d/Engine.hpp"
 
-#include <thread>
+#include "platform/linux/SystemClock.hpp"
+#include "soft3d/s3dIO.hpp"
 
 namespace soft3d {
 
 Engine::Engine(EngineConfig config)
-    : width(config.width)
+    : clock(std::move(config.clock))
+    , width(config.width)
     , height(config.height)
     , audioManager(&resourceManager, std::move(config.audioBackend))
     , renderer(config.width, config.height)
     , camera(config.width, config.height, &renderer)
     , video(config.width, config.height, std::move(config.videoBackend))
 {
+    if (clock == nullptr) {
+        clock = std::make_unique<platform::SystemClock>();
+    }
     screenBlitter.SetTexture(renderer.GetCurrentTexture());
-    frameStart = std::chrono::steady_clock::now();
-    previousFrameStart = frameStart;
+    memInfo.SetEngine(this);
+    exitState.SetEngine(this);
+    frameStart = clock->NowMicroseconds();
 }
 
 Engine::~Engine()
@@ -27,6 +33,7 @@ void Engine::Start()
     if (!running) {
         video.Start();
         renderer.SetBackBufferPtr(video.GetBackBufferPtr());
+        screenBlitter.SetTexture(renderer.GetCurrentTexture());
         running = true;
         input.ClearKey();
     }
@@ -46,6 +53,7 @@ void Engine::Resume()
     if (running) {
         video.Start();
         renderer.SetBackBufferPtr(video.GetBackBufferPtr());
+        screenBlitter.SetTexture(renderer.GetCurrentTexture());
         audioManager.Resume();
         running = true;
     }
@@ -96,26 +104,33 @@ void Engine::RenderFrame()
     if (renderEnabled) {
         renderer.Present();
     }
+    if (fpsDisplayEnabled) {
+        DrawFPS();
+    }
 }
 
-void Engine::StartGameEngineTimer(uint32_t interval)
+void Engine::StartGameEngineTimer(uint32_t fps)
 {
-    frameIntervalMs = interval;
+    targetFps = fps;
+    frameIntervalMicroseconds = 1000000 / fps;
 }
 
 void Engine::LimitFrameRate()
 {
-    const auto now = std::chrono::steady_clock::now();
-    previousFrameStart = now;
-    const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
-        now - frameStart).count();
-    if (elapsed >= 0 && static_cast<uint32_t>(elapsed) < frameIntervalMs) {
-        std::this_thread::sleep_for(std::chrono::milliseconds(frameIntervalMs - elapsed));
+    previousFrameStart = clock->NowMicroseconds();
+    const uint32_t elapsed = previousFrameStart - frameStart;
+    if (static_cast<int32_t>(elapsed) >= 0 && elapsed < frameIntervalMicroseconds) {
+        clock->SleepMicroseconds(frameIntervalMicroseconds - elapsed);
     }
-    frameStart = std::chrono::steady_clock::now();
+    frameStart = clock->NowMicroseconds();
 }
 
-void Engine::DrawFPS() {}
+void Engine::DrawFPS()
+{
+    char16_t text[10];
+    WideSprintf(text, u"%d", realFps);
+    video.DrawText(text, width - 20, 10);
+}
 
 RenderQueues& Engine::GetRenderQueues()
 {
@@ -150,6 +165,26 @@ ScreenBlitter& Engine::GetScreenBlitter()
 VID_impl& Engine::GetVideo()
 {
     return video;
+}
+
+Input& Engine::GetInput()
+{
+    return input;
+}
+
+uint32_t Engine::GetFrameIntervalMicroseconds() const
+{
+    return frameIntervalMicroseconds;
+}
+
+int32_t Engine::GetRealFps() const
+{
+    return realFps;
+}
+
+void Engine::SetFpsDisplayEnabled(bool enabled)
+{
+    fpsDisplayEnabled = enabled;
 }
 
 bool Engine::IsRunning() const

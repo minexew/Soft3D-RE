@@ -76,9 +76,9 @@ Soft3D changes the concrete layout:
 | Object | Layout |
 |---|---|
 | S2D `Input` | 20 key-state bytes, 20 repeat-counter bytes, any-key byte, three mouse-state bytes, mouse X/Y; total 52 (`0x34`) bytes. |
-| Soft3D input | Any-key byte at `+0x00`, 24 key-state bytes at `+0x01`, 24 repeat-counter bytes at `+0x19`; no mouse fields; total 49 (`0x31`) bytes. |
+| Soft3D input | Any-key byte at `+0x00`, 24 key-state bytes at `+0x01`, 24 repeat-counter bytes at `+0x19`; no mouse fields; total 49 (`0x31`) bytes. Slot zero in each array is unused, giving 23 valid keys. |
 
-Soft3D also adds event filtering: key zero is ignored, hardware events are gated by current input state, and keys `0x11..0x13` bypass that gate. Its repeat threshold is greater than five, unlike S2D's threshold of two. These differences must be preserved.
+Soft3D also adds event filtering: key zero is ignored, hardware events are gated by current input state, and keys `0x11..0x13` bypass that gate. Its repeat threshold is greater than five, unlike S2D's threshold of two. The any-key byte is initialized but never changed by the Soft3D event methods, unlike S2D's working flag. These differences must be preserved. See `symbian3rd_input.md` for the full translation table and state machine.
 
 Confirmed ARM functions now named in Ghidra:
 
@@ -167,11 +167,13 @@ The exact RTTI name `VID_impl` occurs in both engines. S2D provides `vidinit`, `
 
 Soft3D `VidImpl_Update` (`0x000a6cf4`, formerly `VidImpl_CompleteFrame`) and `S3dVideo_Update` (`0x000a705c`, formerly `S3dVideo_CompleteFrame`) complete the direct-screen frame after software rendering. The new names align them with S2D `VID_impl::Update`/`vidupdate`; they do not imply identical platform code. `VidImpl_DrawText` and the empty `S3dVideo_SetTextColor` likewise correspond to S2D `vidtext` and `vidtextcolor`.
 
-S2D `Engine::Start`, `Stop`, and `Resume` closely match Soft3D `Engine_Start`, `Engine_Suspend`, and `Engine_Resume`: start video, update running state, clear input on initial start, and pause/resume audio. Soft3D adds renderer/back-buffer rebinding.
+S2D `Engine::Start`, `Stop`, and `Resume` closely match Soft3D `Engine_Start`, `Engine_Suspend`, and `Engine_Resume`: start video, update running state, clear input on initial start, and pause/resume audio. Soft3D adds renderer/back-buffer and screen-blitter texture rebinding.
 
-S2D `Engine::Sync` sleeps for the unexpired frame interval and records timing. Soft3D `Engine_LimitFrameRate` performs the same core operation at the end of its expanded frame. S2D also calculates real FPS and synchronizes at frame start; Soft3D moves additional virtual handlers and audio/video work around that limiter, so `Engine_LimitFrameRate` remains the more precise name.
+S2D `Engine::Sync` sleeps for the unexpired frame interval and records timing. Soft3D `Engine_LimitFrameRate` performs the same core operation at the end of its expanded frame. S2D also calculates real FPS and synchronizes at frame start; Soft3D moves additional virtual handlers and audio/video work around that limiter and does not update its real-FPS field, so `Engine_LimitFrameRate` remains the more precise name.
 
 `GetCurTime` (`0x000a72ac`) and `Sleep` (`0x000a73a8`) are now named after their matching S2D API roles. The SDK describes timer values as microseconds, but this should not override platform-specific evidence about Symbian tick units.
+
+The S2D `memtotal()`/`memremain()` declarations also have exact Soft3D counterparts: `MemTotal` (`0x000a77ec`) and `MemRemain` (`0x000a7840`) query `UserHal::MemoryInfo` and return total/free RAM or `-1`. They are standalone, uncalled functions; the embedded `s3dMemInfo` class is only an empty `s3dBase` shell. See `symbian3rd_debug.md`.
 
 ## StringManager, Font, and VisString: exact structural match
 

@@ -45,7 +45,6 @@ public:
     void SetResourceArchive(std::u16string path);
     void SetInGame(bool inGame);
     void SetLanguage(int value);
-    void SetMenuInput(bool left, bool right, bool accept);
     result LoadMenuBackdrop();
     StringManager* GetBaseFont();
     StringManager* GetSecondaryFont();

@@ -17,21 +17,21 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - SBP container/runtime loading, all chunk readers, incremental progress, map-model resources, generic entity-factory ownership, and link cleanup;
 - BSP/PVS visibility, fixed-point face rendering, RGB444 lightmaps, S3DSTY loading/advancement, and visible map-model submission;
 - SPL parsing/evaluation/derivatives, chord-weighted path timing, camera projection, `CameraSpot`/`DummySpot`, and the complete menu 3D backdrop;
-- engine queue ordering and presentation, dummy video, and the SDL application shell.
+- engine queue ordering and presentation, dummy video, and the SDL application shell;
+- 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text.
 
 These foundations still have partial areas: material fields, Object loading/control APIs, raster feature parity, generic dialog behavior, and the game hooks that invoke audio are not automatically supplied by the audio implementation.
 
 ### Missing or incomplete engine facilities
 
 - `Bsp` collision and integration of loaded map models/entities into later unit systems;
-- real engine input state, Symbian-to-SDL key mapping, target-FPS timing, and restorable FPS drawing;
 - generic `Dialog` interpolation/text/secondary-texture behavior, later `GameMenu` states, and menu dialog classes;
 - SST parsing/execution and the generic script interface;
 - specialized raster clipping, depth, perspective, blend, lighting, texture-coordinate, detail-texture, and inner-loop paths;
 - Fade, Gray, MotionBlur, Blind, Ink, and Twist presentation shaders;
 - Lensflare, BillboardGroup, FakeShadow, and GunFire renderables, plus unresolved SOJ material state;
 - generic unit/physics/messaging/state-machine infrastructure and `GameUnitManager` support;
-- generic streams, state load/save support, `s3dExit`, `s3dMemInfo`, and currently unused IO/debug facilities;
+- generic streams, state load/save support, standalone RAM diagnostics, and currently unused IO/debug facilities;
 - S3DTEX engine/tool parity and remaining STX/SOJ/SAI unknown fields.
 
 The old video documentation's statement that audio remains a stub is obsolete; `symbian3rd_audio.md` is the current audio reference.
@@ -103,7 +103,7 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 `BezierCurve3.*`, `Camera.*`, `CameraSpot.*`, `MenuBackdrop.*`, and `test_spl.cpp` implement and test every item. All 11 real cubic records pass exact fixed-point and derivative checks; collection timing uses the recovered control-polygon lengths. `GameEngine::LoadMenuBackdrop` drives 120 real-map dummy-video frames with moving camera and exact hashes, without episode classes. See `spl_format.md` for layouts, projection arithmetic, update order, and hashes. Non-default camera tangent entries still use the mathematical equivalent rather than a copied original lookup table; this does not affect the default/menu camera.
 
-## Stage 4 — Input, target-FPS timer, lifecycle, and restorable FPS display
+## Stage 4 — Input, target-FPS timer, lifecycle, and restorable FPS display — complete
 
 **Scope**
 
@@ -119,6 +119,10 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 - Test key transitions, repeat thresholds, simultaneous keys, orientation, and SDL-to-engine mapping.
 - Verify target interval 58,823 microseconds for 17 FPS with a deterministic clock.
 - Test default-off and opt-in FPS frames through dummy video.
+
+**Completion**
+
+`Input.*`, `EngineClock.hpp`, Linux `SystemClock`, SDL `SdlClock`/`SdlInput`, and `test_input.cpp`/`test_sdlinput.cpp` implement and test every item. The app stubs and duplicate limiter are removed, menu selection consumes engine input, and `--show-fps` explicitly restores the base text helper. The recovered frame path has no original `DrawFPS` caller and does not update the real-FPS field; portable zero initialization is a deterministic safety choice, not a recovered FPS calculation. `s3dExit` and `s3dMemInfo` are confirmed empty class shells. Standalone `MemTotal`/`MemRemain` RAM queries were recovered separately and remain uncalled; see `symbian3rd_input.md` and `symbian3rd_debug.md`. All 16 CTest tests and an SDL `--show-fps` smoke run pass.
 
 ## Stage 5 — Generic SDT dialog behavior
 
@@ -222,7 +226,7 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 - Implement `Stream`, `InputStream`/`OutputStream`, data streams, and file streams, including endian and error behavior.
 - Recover engine-facing load/save interfaces without implementing the game's serialized state schema.
-- Complete `s3dMemInfo`, remaining `s3dExit` behavior, unused narrow IO/debug functions, and platform timer/exit wrappers.
+- Implement portable `MemTotal`/`MemRemain` diagnostics and remaining unused narrow IO/debug functions; `s3dMemInfo` and `s3dExit` themselves are already confirmed empty class shells.
 - Remove remaining app-only duplicates of engine facilities.
 
 **Verification**

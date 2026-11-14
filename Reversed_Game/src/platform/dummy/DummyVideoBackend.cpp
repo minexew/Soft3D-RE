@@ -20,6 +20,7 @@ void DummyVideoBackend::Stop()
 int DummyVideoBackend::BeginUpdate(VideoBufferInfo&)
 {
     ++beginUpdateCount;
+    pendingText.clear();
     return beginUpdateError;
 }
 
@@ -38,7 +39,13 @@ bool DummyVideoBackend::EndUpdate(const VideoBufferInfo& buffer)
                 reinterpret_cast<const uint32_t*>(source)[x];
         }
     }
+    presentedText = pendingText;
     return true;
+}
+
+void DummyVideoBackend::DrawText(std::u16string_view text, int x, int y)
+{
+    pendingText.push_back({std::u16string(text), x, y});
 }
 
 const char* DummyVideoBackend::GetName() const
@@ -89,6 +96,11 @@ int DummyVideoBackend::GetUpdateCount() const
 const std::vector<uint32_t>& DummyVideoBackend::GetPresentedPixels() const
 {
     return presentedPixels;
+}
+
+const std::vector<DummyDrawnText>& DummyVideoBackend::GetPresentedText() const
+{
+    return presentedText;
 }
 
 } // namespace soft3d::platform

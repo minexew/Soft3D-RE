@@ -53,6 +53,11 @@ bool VID_impl::Update()
     return updated;
 }
 
+void VID_impl::DrawText(const char16_t* text, int x, int y)
+{
+    backend->DrawText(std::u16string_view(text), x, y);
+}
+
 bool VID_impl::IsStarted() const
 {
     return started;

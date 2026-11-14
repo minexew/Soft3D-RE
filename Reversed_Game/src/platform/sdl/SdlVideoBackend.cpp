@@ -22,6 +22,7 @@ bool SdlVideoBackend::Start(int width, int height)
         return true;
     }
     presentationWidth = height;
+    sourceWidth = width;
     window = SDL_CreateWindow("7 Days: Salvation - Soft3D reconstruction",
                               height * scale, width * scale, SDL_WINDOW_RESIZABLE);
     if (window == nullptr) {
@@ -81,11 +82,30 @@ int SdlVideoBackend::BeginUpdate(VideoBufferInfo&)
 
 bool SdlVideoBackend::EndUpdate(const VideoBufferInfo& buffer)
 {
-    return SDL_UpdateTexture(frameTexture, nullptr, buffer.address,
-                             presentationWidth * static_cast<int>(sizeof(uint32_t))) &&
-           SDL_RenderClear(renderer) &&
-           SDL_RenderTexture(renderer, frameTexture, nullptr, nullptr) &&
-           SDL_RenderPresent(renderer);
+    bool updated = SDL_UpdateTexture(frameTexture, nullptr, buffer.address,
+                                     presentationWidth * static_cast<int>(sizeof(uint32_t))) &&
+                   SDL_RenderClear(renderer) &&
+                   SDL_RenderTexture(renderer, frameTexture, nullptr, nullptr);
+    if (!updated) {
+        pendingText.clear();
+        return false;
+    }
+    for (const SdlDrawTextRequest& text : pendingText) {
+        updated = SDL_RenderDebugText(renderer, text.x, text.y, text.text.c_str()) && updated;
+    }
+    pendingText.clear();
+    return SDL_RenderPresent(renderer) && updated;
+}
+
+void SdlVideoBackend::DrawText(std::u16string_view text, int x, int y)
+{
+    std::string narrow;
+    narrow.reserve(text.size());
+    for (char16_t character : text) {
+        narrow.push_back(character <= 0x7f ? static_cast<char>(character) : '?');
+    }
+    pendingText.push_back({std::move(narrow), static_cast<float>(sourceWidth - 1 - x),
+                           static_cast<float>(y)});
 }
 
 const char* SdlVideoBackend::GetName() const

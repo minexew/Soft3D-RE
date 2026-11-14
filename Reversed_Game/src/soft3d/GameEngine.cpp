@@ -51,7 +51,7 @@ int GameEngine::Init()
         uiManager->LoadStateSdt(language == 2 ? u".\\ui\\state.sdt" : u".\\uien\\state.sdt") != S3D_OK) {
         return S3D_FILE;
     }
-    gameMenu->Update(*uiManager);
+    gameMenu->Update(*uiManager, input);
     return 0;
 }
 
@@ -107,7 +107,7 @@ void GameEngine::PrepareRender()
     } else if (menuActive) {
         menuBackdrop->PrepareRender();
     }
-    gameMenu->Update(*uiManager);
+    gameMenu->Update(*uiManager, input);
 }
 
 void GameEngine::PostRender()
@@ -116,6 +116,7 @@ void GameEngine::PostRender()
 
 void GameEngine::DrawFPS()
 {
+    Engine::DrawFPS();
 }
 
 void GameEngine::SetResourceArchive(std::u16string path)
@@ -138,11 +139,6 @@ void GameEngine::SetInGame(bool value)
 void GameEngine::SetLanguage(int value)
 {
     language = value;
-}
-
-void GameEngine::SetMenuInput(bool left, bool right, bool accept)
-{
-    gameMenu->SetInput(left, right, accept);
 }
 
 StringManager* GameEngine::GetBaseFont()

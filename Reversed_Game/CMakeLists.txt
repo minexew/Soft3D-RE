@@ -14,6 +14,7 @@ add_library(soft3d
     src/platform/dummy/DummyVideoBackend.cpp
     src/platform/linux/File.cpp
     src/platform/linux/StdioLog.cpp
+    src/platform/linux/SystemClock.cpp
     src/soft3d/Animation.cpp
     src/soft3d/AudioData.cpp
     src/soft3d/AudioDevice.cpp
@@ -27,6 +28,7 @@ add_library(soft3d
     src/soft3d/Engine.cpp
     src/soft3d/Font.cpp
     src/soft3d/GameEngine.cpp
+    src/soft3d/Input.cpp
     src/soft3d/MenuBackdrop.cpp
     src/soft3d/Object.cpp
     src/soft3d/ObjectRes.cpp
@@ -73,9 +75,10 @@ if(SOFT3D_BUILD_APP)
     find_package(SDL3 REQUIRED CONFIG)
     add_executable(seven_days
         src/app/Application.cpp
-        src/app/EngineStubs.cpp
         src/app/main.cpp
         src/platform/sdl/SdlAudioBackend.cpp
+        src/platform/sdl/SdlClock.cpp
+        src/platform/sdl/SdlInput.cpp
         src/platform/sdl/SdlVideoBackend.cpp
     )
     target_include_directories(seven_days PRIVATE src)
@@ -135,6 +138,13 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_engine_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_engine COMMAND soft3d_engine_tests)
+
+    add_executable(soft3d_input_tests tests/test_input.cpp)
+    target_link_libraries(soft3d_input_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_input_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_input COMMAND soft3d_input_tests)
 
     add_executable(soft3d_bsp_tests tests/test_bsp.cpp)
     target_link_libraries(soft3d_bsp_tests PRIVATE soft3d)
@@ -197,6 +207,16 @@ if(BUILD_TESTING)
     add_test(NAME soft3d_audio COMMAND soft3d_audio_tests)
 
     if(TARGET seven_days)
+        add_executable(soft3d_sdl_input_tests
+            tests/test_sdlinput.cpp
+            src/platform/sdl/SdlInput.cpp
+        )
+        target_link_libraries(soft3d_sdl_input_tests PRIVATE soft3d SDL3::SDL3)
+        if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+            target_compile_options(soft3d_sdl_input_tests PRIVATE -Wall -Wextra -Wpedantic)
+        endif()
+        add_test(NAME soft3d_sdl_input COMMAND soft3d_sdl_input_tests)
+
         add_test(NAME seven_days_smoke
             COMMAND seven_days --frames 3 --renderer software --no-audio)
         set_tests_properties(seven_days_smoke PROPERTIES
