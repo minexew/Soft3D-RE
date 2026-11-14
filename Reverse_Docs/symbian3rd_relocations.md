@@ -55,4 +55,4 @@ The expanded vtable map was checked against `Reversed_Game/src/soft3d`. The dest
 - `Engine`: `Suspend` and `Resume` are virtual; `PrepareRender` precedes `SubmitRenderables` in the vtable; `UpdateFrame` and `RenderFrame` are nonvirtual helpers; and the final slot is `DrawFPS`, overridden as empty by `GameEngine`.
 - `DialogManager` (portable `UiManager`): `Renderable` and `s3dBase` are separate primary/secondary bases, and the primary vtable contains `Render`, `Update(context)`, and `SetEngine`. The portable implementation now follows `Render -> Update(0)` and includes the secondary-base interface.
 
-The normal CMake build and all nine CTest tests pass after these corrections, including the real-archive UI tests and SDL smoke test.
+The normal CMake build and all 16 CTest tests pass after these corrections, including the real-archive UI tests and SDL smoke tests. Stage 5 subsequently added a portable `Dialog` runtime for every parsed dialog while retaining this manager interface.

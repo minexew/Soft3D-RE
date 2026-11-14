@@ -19,7 +19,9 @@ public:
     Texture* GetTexture() const;
     void Clear(uint8_t red, uint8_t green, uint8_t blue);
     void Blit(const Texture* source, ScreenRect destination, ScreenRect sourceRect,
-              uint32_t mode = 0);
+              uint32_t mode = 0, const Texture* secondary = nullptr);
+    void BlitUnscaled(const Texture* source, int32_t x, int32_t y, ScreenRect sourceRect,
+                      uint32_t mode = 0, const Texture* secondary = nullptr);
 
 private:
     Texture* target = nullptr;

@@ -47,10 +47,12 @@ int GameEngine::Init()
     uiManager->SetResourceManager(&resourceManager);
     uiManager->SetScreenBlitter(&screenBlitter);
     uiManager->SetFont(secondaryFont.get());
+    uiManager->SetLanguage(language);
     if (uiManager->LoadStrSdt(language == 2 ? u".\\ui\\str.sdt" : u".\\uien\\str.sdt") != S3D_OK ||
         uiManager->LoadStateSdt(language == 2 ? u".\\ui\\state.sdt" : u".\\uien\\state.sdt") != S3D_OK) {
         return S3D_FILE;
     }
+    uiManager->GetDialogRuntime(0)->SetActive(true);
     gameMenu->Update(*uiManager, input);
     return 0;
 }

@@ -70,7 +70,7 @@ void TestTextAndDrawing(soft3d::StringManager& manager)
     CHECK(manager.GetTextHeight() == 15);
     std::vector<uint32_t> target(32 * 32, 0);
     manager.SetRenderProperties(target.data(), 32, 32);
-    manager.DrawString(glyph.get(), 0xf800, 0, {2, 3});
+    manager.DrawString(glyph.get(), 0xf800, 0, soft3d::Point{2, 3});
     const uint8_t* bitmap = manager.GetFont()->GetFontRes(4);
     for (uint32_t y = 0; y < height; ++y) {
         for (uint32_t x = 0; x < width; ++x) {
@@ -83,13 +83,60 @@ void TestTextAndDrawing(soft3d::StringManager& manager)
     }
 
     std::fill(target.begin(), target.end(), 0);
-    manager.DrawString(glyph.get(), 0x07e0, 2, {10, 10});
+    manager.DrawString(glyph.get(), 0x07e0, 2, soft3d::Point{10, 10});
     CHECK(std::any_of(target.begin(), target.end(), [](uint32_t pixel) { return pixel != 0; }));
     for (int y = 0; y < 32; ++y) {
         for (int x = 10; x < 32; ++x) {
             CHECK(target[y * 32 + x] == 0);
         }
     }
+
+    const auto checkGlyph = [&manager](const std::vector<uint32_t>& pixels, uint32_t code,
+                                       uint16_t color, int32_t left, int32_t top) {
+        const uint32_t glyphWidth = manager.GetFont()->GetCharWidth(code);
+        const uint32_t glyphHeight = manager.GetFont()->GetCharHeight(code);
+        const uint8_t* glyphData = manager.GetFont()->GetFontRes(code);
+        for (uint32_t y = 0; y < glyphHeight; ++y) {
+            for (uint32_t x = 0; x < glyphWidth; ++x) {
+                const uint32_t bit = y * glyphWidth + x;
+                const uint32_t expectedPixel = ((glyphData[bit >> 3] >> (bit & 7)) & 1) != 0
+                    ? 0x7fff0000U | color
+                    : 0;
+                CHECK(pixels[(top + static_cast<int32_t>(y)) * 32 + left + x] == expectedPixel);
+            }
+        }
+    };
+
+    soft3d::VisString wrapped(u"a Z");
+    CHECK(manager.CountTextLines(&wrapped, 0, 14) == 2);
+    const soft3d::Rect rect{0, 0, 14, 40};
+    std::fill(target.begin(), target.end(), 0);
+    manager.DrawString(&wrapped, 0xf800, rect);
+    checkGlyph(target, 4, 0xf800, 0, 0);
+    checkGlyph(target, 55, 0xf800, 0, 15);
+
+    std::fill(target.begin(), target.end(), 0);
+    manager.DrawString(&wrapped, 0x07e0, 2, rect);
+    checkGlyph(target, 4, 0x07e0, 0, 0);
+    checkGlyph(target, 55, 0x07e0, 7, 15);
+
+    std::fill(target.begin(), target.end(), 0);
+    manager.DrawString(&wrapped, 0x001f, 4, rect);
+    checkGlyph(target, 55, 0x001f, 4, 15);
+
+    const soft3d::Rect lineRect{0, 0, 70, 40};
+    std::vector<uint32_t> ranged(32 * 32, 0);
+    manager.SetRenderProperties(ranged.data(), 32, 32);
+    manager.DrawStringRange(1, 0xf800, 0, 1, lineRect);
+    std::fill(target.begin(), target.end(), 0);
+    manager.SetRenderProperties(target.data(), 32, 32);
+    manager.DrawString(manager.GetString(1), 0xf800, lineRect);
+    CHECK(ranged == target);
+
+    std::fill(ranged.begin(), ranged.end(), 0);
+    manager.SetRenderProperties(ranged.data(), 32, 32);
+    manager.DrawStringRange(1, 0xf800, 0, 0, lineRect);
+    CHECK(std::all_of(ranged.begin(), ranged.end(), [](uint32_t pixel) { return pixel == 0; }));
 }
 
 } // namespace
@@ -102,6 +149,7 @@ int main()
         TestRealFonts(archive);
         soft3d::StringManager manager;
         CHECK(manager.LoadBaseFont(2, &archive) == soft3d::S3D_OK);
+        CHECK(manager.LoadSbnFont(u".\\ui\\system.sbn", &archive) == soft3d::S3D_OK);
         TestTextAndDrawing(manager);
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

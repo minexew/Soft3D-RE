@@ -138,7 +138,11 @@ sourceOffset = ((v & maxV) << textureWidthShift) + ((u & maxU) >> 16)
 
 Thus V selects the serialized texture row directly, with no vertical inversion. `Texture_GetPaletteEntry` (`0x000c8024`) reads the indexed color. `Tools/stx.py` likewise writes PNG rows in serialized top-to-bottom order. The portable `Raster.cpp` sampler also uses direct texture rows and must not flip V internally. Blender's OBJ texture origin differs, so the required `1 - v` conversion belongs in `sojconv.py`, not in the engine rasterizer.
 
-`BlitTexture` (`0x000d49c8`) clips source/destination rectangles, computes byte addresses using four bytes per pixel, and dispatches through a selected blitter. `SelectTextureBlitter` (`0x000d53c0`) chooses that function from format/state flags.
+### ScreenBlitter modes and clipping
+
+`ScreenBlitter_BlitUnscaled` (`0x000d49c8`, formerly `BlitTexture`) and `ScreenBlitter_BlitScaled` (`0x000d4cb0`) dispatch through `ScreenBlitter_SelectMode` (`0x000d53c0`). The 26-entry table contains six modes in unscaled and scaled forms, each with opaque and color-key variants, followed by unscaled and scaled secondary-alpha loops. The modes are copy, saturating add, saturating subtract, 75%/25%, 50%/50%, and 25%/75% destination/source blends. RGB565 arithmetic and function addresses are documented in `sdt_format.md`; all corresponding functions have been renamed in Ghidra.
+
+Unscaled clipping advances the source for negative destination coordinates and trims right/bottom overflow. Scaled clipping uses 16.16 ratios, adjusts the source rectangle as it clips right, left, bottom, and top, then performs nearest-neighbor sampling from fixed-point coordinates. Secondary textures provide 0–32 alpha values. The scaled secondary loop preserves the original bug of comparing the fixed-x offset rather than the sampled palette index with the transparent color. `ScreenBlitter_Clear` writes from the last pixel through index 1, leaving pixel 0 unchanged.
 
 `BasicShader_Render` (`0x000aec98`, formerly `ConvertRgb565To32Bit`) expands packed pixels with:
 

@@ -48,6 +48,9 @@ public:
     uint16_t GetLocalCharCnt() const;
     uint32_t GetCharHeight(uint32_t code) const;
     uint32_t GetCharWidth(uint32_t code) const;
+    int32_t CountCodesOnWidth(const VisString& text, uint32_t start, uint32_t maxWidth) const;
+    uint32_t CountTextWidthRange(const VisString& text, uint32_t start, uint32_t end) const;
+    uint32_t CountLines(const VisString& text, uint32_t start, uint32_t maxWidth) const;
     const uint8_t* GetFontRes(uint32_t code) const;
 
 private:
@@ -96,14 +99,23 @@ public:
     VisString* NewString(const char16_t* text) const;
     VisString* NewString(uint32_t length) const;
     uint32_t CountTextWidth(const VisString* text, uint32_t start = 0) const;
+    uint32_t CountTextLines(const VisString* text, uint32_t start, uint32_t maxWidth) const;
     uint32_t GetTextHeight() const;
     void DrawString(uint32_t index, uint16_t color, uint32_t anchor, Point point) const;
     void DrawString(const VisString* text, uint16_t color, uint32_t anchor, Point point) const;
+    void DrawString(uint32_t index, uint16_t color, Rect rect) const;
+    void DrawString(const VisString* text, uint16_t color, Rect rect) const;
+    void DrawString(uint32_t index, uint16_t color, uint32_t anchor, Rect rect) const;
+    void DrawString(const VisString* text, uint16_t color, uint32_t anchor, Rect rect) const;
+    void DrawStringRange(uint32_t index, uint16_t color, uint32_t startLine,
+                         int32_t endLine, Rect rect) const;
     Font* GetFont() const;
 
 private:
     void DrawChar(uint32_t code, uint16_t color, Point point) const;
     void ApplyAnchor(uint32_t anchor, const VisString* text, Point& point) const;
+    void ApplyRectAnchor(uint32_t anchor, const VisString* text, uint32_t start,
+                         Point& point, Rect rect) const;
 
     s3dIO io;
     std::vector<std::unique_ptr<VisString>> strings;

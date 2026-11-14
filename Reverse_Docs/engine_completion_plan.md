@@ -12,7 +12,7 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 
 - SPK/FilePak, four-level resource cache, `Resource`, Linux file IO, logging, and wide formatting;
 - SAU/WAR decoding, the 16-voice mixer, music/SFX/fade controls, positional audio, dummy audio, and SDL audio output;
-- STX loading, SBN fonts/strings, the initial SDT resource/state tables, and exact-key image drawing;
+- STX loading, SBN fonts/strings and rectangle/range text, generic SDT resource/state tables, all seven dialog runtimes, key interpolation, secondary textures, and every ScreenBlitter mode;
 - SOJ/SAI resource parsing and a functional Object → Renderer → Raster → BasicShader → VID_impl path;
 - SBP container/runtime loading, all chunk readers, incremental progress, map-model resources, generic entity-factory ownership, and link cleanup;
 - BSP/PVS visibility, fixed-point face rendering, RGB444 lightmaps, S3DSTY loading/advancement, and visible map-model submission;
@@ -20,12 +20,12 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - engine queue ordering and presentation, dummy video, and the SDL application shell;
 - 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text.
 
-These foundations still have partial areas: material fields, Object loading/control APIs, raster feature parity, generic dialog behavior, and the game hooks that invoke audio are not automatically supplied by the audio implementation.
+These foundations still have partial areas: material fields, Object loading/control APIs, raster feature parity, and the game hooks that invoke audio are not automatically supplied by the audio implementation.
 
 ### Missing or incomplete engine facilities
 
 - `Bsp` collision and integration of loaded map models/entities into later unit systems;
-- generic `Dialog` interpolation/text/secondary-texture behavior, later `GameMenu` states, and menu dialog classes;
+- later `GameMenu` states and concrete menu dialog classes;
 - SST parsing/execution and the generic script interface;
 - specialized raster clipping, depth, perspective, blend, lighting, texture-coordinate, detail-texture, and inner-loop paths;
 - Fade, Gray, MotionBlur, Blind, Ink, and Twist presentation shaders;
@@ -124,7 +124,7 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 `Input.*`, `EngineClock.hpp`, Linux `SystemClock`, SDL `SdlClock`/`SdlInput`, and `test_input.cpp`/`test_sdlinput.cpp` implement and test every item. The app stubs and duplicate limiter are removed, menu selection consumes engine input, and `--show-fps` explicitly restores the base text helper. The recovered frame path has no original `DrawFPS` caller and does not update the real-FPS field; portable zero initialization is a deterministic safety choice, not a recovered FPS calculation. `s3dExit` and `s3dMemInfo` are confirmed empty class shells. Standalone `MemTotal`/`MemRemain` RAM queries were recovered separately and remain uncalled; see `symbian3rd_input.md` and `symbian3rd_debug.md`. All 16 CTest tests and an SDL `--show-fps` smoke run pass.
 
-## Stage 5 — Generic SDT dialog behavior
+## Stage 5 — Generic SDT dialog behavior — complete
 
 **Scope**
 
@@ -137,6 +137,12 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 - Use real `state.sdt` to cover every element/behavior variant and synthetic keys for interpolation boundaries.
 - Compare exact dummy pixels for image, text, scaling, clipping, and secondary textures.
+
+**Completion**
+
+`Dialog.*`, `UiManager.*`, `ScreenBlitter.*`, and the expanded `Font.*` implement every item. All seven dialog runtimes and all 30 states are available; every one of the 390 elements and 923 real keys is checked. Behavior zero selects base-rendered elements, while behavior one is left for derived dialogs and is not a text index. Secondary selectors intern `<primary>_alp`, producing 138 resources from the initial 136. The first `state.sdt` word is a stored-but-unused declared visual/element total, and the second `str.sdt` word is reserved/ignored with no consumer; neither supports a more specific semantic claim.
+
+All 26 blitter entries are implemented: six modes with scaled/unscaled and opaque/color-key variants, plus two secondary-alpha loops. Tests cover exact RGB565 arithmetic, fixed-point clipping/scaling, interpolation boundaries, primary/secondary pixels, the scaled secondary color-key bug, and the clear loop's unchanged pixel zero. Text coverage includes wrapping, right/center anchoring, and ranged drawing. The full 16-test CTest suite and both SDL smoke tests pass; the new UI and font suites also pass under AddressSanitizer and UndefinedBehaviorSanitizer. See `sdt_format.md` and `symbian3rd_video.md` for layouts, formulas, addresses, and original quirks.
 
 ## Stage 6 — Menu flow, remaining dialogs, and configuration SDT
 

@@ -240,6 +240,89 @@ uint32_t Font::GetCharWidth(uint32_t code) const
     return glyph != nullptr ? glyph->width : 0;
 }
 
+int32_t Font::CountCodesOnWidth(const VisString& text, uint32_t start, uint32_t maxWidth) const
+{
+    const uint32_t length = text.GetLength();
+    if (start >= length) {
+        return 0;
+    }
+    const uint32_t* codes = text.GetBuffer();
+    uint32_t position = start;
+    if (language == 2) {
+        uint32_t width = 0;
+        int32_t wordLength = 0;
+        while (width < maxWidth && position < text.GetLength()) {
+            wordLength = text.GetNextBlankIndex(static_cast<int32_t>(position));
+            for (uint32_t index = position; index < position + static_cast<uint32_t>(wordLength);
+                 ++index) {
+                if (codes[index] == 1) {
+                    ++index;
+                } else if (codes[index] != 2) {
+                    if (codes[index] == 0) {
+                        return static_cast<int32_t>(position - start) + 1;
+                    }
+                    width += GetCharWidth(codes[index]);
+                }
+            }
+            position += static_cast<uint32_t>(wordLength);
+        }
+        if (maxWidth < width) {
+            position -= static_cast<uint32_t>(wordLength);
+        }
+        return static_cast<int32_t>(position - start);
+    }
+    uint32_t width = 0;
+    while (width < maxWidth && position < text.GetLength()) {
+        if (codes[position] == 1) {
+            position += 2;
+        } else if (codes[position] == 2) {
+            ++position;
+        } else {
+            if (codes[position] == 0) {
+                return static_cast<int32_t>(position - start) + 1;
+            }
+            width += GetCharWidth(codes[position++]);
+        }
+    }
+    return static_cast<int32_t>(position - start) - 1;
+}
+
+uint32_t Font::CountTextWidthRange(const VisString& text, uint32_t start, uint32_t end) const
+{
+    if (start >= text.GetLength()) {
+        return 0;
+    }
+    const uint32_t limit = std::min(end, text.GetLength());
+    const uint32_t* codes = text.GetBuffer();
+    uint32_t width = 0;
+    for (uint32_t position = start; position < limit;) {
+        if (codes[position] == 1) {
+            position += 2;
+        } else {
+            width += GetCharWidth(codes[position++]);
+        }
+    }
+    return width;
+}
+
+uint32_t Font::CountLines(const VisString& text, uint32_t start, uint32_t maxWidth) const
+{
+    if (start >= text.GetLength()) {
+        return 0;
+    }
+    uint32_t lines = 0;
+    uint32_t position = start;
+    while (position < text.GetLength()) {
+        const int32_t count = CountCodesOnWidth(text, position, maxWidth);
+        if (count == 0) {
+            break;
+        }
+        position += static_cast<uint32_t>(count);
+        ++lines;
+    }
+    return lines;
+}
+
 const uint8_t* Font::GetFontRes(uint32_t code) const
 {
     const Glyph* glyph = GetGlyph(code);
@@ -348,6 +431,12 @@ uint32_t StringManager::CountTextWidth(const VisString* text, uint32_t start) co
     return width;
 }
 
+uint32_t StringManager::CountTextLines(const VisString* text, uint32_t start,
+                                       uint32_t maxWidth) const
+{
+    return font != nullptr && text != nullptr ? font->CountLines(*text, start, maxWidth) : 0;
+}
+
 uint32_t StringManager::GetTextHeight() const
 {
     return font != nullptr ? font->GetMaxHeight() : 0;
@@ -402,6 +491,257 @@ void StringManager::DrawString(const VisString* text, uint16_t color, uint32_t a
                 return;
             }
         }
+    }
+}
+
+void StringManager::ApplyRectAnchor(uint32_t anchor, const VisString* text, uint32_t start,
+                                    Point& point, Rect rect) const
+{
+    if (text == nullptr || (anchor & 6) == 0) {
+        return;
+    }
+    const int32_t count = font->CountCodesOnWidth(*text, start,
+                                                  static_cast<uint32_t>(rect.right - rect.left));
+    const uint32_t width = font->CountTextWidthRange(*text, start,
+                                                     static_cast<uint32_t>(count) + start);
+    if ((anchor & 4) != 0) {
+        point.x = rect.left + ((rect.right - rect.left) >> 1) - static_cast<int32_t>(width >> 1);
+    } else {
+        point.x = rect.right - static_cast<int32_t>(width);
+    }
+}
+
+void StringManager::DrawString(uint32_t index, uint16_t color, Rect rect) const
+{
+    DrawString(GetString(index), color, rect);
+}
+
+void StringManager::DrawString(const VisString* text, uint16_t color, Rect rect) const
+{
+    DrawString(text, color, 0, rect);
+}
+
+void StringManager::DrawString(uint32_t index, uint16_t color, uint32_t anchor, Rect rect) const
+{
+    DrawString(GetString(index), color, anchor, rect);
+}
+
+void StringManager::DrawString(const VisString* text, uint16_t color, uint32_t anchor,
+                               Rect rect) const
+{
+    if (font == nullptr || text == nullptr || text->GetLength() == 0) {
+        return;
+    }
+    const uint32_t* codes = text->GetBuffer();
+    Point point{rect.left, rect.top};
+    uint32_t position = 0;
+    uint16_t savedColor = color;
+    if (language == 2) {
+        while (position < text->GetLength()) {
+            while (codes[position] != 3) {
+                ApplyRectAnchor(anchor, text, position, point, rect);
+                int32_t count = font->CountCodesOnWidth(
+                    *text, position, static_cast<uint32_t>(rect.right - rect.left));
+                while (--count != -1) {
+                    if (position >= text->GetLength()) {
+                        return;
+                    }
+                    const uint32_t code = codes[position];
+                    if (code < 4) {
+                        if (code == 0) {
+                            ++position;
+                            if (position >= text->GetLength()) {
+                                return;
+                            }
+                            break;
+                        }
+                        if (code == 1) {
+                            ++position;
+                            if (position >= text->GetLength()) {
+                                return;
+                            }
+                            savedColor = color;
+                            color = PackColor(codes[position++]);
+                            --count;
+                        } else if (code == 2) {
+                            color = savedColor;
+                            ++position;
+                        } else {
+                            point.x += static_cast<int32_t>(font->GetCharWidth(code));
+                            ++position;
+                        }
+                    } else {
+                        DrawChar(code, color, point);
+                        point.x += static_cast<int32_t>(font->GetCharWidth(code));
+                        ++position;
+                    }
+                }
+                point.x = rect.left;
+                point.y += static_cast<int32_t>(font->GetMaxHeight());
+                if (rect.bottom < point.y || position >= text->GetLength()) {
+                    return;
+                }
+            }
+            ++position;
+        }
+        return;
+    }
+    while (position < text->GetLength()) {
+        while (codes[position] != 3) {
+            ApplyRectAnchor(anchor, text, position, point, rect);
+            while (position < text->GetLength() &&
+                   static_cast<int32_t>(font->GetCharWidth(codes[position])) + point.x <= rect.right) {
+                const uint32_t code = codes[position];
+                if (code < 4) {
+                    if (code == 0) {
+                        ++position;
+                        if (position >= text->GetLength()) {
+                            return;
+                        }
+                        break;
+                    }
+                    if (code == 1) {
+                        ++position;
+                        if (position >= text->GetLength()) {
+                            return;
+                        }
+                        savedColor = color;
+                        color = PackColor(codes[position++]);
+                    } else if (code == 2) {
+                        color = savedColor;
+                        ++position;
+                    } else {
+                        point.x += static_cast<int32_t>(font->GetCharWidth(code));
+                        ++position;
+                    }
+                } else {
+                    DrawChar(code, color, point);
+                    point.x += static_cast<int32_t>(font->GetCharWidth(code));
+                    ++position;
+                }
+            }
+            point.x = rect.left;
+            point.y += static_cast<int32_t>(font->GetMaxHeight());
+            if (rect.bottom < point.y || position >= text->GetLength()) {
+                return;
+            }
+        }
+        ++position;
+    }
+}
+
+void StringManager::DrawStringRange(uint32_t index, uint16_t color, uint32_t startLine,
+                                    int32_t endLine, Rect rect) const
+{
+    const VisString* text = GetString(index);
+    if (font == nullptr || text == nullptr || text->GetLength() == 0 ||
+        (endLine >= 0 && startLine >= static_cast<uint32_t>(endLine))) {
+        return;
+    }
+    const uint32_t* codes = text->GetBuffer();
+    uint32_t position = 0;
+    const uint32_t lineWidth = static_cast<uint32_t>(rect.right - rect.left);
+    for (uint32_t line = 0; line < startLine; ++line) {
+        const int32_t count = font->CountCodesOnWidth(*text, position, lineWidth);
+        position += static_cast<uint32_t>(count);
+        if (position >= text->GetLength()) {
+            return;
+        }
+    }
+    int32_t remaining = endLine - static_cast<int32_t>(startLine) + 1;
+    Point point{rect.left, rect.top};
+    uint16_t savedColor = color;
+    if (language == 2) {
+        while (remaining > 0 && position < text->GetLength()) {
+            while (codes[position] == 3) {
+                if (++position >= text->GetLength()) {
+                    return;
+                }
+            }
+            int32_t count = font->CountCodesOnWidth(*text, position, lineWidth);
+            while (--count != -1) {
+                if (position >= text->GetLength()) {
+                    return;
+                }
+                const uint32_t code = codes[position];
+                if (code < 4) {
+                    if (code == 0) {
+                        ++position;
+                        if (position >= text->GetLength()) {
+                            return;
+                        }
+                        break;
+                    }
+                    if (code == 1) {
+                        ++position;
+                        if (position >= text->GetLength()) {
+                            return;
+                        }
+                        savedColor = color;
+                        color = PackColor(codes[position++]);
+                        --count;
+                    } else if (code == 2) {
+                        color = savedColor;
+                        ++position;
+                    } else {
+                        point.x += static_cast<int32_t>(font->GetCharWidth(code));
+                        ++position;
+                    }
+                } else {
+                    DrawChar(code, color, point);
+                    point.x += static_cast<int32_t>(font->GetCharWidth(code));
+                    ++position;
+                }
+            }
+            --remaining;
+            point.x = rect.left;
+            point.y += static_cast<int32_t>(font->GetMaxHeight());
+            if (rect.bottom <= point.y || position >= text->GetLength()) {
+                return;
+            }
+        }
+        return;
+    }
+    while (position < text->GetLength()) {
+        while (codes[position] != 3) {
+            while (position < text->GetLength() &&
+                   static_cast<int32_t>(font->GetCharWidth(codes[position])) + point.x <= rect.right) {
+                const uint32_t code = codes[position];
+                if (code < 4) {
+                    if (code == 0) {
+                        ++position;
+                        if (position >= text->GetLength()) {
+                            return;
+                        }
+                        break;
+                    }
+                    if (code == 1) {
+                        ++position;
+                        if (position >= text->GetLength()) {
+                            return;
+                        }
+                        savedColor = color;
+                        color = PackColor(codes[position++]);
+                    } else if (code == 2) {
+                        color = savedColor;
+                        ++position;
+                    } else {
+                        point.x += static_cast<int32_t>(font->GetCharWidth(code));
+                        ++position;
+                    }
+                } else {
+                    DrawChar(code, color, point);
+                    point.x += static_cast<int32_t>(font->GetCharWidth(code));
+                    ++position;
+                }
+            }
+            point.x = rect.left;
+            point.y += static_cast<int32_t>(font->GetMaxHeight());
+            if (rect.bottom <= point.y || position >= text->GetLength()) {
+                return;
+            }
+        }
+        ++position;
     }
 }
 

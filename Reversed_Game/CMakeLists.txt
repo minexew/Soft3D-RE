@@ -25,6 +25,7 @@ add_library(soft3d
     src/soft3d/BspRender.cpp
     src/soft3d/Camera.cpp
     src/soft3d/CameraSpot.cpp
+    src/soft3d/Dialog.cpp
     src/soft3d/Engine.cpp
     src/soft3d/Font.cpp
     src/soft3d/GameEngine.cpp
