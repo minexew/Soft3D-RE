@@ -62,6 +62,10 @@ public:
     uint32_t GetFrameIntervalMicroseconds() const;
     int32_t GetRealFps() const;
     void SetFpsDisplayEnabled(bool enabled);
+    void SetPreUpdateEnabled(bool enabled);
+    void SetPostUpdateEnabled(bool enabled);
+    void SetSubmitEnabled(bool enabled);
+    void SetPrepareEnabled(bool enabled);
     bool IsRunning() const;
 
 protected:

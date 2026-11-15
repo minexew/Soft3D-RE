@@ -50,6 +50,7 @@ public:
                             Fixed textureOffsetU = 0, Fixed textureOffsetV = 0,
                             Fixed materialIntensity = 0);
     void Clear(uint16_t color);
+    void SelectShader(BasicShader* shader);
     void Present();
 
     Texture* GetCurrentTexture() const;

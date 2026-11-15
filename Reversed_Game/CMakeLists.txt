@@ -36,6 +36,7 @@ add_library(soft3d
     src/soft3d/MenuDialogs.cpp
     src/soft3d/Object.cpp
     src/soft3d/ObjectRes.cpp
+    src/soft3d/PresentationShaders.cpp
     src/soft3d/Raster.cpp
     src/soft3d/Renderable.cpp
     src/soft3d/Renderer.cpp
@@ -149,6 +150,13 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_raster_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_raster COMMAND soft3d_raster_tests)
+
+    add_executable(soft3d_shader_tests tests/test_shaders.cpp)
+    target_link_libraries(soft3d_shader_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_shader_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_shaders COMMAND soft3d_shader_tests)
 
     add_executable(soft3d_input_tests tests/test_input.cpp)
     target_link_libraries(soft3d_input_tests PRIVATE soft3d)

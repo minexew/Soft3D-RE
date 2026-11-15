@@ -238,7 +238,7 @@ Soft3D keeps the `BasicShader`/`FadeShader` names and software-fade responsibili
 | `0x000e34d0` | `FadeShader_Render` |
 | `0x000e4a88`, `0x000e4ae0` | `FadeShader_Dtor`, `FadeShader_DeletingDtor` |
 
-The S2D fade fields and `GetPow2(fadeSpeed)` algorithm must **not** be imported into this Soft3D class.
+The S2D fade fields and `GetPow2(fadeSpeed)` algorithm must **not** be imported into this Soft3D class. The recovered Soft3D frame/completion state and exact packed interpolation are documented in `symbian3rd_shaders.md` and implemented in `PresentationShaders.*`.
 
 ## What should not be inferred from the SDK
 

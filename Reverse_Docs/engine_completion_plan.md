@@ -18,19 +18,18 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - BSP/PVS visibility, fixed-point face rendering, RGB565 lightmaps, S3DSTY loading/advancement, and visible map-model submission;
 - SPL parsing/evaluation/derivatives, chord-weighted path timing, camera projection, `CameraSpot`/`DummySpot`, and the complete menu 3D backdrop;
 - engine queue ordering and presentation, dummy video, and the SDL application shell;
+- Basic/Fog plus Fade, Gray, MotionBlur, Ink, Blind, and Twist presentation shaders;
 - 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text;
 - complete startup/sound/main-menu flow, all seven concrete dialog classes, orientation-aware controls, and `config.sdt`/save-slot persistence.
 
-These foundations still have partial areas: Object loading/control APIs and the game hooks that invoke audio are not automatically supplied by the audio implementation. Stage 7 resolved the renderer-facing SOJ material fields and raster feature parity.
+These foundations still have partial areas: Object loading/control APIs and the game hooks that invoke audio are not automatically supplied by the audio implementation. Stages 7 and 8 resolved renderer-facing SOJ material fields, raster feature parity, and all presentation shaders.
 
 ### Missing or incomplete engine facilities
 
 - `Bsp` collision and integration of loaded map models/entities into later unit systems;
 - episode-specific `Scene` gameplay, concrete units, and game-data semantics;
 - SST parsing/execution and the generic script interface;
-- specialized raster clipping, depth, perspective, blend, lighting, texture-coordinate, detail-texture, and inner-loop paths;
-- Fade, Gray, MotionBlur, Blind, Ink, and Twist presentation shaders;
-- Lensflare, BillboardGroup, FakeShadow, and GunFire renderables, plus unresolved SOJ material state;
+- Lensflare, BillboardGroup, FakeShadow, and GunFire renderables;
 - generic unit/physics/messaging/state-machine infrastructure and `GameUnitManager` support;
 - generic streams, state load/save support, standalone RAM diagnostics, and currently unused IO/debug facilities;
 - S3DTEX engine/tool parity and remaining STX/SOJ/SAI unknown fields.
@@ -187,7 +186,7 @@ Material culling is distinct from RGB blending. Directional scale, ambient inten
 
 All 21 normal CTest tests and all 15 ASan/UBSan CTest tests pass, including the real SOJ test, real BSP/SPL/menu scenes, and SDL smoke tests. All six standalone SOJ converter tests also pass. See `symbian3rd_raster.md` for layouts, formulas, selector mapping, and verification details.
 
-## Stage 8 — All presentation shaders
+## Stage 8 — All presentation shaders — complete
 
 **Scope**
 
@@ -199,6 +198,10 @@ All 21 normal CTest tests and all 15 ASan/UBSan CTest tests pass, including the 
 
 - Test exact pixels for initial, intermediate, terminal, enabled, disabled, and orientation states.
 - Include depth/color-key special cases and history-buffer reuse.
+
+**Completion**
+
+`PresentationShaders.*` and `test_shaders.cpp` implement and test all six effects. The reconstruction preserves packed Fade interpolation and delayed completion, Gray's two depth bypasses, MotionBlur reset/history and saturating 1/4+7/8 arithmetic, Ink's previous-destination neighborhoods/threshold polarity and engine-hook control, Blind's 16-bit-only traversal and wrapping, and Twist's row/frame bounce state. Both orientations and inactive/intermediate/terminal states are covered. All 22 normal CTest tests and all 16 SDL-independent ASan/UBSan tests pass without changing existing real-resource frames. Ghidra now has typed layouts, named control methods/destructors/helpers, and formula comments for the complete shader family. See `symbian3rd_shaders.md`.
 
 ## Stage 9 — Object API completion and engine renderable effects
 

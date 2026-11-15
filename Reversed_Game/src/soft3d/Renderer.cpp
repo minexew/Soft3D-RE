@@ -669,6 +669,11 @@ void Renderer::Clear(uint16_t color)
     raster.Clear(color);
 }
 
+void Renderer::SelectShader(BasicShader* shader)
+{
+    raster.SelectShader(shader);
+}
+
 void Renderer::Present()
 {
     raster.Present();

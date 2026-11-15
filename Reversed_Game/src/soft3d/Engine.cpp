@@ -120,6 +120,26 @@ void Engine::StartGameEngineTimer(uint32_t fps)
     frameIntervalMicroseconds = 1000000 / fps;
 }
 
+void Engine::SetPreUpdateEnabled(bool enabled)
+{
+    preUpdateEnabled = enabled;
+}
+
+void Engine::SetPostUpdateEnabled(bool enabled)
+{
+    postUpdateEnabled = enabled;
+}
+
+void Engine::SetSubmitEnabled(bool enabled)
+{
+    submitEnabled = enabled;
+}
+
+void Engine::SetPrepareEnabled(bool enabled)
+{
+    prepareEnabled = enabled;
+}
+
 void Engine::LimitFrameRate()
 {
     previousFrameStart = clock->NowMicroseconds();
