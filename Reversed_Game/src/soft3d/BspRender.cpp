@@ -549,9 +549,9 @@ result Bsp::BuildLightmap(BspFace& face)
             const uint8_t texel = texture->GetPixels()[textureY * texture->GetWidth() + textureX];
             std::size_t paletteOffset = static_cast<std::size_t>(texel) * 64 +
                 ((static_cast<uint32_t>(value) & 0xff00) >> 7);
-            paletteOffset = std::min(paletteOffset, paletteBytes / 2 - 1);
+            paletteOffset = std::min(paletteOffset, paletteBytes - 2);
             uint16_t color;
-            std::memcpy(&color, texture->GetPalette() + paletteOffset * 2, sizeof(color));
+            std::memcpy(&color, texture->GetPalette() + paletteOffset, sizeof(color));
             face.lightmapPixels[static_cast<std::size_t>(y) * width + x] = color;
         }
     }
@@ -567,7 +567,7 @@ std::vector<Bsp::ProjectedVertex> Bsp::ProjectFace(const BspFace& face)
         const std::size_t edgeIndex = static_cast<std::size_t>(
             faceEdge < 0 ? -static_cast<int64_t>(faceEdge) : faceEdge);
         const BspEdge& edge = edges[edgeIndex];
-        const Vec3& world = vertices[faceEdge < 0 ? edge.vertices[1] : edge.vertices[0]];
+        const Vec3& world = vertices[faceEdge <= 0 ? edge.vertices[1] : edge.vertices[0]];
         polygon.push_back({world, Transform(renderState.worldToCamera, world)});
     }
     BspPlane nearPlane;
@@ -658,7 +658,7 @@ void Bsp::RasterizeFace(const BspFace& face, const LightmapMapping& mapping,
                 const uint16_t depth16 = face.texInfoIndex < 0 ? 1 : static_cast<uint16_t>(depth >> 8);
                 uint32_t& pixel = output[static_cast<std::size_t>(y) * width + x];
                 const uint16_t oldDepth = static_cast<uint16_t>(pixel >> 16);
-                if (oldDepth != 0 && depth16 >= oldDepth) {
+                if (oldDepth != 0 && depth16 <= oldDepth) {
                     continue;
                 }
                 if (face.texInfoIndex < 0) {
@@ -691,6 +691,15 @@ void Bsp::RasterizeFace(const BspFace& face, const LightmapMapping& mapping,
 
 void Bsp::Render()
 {
+    if (renderer != nullptr && renderer->GetCurrentTexture() != nullptr &&
+        renderer->GetCurrentTexture()->GetPixels() != nullptr) {
+        Texture* texture = renderer->GetCurrentTexture();
+        uint32_t* pixels = reinterpret_cast<uint32_t*>(texture->GetPixels());
+        const std::size_t count = static_cast<std::size_t>(texture->GetWidth()) * texture->GetHeight();
+        for (std::size_t index = 0; index < count; ++index) {
+            pixels[index] &= 0xffff;
+        }
+    }
     for (const uint32_t index : visibleFaces) {
         const BspFace& face = faces[index];
         const LightmapMapping mapping = face.texInfoIndex < 0 ? LightmapMapping{}

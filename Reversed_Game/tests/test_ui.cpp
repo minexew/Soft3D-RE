@@ -403,6 +403,21 @@ void TestRealTables(soft3d::UiManager& ui)
     CHECK(ui.GetResourceNames()[137] == u"tongjishuzi_alp");
 }
 
+void TestRealLogoBlend(soft3d::UiManager& ui, soft3d::ScreenBlitter& blitter)
+{
+    const soft3d::SdtDialog* dialog = ui.GetDialog(0);
+    const soft3d::SdtElement& element = dialog->states[5].elements[21];
+    const soft3d::Texture* logo = dialog->visuals[element.visualIndex].resource->GetTexture();
+    const soft3d::Texture* alpha = ui.GetResourceByIndex(element.secondaryTextureIndex)->GetTexture();
+    auto target = MakeTarget(logo->GetWidth(), logo->GetHeight(), 0x12340000U | 0x18c4);
+    blitter.SetTexture(target.get());
+    blitter.Blit(logo, {0, 0, 105, 94}, {0, 0, 105, 94}, 0, alpha);
+    const std::size_t offset = 56 * logo->GetWidth() + 102;
+    CHECK(logo->GetPixels()[offset] == 0 && alpha->GetPixels()[offset] == 2);
+    const uint32_t pixel = reinterpret_cast<const uint32_t*>(target->GetPixels())[offset];
+    CHECK((pixel & 0xffff) == 0x00b3);
+}
+
 void TestInitialScreen(soft3d::GameEngine& engine,
                        soft3d::platform::DummyVideoBackend* dummy)
 {
@@ -465,6 +480,7 @@ int main()
         CHECK(engine.GetSecondaryFont()->GetCount() == 581);
         TestInitialScreen(engine, dummy);
         TestRealTables(*engine.GetUiManager());
+        TestRealLogoBlend(*engine.GetUiManager(), engine.GetScreenBlitter());
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

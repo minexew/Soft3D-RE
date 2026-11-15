@@ -196,6 +196,8 @@ camera.SetLookAt(position, target, (0, 1, 0))
 
 `0x1999` is the original 0.1 approximation. At speed 30 the time increment is exactly 136, so the 482nd update crosses the endpoint. Position uses the pre-increment time while target uses the advanced time. Other gameplay camera modes, collision avoidance, shake, and trigger behavior are outside this menu-focused stage.
 
+`CameraController_StartPath` initializes the current position and target from the path when `snap == 0` (or its separate byte flag is set). The menu passes zero, so it starts at the SPL position before the first update rather than smoothing from `(0,0,0)`. The portable controller now follows that condition; its earlier inverted test put the camera outside the corridor for the initial frames.
+
 The reusable portable `MenuBackdrop` host owns `Bsp`, `CameraPathCollection`, `CameraPathController`, and `DummySpot`. `GameEngine::LoadMenuBackdrop` loads style/SPL/map resources and activates the host. On a menu frame, pre-update advances the camera; prepare-render builds a `BspRenderState` from the camera, prepares and rasterizes visible faces, and submits visible map models to the normal queues. No concrete enemy, trigger, episode, or `Scene` state-machine implementation is required.
 
 ## Portable verification
@@ -204,7 +206,7 @@ The reusable portable `MenuBackdrop` host owns `Bsp`, `CameraPathCollection`, `C
 
 - all 11 real records, fixed-point knots, binomial coefficients, differences, position/derivative samples, chord lengths, and cumulative times;
 - synthetic linear evaluation, empty collections, malformed counts, inconsistent counts, truncation, trailing data, and deep-copy ownership;
-- exact default projection values, look-at translation, all `DummySpot` accessors, 136-unit time steps, smoothing, endpoint clamping, and completion;
-- 120 complete real-menu frames through `GameEngine` and dummy video, including camera movement, visible BSP faces, map-model submission, and presentation.
+- exact default projection values, look-at translation, all `DummySpot` accessors, 136-unit time steps, smoothing, endpoint clamping, completion, and the original start-position polarity with a nonzero path origin;
+- 120 complete real-menu frames through `GameEngine` and dummy video, including camera movement, visible BSP faces, map-model submission, full nonzero-depth coverage from the first frame, and presentation.
 
-Exact raw/presented hashes are `0x57550571`/`0x9c578365` for the first menu frame, raw `0x5e0cf7d0` for the second, and `0xbda77efe`/`0x79f3684d` for frame 120. The older fixed-camera Stage 2 test now uses the recovered default perspective matrix for map models; its updated raw/presented hashes are `0x26bfdf7c` and `0x23fa83dd`.
+Exact raw/presented hashes are `0x95c21bce`/`0x441625ed` for the first menu frame, raw `0xa84bccd4` for the second, and `0xbe935b67`/`0x61bebbd5` for frame 120. The older fixed-camera Stage 2 test now uses the recovered default perspective matrix for map models; its updated raw/presented hashes are `0x00841c73` and `0x832d70f5`.

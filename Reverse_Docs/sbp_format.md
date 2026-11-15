@@ -181,7 +181,7 @@ The live rendering path is `Scene_PrepareRender` → `Bsp_PrepareRender` (`0x000
 
 The primary Bsp vtable still contains `0x000f0e20` in the apparent render slot. Direct disassembly shows this is the middle of `FUN_000f06e8`, an unrelated SOJ fallback-vertex builder: there is no function prologue and the instructions use the enclosing function's frame. It must not be created or named as `Bsp::Render`.
 
-`Bsp_RenderFace` (`0x000ff964`) selects face edges and clips/projects them. Positive face edges use the first vertex; negative edges use the second. Faces are backface-culled from the camera-plane distance: distances above `0x28f` require flag bit `0x0800` to be clear, while distances below `-0x28f` require it set. Eight faces in `menu.sbp` have no texinfo and use the constant `0x00010000` black/depth-1 path rather than a lightmap lookup.
+`Bsp_RenderFace` (`0x000ff964`) selects face edges and clips/projects them. Face edges greater than zero use the first vertex; zero and negative edges use the second. The `iVar3 < 1` branch is specific to rendering: `Bsp_BuildFaceLightmapInfo` still treats only negative values as reversed when computing lightmap bounds. Faces are backface-culled from the camera-plane distance: distances above `0x28f` require flag bit `0x0800` to be clear, while distances below `-0x28f` require it set. Eight faces in `menu.sbp` have no texinfo and use the constant `0x00010000` black/depth-1 path rather than a lightmap lookup.
 
 Projection uses 16.16 fixed point and the global reciprocal table at `0x00160080`, whose entries are `0x40000000 / index` (index zero is `0x7fffffff`). Normalization varies by input range. The plane-derived depth gradient is not barycentric SOJ interpolation:
 
@@ -193,6 +193,8 @@ if depthX == 0: depthX = 1
 depthBase = fixed_mul(rotatedNormal.z, reciprocal)
 depth = depthBase + dx * depthX + dy * depthY
 ```
+
+BSP depth is reciprocal: larger values are nearer, and the untextured constant 1 is consequently far away. The portable polygon renderer rejects a new pixel when `depth16 <= oldDepth`, not with the forward-Z comparison used by the generic SOJ path. At the start of each `Bsp::Render`, it clears only the high depth half of the target while preserving color. This replaces the original span rasterizer's freedom from previous-frame depth tests; without it, stale depth can reject new pixels and leave trails even when geometry and camera state are correct. The original linked-span renderer writes covered pixels without such a previous-frame depth comparison.
 
 The portable renderer uses vectors and direct polygon coverage instead of the original linked-span allocations, but retains the recovered clipping, fixed-point depth, palette, and high-16-bit depth behavior. It does not use the invalid vtable target or the generic SOJ triangle-depth path for BSP faces.
 
@@ -209,9 +211,9 @@ intensity = value < 0xff00 ? max((0xff00 - value) >> 3, 0x20) : 0x20
 
 `Bsp_GenerateLightmapTexture` (`0x00104364`) and its block routine (`0x001046e4`) emit only complete 16×16 blocks. Power-of-two width padding remains zero; generating that padding would read beyond the sample grid. Bilinear interpolation uses independently truncated `(delta >> 4) * fraction` terms. Texture coordinates wrap with the texture dimensions, and `face.textureMin` adds frame-counter scrolling.
 
-The palette byte offset is `texel * 64 + ((intensity & 0xff00) >> 7)`. The original can address beyond small palettes: these STX resources have 32 variants per color while dark lightmap values can select up to 64. Valid lookups are preserved in the portable implementation, while out-of-range reads clamp to the final palette entry instead of reading unrelated heap memory. This safety difference is intentional and covered by sanitizer verification.
+The palette **byte** offset is `texel * 64 + ((intensity & 0xff00) >> 7)`, used directly as `palette + offset` without another factor of two. Final intensities are in `[0x20, 0x1fe0]`, so the intensity-derived byte offset is at most 62 and fits the 32 two-byte variants in each 64-byte real STX palette group. The earlier claim that valid dark values select 64 variants was incorrect. The portable implementation still clamps to `paletteBytes - 2` as a defensive malformed-resource guard rather than reproducing an out-of-range read.
 
-`Bsp_BuildLightmapMapping` (`0x00104b08`) rotates the texinfo axes, computes reciprocal-screen-scale terms, and derives lightmap UV bases from the camera position and face minima. `Bsp_RasterizeLightmappedSpans` (`0x00104e14`) clamps UV to face dimensions, masks V by the rounded-width shift, and writes RGB444 in the low 16 bits with depth in the high 16 bits.
+`Bsp_BuildLightmapMapping` (`0x00104b08`) rotates the texinfo axes, computes reciprocal-screen-scale terms, and derives lightmap UV bases from the camera position and face minima. `Bsp_RasterizeLightmappedSpans` (`0x00104e14`) clamps UV to face dimensions, masks V by the rounded-width shift, and writes RGB565 in the low 16 bits with reciprocal depth in the high 16 bits.
 
 ## Map-model transforms
 
@@ -231,9 +233,10 @@ The full CTest suite passes. Running `Tools/sbp.py` on the real map exports the 
 
 `Reversed_Game/tests/test_bsprender.cpp` adds Stage 2 coverage:
 
-- a one-face fixture verifies PVS selection, all 256 generated lightmap pixels, RGB444 value 62, and nonzero packed depth;
+- a one-face fixture verifies PVS selection, all 256 generated lightmap pixels, RGB565 value 31 from the correct palette byte address, nonzero packed depth, and the triangular coverage caused by face-edge index zero selecting the second vertex;
+- an overlapping two-face fixture verifies that reciprocal depth keeps the nearer black face in front regardless of submission order;
 - the real S3DSTY resource verifies allocation sizes, exact sequences, disabled styles, and a complete 20-frame wrap;
-- the real menu uses camera `(-66,-22,-43)` in cluster 0, selects 166 visible faces, and submits all five model entities; after Stage 3 installed the recovered default camera projection for map models, its exact raw framebuffer and dummy-presented hashes are `0x26bfdf7c` and `0x23fa83dd`;
+- the real menu uses camera `(-66,-22,-43)` in cluster 0, selects 166 visible faces, and submits all five model entities; after the reciprocal-depth and palette corrections, its exact raw framebuffer and dummy-presented hashes are `0x00841c73` and `0x832d70f5`;
 - normal and AddressSanitizer/UndefinedBehaviorSanitizer builds produce identical hashes with no new BSP memory errors.
 
 The older generic SOJ `Renderer`/`Raster` path used by map models still emits signed-overflow warnings under UBSan. Those warnings belong to the Stage 7 raster-parity work, not the BSP visibility/lightmap implementation.

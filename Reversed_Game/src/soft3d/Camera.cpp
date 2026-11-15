@@ -123,7 +123,7 @@ void CameraPathController::Start(const CameraPathCollection& newPaths, CameraSpo
     finished = false;
     desiredPosition = paths->EvaluatePosition(0);
     desiredTarget = Add(desiredPosition, Scale(paths->EvaluateDerivative(0), 0xa0000));
-    if (snapToStart) {
+    if (!snapToStart) {
         position = desiredPosition;
         target = desiredTarget;
     }

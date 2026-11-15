@@ -47,7 +47,7 @@ A face's first lightmap block is always scaled by `0x100`. For each additional n
 intensity = value < 0xff00 ? max((0xff00 - value) >> 3, 0x20) : 0x20
 ```
 
-Only complete 16×16 blocks are rendered into the cached RGB444 lightmap. Width padding is zero. `sbp_format.md` documents interpolation, palette indexing, scrolling, and the safe handling of out-of-range palette reads.
+Only complete 16×16 blocks are rendered into the cached RGB565 lightmap. Width padding is zero. `sbp_format.md` documents interpolation, palette indexing, scrolling, and the safe handling of out-of-range palette reads.
 
 ## Reference asset
 

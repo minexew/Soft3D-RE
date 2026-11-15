@@ -15,7 +15,7 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - STX loading, SBN fonts/strings and rectangle/range text, generic SDT resource/state tables, all seven dialog runtimes, key interpolation, secondary textures, and every ScreenBlitter mode;
 - SOJ/SAI resource parsing and a functional Object → Renderer → Raster → BasicShader → VID_impl path;
 - SBP container/runtime loading, all chunk readers, incremental progress, map-model resources, generic entity-factory ownership, and link cleanup;
-- BSP/PVS visibility, fixed-point face rendering, RGB444 lightmaps, S3DSTY loading/advancement, and visible map-model submission;
+- BSP/PVS visibility, fixed-point face rendering, RGB565 lightmaps, S3DSTY loading/advancement, and visible map-model submission;
 - SPL parsing/evaluation/derivatives, chord-weighted path timing, camera projection, `CameraSpot`/`DummySpot`, and the complete menu 3D backdrop;
 - engine queue ordering and presentation, dummy video, and the SDL application shell;
 - 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text;
@@ -84,7 +84,7 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 **Completion**
 
-`BspRender.*` and `test_bsprender.cpp` implement and test every item. The real menu selects 166 faces in cluster 0 and submits all five model entities. After Stage 3 installed the recovered default camera projection, its exact raw/presented hashes became `0x26bfdf7c` and `0x23fa83dd`. PVS zero-run decoding, untextured faces, complete-block lightmap generation, and full style wrapping are covered. Normal and sanitizer builds agree; palette reads beyond the original small-palette bounds are deliberately clamped rather than reproducing heap corruption. Remaining UBSan messages are in the older generic SOJ raster path and belong to Stage 7.
+`BspRender.*` and `test_bsprender.cpp` implement and test every item. The real menu selects 166 faces in cluster 0 and submits all five model entities. After the reciprocal-depth, edge-zero, and palette-byte-address corrections, its exact raw/presented hashes are `0x00841c73` and `0x832d70f5`. PVS zero-run decoding, untextured faces, complete-block lightmap generation, full style wrapping, edge-zero coverage, and near/far reciprocal-depth occlusion are covered. Depth alone is reset for each portable polygon render so stale previous-frame values cannot create trails while uncovered color remains preserved. Normal and sanitizer builds agree. Valid intensity-derived offsets stay within each 64-byte palette group; malformed-resource accesses remain defensively clamped. Remaining UBSan messages are in the older generic SOJ raster path and belong to Stage 7.
 
 ## Stage 3 — SPL evaluation and the complete menu 3D background — complete
 
@@ -102,7 +102,7 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 **Completion**
 
-`BezierCurve3.*`, `Camera.*`, `CameraSpot.*`, `MenuBackdrop.*`, and `test_spl.cpp` implement and test every item. All 11 real cubic records pass exact fixed-point and derivative checks; collection timing uses the recovered control-polygon lengths. `GameEngine::LoadMenuBackdrop` drives 120 real-map dummy-video frames with moving camera and exact hashes, without episode classes. See `spl_format.md` for layouts, projection arithmetic, update order, and hashes. Non-default camera tangent entries still use the mathematical equivalent rather than a copied original lookup table; this does not affect the default/menu camera.
+`BezierCurve3.*`, `Camera.*`, `CameraSpot.*`, `MenuBackdrop.*`, and `test_spl.cpp` implement and test every item. All 11 real cubic records pass exact fixed-point and derivative checks; collection timing uses the recovered control-polygon lengths. The original `snap == 0` start-position polarity is covered with a nonzero path origin. `GameEngine::LoadMenuBackdrop` drives 120 real-map dummy-video frames with moving camera, full first-frame depth coverage, and exact hashes (`0x95c21bce`/`0x441625ed` initially, `0xbe935b67`/`0x61bebbd5` at frame 120), without episode classes. See `spl_format.md` for layouts, projection arithmetic, update order, and hashes. Non-default camera tangent entries still use the mathematical equivalent rather than a copied original lookup table; this does not affect the default/menu camera.
 
 ## Stage 4 — Input, target-FPS timer, lifecycle, and restorable FPS display — complete
 
@@ -143,7 +143,7 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 `Dialog.*`, `UiManager.*`, `ScreenBlitter.*`, and the expanded `Font.*` implement every item. All seven dialog runtimes and all 30 states are available; every one of the 390 elements and 923 real keys is checked. Behavior zero selects base-rendered elements, while behavior one is left for derived dialogs and is not a text index. Secondary selectors intern `<primary>_alp`, producing 138 resources from the initial 136. The first `state.sdt` word is a stored-but-unused declared visual/element total, and the second `str.sdt` word is reserved/ignored with no consumer; neither supports a more specific semantic claim.
 
-All 26 blitter entries are implemented: six modes with scaled/unscaled and opaque/color-key variants, plus two secondary-alpha loops. Tests cover exact RGB565 arithmetic, fixed-point clipping/scaling, interpolation boundaries, primary/secondary pixels, the scaled secondary color-key bug, and the clear loop's unchanged pixel zero. Text coverage includes wrapping, right/center anchoring, and ranged drawing. The full 16-test CTest suite and both SDL smoke tests pass; the new UI and font suites also pass under AddressSanitizer and UndefinedBehaviorSanitizer. See `sdt_format.md` and `symbian3rd_video.md` for layouts, formulas, addresses, and original quirks.
+All 26 blitter entries are implemented: six modes with scaled/unscaled and opaque/color-key variants, plus two secondary-alpha loops. Tests cover exact RGB565 arithmetic, fixed-point clipping/scaling, interpolation boundaries, primary/secondary pixels, the scaled secondary color-key bug, the real logo's packed-arithmetic fringe result, and the clear loop's unchanged pixel zero. The packed secondary-alpha wrap is preserved; its discrepancy with the reference emulator's black outline is recorded as unresolved in `sdt_format.md`, not hidden by different arithmetic. Text coverage includes wrapping, right/center anchoring, and ranged drawing. The full CTest suite and both SDL smoke tests pass; the new UI and font suites also pass under AddressSanitizer and UndefinedBehaviorSanitizer. See `sdt_format.md` and `symbian3rd_video.md` for layouts, formulas, addresses, and original quirks.
 
 ## Stage 6 — Menu flow, remaining dialogs, and configuration SDT — complete
 

@@ -222,6 +222,17 @@ void TestCameraPathController()
     CHECK(controller.IsFinished());
     controller.Update(camera);
     CHECK_VEC(controller.GetDesiredPosition(), {0x100000, 0, 0});
+
+    soft3d::CameraPathCollection offsetPaths;
+    CHECK(offsetPaths.Append(soft3d::BezierCurve3(
+        std::vector<soft3d::Vec3>{{0x10000, 0x20000, 0x30000},
+                                  {0x110000, 0x20000, 0x30000}})));
+    controller.Start(offsetPaths, &spot, 0x1e0000, false, false);
+    CHECK_VEC(controller.GetPosition(), {0x10000, 0x20000, 0x30000});
+    CHECK_VEC(controller.GetTarget(), {0xa10000, 0x20000, 0x30000});
+    soft3d::CameraPathController retainedController;
+    retainedController.Start(offsetPaths, &spot, 0x1e0000, false, true);
+    CHECK_VEC(retainedController.GetPosition(), {0, 0, 0});
 }
 
 void TestRealMenuBackdrop()
@@ -244,15 +255,17 @@ void TestRealMenuBackdrop()
         engine.GetRenderer().GetCurrentTexture()->GetPixels());
     const uint32_t firstHash = HashPixels(frame, 320 * 240);
     const uint32_t firstPresentedHash = HashPixels(dummy->GetPresentedPixels().data(), 320 * 240);
-    CHECK(engine.GetCamera().GetPosition().x == -417490);
-    CHECK(engine.GetCamera().GetPosition().y == -191957);
-    CHECK(engine.GetCamera().GetPosition().z == -307156);
+    CHECK(engine.GetCamera().GetPosition().x == -4175281);
+    CHECK(engine.GetCamera().GetPosition().y == -1919741);
+    CHECK(engine.GetCamera().GetPosition().z == -3071833);
+    CHECK(std::all_of(frame, frame + 320 * 240,
+                      [](uint32_t pixel) { return (pixel >> 16) != 0; }));
     CHECK(engine.GetMenuBackdrop()->GetCameraController().GetTime() == 136);
     CHECK(engine.RunFrame());
     const uint32_t secondHash = HashPixels(frame, 320 * 240);
-    CHECK(firstHash == 0x57550571);
-    CHECK(firstPresentedHash == 0x9c578365);
-    CHECK(secondHash == 0x5e0cf7d0);
+    CHECK(firstHash == 0x95c21bce);
+    CHECK(firstPresentedHash == 0x441625ed);
+    CHECK(secondHash == 0xa84bccd4);
     CHECK(secondHash != firstHash);
     for (int index = 2; index < 120; ++index) {
         CHECK(engine.RunFrame());
@@ -263,8 +276,8 @@ void TestRealMenuBackdrop()
     CHECK(engine.GetMenuBackdrop()->GetBsp().GetFrameCounter() == 120);
     CHECK(!engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().empty());
     CHECK(engine.GetRenderQueues().GetCount(3) != 0);
-    CHECK(finalHash == 0xbda77efe);
-    CHECK(finalPresentedHash == 0x79f3684d);
+    CHECK(finalHash == 0xbe935b67);
+    CHECK(finalPresentedHash == 0x61bebbd5);
     CHECK(finalHash != firstHash && finalHash != secondHash);
 #endif
 }

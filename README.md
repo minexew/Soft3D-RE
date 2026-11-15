@@ -18,7 +18,7 @@
 |✔️|SPL||Counted degree-N Bezier camera paths; fixed-point evaluation, derivatives, chord-weighted timing, camera integration, and real-resource tests documented in `Reverse_Docs/spl_format.md`
 |🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Materials, packed texture names, vertex streams, primitive modes, bounds, and skinning links documented in `Reverse_Docs/soft3d_models_animations.md`</li><li>Some material and renderer-state fields remain unidentified</li></ul>
 |🔧|SST||“simple script”, mostly understood
-|✔️|STX||images/textures (RGB444), well-understood
+|✔️|STX||images/textures (RGB565), well-understood
 |✔️|STX||images/textures (RGB565), well-understood
 |✔️|WAR|DA320 (old), S60v1 (eng), Win32 (eng)|AMI ADPCM audio, high nibble first; same format as SAU except nibble order, well-understood
 
