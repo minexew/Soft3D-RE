@@ -69,6 +69,13 @@ void Raster::SelectShader(BasicShader* shader)
     activeShader = shader != nullptr ? shader : (fogEnabled ? &fogShader : &basicShader);
 }
 
+void Raster::SetOrientation(int orientation)
+{
+    if (activeShader != nullptr) {
+        activeShader->SetEnabled(orientation);
+    }
+}
+
 void Raster::SetFogEnabled(bool enabled)
 {
     fogEnabled = enabled;

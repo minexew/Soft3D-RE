@@ -13,6 +13,7 @@ public:
     void SetModelMatrix(const Matrix4& matrix);
     void SetViewMatrix(const Matrix4& matrix);
     void SetProjectionMatrix(const Matrix4& matrix);
+    void SetOrientation(int orientation);
     void DrawIndexedSurface(const SojSurface& surface, const SojObject* material,
                             const Texture* texture, const Texture* detailTexture,
                             const std::vector<Matrix4>& matrixPalette = {});

@@ -251,7 +251,7 @@ destinationIndex = height * (width - 1 - x) + y
                  = 240 * (319 - x) + y
 ```
 
-This produces the 240×320 portrait image in which the phone and labels appear horizontal. The portable SDL backend presents that portrait result directly.
+This produces the 240×320 portrait image in which the phone and labels appear horizontal. The SDL app's default automatic display presents this initial dialog directly in portrait with unrotated directional input. After acceptance it reconfigures to landscape, reverses the active orientation's shader mapping before upload, and applies the matching SDL input compensation. Explicit `--orientation portrait` and `--orientation landscape` modes force one presentation throughout.
 
 The original renders the current selection before reading directional clicks, so a changed palette appears on the following frame. Direction actions use click, not merely down. Acceptance stores control orientation 1 or 2 through `GameEngine_SetControlOrientation` (`0x000719ac`), then advances into the logo/loading states documented below.
 

@@ -4,6 +4,7 @@
 #include "platform/sdl/SdlClock.hpp"
 #include "platform/sdl/SdlInput.hpp"
 #include "platform/sdl/SdlVideoBackend.hpp"
+#include "soft3d/MenuDialogs.hpp"
 #include <filesystem>
 #include <iostream>
 #include <utility>
@@ -68,9 +69,15 @@ int Application::Run()
         std::cerr << "Audio unavailable; continuing silently: " << SDL_GetError() << '\n';
     }
 
+    const char* display = "automatic";
+    if (config.displayOrientation == DisplayOrientation::Landscape) {
+        display = "landscape";
+    } else if (config.displayOrientation == DisplayOrientation::Portrait) {
+        display = "portrait";
+    }
     std::cout << "Renderer: " << engine->GetVideo().GetBackendName() << '\n'
-              << "Framebuffer: " << frameWidth << 'x' << frameHeight
-              << " (CPU), audio: "
+              << "Framebuffer: " << frameWidth << 'x' << frameHeight << " (CPU), display: "
+              << display << ", audio: "
               << (engine->GetAudioManager().IsRunning() ? "16 kHz mono" : "disabled") << '\n';
 
     bool running = true;
@@ -82,7 +89,9 @@ int Application::Run()
                 (event.type == SDL_EVENT_KEY_DOWN && event.key.key == SDLK_ESCAPE)) {
                 running = false;
             }
-            soft3d::platform::ProcessSdlKeyEvent(engine->GetInput(), event);
+            soft3d::platform::ProcessSdlKeyEvent(
+                engine->GetInput(), event,
+                IsLandscapeDisplay() ? engine->GetControlMap().GetOrientation() : 0);
         }
 
         if (!engine->RunFrame()) {
@@ -103,12 +112,19 @@ bool Application::InitializeVideo()
     engineConfig.width = frameWidth;
     engineConfig.height = frameHeight;
     engineConfig.clock = std::make_unique<soft3d::platform::SdlClock>();
-    engineConfig.videoBackend = std::make_unique<soft3d::platform::SdlVideoBackend>(
-        config.scale, config.renderer);
+    auto videoBackend = std::make_unique<soft3d::platform::SdlVideoBackend>(
+        config.scale, config.renderer,
+        config.displayOrientation == DisplayOrientation::Landscape);
+    auto* sdlVideo = videoBackend.get();
+    engineConfig.videoBackend = std::move(videoBackend);
     if (config.enableAudio) {
         engineConfig.audioBackend = std::make_unique<soft3d::platform::SdlAudioBackend>();
     }
     engine = std::make_unique<soft3d::GameEngine>(std::move(engineConfig));
+    sdlVideo->SetControlOrientationSource([game = engine.get()] {
+        return game->GetControlMap().GetOrientation();
+    });
+    sdlVideo->SetLandscapeSource([this] { return IsLandscapeDisplay(); });
     engine->SetFpsDisplayEnabled(config.showFps);
     config.resourceArchive = FindResourceArchive(config.resourceArchive);
     engine->SetResourceArchive(WidePath(config.resourceArchive));
@@ -118,6 +134,18 @@ bool Application::InitializeVideo()
     }
     engine->Start();
     return engine->IsRunning();
+}
+
+bool Application::IsLandscapeDisplay() const
+{
+    if (config.displayOrientation == DisplayOrientation::Landscape) {
+        return true;
+    }
+    if (config.displayOrientation == DisplayOrientation::Portrait) {
+        return false;
+    }
+    return engine != nullptr && engine->GetMainMenu() != nullptr &&
+           engine->GetMainMenu()->GetMode() != soft3d::MainUIDlg::Handedness;
 }
 
 void Application::Shutdown()

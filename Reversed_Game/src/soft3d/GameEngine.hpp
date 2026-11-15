@@ -83,6 +83,7 @@ public:
     void RequestExit();
     void SetSoundEnabled(bool enabled);
     void SetVibrationEnabled(bool enabled);
+    void SetControlOrientation(int orientation);
     bool HasSaveSlots();
     result RefreshSaveSlots();
 

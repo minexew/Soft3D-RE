@@ -12,7 +12,9 @@ void PrintUsage(const char* executable)
 {
     std::cout << "Usage: " << executable
               << " [--renderer auto|software|NAME] [--scale 1..4]"
-                 " [--frames N] [--resources PATH] [--no-audio] [--show-fps]\n"
+                 " [--orientation auto|landscape|portrait] [--frames N] [--resources PATH]"
+                 " [--no-audio] [--show-fps]\n"
+                 "Auto uses portrait handedness, then landscape with screen-relative controls.\n"
                  "Controls: arrows/WASD select, Space/Enter action, Escape quits.\n";
 }
 
@@ -43,7 +45,7 @@ int main(int argc, char** argv)
             continue;
         }
         if (argument == "--renderer" || argument == "--scale" || argument == "--frames" ||
-            argument == "--resources") {
+            argument == "--resources" || argument == "--orientation") {
             if (index + 1 >= argc) {
                 std::cerr << "Missing value for " << argument << '\n';
                 return 2;
@@ -53,6 +55,17 @@ int main(int argc, char** argv)
                 config.renderer = std::string(value);
             } else if (argument == "--resources") {
                 config.resourceArchive = std::string(value);
+            } else if (argument == "--orientation") {
+                if (value == "auto") {
+                    config.displayOrientation = app::DisplayOrientation::Automatic;
+                } else if (value == "landscape") {
+                    config.displayOrientation = app::DisplayOrientation::Landscape;
+                } else if (value == "portrait") {
+                    config.displayOrientation = app::DisplayOrientation::Portrait;
+                } else {
+                    std::cerr << "Orientation must be auto, landscape, or portrait.\n";
+                    return 2;
+                }
             } else if (!ParseInteger(value, argument == "--scale" ? config.scale
                                                                   : config.maximumFrames)) {
                 std::cerr << "Invalid value for " << argument << ": " << value << '\n';

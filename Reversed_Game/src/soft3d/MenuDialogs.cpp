@@ -60,7 +60,7 @@ int MainUIDlg::Render(uint32_t context)
             selection = 1;
         }
         if (Accept(input)) {
-            controls.SetOrientation(selection == 0 ? 1 : 2);
+            engine.SetControlOrientation(selection == 0 ? 1 : 2);
             SetStateTime(0, 0);
             RenderElementAtTime(0, 8, 0);
             RenderElementAtTime(0, 9, 0);
@@ -323,7 +323,6 @@ int OptionDlg::Render(uint32_t context)
 {
     (void)context;
     Input& input = engine.GetInput();
-    ControlMap& controls = engine.GetControlMap();
     switch (page) {
     case 0:
         RenderMainPage();
@@ -345,7 +344,7 @@ int OptionDlg::Render(uint32_t context)
             Sound(engine, 4);
         }
         if (Accept(input)) {
-            controls.SetOrientation(orientationChoice == 0 ? 2 : 1);
+            engine.SetControlOrientation(orientationChoice == 0 ? 2 : 1);
             page = 0;
             Sound(engine, 3);
         }

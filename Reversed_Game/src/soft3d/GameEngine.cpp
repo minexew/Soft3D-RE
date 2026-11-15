@@ -281,6 +281,12 @@ void GameEngine::SetVibrationEnabled(bool enabled)
     configuration.vibrationEnabled = enabled ? 1 : 0;
 }
 
+void GameEngine::SetControlOrientation(int orientation)
+{
+    renderer.SetOrientation(orientation);
+    controlMap.SetOrientation(orientation);
+}
+
 bool GameEngine::HasSaveSlots()
 {
     for (int slot = 1; slot <= 3; ++slot) {

@@ -114,6 +114,13 @@ void TestEnginePresentation()
     CHECK(dummy->GetPresentedPixels()[1] == 0x00f8fcf8);
     CHECK(dummy->GetPresentedPixels()[2] == 0x00f80000);
     CHECK(dummy->GetPresentedPixels()[3] == 0x000000f8);
+    engine.SetControlOrientation(2);
+    CHECK(engine.GetControlMap().GetOrientation() == 2);
+    CHECK(engine.RunFrame());
+    CHECK(dummy->GetPresentedPixels()[0] == 0x000000f8);
+    CHECK(dummy->GetPresentedPixels()[1] == 0x00f80000);
+    CHECK(dummy->GetPresentedPixels()[2] == 0x00f8fcf8);
+    CHECK(dummy->GetPresentedPixels()[3] == 0x0000fc00);
     engine.Suspend();
     CHECK(!engine.IsRunning());
 }

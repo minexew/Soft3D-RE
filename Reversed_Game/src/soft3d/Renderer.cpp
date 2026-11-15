@@ -95,6 +95,11 @@ void Renderer::SetProjectionMatrix(const Matrix4& matrix)
     projectionMatrix = matrix;
 }
 
+void Renderer::SetOrientation(int orientation)
+{
+    raster.SetOrientation(orientation);
+}
+
 void Renderer::DrawIndexedSurface(const SojSurface& surface, const SojObject* material,
                                   const Texture* texture, const Texture*,
                                   const std::vector<Matrix4>& matrixPalette)

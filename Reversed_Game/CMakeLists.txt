@@ -231,9 +231,29 @@ if(BUILD_TESTING)
         endif()
         add_test(NAME soft3d_sdl_input COMMAND soft3d_sdl_input_tests)
 
+        add_executable(soft3d_sdl_video_tests
+            tests/test_sdlvideo.cpp
+            src/platform/sdl/SdlVideoBackend.cpp
+        )
+        target_link_libraries(soft3d_sdl_video_tests PRIVATE soft3d SDL3::SDL3)
+        if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+            target_compile_options(soft3d_sdl_video_tests PRIVATE -Wall -Wextra -Wpedantic)
+        endif()
+        add_test(NAME soft3d_sdl_video COMMAND soft3d_sdl_video_tests)
+        set_tests_properties(soft3d_sdl_video PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy")
+
         add_test(NAME seven_days_smoke
             COMMAND seven_days --frames 3 --renderer software --no-audio)
         set_tests_properties(seven_days_smoke PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy")
+        add_test(NAME seven_days_landscape_smoke
+            COMMAND seven_days --frames 3 --renderer software --no-audio --orientation landscape)
+        set_tests_properties(seven_days_landscape_smoke PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy")
+        add_test(NAME seven_days_portrait_smoke
+            COMMAND seven_days --frames 3 --renderer software --no-audio --orientation portrait)
+        set_tests_properties(seven_days_portrait_smoke PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy")
         add_test(NAME seven_days_audio_smoke
             COMMAND seven_days --frames 3 --renderer software)

@@ -27,6 +27,7 @@ public:
     Texture* GetCurrentTexture() const;
     void SetBackBufferPtr(uint32_t* address);
     void SelectShader(BasicShader* shader);
+    void SetOrientation(int orientation);
     void SetFogEnabled(bool enabled);
     void SetDepthTestEnabled(bool enabled);
     void Clear(uint16_t color);

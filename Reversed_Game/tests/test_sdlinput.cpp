@@ -49,6 +49,18 @@ int main()
         CHECK(TranslateSdlKey(SDLK_SPACE) == Key::Accept);
         CHECK(TranslateSdlKey(SDLK_ESCAPE) == Key::None);
 
+        CHECK(TranslateSdlKey(SDLK_UP, 1) == Key::Left);
+        CHECK(TranslateSdlKey(SDLK_RIGHT, 1) == Key::Up);
+        CHECK(TranslateSdlKey(SDLK_DOWN, 1) == Key::Right);
+        CHECK(TranslateSdlKey(SDLK_LEFT, 1) == Key::Down);
+        CHECK(TranslateSdlKey(SDLK_UP, 2) == Key::Right);
+        CHECK(TranslateSdlKey(SDLK_RIGHT, 2) == Key::Down);
+        CHECK(TranslateSdlKey(SDLK_DOWN, 2) == Key::Left);
+        CHECK(TranslateSdlKey(SDLK_LEFT, 2) == Key::Up);
+        CHECK(TranslateSdlKey(SDLK_W, 2) == Key::Right);
+        CHECK(TranslateSdlKey(SDLK_6, 1) == Key::Number6);
+        CHECK(TranslateSdlKey(SDLK_RETURN, 2) == Key::Accept);
+
         soft3d::Input input;
         SDL_Event event = KeyEvent(SDL_EVENT_KEY_DOWN, SDLK_LEFT);
         soft3d::platform::ProcessSdlKeyEvent(input, event);

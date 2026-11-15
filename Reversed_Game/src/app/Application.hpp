@@ -8,11 +8,18 @@
 
 namespace app {
 
+enum class DisplayOrientation {
+    Automatic,
+    Portrait,
+    Landscape,
+};
+
 struct ApplicationConfig {
     int scale = 3;
     int maximumFrames = 0;
     std::string renderer = "auto";
     std::string resourceArchive;
+    DisplayOrientation displayOrientation = DisplayOrientation::Automatic;
     bool enableAudio = true;
     bool showFps = false;
 };
@@ -29,6 +36,7 @@ public:
 
 private:
     bool InitializeVideo();
+    bool IsLandscapeDisplay() const;
     void Shutdown();
 
     ApplicationConfig config;
