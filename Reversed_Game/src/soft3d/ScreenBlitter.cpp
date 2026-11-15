@@ -93,7 +93,7 @@ void ApplySecondary(uint32_t& destination, uint16_t source, uint8_t alpha)
     const uint32_t destinationColor = ((old & 0xf800) << 10) | ((old & 0x7e0) << 5) | (old & 0x1f);
     const uint32_t sourceColor = ((source & 0xf800) << 10) | ((source & 0x7e0) << 5) | (source & 0x1f);
     const uint32_t interpolated = destinationColor * 32 + (sourceColor - destinationColor) * alpha;
-    const uint16_t color = static_cast<uint16_t>(((interpolated & 0x7c000000) >> 23) |
+    const uint16_t color = static_cast<uint16_t>(((interpolated & 0x7c000000) >> 15) |
         ((interpolated & 0x1f8000) >> 10) | ((interpolated & 0x3e0) >> 5));
     destination = (destination & 0xffff0000) | color;
 }

@@ -167,7 +167,7 @@ uint32_t ExpectedSecondary(uint32_t destination, uint16_t source, uint8_t alpha,
     const uint32_t oldColor = ((old & 0xf800) << 10) | ((old & 0x7e0) << 5) | (old & 31);
     const uint32_t sourceColor = ((source & 0xf800) << 10) | ((source & 0x7e0) << 5) | (source & 31);
     const uint32_t value = oldColor * 32 + (sourceColor - oldColor) * alpha;
-    const uint16_t color = static_cast<uint16_t>(((value & 0x7c000000) >> 23) |
+    const uint16_t color = static_cast<uint16_t>(((value & 0x7c000000) >> 15) |
         ((value & 0x1f8000) >> 10) | ((value & 0x3e0) >> 5));
     return (destination & 0xffff0000U) | color;
 }
@@ -415,7 +415,7 @@ void TestRealLogoBlend(soft3d::UiManager& ui, soft3d::ScreenBlitter& blitter)
     const std::size_t offset = 56 * logo->GetWidth() + 102;
     CHECK(logo->GetPixels()[offset] == 0 && alpha->GetPixels()[offset] == 2);
     const uint32_t pixel = reinterpret_cast<const uint32_t*>(target->GetPixels())[offset];
-    CHECK((pixel & 0xffff) == 0x00b3);
+    CHECK((pixel & 0xffff) == 0x10a3);
 }
 
 void TestInitialScreen(soft3d::GameEngine& engine,
