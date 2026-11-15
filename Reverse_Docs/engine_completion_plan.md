@@ -21,7 +21,7 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text;
 - complete startup/sound/main-menu flow, all seven concrete dialog classes, orientation-aware controls, and `config.sdt`/save-slot persistence.
 
-These foundations still have partial areas: material fields, Object loading/control APIs, raster feature parity, and the game hooks that invoke audio are not automatically supplied by the audio implementation.
+These foundations still have partial areas: Object loading/control APIs and the game hooks that invoke audio are not automatically supplied by the audio implementation. Stage 7 resolved the renderer-facing SOJ material fields and raster feature parity.
 
 ### Missing or incomplete engine facilities
 
@@ -165,7 +165,7 @@ All 26 blitter entries are implemented: six modes with scaled/unscaled and opaqu
 
 `tests/test_menu.cpp` drives real startup resources through handedness, logos, sound selection, every concrete dialog family, model/document/photo navigation, GameUI inventory/options/map states, UI voices, and configuration round trips. All 17 CTest tests and both SDL smoke tests pass. UI, menu, and audio also pass under AddressSanitizer and UndefinedBehaviorSanitizer; sanitizer testing exposed and fixed the SAU decoder's final overlapping-word out-of-bounds read without changing decoded samples. Episode map/HUD/model rendering and item effects remain host hooks, while GameUI resource acquisition and portable menu state behavior are implemented. See `sdt_format.md`, `gameengine_api.md`, `symbian3rd_input.md`, and `symbian3rd_audio.md`.
 
-## Stage 7 — Rasterizer and renderer feature parity
+## Stage 7 — Rasterizer and renderer feature parity — complete
 
 **Scope**
 
@@ -178,6 +178,14 @@ All 26 blitter entries are implemented: six modes with scaled/unscaled and opaqu
 
 - Build directed triangle/scanline fixtures for every selected path and compare exact RGB565/depth output.
 - Re-run real SOJ and SBP scenes to detect regressions in previously working paths.
+
+**Completion**
+
+`Renderer.*`, `Raster.*`, `Object.*`, and `test_raster.cpp` implement and test the recovered path. The renderer now supports sequential, indexed, and secondary-stream textured draws; camera/screen clipping; winding culling; reciprocal-table projection; fixed-step edge walking; affine depth/UV/intensity interpolation; palette lighting; color keys; all blend levels; detail alpha; and independent depth test/write behavior. All 100 table selectors are mapped and all 96 used scanline functions are named in Ghidra. SOJ UVs are affine; perspective-correct lightmap sampling remains in the separate BSP path.
+
+Material culling is distinct from RGB blending. Directional scale, ambient intensity, U/V scroll velocities, runtime intensity bounce/wrap, and opaque-only default depth writes are implemented. Original full-pixel depth comparisons, signed optimized selectors 80/85, fixed-point truncation/wrapping, near-intersection depth constant, and palette-intensity double scaling are retained. The old UV formula was corrected from the ARM listing: the right shift applies to the sum of shifted V and masked U.
+
+All 21 normal CTest tests and all 15 ASan/UBSan CTest tests pass, including the real SOJ test, real BSP/SPL/menu scenes, and SDL smoke tests. All six standalone SOJ converter tests also pass. See `symbian3rd_raster.md` for layouts, formulas, selector mapping, and verification details.
 
 ## Stage 8 — All presentation shaders
 

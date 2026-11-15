@@ -29,21 +29,21 @@ A material record is 52 bytes serialized and 0x34 bytes internally. It describes
 
 | Serialized offset | Internal offset | Meaning |
 |---:|---:|---|
-| `+0x00` | `+0x00` | Likely fixed-point material intensity/brightness. Usually approximates the average RGB intensity, but authored exceptions exist. Not a UV scale. |
-| `+0x04` | `+0x04` | Second unknown fixed-point material parameter. |
+| `+0x00` | `+0x00` | Fixed-point directional-light scale. |
+| `+0x04` | `+0x04` | Fixed-point ambient/base intensity. |
 | `+0x08` | `+0x08` | RGB bytes packed to RGB565. |
-| `+0x0b` | `+0x0c` | Blend mode byte. |
-| `+0x0c` | `+0x10` | Texture selector; low 16 bits are retained. Selector `0x00ff` requests a detail texture. |
+| `+0x0b` | `+0x0c` | Triangle cull mode: 0 both windings, 1 rejects negative area, 2 rejects positive area. |
+| `+0x0c` | `+0x10` | RGB blend selector; low 16 bits are retained. Selector `0x00ff` requests a detail texture and becomes zero. |
 | `+0x10` | `+0x14` | Texture-present flag. |
 | — | `+0x16` | Detail-texture flag derived from selector `0x00ff`. |
 | `+0x14` | `+0x18` | Four packed 32-bit words containing the texture name. |
-| `+0x24` | `+0x28` | Unknown fixed-point material parameter. |
-| `+0x28` | `+0x2c` | Unknown fixed-point material parameter. |
+| `+0x24` | `+0x28` | Fixed-point U scroll velocity. |
+| `+0x28` | `+0x2c` | Fixed-point V scroll velocity. |
 | `+0x2c`, `+0x30` | `+0x30` | Texture-coordinate generation mode: first nonzero → 3; otherwise second nonzero → 4; both zero → 0. |
 
-The last field was incorrectly called `primitiveType` in the earlier reconstruction. Topology belongs to the surface, not the material.
+The coordinate-mode field was incorrectly called `primitiveType` in the earlier reconstruction. Topology belongs to the surface, not the material. The old `textureIndex` name was also incorrect: the field selects copy and three fixed RGB blend levels. Only level zero writes depth by default. The two scroll velocities and lighting fields are consumed by `ObjectMaterial_Update` and the renderer; see `symbian3rd_raster.md` for the exact formulas.
 
-An archive scan supports the intensity interpretation of the first field: 850 of 883 parsed materials satisfy `unknown00 = gray * 257`, and many non-gray materials approximately satisfy `unknown00 = average(rgb) * 257`. Examples such as 38550 for RGB(150,150,150) and 34781 for RGB(155,134,117) fit this relationship. Other values, including 20303 for RGB(45,16,16) and 38535 for RGB(149,149,149), show that it is authored independently or transformed by an additional rule. It should not be used for UV normalization.
+An archive scan found that 850 of 883 parsed materials satisfy `directionalScale = gray * 257`, and many non-gray materials approximately satisfy `directionalScale = average(rgb) * 257`. Examples such as 38550 for RGB(150,150,150) and 34781 for RGB(155,134,117) fit that authoring pattern. Other values, including 20303 for RGB(45,16,16) and 38535 for RGB(149,149,149), show that it is authored independently or transformed by an additional rule. The consumer establishes the lighting use regardless of that correlation.
 
 ### Packed texture names
 
@@ -177,7 +177,7 @@ Each morph record contains a 32-bit time followed by `targetCount` fixed-point 3
 
 `ObjectRes.*` and `Animation.*` use the corrected names and layouts. `Object.*` implements material loading, animation timing, matrix-palette construction, indexed surface submission, and SBP map-model transforms. `Fixed.hpp` documents the matrix convention in code. For map models, transform vectors 2, 3, and 1 form matrix rows 0, 1, and 2 respectively, while vector 0 supplies translation; `Object::SetTransformVectors` applies this during loading.
 
-`Renderer.*` and `Raster.*` provide a functional fixed-point software path to `BasicShader` and `VID_impl`. They implement the verified vertex layouts and primitive modes, but do not yet reproduce every original clipping, lighting, perspective-correct texturing, blend, or specialized inner-loop case bit-for-bit. Those remain reconstruction work; the portable implementation must not be cited as proof for details that are only established in the disassembly.
+`Renderer.*` and `Raster.*` implement the recovered fixed-point software path to `BasicShader` and `VID_impl`, including sequential/indexed/secondary-stream entry points, clipping, winding, lighting, blend/depth state, texture offsets, detail alpha, and specialized scanline behavior. SOJ UV interpolation is affine, not perspective-correct. `test_raster.cpp` covers directed exact output; see `symbian3rd_raster.md` for the recovered arithmetic and original quirks.
 
 ## Converter and animation-frame export
 

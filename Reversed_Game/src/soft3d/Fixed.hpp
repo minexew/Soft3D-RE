@@ -21,7 +21,7 @@ inline Fixed FixedDivide(Fixed numerator, Fixed denominator)
     if (denominator == 0) {
         return 0;
     }
-    return static_cast<Fixed>((static_cast<int64_t>(numerator) << 16) / denominator);
+    return static_cast<Fixed>((static_cast<int64_t>(numerator) * 0x10000) / denominator);
 }
 
 inline Fixed AddFixed(Fixed left, Fixed right)

@@ -12,17 +12,17 @@ namespace soft3d {
 std::u16string DecodeSojTextureName(const std::array<int32_t, 4>& packedName);
 
 struct SojObject {
-    int32_t unknown00;
-    int32_t unknown04;
+    int32_t directionalScale;
+    int32_t ambientIntensity;
     uint16_t color;
     uint16_t padding0a;
+    uint32_t cullMode;
     uint32_t blendMode;
-    uint32_t textureIndex;
     uint16_t hasTexture;
     uint16_t hasDetailTexture;
     std::array<int32_t, 4> packedTextureName;
-    int32_t unknown28;
-    int32_t unknown2c;
+    int32_t textureScrollU;
+    int32_t textureScrollV;
     uint32_t textureCoordinateMode;
 };
 

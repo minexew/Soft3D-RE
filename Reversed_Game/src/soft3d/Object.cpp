@@ -15,6 +15,7 @@ void Object::SetModel(const ObjectRes* resource)
     matrixPalette.clear();
     textures.assign(resource != nullptr ? resource->GetObjects().size() : 0, nullptr);
     detailTextures.assign(textures.size(), nullptr);
+    materialStates.assign(textures.size(), MaterialState{});
 }
 
 void Object::SetTransformVectors(const std::array<Vec3, 4>& transform)
@@ -144,24 +145,67 @@ void Object::Render()
         return;
     }
     renderer->SetModelMatrix(modelMatrix);
+    renderer->SetDepthTestEnabled(true);
+    renderer->SetDepthBias(0);
+    renderer->SetLightingEnabled(true);
+    renderer->SetAmbientLightOnly(false);
     UpdateMatrixPalette();
     for (const SojSurface& surface : model->GetSurfaces()) {
         const SojObject* material = nullptr;
         const Texture* texture = nullptr;
         const Texture* detail = nullptr;
+        MaterialState* state = nullptr;
         if (surface.materialIndex >= 0 &&
             static_cast<std::size_t>(surface.materialIndex) < model->GetObjects().size()) {
-            material = &model->GetObjects()[static_cast<std::size_t>(surface.materialIndex)];
             const std::size_t index = static_cast<std::size_t>(surface.materialIndex);
+            material = &model->GetObjects()[index];
             if (index < textures.size()) {
                 texture = textures[index];
             }
             if (index < detailTextures.size()) {
                 detail = detailTextures[index];
             }
+            if (index < materialStates.size()) {
+                state = &materialStates[index];
+            }
         }
-        renderer->DrawIndexedSurface(surface, material, texture, detail, matrixPalette);
+        renderer->DrawIndexedSurface(surface, material, texture, detail, matrixPalette,
+            state != nullptr ? state->textureU : 0, state != nullptr ? state->textureV : 0,
+            state != nullptr ? state->intensity : 0);
+        if (material == nullptr || state == nullptr) {
+            continue;
+        }
+        state->intensity = AddFixed(state->intensity, state->intensitySpeed);
+        if (state->intensity >= state->maximumIntensity) {
+            state->intensity = state->maximumIntensity;
+            state->intensitySpeed = NegateFixed(state->intensitySpeed);
+        } else if (state->intensity <= state->minimumIntensity) {
+            state->intensity = state->minimumIntensity;
+            state->intensitySpeed = NegateFixed(state->intensitySpeed);
+        }
+        if (texture != nullptr) {
+            state->textureU = AddFixed(state->textureU, material->textureScrollU);
+            const Fixed width = texture->GetFixedWidth();
+            if (state->textureU >= width) {
+                state->textureU = SubtractFixed(state->textureU, width);
+            } else if (state->textureU <= NegateFixed(width)) {
+                state->textureU = AddFixed(state->textureU, width);
+            }
+            state->textureV = AddFixed(state->textureV, material->textureScrollV);
+            const Fixed height = texture->GetFixedHeight();
+            if (state->textureV >= height) {
+                state->textureV = SubtractFixed(state->textureV, height);
+            } else if (state->textureV <= NegateFixed(height)) {
+                state->textureV = AddFixed(state->textureV, height);
+            }
+        }
     }
+    renderer->SetTexture(nullptr);
+    renderer->SetDetailTexture(nullptr);
+    renderer->SetDepthBias(0);
+    renderer->SetLightingEnabled(true);
+    renderer->SetAmbientLightOnly(false);
+    renderer->SetDepthWriteEnabled(true);
 }
 
 const ObjectRes* Object::GetModel() const

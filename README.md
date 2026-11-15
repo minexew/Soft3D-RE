@@ -16,7 +16,7 @@
 |🔧|SBP|GA330, S60v3|<p>maps, based on [Quake 2 map format](https://www.flipcode.com/archives/Quake_2_BSP_File_Format.shtml), mostly understood</p><ul><li>Corrected chunk order, all chunk readers, incremental loading, PVS visibility, fixed-point rendering, lightmaps, and map-model submission documented in `Reverse_Docs/sbp_format.md`; portable real-map loading/rendering is tested, while collision and later unit integration remain</li></ul>
 |🔧|SDT|S60v3|Various data tables; UI resource names, all seven generic dialog tables, concrete menu classes, interpolation, secondary textures, blitter behavior, and the 1,252-byte `config.sdt` layout documented in `Reverse_Docs/sdt_format.md`; other game-specific SDT families remain unconfirmed
 |✔️|SPL||Counted degree-N Bezier camera paths; fixed-point evaluation, derivatives, chord-weighted timing, camera integration, and real-resource tests documented in `Reverse_Docs/spl_format.md`
-|🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Materials, packed texture names, vertex streams, primitive modes, bounds, and skinning links documented in `Reverse_Docs/soft3d_models_animations.md`</li><li>Some material and renderer-state fields remain unidentified</li></ul>
+|🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Materials, packed texture names, vertex streams, primitive modes, bounds, and skinning links documented in `Reverse_Docs/soft3d_models_animations.md`</li><li>Renderer-facing material state and raster behavior are documented in `Reverse_Docs/symbian3rd_raster.md`; Object loading/control APIs remain a separate completion item</li></ul>
 |🔧|SST||“simple script”, mostly understood
 |✔️|STX||images/textures (RGB565), well-understood
 |✔️|STX||images/textures (RGB565), well-understood

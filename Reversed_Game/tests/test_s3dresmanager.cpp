@@ -214,7 +214,7 @@ void TestSyntheticResourcesAndCache()
     CHECK(object->GetObjectCount() == 1);
     CHECK(object->GetSurfaceCount() == 1);
     CHECK(object->GetObjects()[0].color == 0x241f);
-    CHECK(object->GetObjects()[0].textureIndex == 7);
+    CHECK(object->GetObjects()[0].blendMode == 7);
     CHECK(object->GetObjects()[0].textureCoordinateMode == 4);
     CHECK(object->GetSurfaces()[0].indexCount == 6);
     CHECK(object->GetSurfaces()[0].vertices.strideBytes == 4);

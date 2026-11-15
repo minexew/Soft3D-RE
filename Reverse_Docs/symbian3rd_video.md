@@ -100,7 +100,7 @@ The `Texture` RTTI vtable starts at `0x0015bcd0`; destructors are `0x000d7dc8`/`
 | `+0x44` | `uint8_t` | Bytes per pixel. |
 | `+0x48` | pointer | Allocation base. |
 | `+0x4c` | pointer | Four-byte-aligned pixel pointer. |
-| `+0x54` | pointer | Secondary allocation released by the destructor; purpose not yet established. |
+| `+0x54` | pointer | Palette allocation released by the destructor; extended object palettes contain 32 intensity entries per texture index. |
 
 `Texture_Resize` (`0x000d7ff8`) calls `Texture_Reset`, computes:
 
@@ -128,12 +128,12 @@ It builds scanline state and invokes selected inner loops through function descr
 
 `Raster_ComputeAttributeDeltas` (`0x000cdcb8`) computes affine UV deltas from screen-space edge geometry; no depth reciprocal appears in that calculation. `Raster_SetupEdge` (`0x000ce170`) and `Raster_EmitScanline` (`0x000ce27c`) maintain the scanline state.
 
-The indexed-texture inner loop `Raster_InnerLoopIndexedTexture` (`0x000b60c8`) addresses source pixels as:
+The indexed-texture inner loop `Raster_InnerLoop05_TextureCopy` (`0x000b60c8`, formerly `Raster_InnerLoopIndexedTexture`) addresses source pixels as:
 
 ```text
 maxU = (textureWidth - 1) << 16
 maxV = (textureHeight - 1) << 16
-sourceOffset = ((v & maxV) << textureWidthShift) + ((u & maxU) >> 16)
+sourceOffset = (((v & maxV) << textureWidthShift) + (u & maxU)) >> 16
 ```
 
 Thus V selects the serialized texture row directly, with no vertical inversion. `Texture_GetPaletteEntry` (`0x000c8024`) reads the indexed color. `Tools/stx.py` likewise writes PNG rows in serialized top-to-bottom order. The portable `Raster.cpp` sampler also uses direct texture rows and must not flip V internally. Blender's OBJ texture origin differs, so the required `1 - v` conversion belongs in `sojconv.py`, not in the engine rasterizer.
@@ -204,4 +204,4 @@ The frame limiter reads the current 32-bit platform tick, computes unsigned elap
 
 `src/platform/sdl/SdlVideoBackend.*` implements the host presentation stage. `BeginUpdate` exposes the CPU buffer. Portrait display uploads the original 240×320 `0x00RRGGBB` buffer directly. Landscape display reads the current control orientation and reverses the corresponding shader traversal into a 320×240 buffer before upload; changing handedness therefore does not turn the desktop picture upside down. The backend can reconfigure its texture, logical presentation, and window dimensions between these modes on a frame boundary. Both modes use an `SDL_PIXELFORMAT_XRGB8888` streaming texture, nearest-neighbor aspect-preserving logical presentation, queued debug text, and `SDL_RenderPresent`. Resource creation is idempotent, and renderer creation retains the explicit fallback to SDL's `software` renderer. SDL debug glyphs are a host restoration aid, not a recovered Symbian font rasterizer.
 
-The app uses `GameEngine::RunFrame` with real SBN/SDT/STX resources from `res.spk`. Its default automatic display keeps the initial handedness screen portrait, then switches to landscape immediately after acceptance; explicit landscape and portrait options force one mode throughout. `BasicShader` expands RGB565/depth words into the `VID_impl` back buffer using the original portrait mapping. The SDL window/renderer/texture objects remain encapsulated in the backend. `tests/test_engine.cpp` verifies the complete engine-to-dummy-video path, including the orientation-2 shader update. `tests/test_sdlvideo.cpp` composes both original shader orientations with landscape restoration, checks exact pixels, and exercises runtime portrait/landscape reconfiguration. `MenuBackdrop` and `test_spl.cpp` add the real moving SPL/BSP camera background and exact dummy-presented frames. `Input`, `SdlInput`, and `SdlClock` provide recovered input and 17 FPS limiting without app-side duplicates. Audio is implemented in `AudioDevice`/`AudioManager` with SDL and dummy backends. `MenuDialogs`, `GameUIDlg`, and `test_menu.cpp` add the complete startup/sound/main-menu flow, concrete dialogs, and configuration round trips; episode scene/gameplay and scripts remain stubs. The portable rasterizer does not yet reproduce every specialized original inner loop; see `gameengine_api.md` and `engine_completion_plan.md`.
+The app uses `GameEngine::RunFrame` with real SBN/SDT/STX resources from `res.spk`. Its default automatic display keeps the initial handedness screen portrait, then switches to landscape immediately after acceptance; explicit landscape and portrait options force one mode throughout. `BasicShader` expands RGB565/depth words into the `VID_impl` back buffer using the original portrait mapping. The SDL window/renderer/texture objects remain encapsulated in the backend. `tests/test_engine.cpp` verifies the complete engine-to-dummy-video path, including the orientation-2 shader update. `tests/test_sdlvideo.cpp` composes both original shader orientations with landscape restoration, checks exact pixels, and exercises runtime portrait/landscape reconfiguration. `MenuBackdrop` and `test_spl.cpp` add the real moving SPL/BSP camera background and exact dummy-presented frames. `Input`, `SdlInput`, and `SdlClock` provide recovered input and 17 FPS limiting without app-side duplicates. Audio is implemented in `AudioDevice`/`AudioManager` with SDL and dummy backends. `MenuDialogs`, `GameUIDlg`, and `test_menu.cpp` add the complete startup/sound/main-menu flow, concrete dialogs, and configuration round trips; episode scene/gameplay and scripts remain stubs. The portable renderer/rasterizer implements the recovered specialized inner loops and draw-state selection; `tests/test_raster.cpp` adds directed exact-pixel coverage. See `symbian3rd_raster.md`, `gameengine_api.md`, and `engine_completion_plan.md`.

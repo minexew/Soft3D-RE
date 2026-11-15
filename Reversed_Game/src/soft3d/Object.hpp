@@ -29,6 +29,15 @@ public:
     int32_t GetAnimationTime() const;
 
 private:
+    struct MaterialState {
+        Fixed textureU = 0;
+        Fixed textureV = 0;
+        Fixed minimumIntensity = 0x1999;
+        Fixed maximumIntensity = fixedOne;
+        Fixed intensity = 0x1999;
+        Fixed intensitySpeed = 0;
+    };
+
     void UpdateMatrixPalette();
 
     Renderer* renderer;
@@ -38,6 +47,7 @@ private:
     std::vector<Matrix4> matrixPalette;
     std::vector<const Texture*> textures;
     std::vector<const Texture*> detailTextures;
+    std::vector<MaterialState> materialStates;
     int32_t animationTime = 0;
     int32_t animationDirection = 1;
     int32_t animationSpeed = 300;

@@ -19,27 +19,27 @@ uint32_t Read32(const uint8_t*& input)
 
 result ParseObject(SojObject& object, const uint8_t*& input)
 {
-    object.unknown00 = static_cast<int32_t>(Read32(input));
-    object.unknown04 = static_cast<int32_t>(Read32(input));
+    object.directionalScale = static_cast<int32_t>(Read32(input));
+    object.ambientIntensity = static_cast<int32_t>(Read32(input));
     object.color = static_cast<uint16_t>((input[0] >> 3) << 11)
                    | static_cast<uint16_t>((input[1] >> 2) << 5)
                    | static_cast<uint16_t>(input[2] >> 3);
-    object.blendMode = input[3];
+    object.cullMode = input[3];
     input += 4;
     uint32_t texture = Read32(input);
     if (static_cast<int16_t>(texture) == 0xff) {
         object.hasDetailTexture = 1;
-        object.textureIndex = 0;
+        object.blendMode = 0;
     } else {
         object.hasDetailTexture = 0;
-        object.textureIndex = texture & 0xffff;
+        object.blendMode = texture & 0xffff;
     }
     object.hasTexture = static_cast<uint16_t>(Read32(input));
     for (int32_t& value : object.packedTextureName) {
         value = static_cast<int32_t>(Read32(input));
     }
-    object.unknown28 = static_cast<int32_t>(Read32(input));
-    object.unknown2c = static_cast<int32_t>(Read32(input));
+    object.textureScrollU = static_cast<int32_t>(Read32(input));
+    object.textureScrollV = static_cast<int32_t>(Read32(input));
     uint32_t first = Read32(input);
     uint32_t second = Read32(input);
     if (first == 0) {
