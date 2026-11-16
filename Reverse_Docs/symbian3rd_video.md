@@ -96,6 +96,7 @@ The `Texture` RTTI vtable starts at `0x0015bcd0`; destructors are `0x000d7dc8`/`
 | `+0x2c` | `int32_t` | Height. |
 | `+0x30` / `+0x34` | fixed-point `int32_t` | Width and height in 16.16 form. |
 | `+0x38` | `int32_t` | Base-2 width shift when width is a power of two; otherwise `-1`. |
+| `+0x3c` | `uint16_t` | Texture type bits from STX; `Texture_Resize` preserves this field. |
 | `+0x40` | `uint32_t` | Pixel allocation byte size, excluding four padding bytes. |
 | `+0x44` | `uint8_t` | Bytes per pixel. |
 | `+0x48` | pointer | Allocation base. |
@@ -112,7 +113,7 @@ allocationBase = Allocate(allocationSize + 4)
 pixels = (allocationBase + 3) & ~3
 ```
 
-Engine startup calls it with mode `2`, which therefore selects four bytes per pixel. This is concrete evidence for a CPU-owned 32-bit framebuffer, independent of SDL or any GPU texture.
+Engine startup calls it with mode `2`, which therefore selects four bytes per pixel. This is concrete evidence for a CPU-owned 32-bit framebuffer, independent of SDL or any GPU texture. The mode argument is used only for this calculation and is not stored in texture field `+0x3c`; the existing type byte is preserved. Palette and pixel allocations are released by `Texture_Reset`.
 
 Accessors now named in Ghidra are `GetTextureWidth` `0x00031f10`, `GetTextureHeight` `0x00031ee8`, `GetTexturePixels` `0x00071a5c`, and `GetTextureWidthShift` `0x000cf194`.
 
@@ -177,7 +178,7 @@ RTTI identifies `BasicShader` and derived `FogShader`, `FadeShader`, `GrayShader
 
 The `FogShader` construction path at `0x000aeff4` allocates `0x20000` bytes and builds lookup data. `0x000af658` constructs attenuation data, while `0x000af940` fills a 16×16×16×16 two-byte color-interpolation table. This is direct evidence of table-driven software color processing.
 
-`Lensflare` is a `Renderable`, not a `BasicShader`. `Lensflare_Render` (`0x000ee7f8`) projects a source into screen coordinates, checks visibility/depth, and draws up to five positioned sprite elements using the normal texture-blitting path. Its vtable starts at `0x0015d280`; `Lensflare_Dtor` is `0x000eebd8`.
+`Lensflare` is a `Renderable`, not a `BasicShader`. `Lensflare_Render` (`0x000ee7f8`) projects a source into screen coordinates, checks visibility/depth, and draws up to five positioned sprite elements using the normal texture-blitting path. Its vtable starts at `0x0015d280`; `Lensflare_Dtor` is `0x000eebd8`. Lensflare, BillboardGroup, FakeShadow, and GunFire are implemented and covered by exact output tests; see `symbian3rd_effects.md`.
 
 ## Frame loop and timing
 

@@ -179,6 +179,50 @@ Each morph record contains a 32-bit time followed by `targetCount` fixed-point 3
 
 `Renderer.*` and `Raster.*` implement the recovered fixed-point software path to `BasicShader` and `VID_impl`, including sequential/indexed/secondary-stream entry points, clipping, winding, lighting, blend/depth state, texture offsets, detail alpha, and specialized scanline behavior. SOJ UV interpolation is affine, not perspective-correct. `test_raster.cpp` covers directed exact output; see `symbian3rd_raster.md` for the recovered arithmetic and original quirks.
 
+## Object runtime API
+
+The original `Object` is 0x20c bytes. Important recovered fields are:
+
+| Offset | Meaning |
+|---:|---|
+| `+0x18` | Object-space position. |
+| `+0x24`, `+0x30`, `+0x3c` | Local axis vectors; independent lengths are at `+0x48`..`+0x50`. |
+| `+0x54`, `+0x58` | Material count and 0x48-byte `ObjectMaterial` array. |
+| `+0x5c`, `+0x60` | Object intensity and depth bias. |
+| `+0x69`..`+0x6b` | Lighting, ambient-only, and alternate-transform/culling flags. |
+| `+0x70`, `+0x88` | Primary and secondary bounds, each minimum and maximum vectors. |
+| `+0xa0` | Eight local bounding-box corners. |
+| `+0x100` | Transformed world bounds. |
+| `+0x118` | Secondary-transform mode. |
+| `+0x124`, `+0x128` | `ObjectRes` and `Animation` pointers. |
+| `+0x12c`..`+0x13c` | Pause, time, direction, loop flag, and speed. |
+| `+0x140` | Optional secondary vertex stream. |
+| `+0x144`, `+0x184` | Primary and secondary transforms. |
+| `+0x1c4` | Matrix palette allocation. |
+| `+0x1c8`, `+0x1cc` | Bone-override track and matrix. |
+
+`Object_Load` (`0x000e964c`) resolves an `ObjectRes`, creates or reuses the material runtime array, and computes center/extent corners in this order:
+
+```text
+---  --+  +-+  +--  -+-  -++  +++  ++-
+```
+
+Here each sign is X/Y/Z. It also initializes world bounds from primary bounds, clears animation, and sets the bone track to -1. A missing model returns 3. `Object_LoadMaterials` (`0x000e9fb8`) resolves every primary and optional `_alp` texture and stops at the first error.
+
+`Object_SetAnimation` grows the palette only when the new track count is larger, resets time to start and speed to 300, and copies animation bounds when present. Clearing animation restores model primary bounds and clears the pause field. `Object_AdvanceAnimation` also checks pause; direction +1 completes at end and -1 at start. `Object_SetAnimationPlayback` selects the corresponding initial endpoint. Bone override is applied before the model/view matrix.
+
+The three render entries are now named by behavior:
+
+- `Object_RenderNormal` (`0x000eaf94`): ordinary indexed materials and optional animation palette;
+- `Object_RenderSecondaryStreams` (`0x000eb4cc`): primary plus secondary vertex streams;
+- `Object_RenderWireframe` (`0x000ebad4`): black unlit indexed geometry with depth writes disabled.
+
+`Object_GetSurface`, `GetVertexCount`, and `GetTriangleCount` are at `0x000ec158`, `0x000ec1dc`, and `0x000ec290`. `Object_GetCameraDepth` (`0x000ebfc8`) transforms world-bounds center by the view matrix. `Object_HasTransparency` checks runtime blend and detail texture state. Rotation and scaling APIs are at `0x000ea240`..`0x000ea700`, and `Object_UpdateTransform` is `0x000ea96c`.
+
+Each `ObjectMaterial` is 0x48 bytes: descriptor, packed name, primary/detail texture and resource pointers, blend selector, U/V scroll, intensity minimum/maximum/current/speed, and resource manager. `ObjectMaterial_SetIntensityBounce` (`0x000ed5bc`) resets current intensity to `0x1999` and computes speed from `(maximum-minimum)/period`; zero period disables it.
+
+Portable `Object.*` implements these APIs with non-owning resources and adds direct model/texture injection for tests and map loading. Matrix-palette composition uses the original order. The portable `Multiply` correction is described in `symbian3rd_effects.md`; exact fixed-point scaling is retained, so a `0xffff` Z scale maps view translation `0x40000` to `0x3fffc`.
+
 ## Converter and animation-frame export
 
 `Tools/sojconv.py` supports all documented materials, surfaces, vertex streams, primitive modes, bounds, and packed texture names:

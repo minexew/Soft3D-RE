@@ -323,6 +323,16 @@ void Renderer::SetAmbientLightOnly(bool enabled)
     ambientLightOnly = enabled;
 }
 
+void Renderer::SetObjectIntensity(Fixed intensity)
+{
+    objectIntensity = intensity;
+}
+
+void Renderer::SetMinimumIntensity(Fixed intensity)
+{
+    minimumIntensity = intensity;
+}
+
 void Renderer::SetMaterialLighting(Fixed directional, Fixed ambient, Fixed object, Fixed animated,
                                    Fixed minimum)
 {
@@ -542,7 +552,8 @@ void Renderer::DrawIndexed(const SojVertices& vertices, const SojIndices& indice
 void Renderer::DrawIndexedBuffers(const SojVertices& vertices,
                                   const SojVertices* secondaryVertices, const SojIndices& indices,
                                   uint32_t primitiveType, uint32_t firstIndex,
-                                  uint32_t primitiveCount, uint32_t firstVertex)
+                                  uint32_t primitiveCount, uint32_t firstVertex,
+                                  const std::vector<Matrix4>& matrixPalette)
 {
     if (primitiveType < 4 || primitiveType > 6 || vertices.data.empty() || indices.data.empty()) {
         return;
@@ -557,7 +568,8 @@ void Renderer::DrawIndexedBuffers(const SojVertices& vertices,
     PrepareDrawState(format);
     transformed.resize(vertices.vertexCount);
     for (uint32_t index = 0; index < vertices.vertexCount; ++index) {
-        transformed[index] = TransformVertex(vertices, firstVertex + index, {}, secondaryVertices);
+        transformed[index] = TransformVertex(vertices, firstVertex + index, matrixPalette,
+                                             secondaryVertices);
     }
     uint32_t first = firstIndex;
     uint32_t second = firstIndex + 1;
@@ -596,30 +608,32 @@ void Renderer::DrawIndexedTextured(const SojVertices& vertices, const SojIndices
 void Renderer::DrawIndexedTextured(const SojVertices& vertices,
                                    const SojVertices& secondaryVertices, const SojIndices& indices,
                                    uint32_t primitiveType, uint32_t firstIndex,
-                                   uint32_t primitiveCount, uint32_t firstVertex)
+                                   uint32_t primitiveCount, uint32_t firstVertex,
+                                   const std::vector<Matrix4>& matrixPalette)
 {
     DrawIndexedBuffers(vertices, &secondaryVertices, indices, primitiveType, firstIndex,
-                       primitiveCount, firstVertex);
+                       primitiveCount, firstVertex, matrixPalette);
 }
 
 void Renderer::DrawIndexedSurface(const SojSurface& surface, const SojObject* material,
                                   const Texture* newTexture, const Texture* detailTexture,
                                   const std::vector<Matrix4>& matrixPalette,
-                                  Fixed offsetU, Fixed offsetV, Fixed materialIntensity)
+                                  Fixed offsetU, Fixed offsetV, Fixed materialIntensity,
+                                  bool cullingDisabled)
 {
     if (surface.vertices.vertexCount == 0 || surface.indices.data.empty()) {
         return;
     }
     if (material != nullptr) {
-        SetCullMode(material->cullMode);
+        SetCullMode(cullingDisabled ? 0 : material->cullMode);
         SetTexture(newTexture);
         SetDetailTexture(detailTexture);
         SetTextureCoordinateMode(material->textureCoordinateMode);
         SetBlendMode(material->blendMode);
         SetDepthWriteEnabled(material->blendMode == 0);
         SetTextureOffset(offsetU, offsetV);
-        SetMaterialLighting(material->directionalScale, material->ambientIntensity, 0,
-                            materialIntensity);
+        SetMaterialLighting(material->directionalScale, material->ambientIntensity,
+                            objectIntensity, materialIntensity, minimumIntensity);
         if (newTexture == nullptr) {
             SetFlatColor(material->color);
         }
@@ -678,6 +692,37 @@ void Renderer::Present()
 {
     raster.Present();
 }
+
+bool Renderer::ProjectPoint(const Vec3& point, Vec3& projected) const
+{
+    const Matrix4 transform = Multiply(modelMatrix, Multiply(viewMatrix, projectionMatrix));
+    const Vec3 camera = Transform(transform, point);
+    if (camera.z < fixedOne) {
+        return false;
+    }
+    const Fixed reciprocal = FixedDivide(0x1000000, camera.z);
+    const Fixed scaleX = (width >> 1) << 16;
+    const Fixed scaleY = (height >> 1) << 16;
+    projected.x = AddFixed(SubtractFixed(scaleX, 0x8000),
+        FixedMultiply(FixedMultiply(camera.x, reciprocal) >> 8, scaleX));
+    projected.y = SubtractFixed(SubtractFixed(scaleY, 0x8000),
+        FixedMultiply(FixedMultiply(camera.y, reciprocal) >> 8, scaleY));
+    projected.z = reciprocal >> 8;
+    return true;
+}
+
+uint16_t Renderer::GetDepth(int32_t x, int32_t y) const
+{
+    const uint32_t* pixels = reinterpret_cast<const uint32_t*>(frameTexture.GetPixels());
+    return static_cast<uint16_t>(pixels[y * width + x] >> 16);
+}
+
+int Renderer::GetWidth() const { return width; }
+int Renderer::GetHeight() const { return height; }
+Fixed Renderer::GetObjectIntensity() const { return objectIntensity; }
+Fixed Renderer::GetMinimumIntensity() const { return minimumIntensity; }
+const Matrix4& Renderer::GetViewMatrix() const { return viewMatrix; }
+const Matrix4& Renderer::GetProjectionMatrix() const { return projectionMatrix; }
 
 Texture* Renderer::GetCurrentTexture() const
 {

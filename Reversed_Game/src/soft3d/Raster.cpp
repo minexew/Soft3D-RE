@@ -286,17 +286,29 @@ Raster::Edge Raster::SetupEdge(const Vertex& from, const Vertex& to)
 void Raster::DrawSpan(int32_t y, const Edge& left, const Edge& right,
                       const AttributeDeltas& deltas)
 {
-    (void)deltas;
-    const int32_t count = WrapSubtract(right.x, left.x);
+    int32_t firstX = left.x;
+    int32_t count = WrapSubtract(right.x, left.x);
     if (count <= 0 || y < 0 || y >= height) {
         return;
     }
+    int32_t skipped = 0;
+    if (firstX < 0) {
+        skipped = -firstX;
+        count = WrapSubtract(count, skipped);
+        firstX = 0;
+    }
+    if (firstX + count > width) {
+        count = width - firstX;
+    }
+    if (count <= 0) {
+        return;
+    }
     uint32_t* output = reinterpret_cast<uint32_t*>(currentTexture->GetPixels()) +
-                       static_cast<std::size_t>(y) * width + left.x;
-    Fixed u = left.u;
-    Fixed v = left.v;
-    Fixed depth = left.inverseDepth;
-    int32_t intensity = left.intensity;
+                       static_cast<std::size_t>(y) * width + firstX;
+    Fixed u = AddFixed(left.u, WrapMultiply(deltas.uX, skipped));
+    Fixed v = AddFixed(left.v, WrapMultiply(deltas.vX, skipped));
+    Fixed depth = AddFixed(left.inverseDepth, WrapMultiply(deltas.depthX, skipped));
+    int32_t intensity = WrapAdd(left.intensity, WrapMultiply(deltas.intensityX, skipped));
     for (int32_t offset = 0; offset < count; ++offset, ++output) {
         const uint32_t depthWord = ((static_cast<uint32_t>(depth) & 0xffffffU) >> 8) << 16;
         const unsigned selector = (depthWrite ? 50U : 0U) + (depthTest ? 25U : 0U) +

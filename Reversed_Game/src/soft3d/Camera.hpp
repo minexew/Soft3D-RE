@@ -28,6 +28,7 @@ public:
     const Vec3& GetUp() const;
     const Matrix4& GetWorldToCamera() const;
     const Matrix4& GetProjection() const;
+    const Matrix4& GetRollMatrix() const;
 
 private:
     void ApplyProjection(bool multiplyAspect);
@@ -44,6 +45,7 @@ private:
     Vec3 up = {0, fixedOne, 0};
     Matrix4 worldToCamera = Matrix4::Identity();
     Matrix4 projection = Matrix4::Identity();
+    Matrix4 rollMatrix = Matrix4::Identity();
     Fixed screenScaleX = 0;
     Fixed screenScaleY = 0;
     Fixed inverseScreenScaleX = 0;

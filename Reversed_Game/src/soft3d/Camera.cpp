@@ -55,6 +55,17 @@ void Camera::SetLookAt(const Vec3& newPosition, const Vec3& newTarget, const Vec
         NegateFixed(Dot(right, position)), NegateFixed(Dot(cameraUp, position)),
         NegateFixed(Dot(forward, position)), fixedOne
     };
+    const Vec3 delta = Subtract(target, position);
+    uint16_t roll = 0;
+    if (AbsFixed(delta.x) > AbsFixed(delta.z)) {
+        const uint16_t tangent = FixedArcTangent(FixedDivide(delta.z, delta.x));
+        roll = delta.x > 0 ? static_cast<uint16_t>(0x800 - tangent)
+                           : static_cast<uint16_t>(-0x800 - tangent);
+    } else {
+        const uint16_t tangent = FixedArcTangent(FixedDivide(delta.x, delta.z));
+        roll = delta.z > 0 ? tangent : static_cast<uint16_t>(tangent - 0x1000);
+    }
+    rollMatrix = RotateYMatrix(roll);
     if (renderer != nullptr) {
         renderer->SetViewMatrix(worldToCamera);
     }
@@ -111,6 +122,7 @@ const Vec3& Camera::GetTarget() const { return target; }
 const Vec3& Camera::GetUp() const { return up; }
 const Matrix4& Camera::GetWorldToCamera() const { return worldToCamera; }
 const Matrix4& Camera::GetProjection() const { return projection; }
+const Matrix4& Camera::GetRollMatrix() const { return rollMatrix; }
 
 void CameraPathController::Start(const CameraPathCollection& newPaths, CameraSpot* newSpot,
                                  Fixed newSpeed, bool newLoop, bool snapToStart)

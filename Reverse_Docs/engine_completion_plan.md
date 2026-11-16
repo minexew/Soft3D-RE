@@ -22,14 +22,13 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text;
 - complete startup/sound/main-menu flow, all seven concrete dialog classes, orientation-aware controls, and `config.sdt`/save-slot persistence.
 
-These foundations still have partial areas: Object loading/control APIs and the game hooks that invoke audio are not automatically supplied by the audio implementation. Stages 7 and 8 resolved renderer-facing SOJ material fields, raster feature parity, and all presentation shaders.
+The game hooks that invoke audio are not automatically supplied by the audio implementation. Stages 7 and 8 resolved renderer-facing SOJ material fields, raster feature parity, and all presentation shaders. Stage 9 completed Object loading/control APIs and all four renderable effects.
 
 ### Missing or incomplete engine facilities
 
 - `Bsp` collision and integration of loaded map models/entities into later unit systems;
 - episode-specific `Scene` gameplay, concrete units, and game-data semantics;
 - SST parsing/execution and the generic script interface;
-- Lensflare, BillboardGroup, FakeShadow, and GunFire renderables;
 - generic unit/physics/messaging/state-machine infrastructure and `GameUnitManager` support;
 - generic streams, state load/save support, standalone RAM diagnostics, and currently unused IO/debug facilities;
 - S3DTEX engine/tool parity and remaining STX/SOJ/SAI unknown fields.
@@ -203,7 +202,7 @@ All 21 normal CTest tests and all 15 ASan/UBSan CTest tests pass, including the 
 
 `PresentationShaders.*` and `test_shaders.cpp` implement and test all six effects. The reconstruction preserves packed Fade interpolation and delayed completion, Gray's two depth bypasses, MotionBlur reset/history and saturating 1/4+7/8 arithmetic, Ink's previous-destination neighborhoods/threshold polarity and engine-hook control, Blind's 16-bit-only traversal and wrapping, and Twist's row/frame bounce state. Both orientations and inactive/intermediate/terminal states are covered. All 22 normal CTest tests and all 16 SDL-independent ASan/UBSan tests pass without changing existing real-resource frames. Ghidra now has typed layouts, named control methods/destructors/helpers, and formula comments for the complete shader family. See `symbian3rd_shaders.md`.
 
-## Stage 9 — Object API completion and engine renderable effects
+## Stage 9 — Object API completion and engine renderable effects — complete
 
 **Scope**
 
@@ -215,6 +214,14 @@ All 21 normal CTest tests and all 15 ASan/UBSan CTest tests pass, including the 
 
 - Exercise real map models and animated SOJ/SAI assets through Object and the renderer.
 - Test effect placement, visibility/depth checks, resource lifetime, and exact output.
+
+**Completion**
+
+`Object.*`, `Effects.*`, `Fixed.*`, `Camera.*`, `Renderer.*`, `Raster.*`, and `test_effects.cpp` implement and test the recovered behavior. Object now covers resource/model and material loading, bounds and world-corner tracking, transforms and scaling, animation pause/direction/loop/speed, secondary streams, bone overrides, transparency, wireframe rendering, and camera-depth sorting. Animated palettes include the view matrix, and secondary streams preserve palette selection. The matrix helper now performs the original dot product rather than an outer product; real BSP/SPL/menu hashes are unchanged.
+
+Lensflare, BillboardGroup, FakeShadow, and GunFire are reusable renderables with recovered geometry, placement, visibility, depth, resource, and countdown behavior. Fixed-point sine/cosine uses the original 2049-entry table, and arctangent uses the original polynomial. Texture resize preserves the previous type byte and uses its argument only for bytes-per-pixel selection. No additional consumer-backed STX/SOJ/SAI layout change was justified. Span clipping was made memory-safe after Valgrind identified a one-past-end framebuffer access; the new offscreen regression and all original hashes pass.
+
+All 23 normal CTest tests and all 17 SDL-independent ASan/UBSan tests pass, as do all six standalone SOJ converter tests. Ghidra has typed Object/material/effect layouts and 95 recovered or corrected function documentations. See `soft3d_models_animations.md` and `symbian3rd_effects.md`.
 
 ## Stage 10 — SST parser, VM, and generic script interface
 

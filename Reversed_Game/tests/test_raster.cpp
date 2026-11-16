@@ -402,12 +402,23 @@ void TestSelectedPathMatrix()
     }
 }
 
+void TestOffscreenSpanClipping()
+{
+    Renderer renderer(6, 6);
+    renderer.Clear(0x1111);
+    renderer.GetRaster().SetFlatColor(0xf800);
+    renderer.GetRaster().RasterizeTriangle(Vertex(-4, 1), Vertex(10, 1), Vertex(3, 8));
+    CHECK(Pixel(renderer, 0, 0) == 0x1111);
+    CHECK(Pixel(renderer, 1, 1) == 0x0010f800);
+}
+
 } // namespace
 
 int main()
 {
     try {
         TestCoverageAndDepth();
+        TestOffscreenSpanClipping();
         TestFlatBlends();
         TestTextureKeyLightingAndDetail();
         TestSpecializedDepthComparison();

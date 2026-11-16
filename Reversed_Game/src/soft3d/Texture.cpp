@@ -137,11 +137,10 @@ result Texture::Resize(uint32_t newWidth, uint32_t newHeight, uint16_t newType)
     Reset();
     width = newWidth;
     height = newHeight;
-    type = newType;
     fixedWidth = static_cast<int32_t>(width << 16);
     fixedHeight = static_cast<int32_t>(height << 16);
     widthLog2 = static_cast<uint32_t>(IntegerLog2(width));
-    bytesPerPixel = static_cast<uint8_t>((type & 0x30) >> 4);
+    bytesPerPixel = static_cast<uint8_t>((newType & 0x30) >> 4);
     if (bytesPerPixel == 0) {
         bytesPerPixel = 4;
     }

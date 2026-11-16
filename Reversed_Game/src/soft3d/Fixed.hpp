@@ -196,6 +196,14 @@ inline Vec3 Normalize(const Vec3& value)
     return Scale(value, squaredLength);
 }
 
+Fixed FixedSin(uint16_t angle);
+Fixed FixedCos(int16_t angle);
+uint16_t FixedArcTangent(Fixed value);
+Vec3 RotateX(const Vec3& value, uint16_t angle);
+Vec3 RotateY(const Vec3& value, uint16_t angle);
+Vec3 RotateZ(const Vec3& value, uint16_t angle);
+Vec3 Rotate(const Vec3& value, uint16_t xAngle, uint16_t yAngle, uint16_t zAngle);
+
 struct Matrix4 {
     std::array<Fixed, 16> values{};
 
@@ -218,8 +226,8 @@ inline Matrix4 Multiply(const Matrix4& left, const Matrix4& right)
             Fixed value = 0;
             for (unsigned index = 0; index < 4; ++index) {
                 value = static_cast<Fixed>(static_cast<uint32_t>(value) +
-                    static_cast<uint32_t>(FixedMultiply(left.values[column * 4 + row],
-                                                        right.values[index * 4 + row])));
+                    static_cast<uint32_t>(FixedMultiply(left.values[index * 4 + row],
+                                                        right.values[column * 4 + index])));
             }
             result.values[column * 4 + row] = value;
         }
@@ -244,5 +252,8 @@ inline Vec3 Transform(const Matrix4& matrix, const Vec3& value)
                            static_cast<uint32_t>(matrix.values[14]))
     };
 }
+
+Matrix4 RotateYMatrix(uint16_t angle);
+Matrix4 Transpose(const Matrix4& value);
 
 } // namespace soft3d

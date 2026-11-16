@@ -28,6 +28,8 @@ public:
     void SetFlatColor(uint16_t color);
     void SetLightingEnabled(bool enabled);
     void SetAmbientLightOnly(bool enabled);
+    void SetObjectIntensity(Fixed intensity);
+    void SetMinimumIntensity(Fixed intensity);
     void SetMaterialLighting(Fixed directionalScale, Fixed ambient,
                              Fixed objectIntensity = 0, Fixed animatedIntensity = 0,
                              Fixed minimumIntensity = 0);
@@ -43,16 +45,25 @@ public:
     void DrawIndexedTextured(const SojVertices& vertices, const SojVertices& secondaryVertices,
                              const SojIndices& indices, uint32_t primitiveType,
                              uint32_t firstIndex, uint32_t primitiveCount,
-                             uint32_t firstVertex = 0);
+                             uint32_t firstVertex = 0,
+                             const std::vector<Matrix4>& matrixPalette = {});
     void DrawIndexedSurface(const SojSurface& surface, const SojObject* material,
                             const Texture* texture, const Texture* detailTexture,
                             const std::vector<Matrix4>& matrixPalette = {},
                             Fixed textureOffsetU = 0, Fixed textureOffsetV = 0,
-                            Fixed materialIntensity = 0);
+                            Fixed materialIntensity = 0, bool cullingDisabled = false);
     void Clear(uint16_t color);
     void SelectShader(BasicShader* shader);
     void Present();
 
+    bool ProjectPoint(const Vec3& point, Vec3& projected) const;
+    uint16_t GetDepth(int32_t x, int32_t y) const;
+    int GetWidth() const;
+    int GetHeight() const;
+    Fixed GetObjectIntensity() const;
+    Fixed GetMinimumIntensity() const;
+    const Matrix4& GetViewMatrix() const;
+    const Matrix4& GetProjectionMatrix() const;
     Texture* GetCurrentTexture() const;
     Raster& GetRaster();
 
@@ -95,7 +106,7 @@ private:
     void DrawIndexedBuffers(const SojVertices& vertices, const SojVertices* secondaryVertices,
                             const SojIndices& indices, uint32_t primitiveType,
                             uint32_t firstIndex, uint32_t primitiveCount,
-                            uint32_t firstVertex);
+                            uint32_t firstVertex, const std::vector<Matrix4>& matrixPalette = {});
     Vertex TransformVertex(const SojVertices& vertices, uint32_t index,
                            const std::vector<Matrix4>& matrixPalette,
                            const SojVertices* secondaryVertices = nullptr);
