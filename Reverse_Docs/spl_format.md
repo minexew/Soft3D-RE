@@ -178,7 +178,7 @@ The portable `CameraSpot` and `DummySpot` classes implement this interface witho
 
 ## Menu path playback and rendering
 
-The larger game camera controller is not an engine `CameraSpot`; it consumes a spot and the SPL collection. Menu setup dispatches mode 5 through `CameraController_SetMode` (`0x0007b930`) to `CameraController_StartPath` (`0x0007cc44`) with speed 30.0, no loop, and no initial snap. `CameraController_UpdatePath` (`0x0007ec08`) is the active update callback.
+The larger game camera controller is not an engine `CameraSpot`; it consumes a spot and the SPL collection. Menu setup dispatches mode 5 through `CameraController_SetMode` (`0x0007b930`) to `CameraController_StartPath` (`0x0007cc44`) with speed 30.0 and no initial snap. `CameraController_UpdatePath` (`0x0007ec08`) is the active update callback. Although the ARM constructor's generic loop byte starts at zero, the observed reference menu flyover repeats indefinitely; the portable `MenuBackdrop` therefore explicitly starts this closed menu path with `loop=true`.
 
 For nonzero speed, each update performs:
 
@@ -206,7 +206,7 @@ The reusable portable `MenuBackdrop` host owns `Bsp`, `CameraPathCollection`, `C
 
 - all 11 real records, fixed-point knots, binomial coefficients, differences, position/derivative samples, chord lengths, and cumulative times;
 - synthetic linear evaluation, empty collections, malformed counts, inconsistent counts, truncation, trailing data, and deep-copy ownership;
-- exact default projection values, look-at translation, all `DummySpot` accessors, 136-unit time steps, smoothing, endpoint clamping, completion, and the original start-position polarity with a nonzero path origin;
-- 120 complete real-menu frames through `GameEngine` and dummy video, including camera movement, visible BSP faces, map-model submission, full nonzero-depth coverage from the first frame, and presentation.
+- exact default projection values, look-at translation, all `DummySpot` accessors, 136-unit time steps, smoothing, endpoint clamping and wrapping, completion, and the original start-position polarity with a nonzero path origin;
+- 484 complete real-menu frames through `GameEngine` and dummy video, including camera movement, visible BSP faces, corrected map-model pixels, full nonzero-depth coverage from the first frame, presentation, and four submitted models after wrapping into the second round.
 
-Exact raw/presented hashes are `0x95c21bce`/`0x441625ed` for the first menu frame, raw `0xa84bccd4` for the second, and `0xbe935b67`/`0x61bebbd5` for frame 120. The older fixed-camera Stage 2 test now uses the recovered default perspective matrix for map models; its updated raw/presented hashes are `0x00841c73` and `0x832d70f5`.
+Exact raw/presented hashes are `0x61ab0602`/`0xf28ccd7d` for the first menu frame, raw `0xa4bc7741` for the second, and `0xbe935b67`/`0x61bebbd5` for frame 120. The first two changed when the corrected matrix operand order restored lamp rendering; frame 120 submits no models and remains unchanged. The older fixed-camera Stage 2 test uses the recovered default perspective matrix for map models; its raw/presented hashes are `0x00841c73` and `0x832d70f5`.

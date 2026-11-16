@@ -34,7 +34,7 @@ result MenuBackdrop::Load()
     cameraSpot.SetPosition(paths.EvaluatePosition(0));
     cameraSpot.SetForward(Normalize(paths.EvaluateDerivative(0)));
     cameraSpot.SetCameraController(&cameraController);
-    cameraController.Start(paths, &cameraSpot, 0x1e0000, false, false);
+    cameraController.Start(paths, &cameraSpot, 0x1e0000, true, false);
     loaded = true;
     return S3D_OK;
 }

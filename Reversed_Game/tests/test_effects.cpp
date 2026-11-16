@@ -75,6 +75,19 @@ void TestFixedMath()
     CHECK(soft3d::FixedArcTangent(soft3d::fixedOne) == 0x41d);
     const soft3d::Vec3 rotated = soft3d::RotateY({soft3d::fixedOne, 0, 0}, 0x800);
     CHECK(rotated.x == 0 && rotated.y == 0 && rotated.z == -65535);
+    soft3d::Matrix4 model = soft3d::Matrix4::Identity();
+    model.values[0] = 0;
+    model.values[1] = -soft3d::fixedOne;
+    model.values[4] = soft3d::fixedOne;
+    model.values[5] = 0;
+    soft3d::Matrix4 view = soft3d::Matrix4::Identity();
+    view.values[12] = 5 * soft3d::fixedOne;
+    view.values[13] = 6 * soft3d::fixedOne;
+    view.values[14] = 7 * soft3d::fixedOne;
+    const soft3d::Vec3 point{soft3d::fixedOne, 2 * soft3d::fixedOne, 3 * soft3d::fixedOne};
+    const soft3d::Vec3 combined = soft3d::Transform(soft3d::Multiply(model, view), point);
+    const soft3d::Vec3 sequential = soft3d::Transform(view, soft3d::Transform(model, point));
+    CHECK(combined.x == sequential.x && combined.y == sequential.y && combined.z == sequential.z);
 
     soft3d::Renderer renderer(8, 8);
     soft3d::Camera camera(8, 8, &renderer);
@@ -237,7 +250,16 @@ void TestObjectApi()
     renderer.SetViewMatrix(view);
     object.SetAnimationTime(0);
     object.RenderNormal();
-    CHECK(object.GetMatrixPalette()[0].values[14] == 0x3fffc);
+    CHECK(object.GetMatrixPalette()[0].values[14] == 0x40000);
+    object.SetPosition({0x20000, 0x30000, 0x40000});
+    object.SetAxisX({0, soft3d::fixedOne, 0});
+    object.SetAxisY({-soft3d::fixedOne, 0, 0});
+    object.UpdateTransform();
+    object.RenderNormal();
+    const soft3d::Matrix4 sampled = animation.SampleTransform(0, 0);
+    const soft3d::Matrix4 expected = soft3d::Multiply(sampled,
+        soft3d::Multiply(object.GetModelMatrix(), view));
+    CHECK(object.GetMatrixPalette()[0].values == expected.values);
     object.SetBoneTransform(0, soft3d::Matrix4::Identity());
     object.SetAnimation(nullptr);
     CHECK(object.GetAnimation() == nullptr);

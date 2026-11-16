@@ -175,7 +175,7 @@ Each morph record contains a 32-bit time followed by `targetCount` fixed-point 3
 
 ## Portable reconstruction status
 
-`ObjectRes.*` and `Animation.*` use the corrected names and layouts. `Object.*` implements material loading, animation timing, matrix-palette construction, indexed surface submission, and SBP map-model transforms. `Fixed.hpp` documents the matrix convention in code. For map models, transform vectors 2, 3, and 1 form matrix rows 0, 1, and 2 respectively, while vector 0 supplies translation; `Object::SetTransformVectors` applies this during loading.
+`ObjectRes.*` and `Animation.*` use the corrected names and layouts. `Object.*` implements material loading, animation timing, matrix-palette construction, indexed surface submission, and SBP map-model transforms. `Fixed.hpp` documents the matrix convention in code. For map models, serialized vectors 0–3 supply position, X axis, Y axis, and Z axis; `Object::SetTransformVectors` restores those fields and rebuilds the model matrix and world bounds during loading.
 
 `Renderer.*` and `Raster.*` implement the recovered fixed-point software path to `BasicShader` and `VID_impl`, including sequential/indexed/secondary-stream entry points, clipping, winding, lighting, blend/depth state, texture offsets, detail alpha, and specialized scanline behavior. SOJ UV interpolation is affine, not perspective-correct. `test_raster.cpp` covers directed exact output; see `symbian3rd_raster.md` for the recovered arithmetic and original quirks.
 
@@ -221,7 +221,7 @@ The three render entries are now named by behavior:
 
 Each `ObjectMaterial` is 0x48 bytes: descriptor, packed name, primary/detail texture and resource pointers, blend selector, U/V scroll, intensity minimum/maximum/current/speed, and resource manager. `ObjectMaterial_SetIntensityBounce` (`0x000ed5bc`) resets current intensity to `0x1999` and computes speed from `(maximum-minimum)/period`; zero period disables it.
 
-Portable `Object.*` implements these APIs with non-owning resources and adds direct model/texture injection for tests and map loading. Matrix-palette composition uses the original order. The portable `Multiply` correction is described in `symbian3rd_effects.md`; exact fixed-point scaling is retained, so a `0xffff` Z scale maps view translation `0x40000` to `0x3fffc`.
+Portable `Object.*` implements these APIs with non-owning resources and adds direct model/texture injection for tests and map loading. Matrix-palette composition uses the original ARM call order. The portable `Multiply` correction is described in `symbian3rd_effects.md`; with the corrected operand order, an identity model and a `0xffff` sampled transform preserve view translation `0x40000` rather than incorrectly scaling it to `0x3fffc`.
 
 ## Converter and animation-frame export
 

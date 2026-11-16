@@ -8,17 +8,13 @@ The portable implementations are `Reversed_Game/src/soft3d/Effects.*`, with supp
 
 ## Shared rendering model
 
-All four classes inherit `Renderable` and use the ordinary renderer/raster path. The original `Renderer_PrepareDrawState` computes:
+All four classes inherit `Renderable` and use the ordinary renderer/raster path. The original `Renderer_PrepareDrawState` calls the matrix helper as `Multiply(model, viewProjection)`. Object animation uses the same composition. The portable renderer separates view transformation from its existing viewport projection, so its ARM-shaped palette call chain is:
 
 ```text
-combined = model * viewProjection
+palette = Multiply(sampledAnimation, Multiply(model, view))
 ```
 
-Object animation builds matrix palettes with the same view-projection composition. The portable renderer separates view transformation from its existing viewport projection, so its equivalent palette is:
-
-```text
-palette = sampledAnimation * model * view
-```
+As detailed below, this helper returns `right × left` under the portable column-vector convention. Thus the camera-space result applies sampled animation, then model, then view.
 
 The camera roll matrix is not a second view matrix. `Camera_UpdateRoll` (`0x000fcf48`) computes it from target-minus-position X/Z and `Camera_ArcTangent`; BillboardGroup and GunFire use that roll as the model transform before the renderer applies the current view-projection state.
 
@@ -157,13 +153,13 @@ The final multiplier is `0x0517cc18`. In particular, `FixedArcTangent(0x10000)` 
 
 ## Matrix and raster corrections
 
-The portable `Multiply` previously formed an outer product instead of a matrix dot product. It now computes, for each column and row:
+The portable `Multiply` previously formed an outer product and later used the wrong operand order for this layout. Matching ARM `0x0011ac98`, it now computes, for each column and row:
 
 ```text
-sum(left[index][row] * right[column][index], index = 0..3)
+sum(left[column][index] * right[index][row], index = 0..3)
 ```
 
-This matches `0x0011ac98`. Existing real BSP/SPL/menu hashes remain unchanged.
+Thus `Multiply(left, right)` returns `right × left` under the portable column-vector convention. A directed test verifies that `Transform(Multiply(model, view), point)` matches applying model and then view. Correcting this order restored real menu-lamp pixels and changed the first two real-menu hashes.
 
 `Texture_Resize` (`0x000d7ff8`) uses its `newType` argument only to select bytes per pixel; it does not store that argument in texture field `+0x3c`. The existing type byte is preserved while palette/pixel allocations are reset. The palette at `+0x54` is the extended intensity palette, not an unknown secondary allocation. Stage 9 found no additional consumer-backed STX/SOJ/SAI field requiring a format-layout change.
 

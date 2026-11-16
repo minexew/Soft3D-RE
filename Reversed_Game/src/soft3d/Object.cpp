@@ -97,14 +97,11 @@ result Object::LoadMaterials(int cacheLevel, const char16_t* directory)
 
 void Object::SetTransformVectors(const std::array<Vec3, 4>& transform)
 {
-    Matrix4 matrix = Matrix4::Identity();
-    for (std::size_t axis = 0; axis < 3; ++axis) {
-        matrix.values[axis] = (&transform[2].x)[axis];
-        matrix.values[4 + axis] = (&transform[3].x)[axis];
-        matrix.values[8 + axis] = (&transform[1].x)[axis];
-        matrix.values[12 + axis] = (&transform[0].x)[axis];
-    }
-    SetModelMatrix(matrix);
+    position = transform[0];
+    axisX = transform[1];
+    axisY = transform[2];
+    axisZ = transform[3];
+    UpdateTransform();
 }
 
 void Object::SetModelMatrix(const Matrix4& matrix)

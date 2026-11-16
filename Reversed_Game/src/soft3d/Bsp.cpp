@@ -661,6 +661,12 @@ result Bsp::LoadModels(const SbpChunkDescriptor& chunk)
                          static_cast<uint32_t>(vertexLights[model.firstVertexLight + index]));
             }
         }
+        if (model.mode == 0) {
+            model.object->SetLightingEnabled(false);
+        }
+        if (model.mode == 3) {
+            model.object->SetAmbientLightOnly(true);
+        }
         if (Read32(input + 0x10) != 0x1f) {
             const std::u16string animationName =
                 DecodeSojTextureName(ReadPackedName(input + 0x10));

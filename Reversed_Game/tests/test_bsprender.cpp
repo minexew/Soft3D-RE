@@ -410,9 +410,17 @@ void TestRealMenuRender()
     CHECK(bsp.GetVisibleFaces().size() == 160);
     CHECK(context.submittedModels == 5);
     CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[0] ==
+          bsp.GetModels()[0].transform[1].x);
+    CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[1] ==
           bsp.GetModels()[0].transform[2].x);
+    CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[2] ==
+          bsp.GetModels()[0].transform[3].x);
+    CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[4] ==
+          bsp.GetModels()[0].transform[1].y);
     CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[12] ==
           bsp.GetModels()[0].transform[0].x);
+    CHECK(bsp.GetModels()[0].object->GetWorldBounds().minimum.y !=
+          bsp.GetModels()[0].object->GetPrimaryBounds().minimum.y);
     bsp.SubmitVisibleEntities(engine.GetRenderQueues());
     CHECK(engine.GetRenderQueues().GetCount(3) == 0);
     bsp.Render();

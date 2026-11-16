@@ -96,13 +96,13 @@ int MainUIDlg::Render(uint32_t context)
         engine.GetScreenBlitter().Clear(255, 255, 255);
         if (controls.ActionClick(input, 3) || controls.ActionClick(input, 1)) {
             selection = 0;
-            soundSelection = 1;
-            soundEnabled = false;
+            soundSelection = 0;
+            soundEnabled = true;
             Sound(engine, 1);
         } else if (controls.ActionClick(input, 4) || controls.ActionClick(input, 2)) {
             selection = 1;
-            soundSelection = 0;
-            soundEnabled = true;
+            soundSelection = 1;
+            soundEnabled = false;
             Sound(engine, 1);
         }
         SetStateTime(3, soundSelection);

@@ -219,7 +219,7 @@ The palette **byte** offset is `texel * 64 + ((intensity & 0xff00) >> 7)`, used 
 
 ## Map-model transforms
 
-The four serialized model vectors form the object matrix in this order: vector 2 supplies matrix row 0, vector 3 row 1, vector 1 row 2, and vector 0 supplies translation. `Object::SetTransformVectors` now applies this mapping during model loading. Visible map entities submit their non-owning model pointers through the normal Object/Renderer path and advance animation once per submission.
+The four serialized model vectors map to position, X axis, Y axis, and Z axis respectively. `Object::SetTransformVectors` restores these fields and calls `Object_UpdateTransform`, matching the ARM loader; the resulting matrix uses vector 1 for X, vector 2 for Y, and vector 3 for Z, with vector 0 as translation. Mode 0 disables lighting and mode 3 selects ambient-only lighting. Visible map entities submit their non-owning model pointers through the normal Object/Renderer path and advance animation once per submission.
 
 ## Portable verification
 

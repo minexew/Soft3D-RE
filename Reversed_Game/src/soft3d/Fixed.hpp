@@ -226,8 +226,8 @@ inline Matrix4 Multiply(const Matrix4& left, const Matrix4& right)
             Fixed value = 0;
             for (unsigned index = 0; index < 4; ++index) {
                 value = static_cast<Fixed>(static_cast<uint32_t>(value) +
-                    static_cast<uint32_t>(FixedMultiply(left.values[index * 4 + row],
-                                                        right.values[column * 4 + index])));
+                    static_cast<uint32_t>(FixedMultiply(left.values[column * 4 + index],
+                                                        right.values[index * 4 + row])));
             }
             result.values[column * 4 + row] = value;
         }

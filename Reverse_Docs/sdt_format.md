@@ -275,7 +275,7 @@ After handedness, `MainUIDlg` uses these modes:
 
 Mode 3 is the previously undocumented screen shown immediately before the main menu. It is not a separate dialog class: it is `MainUIDlg` state 3 with six elements. The base-rendered resources are `beijing_01`, `activate`, `yes`, `no`, and `tishi_a`; `tishi_b` is behavior one.
 
-Left/up selects **No**, while right/down selects **Yes**. Each change plays UI sound index 1. Acceptance with Accept, Number6, or either soft key:
+Left/up selects **Yes**, while right/down selects **No**. Each change plays UI sound index 1. Acceptance with Accept, Number6, or either soft key:
 
 1. stops music and all sounds;
 2. sets global volume to 0 for No or 255 for Yes;
