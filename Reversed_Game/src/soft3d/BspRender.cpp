@@ -254,7 +254,7 @@ int32_t Bsp::FindLeaf(const Vec3& position) const
     while (index >= 0) {
         const BspNode& node = nodes[static_cast<std::size_t>(index)];
         const Fixed distance = PlaneDistance(planes[node.planeIndex], position);
-        index = node.children[distance < 0 ? 0 : 1];
+        index = node.children[distance > 0 ? 0 : 1];
     }
     return -index - 1;
 }

@@ -24,6 +24,7 @@ public:
 
     AudioData* GetData() const;
     int GetVoice() const;
+    int GetListIndex() const;
     int GetVolume() const;
     Fixed GetDistance() const;
 

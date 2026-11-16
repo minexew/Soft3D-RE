@@ -146,6 +146,11 @@ int SoundInstance::GetVoice() const
     return voice;
 }
 
+int SoundInstance::GetListIndex() const
+{
+    return listIndex;
+}
+
 int SoundInstance::GetVolume() const
 {
     return volume;

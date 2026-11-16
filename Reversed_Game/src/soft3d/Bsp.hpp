@@ -202,6 +202,17 @@ struct BspNode {
     uint16_t faceCount = 0;
 };
 
+struct BspTraceResult {
+    Vec3 endPosition;
+    bool startSolid = false;
+    Vec3 planeNormal;
+    Fixed planeDistance = 0;
+    bool brushStartSolid = false;
+    bool allSolid = false;
+    Fixed fraction = fixedOne;
+    int32_t sideIndex = -1;
+};
+
 struct BspLightStyle {
     uint8_t light = 8;
     uint8_t position = 0;
@@ -241,6 +252,14 @@ public:
     void Update();
     void PrepareRender(const BspRenderState& state);
     void SubmitVisibleEntities(RenderQueues& queues);
+
+    int32_t FindLeaf(const Vec3& position) const;
+    BspTraceResult Trace(const Vec3& start, const Vec3& end,
+                         const ObjectBounds& bounds = {}) const;
+    const BspPathNode* FindNearestPathNode(const Vec3& position, const ObjectBounds& bounds,
+                                           const BspPathNode* excluded = nullptr) const;
+    const BspPathNode* GetPathNode(uint16_t index) const;
+    Fixed GetLightIntensity(const Vec3& position) const;
 
     bool IsLoaded() const;
     int32_t GetCurrentCluster() const;
@@ -335,7 +354,6 @@ private:
         Fixed maxV = 0;
     };
 
-    int32_t FindLeaf(const Vec3& position) const;
     std::vector<uint8_t> DecompressPVS(int32_t cluster) const;
     void MarkVisibleLeaves();
     void TraverseVisibleNode(int32_t index, uint32_t planeMask);

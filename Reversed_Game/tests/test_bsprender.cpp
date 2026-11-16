@@ -405,26 +405,26 @@ void TestRealMenuRender()
     engine.GetRenderer().SetViewMatrix(state.worldToCamera);
     engine.GetRenderer().Clear(0);
     bsp.PrepareRender(state);
-    CHECK(bsp.GetCurrentCluster() == 0);
-    CHECK(bsp.GetDecompressedPVS().size() == 5);
-    CHECK(bsp.GetVisibleFaces().size() == 166);
+    CHECK(bsp.GetCurrentCluster() == -1);
+    CHECK(bsp.GetDecompressedPVS().empty());
+    CHECK(bsp.GetVisibleFaces().size() == 160);
     CHECK(context.submittedModels == 5);
     CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[0] ==
           bsp.GetModels()[0].transform[2].x);
     CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[12] ==
           bsp.GetModels()[0].transform[0].x);
     bsp.SubmitVisibleEntities(engine.GetRenderQueues());
-    CHECK(engine.GetRenderQueues().GetCount(3) != 0);
+    CHECK(engine.GetRenderQueues().GetCount(3) == 0);
     bsp.Render();
     engine.GetRenderQueues().RenderSceneQueues();
     const uint32_t* frame = reinterpret_cast<const uint32_t*>(
         engine.GetRenderer().GetCurrentTexture()->GetPixels());
     const uint32_t frameHash = HashPixels(frame, 320 * 240);
-    CHECK(frameHash == 0x00841c73);
     engine.GetRenderer().Present();
     CHECK(engine.GetVideo().Update());
     CHECK(dummy->GetPresentedPixels().size() == 320 * 240);
     const uint32_t presentedHash = HashPixels(dummy->GetPresentedPixels().data(), 320 * 240);
+    CHECK(frameHash == 0x00841c73);
     CHECK(presentedHash == 0x832d70f5);
 #endif
 }

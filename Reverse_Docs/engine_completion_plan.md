@@ -21,15 +21,14 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - Basic/Fog plus Fade, Gray, MotionBlur, Ink, Blind, and Twist presentation shaders;
 - 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text;
 - complete startup/sound/main-menu flow, all seven concrete dialog classes, orientation-aware controls, and `config.sdt`/save-slot persistence;
-- SST loading, typed values/references, recursive command trees, the generic VM/host interface, task lifecycle, and script update integration.
+- SST loading, typed values/references, recursive command trees, the generic VM/host interface, task lifecycle, and script update integration;
+- generic messages, units, visual/physics bases, reusable state templates, eight-bucket `GameUnitManager`, and BSP collision/path queries.
 
-The game hooks that invoke audio are not automatically supplied by the audio implementation. Stages 7 and 8 resolved renderer-facing SOJ material fields, raster feature parity, and all presentation shaders. Stage 9 completed Object loading/control APIs and all four renderable effects. Stage 10 completed the generic script parser, VM, and interface.
+The game hooks that invoke audio are not automatically supplied by the audio implementation. Stages 7 and 8 resolved renderer-facing SOJ material fields, raster feature parity, and all presentation shaders. Stage 9 completed Object loading/control APIs and all four renderable effects. Stage 10 completed the generic script parser, VM, and interface. Stage 11 completed generic units, state machines, physics, and BSP collision.
 
 ### Missing or incomplete engine facilities
 
-- `Bsp` collision and integration of loaded map models/entities into later unit systems;
 - episode-specific `Scene` gameplay, concrete units, and game-data semantics;
-- generic unit/physics/messaging/state-machine infrastructure and `GameUnitManager` support;
 - generic streams, state load/save support, standalone RAM diagnostics, and currently unused IO/debug facilities;
 - S3DTEX engine/tool parity and remaining STX/SOJ/SAI unknown fields.
 
@@ -243,7 +242,7 @@ All 23 normal CTest tests and all 17 SDL-independent ASan/UBSan tests pass, as d
 
 Real-resource tests verify exact counts for `day1/ep0`, `day1/ep1010`, `day5/ep2050`, and `day7/ep7009`, including 829 commands and 244 values in the third. Synthetic tests cover every generic and implemented internal opcode, typed arithmetic/comparisons, control flow, suspension, termination, nested calls, reset, unload/reload, and malformed inputs. All 24 normal CTest tests and all 18 SDL-independent ASan/UBSan tests pass. Ghidra has saved typed layouts, function/value names, prototypes, tags, comments, and variable names. See `sst_format.md` for the full format, VM, addresses, and portable safety differences.
 
-## Stage 11 — Generic unit, messaging, state, and physics infrastructure
+## Stage 11 — Generic unit, messaging, state, and physics infrastructure — complete
 
 **Scope**
 
@@ -256,6 +255,12 @@ Real-resource tests verify exact counts for `day1/ep0`, `day1/ep1010`, `day5/ep2
 
 - Use synthetic derived classes to test virtual dispatch, messages, state transitions, ownership, movement, and map collision.
 - Exercise the infrastructure with real BSP geometry without loading an episode.
+
+**Completion**
+
+`Units.*`, `StateMachine.hpp`, `BspCollision.cpp`, and `test_units.cpp` implement and test the recovered infrastructure. Message queues, all three unit queries, eight-bucket ownership/update/submission, child-first state transitions, LOD/visuals, simple and slide movement, ground/shadow traces, `Things` destruction, and `Creature` hearing/navigation are covered. The real `menu.sbp` is exercised without episode logic, and real SOJ resources exercise the visual path.
+
+The BSP leaf-child correction reports cluster -1, no PVS stream, and 160 visible faces for the established test camera; queue-3 model submission is empty and all previous raw/presented frame hashes remain unchanged. The update also fixes per-frame light assignment to object intensity rather than depth bias. All 25 normal CTest tests and all 19 SDL-independent ASan/UBSan tests pass, as do all six standalone SOJ converter tests. Ghidra has saved native layouts, symbols, prototypes, comments, tags, and the previously missed alternate manager constructor. See `symbian3rd_units.md` for exact behavior, addresses, original quirks, and portable safety differences. Stream-backed state serialization remains in stage 12.
 
 ## Stage 12 — Streams, state serialization, and small engine utilities
 

@@ -37,6 +37,9 @@ public:
     void SetSecondaryTransform(const Matrix4& matrix);
     void SetTransformMode(int mode);
     void SetPosition(const Vec3& position);
+    void SetAxisX(const Vec3& axis);
+    void SetAxisY(const Vec3& axis);
+    void SetAxisZ(const Vec3& axis);
     void RotateX(uint16_t angle);
     void RotateY(uint16_t angle);
     void RotateZ(uint16_t angle);
@@ -62,6 +65,7 @@ public:
     void SetRenderMode(ObjectRenderMode mode);
     void SetMaterialIntensityBounce(uint32_t material, Fixed minimum, Fixed maximum,
                                     int32_t period);
+    void SetMaterialBlendMode(uint32_t material, uint32_t mode);
 
     void Render() override;
     void RenderNormal();
@@ -84,6 +88,8 @@ public:
     int32_t GetAnimationSpeed() const;
     bool IsAnimationLooping() const;
     bool IsAnimationPaused() const;
+    uint32_t GetMaterialBlendMode(uint32_t material) const;
+    ObjectRenderMode GetRenderMode() const;
 
 private:
     struct MaterialState {

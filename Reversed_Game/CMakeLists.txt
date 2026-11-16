@@ -22,6 +22,7 @@ add_library(soft3d
     src/soft3d/BasicShader.cpp
     src/soft3d/BezierCurve3.cpp
     src/soft3d/Bsp.cpp
+    src/soft3d/BspCollision.cpp
     src/soft3d/BspRender.cpp
     src/soft3d/Camera.cpp
     src/soft3d/CameraSpot.cpp
@@ -49,6 +50,7 @@ add_library(soft3d
     src/soft3d/Texture.cpp
     src/soft3d/TextureRes.cpp
     src/soft3d/UiManager.cpp
+    src/soft3d/Units.cpp
     src/soft3d/VID_impl.cpp
     src/soft3d/s3dBase.cpp
     src/soft3d/s3dFilePak.cpp
@@ -197,6 +199,16 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_bsp_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_bsp COMMAND soft3d_bsp_tests)
+
+    add_executable(soft3d_unit_tests tests/test_units.cpp)
+    target_link_libraries(soft3d_unit_tests PRIVATE soft3d)
+    target_compile_definitions(soft3d_unit_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_unit_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_units COMMAND soft3d_unit_tests)
 
     add_executable(soft3d_bsp_render_tests tests/test_bsprender.cpp)
     target_link_libraries(soft3d_bsp_render_tests PRIVATE soft3d)

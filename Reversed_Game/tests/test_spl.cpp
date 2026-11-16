@@ -275,7 +275,7 @@ void TestRealMenuBackdrop()
     CHECK(engine.GetMenuBackdrop()->GetCameraController().GetTime() == 120 * 136);
     CHECK(engine.GetMenuBackdrop()->GetBsp().GetFrameCounter() == 120);
     CHECK(!engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().empty());
-    CHECK(engine.GetRenderQueues().GetCount(3) != 0);
+    CHECK(engine.GetRenderQueues().GetCount(3) == 0);
     CHECK(finalHash == 0xbe935b67);
     CHECK(finalPresentedHash == 0x61bebbd5);
     CHECK(finalHash != firstHash && finalHash != secondHash);

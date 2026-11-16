@@ -128,6 +128,24 @@ void Object::SetPosition(const Vec3& newPosition)
     UpdateTransform();
 }
 
+void Object::SetAxisX(const Vec3& axis)
+{
+    axisX = axis;
+    axisLengthX = Length(axis);
+}
+
+void Object::SetAxisY(const Vec3& axis)
+{
+    axisY = axis;
+    axisLengthY = Length(axis);
+}
+
+void Object::SetAxisZ(const Vec3& axis)
+{
+    axisZ = axis;
+    axisLengthZ = Length(axis);
+}
+
 void Object::RotateX(uint16_t angle)
 {
     axisX = soft3d::Scale(Normalize(soft3d::RotateX(axisX, angle)), axisLengthX);
@@ -321,6 +339,13 @@ void Object::SetMaterialIntensityBounce(uint32_t material, Fixed minimum, Fixed 
     state.intensity = 0x1999;
     state.intensitySpeed = period == 0 ? 0 : FixedMultiply(
         SubtractFixed(maximum, minimum), FixedDivide(fixedOne, period << 16));
+}
+
+void Object::SetMaterialBlendMode(uint32_t material, uint32_t mode)
+{
+    if (material < materialStates.size()) {
+        materialStates[material].blendMode = mode;
+    }
 }
 
 void Object::RebuildLocalCorners()
@@ -593,5 +618,10 @@ int32_t Object::GetAnimationDirection() const { return animationDirection; }
 int32_t Object::GetAnimationSpeed() const { return animationSpeed; }
 bool Object::IsAnimationLooping() const { return loopAnimation; }
 bool Object::IsAnimationPaused() const { return animationPaused; }
+uint32_t Object::GetMaterialBlendMode(uint32_t material) const
+{
+    return material < materialStates.size() ? materialStates[material].blendMode : 0;
+}
+ObjectRenderMode Object::GetRenderMode() const { return renderMode; }
 
 } // namespace soft3d
