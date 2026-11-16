@@ -1,4 +1,4 @@
-﻿using SimpleScriptDecompiler.Script;
+using SimpleScriptDecompiler.Script;
 using SimpleScriptDecompiler.Script.Mobile;
 using SimpleScriptDecompiler.Utils;
 using System;
@@ -9,8 +9,8 @@ namespace SimpleScriptDecompiler.Decompiler
     class MobileDecompiler : IDecompilerInterface
     {
         private CodeWriter writer;
-        private bool externalFunctionMode; //enum
-        private bool specialCommandMode; //enum
+        private bool externalFunctionMode;
+        private bool specialCommandMode;
 
         public MobileDecompiler()
         {
@@ -25,41 +25,32 @@ namespace SimpleScriptDecompiler.Decompiler
                 return;
             }
             SimpleScript ss = (SimpleScript)script;
-            //TODO: Check normal cast
-
-            
             writer = new CodeWriter();
             writer.Open(name);
 
-            if(ss.varsCount > 0)
-            {
+            if (ss.varsCount > 0)
                 WriteVars(ss.vars);
-            }
-
-            if(ss.constructorExist)
+            if (ss.constructorExist)
             {
                 writer.WriteLine();
-                ProcessConstructor(ss.constructorFunction);
+                ProcessFunction(ss.constructorFunction, -1);
             }
-
-            for(int i = 0; i < ss.functionCount; i++)
+            for (int i = 0; i < ss.functionCount; i++)
             {
                 writer.WriteLine();
                 ProcessFunction(ss.functions[i], i);
             }
-
             writer.Close();
-        }
-
-        private void ProcessConstructor(Function function)
-        {
-            ProcessFunction(function, -1);
         }
 
         private void ProcessFunction(Function function, int index)
         {
-            ProcessStartCommand(index);
-
+            string name = index == -1
+                ? Constants.CONSTRUCT_FUNC_NAME
+                : DecompilerUtils.GetFuncName(index);
+            writer.Write(name);
+            writer.Write(Constants.NO_ARGS);
+            writer.Write(Constants.COLON);
             writer.Write(Constants.START_ARGS);
             if (function.externalCommandCount > 0)
             {
@@ -70,47 +61,24 @@ namespace SimpleScriptDecompiler.Decompiler
                 externalFunctionMode = false;
             }
             writer.WriteLine(Constants.END_ARGS);
-
-
             writer.WriteLine(Constants.START_FUNC);
             writer.AddTabLevel();
-
-            if (function.varsCount > 0) //not needed to decompiler
-            {
-                //WriteVars(function.vars);
-            }
-
             for (int i = 0; i < function.commandCount; i++)
             {
                 ProcessCommandType(function.commands[i].type);
                 ProcessCommand(function.commands[i]);
                 writer.WriteLine();
             }
-
-            CheckSerialModeClosed();
-
+            ProcessCommandType(0);
             writer.RemoveTabLevel();
             writer.WriteLine(Constants.END_FUNC);
-        }
-
-        private void ProcessStartCommand(int commandIndex)
-        {
-            string name;
-            if (commandIndex == -1)
-                name = Constants.CONSTRUCT_FUNC_NAME;
-            else
-                name = DecompilerUtils.GetFuncName(commandIndex);
-
-            writer.Write(name);
-            writer.Write(Constants.NO_ARGS);
-            writer.Write(Constants.COLON);
         }
 
         private void ProcessCommandType(ushort type)
         {
             switch (type)
             {
-                case 0: //Default type
+                case 0:
                     if (writer.GetMode() == WriterMode.SERIAL)
                         writer.SetMode(WriterMode.NORMAL);
                     break;
@@ -123,195 +91,176 @@ namespace SimpleScriptDecompiler.Decompiler
             }
         }
 
-        private void CheckSerialModeClosed()
-        {
-            //check if serial mode opened on end function
-            ProcessCommandType(0);
-        }
-
-
         private void ProcessCommand(Command command)
         {
-            if (IsSpecialCommand(command) && !IsSpecialCommandArgsOnly(command))
+            if (command.id >= 7 && command.id <= 35)
             {
-                ProcessSpecialCommand(command);
-                    return;
+                ProcessInternalCommand(command);
+                return;
             }
-
-
-
             DecompilerUtils.GetCommandName(command.id, out string name);
-
             writer.Write(name);
-
             writer.Write(Constants.START_ARGS);
-
-            ProcessCommandArgs(command);
-   
+            if (command.id >= 37 && command.id <= 40)
+            {
+                writer.Write("\"{0}\"", DecompilerUtils.GetFuncName((int)command.args[0]));
+            }
+            else
+            {
+                CheckArgsTypes(command);
+                if (command.argsCount > 0)
+                    writer.Write(DecompilerUtils.SeparateArgsAsString(command.args));
+            }
             writer.Write(Constants.END_ARGS);
-            if(!specialCommandMode && !externalFunctionMode)
+            if (!specialCommandMode && !externalFunctionMode)
                 writer.Write(Constants.END_STATEMENT);
         }
 
-        private bool IsSpecialCommand(Command command)
-        {
-            return command.id - 36 < Constants.SPECIAL_COMMANDS_COUNT;
-        }
-
-        private bool IsSpecialCommandArgsOnly(Command command)
-        {
-            return IsSpecialCommand(command) && command.id >= 36;
-        }
-
-        private void ProcessSpecialCommand(Command command)
+        private void ProcessInternalCommand(Command command)
         {
             switch (command.id)
             {
-                case 7: //if
-                    ProcessSpecialCommandIF(command);
+                case 7:
+                    ProcessConditional(command, Constants.IF);
                     break;
-                case 9: //wait
-                    ProcessSpecialCommandWAIT(command);
+                case 8:
+                    ProcessSwitch(command);
                     break;
-                case 11: //else
-                    ProcessSpecialCommandELSE(command);
+                case 9:
+                    ProcessWait(command);
                     break;
-                case 16: //==
-                    writer.Write(" == {0}", command.args[1]);
-                    ProcessExternalCommands(command, 2, false);
+                case 10:
+                    writer.Write("return();");
                     break;
-                case 18: //>=
-                    writer.Write(" >= {0}", command.args[1]);
-                    ProcessExternalCommands(command, 2, false);
+                case 11:
+                    writer.WriteLine(Constants.ELSE);
+                    WriteBody(command.body, command.bodyCount);
                     break;
-                //case 22: //maybe &&
-                    //break;
+                case 12:
+                    writer.WriteLine("case {0}:", command.args[0]);
+                    WriteBody(command.body, command.bodyCount);
+                    break;
+                case 13:
+                    ProcessConditional(command, "while");
+                    break;
+                case 14:
+                    writer.Write("end();");
+                    break;
+                case 16:
+                case 17:
+                case 18:
+                case 19:
+                case 20:
+                case 21:
+                case 22:
+                case 23:
+                    writer.Write("{0} {1} {2}", command.args[0], Operator(command.id), command.args[1]);
+                    break;
+                case 24:
+                    writer.Write("!{0}", command.args[0]);
+                    break;
                 case 25:
-                    writer.Write("{0} = {1};", DecompilerUtils.GetVarName(command.unk2_data2), command.args[0]);
+                    writer.Write("{0} = {1};", command.result, command.args[0]);
+                    break;
+                case 26:
+                case 27:
+                case 28:
+                case 29:
+                case 30:
+                    writer.Write("{0} {1}= {2};", command.result,
+                        Operator((ushort)(command.id + 5)), command.args[0]);
+                    break;
+                case 31:
+                case 32:
+                case 33:
+                case 34:
+                case 35:
+                    writer.Write("{0} = {1} {2} {3};", command.result, command.args[0],
+                        Operator(command.id), command.args[1]);
                     break;
                 default:
-                    writer.Write("Unknown special command id: " + command.id);
-                    if(command.argsCount > 0)
-                    {
-                        writer.Write(" args: ");
-                        writer.Write(DecompilerUtils.SeparateArgsAsString(command.args));
-                    }
-                    if (command.unk2 == 6)
-                    {
-                        writer.Write(" UNK2 DATA {0} {1} {2}", command.unk2_data1, command.unk2_data2, command.unk2_data3);
-                    }
-                    ProcessExternalCommands(command, 1, true);
-                    ProcessExternalCommands(command, 2, true);
+                    writer.Write("Unknown internal command {0};", command.id);
                     break;
-
             }
         }
 
-        private void ProcessSpecialCommandIF(Command command)
+        private static string Operator(ushort id)
         {
-            writer.WriteLine();
-            writer.Write(Constants.IF);
-
-            writer.Write(Constants.START_ARGS);
-            specialCommandMode = true;
-            ProcessExternalCommands(command, 2, false);
-            specialCommandMode = false;
-            writer.Write(Constants.END_ARGS);
-
-            writer.WriteLine(Constants.START_FUNC);
-            ProcessExternalCommands(command, 1, true);
-            writer.WriteLine(Constants.END_FUNC);
+            switch (id)
+            {
+                case 16: return "==";
+                case 17: return "<=";
+                case 18: return ">=";
+                case 19: return "<";
+                case 20: return ">";
+                case 21: return "!=";
+                case 22: return "&&";
+                case 23: return "||";
+                case 31: return "+";
+                case 32: return "-";
+                case 33: return "*";
+                case 34: return "/";
+                case 35: return "%";
+                default: throw new ArgumentException("Illegal operator ID! " + id);
+            }
         }
 
-        private void ProcessSpecialCommandWAIT(Command command)
+        private void ProcessConditional(Command command, string name)
         {
-            //if external, command "wait" magic convert to empty
+            writer.WriteLine();
+            writer.Write(name);
+            writer.Write(Constants.START_ARGS);
+            ProcessConditions(command);
+            writer.Write(Constants.END_ARGS);
+            WriteBody(command.body, command.bodyCount);
+        }
+
+        private void ProcessWait(Command command)
+        {
             if (externalFunctionMode)
             {
-                ProcessExternalCommands(command, 2, false);
+                ProcessConditions(command);
                 return;
             }
             writer.Write(Constants.WAIT);
             writer.Write(Constants.START_ARGS);
             writer.Write(Constants.SPACE);
-
-            specialCommandMode = true;
-            ProcessExternalCommands(command, 2, false);
-            specialCommandMode = false;
-
+            ProcessConditions(command);
             writer.Write(Constants.SPACE);
             writer.Write(Constants.END_ARGS);
             writer.Write(Constants.END_STATEMENT);
         }
 
-        private void ProcessSpecialCommandELSE(Command command)
+        private void ProcessSwitch(Command command)
         {
-            writer.WriteLine(Constants.ELSE);
+            writer.WriteLine();
+            writer.Write("switch({0})", command.args[0]);
+            WriteBody(command.body, command.bodyCount);
+        }
+
+        private void ProcessConditions(Command command)
+        {
+            specialCommandMode = true;
+            ProcessCommands(command.conditions, command.conditionCount, false);
+            specialCommandMode = false;
+        }
+
+        private void WriteBody(Command[] commands, ushort count)
+        {
             writer.WriteLine(Constants.START_FUNC);
-            ProcessExternalCommands(command, 1, true);
+            writer.AddTabLevel();
+            ProcessCommands(commands, count, true);
+            writer.RemoveTabLevel();
             writer.WriteLine(Constants.END_FUNC);
         }
 
-        private void ProcessCommandArgs(Command command)
+        private void ProcessCommands(Command[] commands, ushort count, bool lines)
         {
-            if (IsSpecialCommandArgsOnly(command))
+            for (int i = 0; i < count; i++)
             {
-                ProcessSpecialCommandArgs(command);
-                return;
-            }
-
-            CheckArgsTypes(command);
-
-            if (command.argsCount > 0)
-            {
-                writer.Write(DecompilerUtils.SeparateArgsAsString(command.args));
-            }
-        }
-
-        private void ProcessSpecialCommandArgs(Command command)
-        {
-            switch(command.id)
-            {
-                case 37: //enableTask
-                case 38: //disableTask
-                case 39: //runTask
-                case 40: //intermitTask
-                    writer.Write("\"{0}\"", DecompilerUtils.GetFuncName((int)command.args[0]));
-                    break;
-                default:
-                    throw new Exception("Illegal special command ID! " + command.id);
-            }
-        }
-
-
-        private void ProcessExternalCommands(Command command, int index, bool separatorIsNeeded)
-        {
-            ushort count;
-            Command[] exCommands;
-            switch(index)
-            {
-                case 1:
-                    count = command.exCommand1Count;
-                    exCommands = command.ex1Commands;
-                    break;
-                case 2:
-                    count = command.exCommand2Count;
-                    exCommands = command.ex2Commands;
-                    break;
-                default:
-                    throw new ArgumentException("Illegal external command index! " + index);
-            }
-
-            if (count > 0)
-            {
-                writer.AddTabLevel();
-                for (int i = 0; i < count; i++)
-                {
-                    ProcessCommand(exCommands[i]);
-                    if (separatorIsNeeded)
-                        writer.WriteLine();
-                }
-                writer.RemoveTabLevel();
+                ProcessCommand(commands[i]);
+                if (lines)
+                    writer.WriteLine();
             }
         }
 
@@ -319,47 +268,37 @@ namespace SimpleScriptDecompiler.Decompiler
         {
             if (vars.Length == 0)
                 return;
-
             writer.WriteLine(Constants.VARS);
             writer.WriteLine(Constants.START_FUNC);
             writer.AddTabLevel();
-            for(int i = 0; i < vars.Length; i++)
-            {
-                writer.WriteLine("({0}) {1};",
-                    TypeNamesUtils.ConvertCSharp2C(vars[i].Name),
+            for (int i = 0; i < vars.Length; i++)
+                writer.WriteLine("({0}) {1};", TypeNamesUtils.ConvertCSharp2C(vars[i].Name),
                     DecompilerUtils.GetVarName(i));
-            }
             writer.RemoveTabLevel();
             writer.WriteLine(Constants.END_FUNC);
         }
 
         public void CheckArgsTypes(Command command)
         {
-            if (CommandsFile.IsLoaded) //check args
+            if (!CommandsFile.IsLoaded)
+                return;
+            var c = CommandsFile.GetCommand(command.id);
+            if (c == null || !c.HasArgs())
+                return;
+            if (c.Args.Length != command.argsCount)
             {
-                var c = CommandsFile.GetCommand(command.id);
-                if (c == null || !c.HasArgs())
-                    return;
-
-                if (c.Args.Length != command.argsCount)
-                {
-                    Console.WriteLine("Warning! Wrong args count in command {0}!", c.Name);
-                    return;
-                }
-
-                for (int i = 0; i < command.argsCount; i++)
-                {
-                    object arg = command.args[i];
-
-                    if (arg.GetType() != c.Args[i] &&
-                        c.Args[i] != typeof(short) && //in mobile rev "short" = "int" = "byte"
-                        c.Args[i] != typeof(int)   &&
-                        c.Args[i] != typeof(byte))
-                        Console.WriteLine("Warning! arg {0} has incorrect type {1}! Line: {2}",
-                            arg,
-                            arg.GetType(),
-                            writer.GetLineIndex());
-                }
+                Console.WriteLine("Warning! Wrong args count in command {0}!", c.Name);
+                return;
+            }
+            for (int i = 0; i < command.argsCount; i++)
+            {
+                object arg = command.args[i];
+                if (arg is ScriptReference)
+                    continue;
+                if (arg.GetType() != c.Args[i] && c.Args[i] != typeof(short) &&
+                    c.Args[i] != typeof(int) && c.Args[i] != typeof(byte))
+                    Console.WriteLine("Warning! arg {0} has incorrect type {1}! Line: {2}",
+                        arg, arg.GetType(), writer.GetLineIndex());
             }
         }
     }

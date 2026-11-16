@@ -163,7 +163,7 @@ Ghidra now has a **`Logging`** function tag on all 43 known `NullLog` callers pl
 | `0x0015e710..0x0015f4e4` | `LoadSbpMapChunks` |
 | `0x0015f8f8`, `0x0015f924` | `LoadSauResource` |
 | `0x0015fbf0..0x0015fc7c` | `LoadSaiResource` |
-| `0x001a41b4..0x001a4270` | `LoadSstScript` |
+| `0x001a41b4..0x001a4270` | `SimpleScript_LoadFromPak` |
 | `0x001a42d4` | `FUN_00135268` |
 
 This annotation is intended to prevent mistaking the retained strings for evidence of active release output while keeping them available for identifying logging call sites in later passes.

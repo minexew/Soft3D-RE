@@ -123,6 +123,7 @@ void GameEngine::PreUpdate()
         menuBackdrop->Update();
     }
     if (inGame) {
+        scriptEngine.Update();
         scene->Update();
         return;
     }

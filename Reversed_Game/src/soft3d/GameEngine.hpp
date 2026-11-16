@@ -4,6 +4,7 @@
 #include "soft3d/Font.hpp"
 #include "soft3d/GameConfig.hpp"
 #include "soft3d/GameContent.hpp"
+#include "soft3d/SimpleScript.hpp"
 #include "soft3d/UiManager.hpp"
 
 #include <array>
@@ -43,13 +44,7 @@ public:
     void PostUpdate() {}
     void PrepareRender() {}
     void SubmitRenderables() {}
-    // Episode-specific scene, creature, and script behavior remains to be reconstructed.
-};
-
-class ScriptEngineStub {
-public:
-    void Init() {}
-    void Update() {}
+    // Episode-specific scene and creature behavior remains to be reconstructed.
 };
 
 class GameEngine : public Engine {
@@ -98,6 +93,8 @@ public:
     const GameConfiguration& GetConfiguration() const;
     ControlMap& GetControlMap();
     GameContent& GetContent();
+    SimpleScript& GetScriptEngine() { return scriptEngine; }
+    void SetScriptInterface(ScriptInterface* interface) { scriptEngine.SetScriptInterface(interface); }
     GameplayHooks& GetGameplayHooks();
     std::array<SaveSlotInfo, 3>& GetSaveSlots();
     const std::array<SaveSlotInfo, 3>& GetSaveSlots() const;
@@ -117,7 +114,7 @@ private:
     AboutDlg* aboutDialog = nullptr;
     std::unique_ptr<StringManager> baseFont;
     std::unique_ptr<StringManager> secondaryFont;
-    ScriptEngineStub scriptEngine;
+    SimpleScript scriptEngine;
     std::u16string resourceArchive;
     std::u16string persistenceDirectory = u".";
     bool inGame = false;

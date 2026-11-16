@@ -44,6 +44,7 @@ add_library(soft3d
     src/soft3d/Renderer.cpp
     src/soft3d/Resource.cpp
     src/soft3d/ScreenBlitter.cpp
+    src/soft3d/SimpleScript.cpp
     src/soft3d/SoundInstance.cpp
     src/soft3d/Texture.cpp
     src/soft3d/TextureRes.cpp
@@ -145,6 +146,16 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_engine_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_engine COMMAND soft3d_engine_tests)
+
+    add_executable(soft3d_script_tests tests/test_script.cpp)
+    target_link_libraries(soft3d_script_tests PRIVATE soft3d)
+    target_compile_definitions(soft3d_script_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_script_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_script COMMAND soft3d_script_tests)
 
     add_executable(soft3d_effect_tests tests/test_effects.cpp)
     target_link_libraries(soft3d_effect_tests PRIVATE soft3d)

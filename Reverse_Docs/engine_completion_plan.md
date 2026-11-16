@@ -20,15 +20,15 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - engine queue ordering and presentation, dummy video, and the SDL application shell;
 - Basic/Fog plus Fade, Gray, MotionBlur, Ink, Blind, and Twist presentation shaders;
 - 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text;
-- complete startup/sound/main-menu flow, all seven concrete dialog classes, orientation-aware controls, and `config.sdt`/save-slot persistence.
+- complete startup/sound/main-menu flow, all seven concrete dialog classes, orientation-aware controls, and `config.sdt`/save-slot persistence;
+- SST loading, typed values/references, recursive command trees, the generic VM/host interface, task lifecycle, and script update integration.
 
-The game hooks that invoke audio are not automatically supplied by the audio implementation. Stages 7 and 8 resolved renderer-facing SOJ material fields, raster feature parity, and all presentation shaders. Stage 9 completed Object loading/control APIs and all four renderable effects.
+The game hooks that invoke audio are not automatically supplied by the audio implementation. Stages 7 and 8 resolved renderer-facing SOJ material fields, raster feature parity, and all presentation shaders. Stage 9 completed Object loading/control APIs and all four renderable effects. Stage 10 completed the generic script parser, VM, and interface.
 
 ### Missing or incomplete engine facilities
 
 - `Bsp` collision and integration of loaded map models/entities into later unit systems;
 - episode-specific `Scene` gameplay, concrete units, and game-data semantics;
-- SST parsing/execution and the generic script interface;
 - generic unit/physics/messaging/state-machine infrastructure and `GameUnitManager` support;
 - generic streams, state load/save support, standalone RAM diagnostics, and currently unused IO/debug facilities;
 - S3DTEX engine/tool parity and remaining STX/SOJ/SAI unknown fields.
@@ -223,7 +223,7 @@ Lensflare, BillboardGroup, FakeShadow, and GunFire are reusable renderables with
 
 All 23 normal CTest tests and all 17 SDL-independent ASan/UBSan tests pass, as do all six standalone SOJ converter tests. Ghidra has typed Object/material/effect layouts and 95 recovered or corrected function documentations. See `soft3d_models_animations.md` and `symbian3rd_effects.md`.
 
-## Stage 10 — SST parser, VM, and generic script interface
+## Stage 10 — SST parser, VM, and generic script interface — complete
 
 **Scope**
 
@@ -236,6 +236,12 @@ All 23 normal CTest tests and all 17 SDL-independent ASan/UBSan tests pass, as d
 - Compare parsed/decompiled output for real SST files with the C# tool.
 - Run directed synthetic scripts for each generic opcode, variable type, branch, call, and termination path.
 - Verify loading/unloading and suspended execution without episode logic.
+
+**Completion**
+
+`SimpleScript.*` and `test_script.cpp` implement the recovered loader, six value types, three reference scopes, 32-argument command records, recursive bodies/conditions, continuation linking, all internal opcodes, task states, entry conditions, borrowed `runTask` streams, initializer/update cadence, shared words, and generic host callbacks. `GameEngine` now owns and updates the real engine facility in game mode; episode commands remain external. The C# Mobile reader/decompiler matches the ARM layout and all 217 shipped Mobile SST files complete with zero failures, while the distinct Win32 reader remains intact.
+
+Real-resource tests verify exact counts for `day1/ep0`, `day1/ep1010`, `day5/ep2050`, and `day7/ep7009`, including 829 commands and 244 values in the third. Synthetic tests cover every generic and implemented internal opcode, typed arithmetic/comparisons, control flow, suspension, termination, nested calls, reset, unload/reload, and malformed inputs. All 24 normal CTest tests and all 18 SDL-independent ASan/UBSan tests pass. Ghidra has saved typed layouts, function/value names, prototypes, tags, comments, and variable names. See `sst_format.md` for the full format, VM, addresses, and portable safety differences.
 
 ## Stage 11 — Generic unit, messaging, state, and physics infrastructure
 

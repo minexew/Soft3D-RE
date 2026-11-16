@@ -17,7 +17,7 @@
 |🔧|SDT|S60v3|Various data tables; UI resource names, all seven generic dialog tables, concrete menu classes, interpolation, secondary textures, blitter behavior, and the 1,252-byte `config.sdt` layout documented in `Reverse_Docs/sdt_format.md`; other game-specific SDT families remain unconfirmed
 |✔️|SPL||Counted degree-N Bezier camera paths; fixed-point evaluation, derivatives, chord-weighted timing, camera integration, and real-resource tests documented in `Reverse_Docs/spl_format.md`
 |🔧|SOJ||<p>3D objects, mostly understood</p><ul><li>Materials, packed texture names, vertex streams, primitive modes, bounds, and skinning links documented in `Reverse_Docs/soft3d_models_animations.md`</li><li>Renderer-facing material state and raster behavior are documented in `Reverse_Docs/symbian3rd_raster.md`; Object loading/control APIs remain a separate completion item</li></ul>
-|🔧|SST||“simple script”, mostly understood
+|🔧|SST|S60v3, Win32|“simple script”; Mobile typed records, references, recursive commands, VM, tasks, and generic host interface documented and tested in `Reverse_Docs/sst_format.md`; `GameSI`'s episode-specific command semantics remain separate
 |✔️|STX||images/textures (RGB565), well-understood
 |✔️|STX||images/textures (RGB565), well-understood
 |✔️|WAR|DA320 (old), S60v1 (eng), Win32 (eng)|AMI ADPCM audio, high nibble first; same format as SAU except nibble order, well-understood
