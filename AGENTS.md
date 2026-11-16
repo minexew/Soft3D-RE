@@ -65,3 +65,4 @@ For research tools without automated tests, verification means running the tool 
 ## Notes for Ghidra MCP Usage
 
 - Ghidra will likely be run with inline scripting disabled, so for bulk changes and batch operations prefer running Python scripts that are directly calling into MCP server via REST API over using inline script tool.
+- If you end up inexplicably calling a wrong Ghidra tool instead of one you've meant to call via MCP more than 3 times in a row and feel stuck - switch over to directly calling MCP server's REST API from Python scripts.
