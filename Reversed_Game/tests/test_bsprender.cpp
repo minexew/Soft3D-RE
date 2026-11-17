@@ -205,10 +205,14 @@ Chunks OneFaceChunks()
     chunks[soft3d::SbpFaces].insert(chunks[soft3d::SbpFaces].end(), {0, 0, 0, 0});
     chunks[soft3d::SbpVisFaces] = Record32({0});
     chunks[soft3d::SbpLightmapData] = {0, 0, 0, 0};
-    chunks[soft3d::SbpLeaves] = Record16({0, 0, 0, 1, 1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0});
+    chunks[soft3d::SbpLeaves].resize(32, 0);
+    const std::vector<uint8_t> leaf = Record16({0, 0, 0, 1, 1, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0});
+    chunks[soft3d::SbpLeaves].insert(chunks[soft3d::SbpLeaves].end(), leaf.begin(), leaf.end());
     chunks[soft3d::SbpNodes].resize(24, 0);
     Write32(chunks[soft3d::SbpNodes], 4, 0xffffffff);
     Write32(chunks[soft3d::SbpNodes], 6, 0xffffffff);
+    Write32(chunks[soft3d::SbpNodes], 12, 0x00010002);
+    Write32(chunks[soft3d::SbpNodes], 16, 0x00020001);
     Write32(chunks[soft3d::SbpNodes], 20, 0x00010000);
     chunks[soft3d::SbpPVS] = Record32({1, 8});
     chunks[soft3d::SbpPVS].push_back(1);
@@ -248,14 +252,39 @@ Chunks OverlappingFacesChunks()
         chunks[soft3d::SbpFaces].insert(chunks[soft3d::SbpFaces].end(), {0, 0, 0, 0});
     }
     chunks[soft3d::SbpVisFaces] = Record32({0, 1});
-    Write32(chunks[soft3d::SbpLeaves], 18, 2);
+    Write32(chunks[soft3d::SbpLeaves], 32 + 18, 2);
+    Write32(chunks[soft3d::SbpNodes], 16, 0x00030001);
+    Write32(chunks[soft3d::SbpNodes], 20, 0x00020000);
     chunks[soft3d::SbpLightmapData] = {0, 0, 0, 0, 0xff, 0xff, 0xff, 0xff};
+    return chunks;
+}
+
+Chunks UnmarkedNodeFaceChunks()
+{
+    Chunks chunks = OverlappingFacesChunks();
+    chunks[soft3d::SbpVisFaces] = Record32({0});
+    Write32(chunks[soft3d::SbpLeaves], 32 + 18, 1);
+    return chunks;
+}
+
+Chunks OffscreenFaceChunks()
+{
+    Chunks chunks = OneFaceChunks();
+    chunks[soft3d::SbpVertices].clear();
+    AppendVertex(chunks[soft3d::SbpVertices], 10, 0, 2);
+    AppendVertex(chunks[soft3d::SbpVertices], 11, 0, 2);
+    AppendVertex(chunks[soft3d::SbpVertices], 11, 1, 2);
+    AppendVertex(chunks[soft3d::SbpVertices], 10, 1, 2);
+    Write32(chunks[soft3d::SbpNodes], 8, 10);
+    Write32(chunks[soft3d::SbpNodes], 12, 0x000b0002);
     return chunks;
 }
 
 soft3d::BspRenderState RenderState(int width, int height)
 {
     soft3d::BspRenderState state;
+    soft3d::Camera camera(width, height, nullptr);
+    state.projection = camera.GetProjection();
     state.screenScaleX = width << 15;
     state.screenScaleY = height << 15;
     state.screenCenterX = width << 15;
@@ -316,6 +345,26 @@ void TestReciprocalDepthOcclusion()
     const uint32_t center = pixels[4 * 8 + 4];
     CHECK(static_cast<uint16_t>(center) == 0);
     CHECK((center >> 16) > 0x7000);
+}
+
+void TestFaceVisibility()
+{
+    const auto check = [](const Chunks& chunks, const std::vector<uint32_t>& expected) {
+        TempArchive archive({
+            {".\\common\\test.sbp", MakeSbp(chunks)},
+            {".\\common\\tex.stx", MakeStx()},
+        });
+        soft3d::s3dResManager manager;
+        CHECK(soft3d::OpenGameResourceArchive(&manager, archive.path.u16string().c_str()) ==
+              soft3d::S3D_OK);
+        soft3d::Renderer renderer(8, 8);
+        soft3d::Bsp bsp(&renderer, &manager);
+        CHECK(soft3d::LoadSbpMapChunks(&bsp, u".\\common\\", u"test.sbp", nullptr) == soft3d::S3D_OK);
+        bsp.PrepareRender(RenderState(8, 8));
+        CHECK(bsp.GetVisibleFaces() == expected);
+    };
+    check(UnmarkedNodeFaceChunks(), {0});
+    check(OffscreenFaceChunks(), {});
 }
 
 void TestRealStyleResource()
@@ -405,24 +454,25 @@ void TestRealMenuRender()
     engine.GetRenderer().SetViewMatrix(state.worldToCamera);
     engine.GetRenderer().Clear(0);
     bsp.PrepareRender(state);
-    CHECK(bsp.GetCurrentCluster() == -1);
-    CHECK(bsp.GetDecompressedPVS().empty());
-    CHECK(bsp.GetVisibleFaces().size() == 160);
+    CHECK(bsp.GetCurrentCluster() == 18);
+    CHECK(bsp.GetDecompressedPVS() == std::vector<uint8_t>({1, 248, 47, 254, 31}));
+    CHECK(bsp.GetVisibleFaces().size() == 68);
     CHECK(context.submittedModels == 5);
-    CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[0] ==
-          bsp.GetModels()[0].transform[1].x);
-    CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[1] ==
-          bsp.GetModels()[0].transform[2].x);
-    CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[2] ==
-          bsp.GetModels()[0].transform[3].x);
-    CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[4] ==
-          bsp.GetModels()[0].transform[1].y);
-    CHECK(bsp.GetModels()[0].object->GetModelMatrix().values[12] ==
-          bsp.GetModels()[0].transform[0].x);
-    CHECK(bsp.GetModels()[0].object->GetWorldBounds().minimum.y !=
-          bsp.GetModels()[0].object->GetPrimaryBounds().minimum.y);
+    const soft3d::BspModel& firstModel = bsp.GetModels()[0];
+    const soft3d::Matrix4& modelMatrix = firstModel.object->GetModelMatrix();
+    for (unsigned column = 0; column < 3; ++column) {
+        for (unsigned row = 0; row < 3; ++row) {
+            CHECK(modelMatrix.values[column * 4 + row] ==
+                  (&firstModel.transform[column + 1].x)[row]);
+        }
+    }
+    CHECK(modelMatrix.values[12] == firstModel.transform[0].x);
+    CHECK(modelMatrix.values[13] == firstModel.transform[0].y);
+    CHECK(modelMatrix.values[14] == firstModel.transform[0].z);
+    CHECK(firstModel.object->GetWorldBounds().minimum.y !=
+          firstModel.object->GetPrimaryBounds().minimum.y);
     bsp.SubmitVisibleEntities(engine.GetRenderQueues());
-    CHECK(engine.GetRenderQueues().GetCount(3) == 0);
+    CHECK(engine.GetRenderQueues().GetCount(3) == 3);
     bsp.Render();
     engine.GetRenderQueues().RenderSceneQueues();
     const uint32_t* frame = reinterpret_cast<const uint32_t*>(
@@ -432,8 +482,8 @@ void TestRealMenuRender()
     CHECK(engine.GetVideo().Update());
     CHECK(dummy->GetPresentedPixels().size() == 320 * 240);
     const uint32_t presentedHash = HashPixels(dummy->GetPresentedPixels().data(), 320 * 240);
-    CHECK(frameHash == 0x00841c73);
-    CHECK(presentedHash == 0x832d70f5);
+    CHECK(frameHash == 0x9919103f);
+    CHECK(presentedHash == 0x566dc515);
 #endif
 }
 
@@ -444,6 +494,7 @@ int main()
     try {
         TestLightmapAndPVS();
         TestReciprocalDepthOcclusion();
+        TestFaceVisibility();
         TestRealStyleResource();
         TestRealMenuRender();
         std::cout << "BSP render tests passed\n";

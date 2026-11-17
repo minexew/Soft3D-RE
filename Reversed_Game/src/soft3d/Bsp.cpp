@@ -974,7 +974,7 @@ result Bsp::LoadNodes(const SbpChunkDescriptor& chunk)
             const int32_t index = ReadSigned16(input + 4 + child * 2);
             node.children[child] = index;
             if (index < 0) {
-                const int64_t leaf = -static_cast<int64_t>(index) - 1;
+                const int64_t leaf = -static_cast<int64_t>(index);
                 if (!RangeValid(leaf, 1, leaves.size())) {
                     return S3D_FORMAT;
                 }
@@ -1010,6 +1010,9 @@ result Bsp::LoadNodes(const SbpChunkDescriptor& chunk)
                 if (status != S3D_OK) {
                     return status;
                 }
+            } else {
+                leaves[static_cast<std::size_t>(-static_cast<int64_t>(child))].parentIndex =
+                    static_cast<int32_t>(index);
             }
         }
         state[index] = 2;

@@ -55,6 +55,7 @@ void MenuBackdrop::PrepareRender()
     BspRenderState state;
     state.cameraPosition = camera.GetPosition();
     state.worldToCamera = camera.GetWorldToCamera();
+    state.projection = camera.GetProjection();
     state.screenScaleX = camera.GetScreenScaleX();
     state.screenScaleY = camera.GetScreenScaleY();
     state.screenCenterX = camera.GetWidth() << 15;

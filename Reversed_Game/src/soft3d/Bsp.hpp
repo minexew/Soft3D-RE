@@ -178,6 +178,7 @@ struct BspPathNode {
 struct BspLeaf {
     int32_t cluster = 0;
     int32_t renderMarker = -1;
+    int32_t parentIndex = -1;
     std::array<int16_t, 3> mins{};
     std::array<int16_t, 3> maxs{};
     uint32_t firstVisibleFace = 0;
@@ -224,6 +225,7 @@ struct BspLightStyle {
 struct BspRenderState {
     Vec3 cameraPosition;
     Matrix4 worldToCamera = Matrix4::Identity();
+    Matrix4 projection = Matrix4::Identity();
     Fixed screenScaleX = 0;
     Fixed screenScaleY = 0;
     Fixed screenCenterX = 0;
@@ -357,10 +359,11 @@ private:
     std::vector<uint8_t> DecompressPVS(int32_t cluster) const;
     void MarkVisibleLeaves();
     void TraverseVisibleNode(int32_t index, uint32_t planeMask);
-    void SubmitFace(uint32_t index, uint32_t planeMask);
+    void SubmitFace(uint32_t index, uint32_t planeMask,
+                    const BspPlane* facingPlane = nullptr);
     result BuildLightmap(BspFace& face);
     LightmapMapping BuildLightmapMapping(const BspFace& face) const;
-    std::vector<ProjectedVertex> ProjectFace(const BspFace& face);
+    std::vector<ProjectedVertex> ProjectFace(const BspFace& face, uint32_t planeMask);
     void RasterizeFace(const BspFace& face, const LightmapMapping& mapping,
                        const std::vector<ProjectedVertex>& polygon);
 
@@ -409,6 +412,7 @@ private:
     int32_t previousCluster = -1;
     std::vector<uint8_t> decompressedPVS;
     std::vector<uint32_t> visibleFaces;
+    std::vector<uint32_t> visibleFacePlaneMasks;
     std::vector<uint8_t> visibleFaceFlags;
 };
 

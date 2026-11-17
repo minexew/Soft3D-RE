@@ -156,6 +156,7 @@ Chunks CollisionChunks()
         Append32(chunks[soft3d::SbpBrushSides], ((index + 10) << 16) | index);
     }
     chunks[soft3d::SbpLeafBrushes] = {0, 0, 0, 0};
+    chunks[soft3d::SbpLeaves].resize(32, 0);
     for (unsigned leaf = 0; leaf < 2; ++leaf) {
         Append16(chunks[soft3d::SbpLeaves], 0xfffe);
         Append16(chunks[soft3d::SbpLeaves], 0xfffe);
@@ -376,8 +377,8 @@ void TestBspCollision()
     soft3d::s3dResManager manager;
     soft3d::Renderer renderer(32, 32);
     std::unique_ptr<soft3d::Bsp> bsp = LoadSynthetic(archive, manager, renderer);
-    CHECK(bsp->FindLeaf({0x8000, 0, 0}) == 0);
-    CHECK(bsp->FindLeaf({-0x8000, 0, 0}) == 1);
+    CHECK(bsp->FindLeaf({0x8000, 0, 0}) == 1);
+    CHECK(bsp->FindLeaf({-0x8000, 0, 0}) == 2);
     CHECK(bsp->GetLightIntensity({0, 0, 0}) == soft3d::fixedOne);
 
     const soft3d::BspTraceResult hit = bsp->Trace({-0x20000, 0, 0}, {0x20000, 0, 0});

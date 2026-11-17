@@ -159,7 +159,7 @@ The portable `Multiply` previously formed an outer product and later used the wr
 sum(left[column][index] * right[index][row], index = 0..3)
 ```
 
-Thus `Multiply(left, right)` returns `right × left` under the portable column-vector convention. A directed test verifies that `Transform(Multiply(model, view), point)` matches applying model and then view. Correcting this order restored real menu-lamp pixels and changed the first two real-menu hashes.
+Thus `Multiply(left, right)` returns `right × left` under the portable column-vector convention. A directed test verifies that `Transform(Multiply(model, view), point)` matches applying model and then view. Correcting this order restored real menu-lamp pixels and changed the first two real-menu hashes. A separate `Object_UpdateTransform` correction removes its extra transpose: ARM's build/transpose sequence already leaves direct axis columns in this layout, and the extra transpose caused the remaining lamp stretching and jitter.
 
 `Texture_Resize` (`0x000d7ff8`) uses its `newType` argument only to select bytes per pixel; it does not store that argument in texture field `+0x3c`. The existing type byte is preserved while palette/pixel allocations are reset. The palette at `+0x54` is the extended intensity palette, not an unknown secondary allocation. Stage 9 found no additional consumer-backed STX/SOJ/SAI field requiring a format-layout change.
 

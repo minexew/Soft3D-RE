@@ -150,9 +150,9 @@ Trace reciprocals use the same table as the renderer: `0x40000000 / index`, with
 
 ### Leaf traversal correction
 
-`Bsp_FindLeaf` (`0x001070c8`) selects serialized child 0 when plane distance is greater than zero and child 1 otherwise. `Bsp_LoadNodes` preserves serialized child order, so the previous portable condition was reversed.
+`Bsp_FindLeaf` (`0x001070c8`) selects serialized child 0 when plane distance is greater than zero and child 1 otherwise. `Bsp_LoadNodes` also resolves a negative child `-n` directly to leaf `n`; the former portable `-n - 1` decoding shifted every leaf and collision query. Leaf 0 is an unused sentinel in `menu.sbp`, whose referenced leaves are 1–177.
 
-With the fixed camera `(-66,-22,-43)`, corrected traversal reports cluster -1, no decompressed PVS stream, and 160 visible faces rather than cluster 0, five PVS bytes, and 166 faces. No queue-3 map models are submitted in that view. Raw/presented hashes remain `0x00841c73`/`0x832d70f5`; the menu SPL first/second/final hashes are also unchanged.
+With the fixed camera `(-66,-22,-43)`, corrected rendering reports cluster 18, PVS bytes `{1, 248, 47, 254, 31}`, 68 visible faces, and three queue-3 map models. Raw/presented hashes are `0x9919103f`/`0x566dc515`. The render traversal independently had its near-child order reversed: like point lookup, it must visit child 0 first for nonnegative distance. Synthetic collision fixtures include the sentinel and expect solid/empty leaves 1 and 2.
 
 ## Verification
 

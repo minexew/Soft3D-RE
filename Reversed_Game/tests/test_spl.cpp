@@ -269,33 +269,45 @@ void TestRealMenuBackdrop()
     CHECK(engine.GetCamera().GetPosition().x == -4175281);
     CHECK(engine.GetCamera().GetPosition().y == -1919741);
     CHECK(engine.GetCamera().GetPosition().z == -3071833);
-    CHECK(std::all_of(frame, frame + 320 * 240,
-                      [](uint32_t pixel) { return (pixel >> 16) != 0; }));
+    CHECK(std::count_if(frame, frame + 320 * 240,
+                        [](uint32_t pixel) { return (pixel >> 16) != 0; }) == 73555);
+    CHECK(engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().size() == 43);
+    CHECK(engine.GetRenderQueues().GetCount(3) == 2);
     CHECK(engine.GetMenuBackdrop()->GetCameraController().GetTime() == 136);
     CHECK(engine.RunFrame());
     const uint32_t secondHash = HashPixels(frame, 320 * 240);
-    CHECK(firstHash == 0x61ab0602);
-    CHECK(firstPresentedHash == 0xf28ccd7d);
-    CHECK(secondHash == 0xa4bc7741);
+    const uint32_t secondPresentedHash = HashPixels(dummy->GetPresentedPixels().data(), 320 * 240);
+    CHECK(firstHash == 0x9be83101);
+    CHECK(firstPresentedHash == 0x3593f585);
+    CHECK(secondHash == 0x694445cc);
+    CHECK(secondPresentedHash == 0x6ce41fad);
     CHECK(secondHash != firstHash);
     for (int index = 2; index < 120; ++index) {
         CHECK(engine.RunFrame());
+        if (index == 51) {
+            CHECK(engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().size() == 61);
+            CHECK(engine.GetRenderQueues().GetCount(3) == 3);
+        } else if (index == 85) {
+            CHECK(engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().size() == 51);
+            CHECK(engine.GetRenderQueues().GetCount(3) == 3);
+        }
     }
     const uint32_t finalHash = HashPixels(frame, 320 * 240);
     const uint32_t finalPresentedHash = HashPixels(dummy->GetPresentedPixels().data(), 320 * 240);
     CHECK(engine.GetMenuBackdrop()->GetCameraController().GetTime() == 120 * 136);
     CHECK(engine.GetMenuBackdrop()->GetBsp().GetFrameCounter() == 120);
-    CHECK(!engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().empty());
-    CHECK(engine.GetRenderQueues().GetCount(3) == 0);
-    CHECK(finalHash == 0xbe935b67);
-    CHECK(finalPresentedHash == 0x61bebbd5);
+    CHECK(engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().size() == 52);
+    CHECK(engine.GetRenderQueues().GetCount(3) == 3);
+    CHECK(finalHash == 0xff34b1b9);
+    CHECK(finalPresentedHash == 0x68f2b585);
     CHECK(finalHash != firstHash && finalHash != secondHash);
     for (int index = 120; index < 484; ++index) {
         CHECK(engine.RunFrame());
     }
     CHECK(engine.GetMenuBackdrop()->GetCameraController().GetTime() == 272);
     CHECK(engine.GetMenuBackdrop()->GetBsp().GetFrameCounter() == 484);
-    CHECK(engine.GetRenderQueues().GetCount(3) == 4);
+    CHECK(engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().size() == 44);
+    CHECK(engine.GetRenderQueues().GetCount(3) == 2);
 #endif
 }
 

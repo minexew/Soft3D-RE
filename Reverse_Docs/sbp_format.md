@@ -139,7 +139,7 @@ If a target array is absent, the ARM reader clears the corresponding runtime lin
 
 A serialized leaf is 32 bytes: three signed 16-bit minima, three maxima, contents, signed cluster, then four 16-bit first/count pairs for visible faces, visible entities, brushes, and visible brushes. The runtime form resolves those arrays and writes the owning leaf into every referenced visible brush.
 
-A serialized node is 24 bytes: a 32-bit plane index, two signed 16-bit child indices, three minima, three maxima, and a 16-bit first-face/count pair. A negative child encodes leaf `-child - 1`; a nonnegative child is another node. `Bsp_LinkNodeParents` (`0x001119e0`) recursively initializes node-parent links from node zero.
+A serialized node is 24 bytes: a 32-bit plane index, two signed 16-bit child indices, three minima, three maxima, and a 16-bit first-face/count pair. A negative child `-n` encodes leaf `n`, not `-n - 1`; a nonnegative child is another node. In `menu.sbp`, negative children `-1` through `-177` each occur exactly once and leaf 0 is an unreferenced sentinel. `Bsp_LinkNodeParents` (`0x001119e0`) recursively initializes parent links for both nodes and leaves from node zero.
 
 ## Incremental loading and ownership
 
@@ -171,11 +171,13 @@ until progress is 100. No episode-specific scene behavior is required to test th
 
 Chunk 25 is definitively PVS, not an unknown block. Its first word is the cluster count, followed by 32-bit offsets to zero-run-compressed visibility streams. The decompressed size is `(clusterCount + 7) >> 3` bytes. A zero byte introduces a count of zero bits; a nonzero byte is copied literally. `Bsp_DecompressPVS` (`0x000feb4c`) implements this scheme, and `Bsp_IsClusterVisible` (`0x00106958`) tests bit `cluster & 7` of byte `cluster >> 3`.
 
-`Bsp_FindLeaf` (`0x001070c8`) follows the splitting planes from node zero. Plane distance greater than zero selects serialized child 0; otherwise it selects child 1. `Bsp_LoadNodes` preserves that serialized order, so the former portable traversal was reversed and has been corrected. Negative child values encode leaf `-child - 1`. The signed serialized field at leaf offset `+0x0e` terminates traversal; the separate `contents` word at `+0x0c` selects the current PVS cluster. `contents == 0xffff` marks outside/empty space. In `menu.sbp` there are 39 PVS clusters and five decompressed visibility bytes when a cluster is selected, while many leaves have `contents == 0xffff`.
+`Bsp_FindLeaf` (`0x001070c8`) follows the splitting planes from node zero. Plane distance greater than zero selects serialized child 0; otherwise it selects child 1. Negative child values encode leaf `-child` directly. The signed serialized field at leaf offset `+0x0e` terminates traversal; the separate `contents` word at `+0x0c` selects the current PVS cluster. `contents == 0xffff` marks outside/empty space. In `menu.sbp` there are 39 PVS clusters and five decompressed visibility bytes when a cluster is selected, while many leaves have `contents == 0xffff`.
 
 Stage 11 adds the recovered swept-bounds and point-solid traces, brush-plane clipping, nearest-path-node visibility, and lightmap intensity queries. See `symbian3rd_units.md` for the 48-byte trace layout, fixed-point formulas, and update behavior.
 
-`Bsp_MarkLeaves` (`0x000fe524`) advances a separate leaf-mark counter only when the current cluster changes. `Bsp_TraverseVisibleNodes` (`0x000ff15c`) performs frustum checks and front-to-back node/leaf traversal. It marks visible faces, visible entities, and visible brushes with frame counters rather than clearing every record each frame. `Bsp_SubmitVisibleEntities` (`0x000fdf5c`) submits each marked visible entity once, selecting the opaque queue in the generic reconstruction. Host-specific transparency and behavior remain outside the generic BSP layer.
+`Bsp_MarkLeaves` (`0x000fe524`) advances a separate leaf-mark counter only when the current cluster changes. It marks every PVS-visible leaf and its unmarked ancestors. `Bsp_TraverseVisibleNodes` (`0x000ff15c`) rejects nodes whose mark differs, tests both frustum-facing bounding-box corners, and clears a plane-mask bit when the entire node is inside that plane. The default renderer state tests the four side planes extracted from the view-projection matrix by `FUN_000cf310` (`0x000cf310`); an optional renderer byte enables the fifth plane. Nonnegative node-plane distance traverses child 0 first, then node-owned faces, then child 1. The former portable render traversal selected the opposite near child.
+
+Leaf visible-face lists only set face frame marks. After the near child, a node-owned face is constructed only when its mark equals the current frame, using the node splitting plane for backface selection. Marked visible brushes submit their separate face ranges using each face's own plane. This two-phase rule prevents unmarked node faces from appearing and prevents leaf-listed faces from bypassing their owners. `Bsp_SubmitVisibleEntities` (`0x000fdf5c`) submits each marked visible entity once, selecting the opaque queue in the generic reconstruction. Host-specific transparency and behavior remain outside the generic BSP layer.
 
 ## Rendering and projection
 
@@ -219,7 +221,7 @@ The palette **byte** offset is `texel * 64 + ((intensity & 0xff00) >> 7)`, used 
 
 ## Map-model transforms
 
-The four serialized model vectors map to position, X axis, Y axis, and Z axis respectively. `Object::SetTransformVectors` restores these fields and calls `Object_UpdateTransform`, matching the ARM loader; the resulting matrix uses vector 1 for X, vector 2 for Y, and vector 3 for Z, with vector 0 as translation. Mode 0 disables lighting and mode 3 selects ambient-only lighting. Visible map entities submit their non-owning model pointers through the normal Object/Renderer path and advance animation once per submission.
+The four serialized model vectors map to position, X axis, Y axis, and Z axis respectively. `Object::SetTransformVectors` restores these fields and calls `Object_UpdateTransform`, matching the ARM loader. ARM's `Matrix4_BuildFromAxes` followed by `Matrix4_Transpose` produces direct axis columns in the portable layout: `matrix[column * 4 + row] = axis[column][row]`, with vector 0 in elements 12–14. An additional portable transpose would invert the authored orientation and collapse the lamps into stretched lines. Mode 0 disables lighting and mode 3 selects ambient-only lighting. Visible map entities submit their non-owning model pointers through the normal Object/Renderer path and advance animation once per submission.
 
 ## Portable verification
 
@@ -237,8 +239,10 @@ The full CTest suite passes. Running `Tools/sbp.py` on the real map exports the 
 
 - a one-face fixture verifies PVS selection, all 256 generated lightmap pixels, RGB565 value 31 from the correct palette byte address, nonzero packed depth, and the triangular coverage caused by face-edge index zero selecting the second vertex;
 - an overlapping two-face fixture verifies that reciprocal depth keeps the nearer black face in front regardless of submission order;
+- directed fixtures reject a node-owned face that has no current leaf mark and reject a PVS-visible node whose bounds are entirely outside the perspective frustum;
+- exact map-model checks cover every axis-matrix element and translation, including the non-axis-aligned serialized lamp orientations;
 - the real S3DSTY resource verifies allocation sizes, exact sequences, disabled styles, and a complete 20-frame wrap;
-- the real menu uses camera `(-66,-22,-43)` in corrected cluster -1, has no decompressed PVS stream, selects 160 visible faces, and submits no queue-3 map models in that view; its exact raw framebuffer and dummy-presented hashes remain `0x00841c73` and `0x832d70f5`;
+- the real menu uses camera `(-66,-22,-43)` in cluster 18, decompresses PVS bytes `{1, 248, 47, 254, 31}`, selects 68 visible faces, and submits three queue-3 map models in that view; its exact raw framebuffer and dummy-presented hashes are `0x9919103f` and `0x566dc515`;
 - normal and AddressSanitizer/UndefinedBehaviorSanitizer builds produce identical hashes with no new BSP memory errors.
 
 The older generic SOJ `Renderer`/`Raster` path used by map models still emits signed-overflow warnings under UBSan. Those warnings belong to the Stage 7 raster-parity work, not the BSP visibility/lightmap implementation.

@@ -166,7 +166,7 @@ void TraceNode(TraceContext& context, int32_t nodeIndex, Fixed firstFraction,
         return;
     }
     if (nodeIndex < 0) {
-        const int32_t leafIndex = -nodeIndex - 1;
+        const int32_t leafIndex = -nodeIndex;
         if (leafIndex >= 0 && static_cast<std::size_t>(leafIndex) < context.bsp.GetLeaves().size() &&
             (context.bsp.GetLeaves()[leafIndex].contents & 1) != 0) {
             ClipLeaf(context, leafIndex);
@@ -258,7 +258,7 @@ bool TracePointNode(TraceContext& context, int32_t nodeIndex, const Vec3& point)
         }
         return TracePointNode(context, node.children[1], point);
     }
-    const int32_t leafIndex = -nodeIndex - 1;
+    const int32_t leafIndex = -nodeIndex;
     if (leafIndex < 0 || static_cast<std::size_t>(leafIndex) >= context.bsp.GetLeaves().size()) {
         return false;
     }

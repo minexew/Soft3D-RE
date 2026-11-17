@@ -120,16 +120,17 @@ struct ClipVertex {
     Vec3 camera;
 };
 
-std::vector<ClipVertex> ClipPolygon(const std::vector<ClipVertex>& input, const BspPlane& plane)
+std::vector<ClipVertex> ClipPolygon(const std::vector<ClipVertex>& input, const BspPlane& plane,
+                                    bool cameraSpace = true)
 {
     std::vector<ClipVertex> output;
     if (input.empty()) {
         return output;
     }
     ClipVertex previous = input.back();
-    Fixed previousDistance = PlaneDistance(plane, previous.camera);
+    Fixed previousDistance = PlaneDistance(plane, cameraSpace ? previous.camera : previous.world);
     for (const ClipVertex& current : input) {
-        const Fixed currentDistance = PlaneDistance(plane, current.camera);
+        const Fixed currentDistance = PlaneDistance(plane, cameraSpace ? current.camera : current.world);
         const bool currentInside = currentDistance >= 0;
         const bool previousInside = previousDistance >= 0;
         if (currentInside != previousInside) {
@@ -158,6 +159,74 @@ std::vector<ClipVertex> ClipPolygon(const std::vector<ClipVertex>& input, const 
         previousDistance = currentDistance;
     }
     return output;
+}
+
+BspPlane NormalizePlane(std::array<Fixed, 4> values)
+{
+    Fixed magnitude = AddFixed(AddFixed(AbsFixed(values[0]), AbsFixed(values[1])),
+                               AbsFixed(values[2]));
+    Fixed threshold = 0xb50000;
+    unsigned shift = 0;
+    while (magnitude > threshold) {
+        threshold = ShiftLeftFixed(threshold, 1);
+        shift += 2;
+    }
+    const Vec3 scaled = {values[0] >> shift, values[1] >> shift, values[2] >> shift};
+    Fixed squaredLength = SquaredLength(scaled);
+    if (squaredLength < 0x4000) {
+        squaredLength = FixedInverseSqrt(ShiftLeftFixed(squaredLength, 12)) >> shift;
+        for (Fixed& value : values) {
+            value = FixedMultiply(ShiftLeftFixed(value, 6), squaredLength);
+        }
+    } else {
+        squaredLength = FixedInverseSqrt(squaredLength) >> shift;
+        for (Fixed& value : values) {
+            value = FixedMultiply(value, squaredLength);
+        }
+    }
+    return {{values[0], values[1], values[2]}, values[3], 3, 0};
+}
+
+std::vector<BspPlane> BuildClipPlanes(const Matrix4& worldToCamera, const Matrix4& projection)
+{
+    const Matrix4& matrix = Multiply(worldToCamera, projection);
+    std::vector<BspPlane> planes;
+    planes.reserve(6);
+    planes.push_back(NormalizePlane({
+        AddFixed(matrix.values[3], matrix.values[0]),
+        AddFixed(matrix.values[7], matrix.values[4]),
+        AddFixed(matrix.values[11], matrix.values[8]),
+        AddFixed(matrix.values[15], matrix.values[12])}));
+    planes.push_back(NormalizePlane({
+        SubtractFixed(matrix.values[3], matrix.values[0]),
+        SubtractFixed(matrix.values[7], matrix.values[4]),
+        SubtractFixed(matrix.values[11], matrix.values[8]),
+        SubtractFixed(matrix.values[15], matrix.values[12])}));
+    planes.push_back(NormalizePlane({
+        SubtractFixed(matrix.values[3], matrix.values[1]),
+        SubtractFixed(matrix.values[7], matrix.values[5]),
+        SubtractFixed(matrix.values[11], matrix.values[9]),
+        SubtractFixed(matrix.values[15], matrix.values[13])}));
+    planes.push_back(NormalizePlane({
+        AddFixed(matrix.values[3], matrix.values[1]),
+        AddFixed(matrix.values[7], matrix.values[5]),
+        AddFixed(matrix.values[11], matrix.values[9]),
+        AddFixed(matrix.values[15], matrix.values[13])}));
+    std::array<Fixed, 4> near = {
+        SubtractFixed(matrix.values[3], matrix.values[2]),
+        SubtractFixed(matrix.values[7], matrix.values[6]),
+        SubtractFixed(matrix.values[11], matrix.values[10]),
+        SubtractFixed(matrix.values[15], matrix.values[14])};
+    for (Fixed& value : near) {
+        value = FixedMultiply(value, 0x4000000);
+    }
+    planes.push_back(NormalizePlane(near));
+    planes.push_back(NormalizePlane({
+        AddFixed(matrix.values[3], matrix.values[2]),
+        AddFixed(matrix.values[7], matrix.values[6]),
+        AddFixed(matrix.values[11], matrix.values[10]),
+        AddFixed(matrix.values[15], matrix.values[14])}));
+    return planes;
 }
 
 } // namespace
@@ -256,7 +325,7 @@ int32_t Bsp::FindLeaf(const Vec3& position) const
         const Fixed distance = PlaneDistance(planes[node.planeIndex], position);
         index = node.children[distance > 0 ? 0 : 1];
     }
-    return -index - 1;
+    return -index;
 }
 
 std::vector<uint8_t> Bsp::DecompressPVS(int32_t cluster) const
@@ -314,32 +383,48 @@ void Bsp::MarkVisibleLeaves()
             continue;
         }
         const uint32_t cluster = leaf.contents;
-        if (cluster / 8 < decompressedPVS.size() &&
-            ((decompressedPVS[cluster / 8] >> (cluster & 7)) & 1) != 0) {
+        if (cluster / 8 >= decompressedPVS.size() ||
+            ((decompressedPVS[cluster / 8] >> (cluster & 7)) & 1) == 0) {
+            continue;
+        }
+        if (leaf.renderMarker != static_cast<int32_t>(leafMarkCounter)) {
             leaf.renderMarker = static_cast<int32_t>(leafMarkCounter);
+            int32_t parent = leaf.parentIndex;
+            while (parent >= 0 &&
+                   nodes[static_cast<std::size_t>(parent)].renderMarker !=
+                       static_cast<int32_t>(leafMarkCounter)) {
+                BspNode& node = nodes[static_cast<std::size_t>(parent)];
+                node.renderMarker = static_cast<int32_t>(leafMarkCounter);
+                parent = node.parentIndex;
+            }
         }
     }
 }
 
-void Bsp::SubmitFace(uint32_t index, uint32_t)
+void Bsp::SubmitFace(uint32_t index, uint32_t planeMask, const BspPlane* facingPlane)
 {
     if (index >= faces.size() || visibleFaceFlags[index] != 0) {
         return;
     }
     const BspFace& face = faces[index];
-    const Fixed distance = PlaneDistance(planes[face.planeIndex], renderState.cameraPosition);
+    if ((face.planeSide & 3) != 0) {
+        return;
+    }
+    const BspPlane& plane = facingPlane != nullptr ? *facingPlane : planes[face.planeIndex];
+    const Fixed distance = PlaneDistance(plane, renderState.cameraPosition);
     if ((distance > 0x28f && (face.planeSide & 0x800) != 0) ||
         (distance < -0x28f && (face.planeSide & 0x800) == 0)) {
         return;
     }
     visibleFaceFlags[index] = 1;
     visibleFaces.push_back(index);
+    visibleFacePlaneMasks.push_back(planeMask);
 }
 
 void Bsp::TraverseVisibleNode(int32_t index, uint32_t planeMask)
 {
     if (index < 0) {
-        const int32_t leafIndex = -index - 1;
+        const int32_t leafIndex = -index;
         if (leafIndex < 0 || static_cast<std::size_t>(leafIndex) >= leaves.size()) {
             return;
         }
@@ -348,7 +433,8 @@ void Bsp::TraverseVisibleNode(int32_t index, uint32_t planeMask)
             return;
         }
         for (uint16_t offset = 0; offset < leaf.visibleFaceCount; ++offset) {
-            SubmitFace(visFaces[leaf.firstVisibleFace + offset], planeMask);
+            faces[visFaces[leaf.firstVisibleFace + offset]].renderMarker =
+                static_cast<int32_t>(frameCounter);
         }
         for (uint16_t offset = 0; offset < leaf.visibleEntityCount; ++offset) {
             const uint32_t entityIndex = visibleEntityIndices[leaf.firstVisibleEntity + offset];
@@ -367,28 +453,42 @@ void Bsp::TraverseVisibleNode(int32_t index, uint32_t planeMask)
         return;
     }
     const BspNode& node = nodes[static_cast<std::size_t>(index)];
-    for (const BspPlane& plane : renderState.clipPlanes) {
-        Vec3 positive = {node.maxs[0], node.maxs[1], node.maxs[2]};
-        Vec3 negative = {node.mins[0], node.mins[1], node.mins[2]};
+    if (node.renderMarker != static_cast<int32_t>(leafMarkCounter)) {
+        return;
+    }
+    for (std::size_t planeIndex = 0; planeIndex < 4; ++planeIndex) {
+        if ((planeMask & (1U << planeIndex)) == 0) {
+            continue;
+        }
+        const BspPlane& plane = renderState.clipPlanes[planeIndex];
+        Vec3 positive;
+        Vec3 negative;
         for (std::size_t axis = 0; axis < 3; ++axis) {
-            if ((&plane.normal.x)[axis] >= 0) {
-                (&positive.x)[axis] = node.maxs[axis];
-                (&negative.x)[axis] = node.mins[axis];
-            } else {
+            if ((&plane.normal.x)[axis] < 0) {
                 (&positive.x)[axis] = node.mins[axis];
                 (&negative.x)[axis] = node.maxs[axis];
+            } else {
+                (&positive.x)[axis] = node.maxs[axis];
+                (&negative.x)[axis] = node.mins[axis];
             }
         }
-        const Vec3 positiveFixed = {positive.x << 16, positive.y << 16, positive.z << 16};
-        if (PlaneDistance(plane, positiveFixed) < 0) {
+        positive = {positive.x << 16, positive.y << 16, positive.z << 16};
+        negative = {negative.x << 16, negative.y << 16, negative.z << 16};
+        if (PlaneDistance(plane, positive) <= 0) {
             return;
+        }
+        if (PlaneDistance(plane, negative) >= 0) {
+            planeMask &= ~(1U << planeIndex);
         }
     }
     const Fixed distance = PlaneDistance(planes[node.planeIndex], renderState.cameraPosition);
-    const int near = distance < 0 ? 0 : 1;
+    const int near = distance < 0 ? 1 : 0;
     TraverseVisibleNode(node.children[near], planeMask);
     for (uint16_t offset = 0; offset < node.faceCount; ++offset) {
-        SubmitFace(node.firstFace + offset, planeMask);
+        const uint32_t faceIndex = node.firstFace + offset;
+        if (faces[faceIndex].renderMarker == static_cast<int32_t>(frameCounter)) {
+            SubmitFace(faceIndex, planeMask, &planes[node.planeIndex]);
+        }
     }
     TraverseVisibleNode(node.children[1 - near], planeMask);
 }
@@ -396,7 +496,9 @@ void Bsp::TraverseVisibleNode(int32_t index, uint32_t planeMask)
 void Bsp::PrepareRender(const BspRenderState& state)
 {
     renderState = state;
+    renderState.clipPlanes = BuildClipPlanes(state.worldToCamera, state.projection);
     visibleFaces.clear();
+    visibleFacePlaneMasks.clear();
     visibleFaceFlags.assign(faces.size(), 0);
     if (nodes.empty()) {
         currentCluster = -1;
@@ -412,7 +514,7 @@ void Bsp::PrepareRender(const BspRenderState& state)
             continue;
         }
         for (uint16_t offset = 0; offset < brush.faceCount; ++offset) {
-            SubmitFace(brush.firstFace + offset, brush.planeMask);
+            SubmitFace(brush.firstFace + offset, static_cast<uint16_t>(brush.planeMask));
         }
     }
     for (const uint32_t faceIndex : visibleFaces) {
@@ -558,7 +660,7 @@ result Bsp::BuildLightmap(BspFace& face)
     return S3D_OK;
 }
 
-std::vector<Bsp::ProjectedVertex> Bsp::ProjectFace(const BspFace& face)
+std::vector<Bsp::ProjectedVertex> Bsp::ProjectFace(const BspFace& face, uint32_t planeMask)
 {
     std::vector<ClipVertex> polygon;
     polygon.reserve(face.edgeCount);
@@ -575,10 +677,12 @@ std::vector<Bsp::ProjectedVertex> Bsp::ProjectFace(const BspFace& face)
     nearPlane.distance = -fixedOne;
     nearPlane.type = 2;
     polygon = ClipPolygon(polygon, nearPlane);
-    for (const BspPlane& plane : renderState.clipPlanes) {
-        polygon = ClipPolygon(polygon, plane);
-        if (polygon.empty()) {
-            break;
+    for (std::size_t planeIndex = 0; planeIndex < 4; ++planeIndex) {
+        if ((planeMask & (1U << planeIndex)) != 0) {
+            polygon = ClipPolygon(polygon, renderState.clipPlanes[planeIndex], false);
+            if (polygon.empty()) {
+                break;
+            }
         }
     }
     std::vector<ProjectedVertex> projected;
@@ -700,11 +804,12 @@ void Bsp::Render()
             pixels[index] &= 0xffff;
         }
     }
-    for (const uint32_t index : visibleFaces) {
-        const BspFace& face = faces[index];
+    for (std::size_t position = 0; position < visibleFaces.size(); ++position) {
+        const BspFace& face = faces[visibleFaces[position]];
         const LightmapMapping mapping = face.texInfoIndex < 0 ? LightmapMapping{}
                                                               : BuildLightmapMapping(face);
-        const std::vector<ProjectedVertex> polygon = ProjectFace(face);
+        const std::vector<ProjectedVertex> polygon =
+            ProjectFace(face, visibleFacePlaneMasks[position]);
         RasterizeFace(face, mapping, polygon);
     }
 }
