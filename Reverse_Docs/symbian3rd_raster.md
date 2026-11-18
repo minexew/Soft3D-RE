@@ -13,7 +13,7 @@ The corresponding portable code is `Reversed_Game/src/soft3d/Renderer.*`, `Raste
 - `Renderer_DrawIndexedTextured` (`0x000b1c38`) combines a primary and optional secondary vertex stream. If color bit `0x08` is present, it clears normal bit `0x02`.
 - Primitive types are 4 = list, 5 = strip, and 6 = fan. Strips swap the second and third vertex on odd triangles; fans retain the first vertex.
 - `Renderer_PrepareDrawState` (`0x000b5144`) computes model-view state and lighting flags. Lighting requires a normal, no vertex color, and the object lighting flag. Texturing requires UVs and a nonnull texture.
-- Matrix-indexed vertices select a 0x40-byte palette matrix. In the indexed-textured stream reader the matrix index is read with `>> 16`.
+- Matrix-indexed vertices select a 0x40-byte palette matrix. The normal `Renderer_TransformVertex` path uses the raw serialized index directly. Only the indexed-textured stream reader applies `>> 16`; sharing that conversion with the normal path incorrectly collapsed every `oszp_diaodeng_a` lamp vertex onto track zero.
 
 The transformed clip record is 0x34 bytes:
 

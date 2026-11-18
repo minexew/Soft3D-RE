@@ -270,17 +270,17 @@ void TestRealMenuBackdrop()
     CHECK(engine.GetCamera().GetPosition().y == -1919741);
     CHECK(engine.GetCamera().GetPosition().z == -3071833);
     CHECK(std::count_if(frame, frame + 320 * 240,
-                        [](uint32_t pixel) { return (pixel >> 16) != 0; }) == 73555);
+                        [](uint32_t pixel) { return (pixel >> 16) != 0; }) == 76675);
     CHECK(engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().size() == 43);
     CHECK(engine.GetRenderQueues().GetCount(3) == 2);
     CHECK(engine.GetMenuBackdrop()->GetCameraController().GetTime() == 136);
     CHECK(engine.RunFrame());
     const uint32_t secondHash = HashPixels(frame, 320 * 240);
     const uint32_t secondPresentedHash = HashPixels(dummy->GetPresentedPixels().data(), 320 * 240);
-    CHECK(firstHash == 0x9be83101);
-    CHECK(firstPresentedHash == 0x3593f585);
-    CHECK(secondHash == 0x694445cc);
-    CHECK(secondPresentedHash == 0x6ce41fad);
+    CHECK(firstHash == 0xf791594d);
+    CHECK(firstPresentedHash == 0xff56a105);
+    CHECK(secondHash == 0x97ab1f51);
+    CHECK(secondPresentedHash == 0xb86aef45);
     CHECK(secondHash != firstHash);
     for (int index = 2; index < 120; ++index) {
         CHECK(engine.RunFrame());
@@ -298,8 +298,8 @@ void TestRealMenuBackdrop()
     CHECK(engine.GetMenuBackdrop()->GetBsp().GetFrameCounter() == 120);
     CHECK(engine.GetMenuBackdrop()->GetBsp().GetVisibleFaces().size() == 52);
     CHECK(engine.GetRenderQueues().GetCount(3) == 3);
-    CHECK(finalHash == 0xff34b1b9);
-    CHECK(finalPresentedHash == 0x68f2b585);
+    CHECK(finalHash == 0x8456ebb2);
+    CHECK(finalPresentedHash == 0x95c61edd);
     CHECK(finalHash != firstHash && finalHash != secondHash);
     for (int index = 120; index < 484; ++index) {
         CHECK(engine.RunFrame());

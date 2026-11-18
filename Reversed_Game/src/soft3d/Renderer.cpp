@@ -85,12 +85,16 @@ struct SourceVertex {
     uint32_t matrixIndex = 0;
 };
 
-SourceVertex ReadVertex(const SojVertices& vertices, uint32_t index)
+SourceVertex ReadVertex(const SojVertices& vertices, uint32_t index,
+                        bool fixedMatrixIndex = false)
 {
     SourceVertex result;
     const uint8_t* input = vertices.data.data() + index * vertices.strideBytes;
     if ((vertices.format & 0x10) != 0) {
-        result.matrixIndex = static_cast<uint32_t>(Read32(input)) >> 16;
+        result.matrixIndex = static_cast<uint32_t>(Read32(input));
+        if (fixedMatrixIndex) {
+            result.matrixIndex >>= 16;
+        }
         input += 4;
     }
     if ((vertices.format & 1) != 0) {
@@ -114,7 +118,7 @@ SourceVertex ReadVertex(const SojVertices& vertices, uint32_t index)
 
 SourceVertex ReadSecondaryVertex(const SojVertices& vertices, uint32_t index, SourceVertex result)
 {
-    const SourceVertex secondary = ReadVertex(vertices, index);
+    const SourceVertex secondary = ReadVertex(vertices, index, true);
     if ((vertices.format & 0x10) != 0) result.matrixIndex = secondary.matrixIndex;
     if ((vertices.format & 1) != 0) result.position = secondary.position;
     if ((vertices.format & 2) != 0) result.normal = secondary.normal;

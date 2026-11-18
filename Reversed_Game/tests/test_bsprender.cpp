@@ -365,6 +365,46 @@ void TestFaceVisibility()
     };
     check(UnmarkedNodeFaceChunks(), {0});
     check(OffscreenFaceChunks(), {});
+
+    Chunks chunks = OneFaceChunks();
+    chunks[soft3d::SbpVertices].clear();
+    AppendVertex(chunks[soft3d::SbpVertices], -4, -4, 2);
+    AppendVertex(chunks[soft3d::SbpVertices], 4, -4, 2);
+    AppendVertex(chunks[soft3d::SbpVertices], 4, 4, 2);
+    AppendVertex(chunks[soft3d::SbpVertices], -4, 4, 2);
+    chunks[soft3d::SbpEdges] = Record16({0, 0, 0, 1, 1, 2, 2, 3, 3, 0});
+    chunks[soft3d::SbpFaceEdges] = Record32({1, 2, 3, 4});
+    Write32(chunks[soft3d::SbpFaces], 8, 0x0000ffff);
+    Write32(chunks[soft3d::SbpNodes], 8, 0xfffcfffc);
+    Write32(chunks[soft3d::SbpNodes], 12, 0x00010004);
+    Write32(chunks[soft3d::SbpNodes], 16, 0x00040004);
+    TempArchive archive({
+        {".\\common\\test.sbp", MakeSbp(chunks)},
+        {".\\common\\tex.stx", MakeStx()},
+    });
+    soft3d::s3dResManager manager;
+    CHECK(soft3d::OpenGameResourceArchive(&manager, archive.path.u16string().c_str()) ==
+          soft3d::S3D_OK);
+    soft3d::Renderer renderer(320, 240);
+    renderer.Clear(0x1234);
+    soft3d::Bsp bsp(&renderer, &manager);
+    CHECK(soft3d::LoadSbpMapChunks(&bsp, u".\\common\\", u"test.sbp", nullptr) == soft3d::S3D_OK);
+    soft3d::Camera camera(320, 240, nullptr);
+    soft3d::BspRenderState state;
+    state.projection = camera.GetProjection();
+    state.screenScaleX = camera.GetScreenScaleX();
+    state.screenScaleY = camera.GetScreenScaleY();
+    state.screenCenterX = 320 << 15;
+    state.screenCenterY = 240 << 15;
+    state.inverseScreenScaleX = camera.GetInverseScreenScaleX();
+    state.inverseScreenScaleY = camera.GetInverseScreenScaleY();
+    bsp.PrepareRender(state);
+    bsp.Render();
+    const uint32_t* pixels = reinterpret_cast<const uint32_t*>(
+        renderer.GetCurrentTexture()->GetPixels());
+    CHECK(bsp.GetVisibleFaces() == std::vector<uint32_t>({0}));
+    CHECK(pixels[120 * 320] == 0x00010000);
+    CHECK(pixels[120 * 320 + 319] == 0x00010000);
 }
 
 void TestRealStyleResource()
@@ -482,8 +522,8 @@ void TestRealMenuRender()
     CHECK(engine.GetVideo().Update());
     CHECK(dummy->GetPresentedPixels().size() == 320 * 240);
     const uint32_t presentedHash = HashPixels(dummy->GetPresentedPixels().data(), 320 * 240);
-    CHECK(frameHash == 0x9919103f);
-    CHECK(presentedHash == 0x566dc515);
+    CHECK(frameHash == 0x7d7b433c);
+    CHECK(presentedHash == 0x98a24acd);
 #endif
 }
 

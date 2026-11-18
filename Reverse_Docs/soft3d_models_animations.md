@@ -103,7 +103,7 @@ The rendering accessor reads 16-bit indices. The index format word has not been 
 | `0x08` | Color: one 32-bit value; the raster path uses its RGB565 value. |
 | `0x10` | Leading matrix-palette index, before all other streams. |
 
-Bit `0x10` selects a 0x40-byte matrix for skinned transformation. Without it, vertices use the object/world transform. Position is transformed as:
+Bit `0x10` selects a 0x40-byte matrix for skinned transformation. The normal indexed path uses the serialized index directly: `Renderer_TransformVertex` (`0x000b20d4`) multiplies it by `0x40` without a shift. Only the separate indexed-textured stream reader applies `>> 16`. Without a matrix index, vertices use the object/world transform. Position is transformed as:
 
 ```text
 x = m[0]*x + m[4]*y + m[8]*z + m[12]

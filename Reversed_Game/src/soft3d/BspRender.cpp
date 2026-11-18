@@ -187,9 +187,16 @@ BspPlane NormalizePlane(std::array<Fixed, 4> values)
     return {{values[0], values[1], values[2]}, values[3], 3, 0};
 }
 
-std::vector<BspPlane> BuildClipPlanes(const Matrix4& worldToCamera, const Matrix4& projection)
+std::vector<BspPlane> BuildClipPlanes(const BspRenderState& state)
 {
-    const Matrix4& matrix = Multiply(worldToCamera, projection);
+    Matrix4 projection = state.projection;
+    if (state.screenCenterX != 0) {
+        projection.values[0] = FixedDivide(state.screenScaleX, state.screenCenterX);
+    }
+    if (state.screenCenterY != 0) {
+        projection.values[5] = FixedDivide(state.screenScaleY, state.screenCenterY);
+    }
+    const Matrix4& matrix = Multiply(state.worldToCamera, projection);
     std::vector<BspPlane> planes;
     planes.reserve(6);
     planes.push_back(NormalizePlane({
@@ -496,7 +503,7 @@ void Bsp::TraverseVisibleNode(int32_t index, uint32_t planeMask)
 void Bsp::PrepareRender(const BspRenderState& state)
 {
     renderState = state;
-    renderState.clipPlanes = BuildClipPlanes(state.worldToCamera, state.projection);
+    renderState.clipPlanes = BuildClipPlanes(state);
     visibleFaces.clear();
     visibleFacePlaneMasks.clear();
     visibleFaceFlags.assign(faces.size(), 0);

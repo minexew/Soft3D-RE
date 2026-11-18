@@ -270,6 +270,74 @@ void TestObjectApi()
     CHECK(!object.HasTransparency());
 }
 
+void TestMatrixPaletteIndex()
+{
+    soft3d::Renderer renderer(16, 16);
+    renderer.Clear(0);
+    renderer.SetCullMode(0);
+    renderer.SetDepthTestEnabled(false);
+    renderer.SetFlatColor(0xf800);
+    soft3d::SojVertices vertices;
+    vertices.format = 0x11;
+    vertices.strideBytes = 16;
+    vertices.vertexCount = 3;
+    vertices.dataByteSize = 48;
+    const soft3d::Vec3 positions[] = {{0, 0, 0x30000}, {0x10000, 0, 0x30000},
+                                      {0, 0x10000, 0x30000}};
+    for (const soft3d::Vec3& position : positions) {
+        Append32(vertices.data, 1);
+        Append32(vertices.data, static_cast<uint32_t>(position.x));
+        Append32(vertices.data, static_cast<uint32_t>(position.y));
+        Append32(vertices.data, static_cast<uint32_t>(position.z));
+    }
+    soft3d::SojIndices indices;
+    indices.data = {0, 0, 1, 0, 2, 0};
+    soft3d::Matrix4 offscreen = soft3d::Matrix4::Identity();
+    offscreen.values[12] = -0x40000;
+    const std::vector<soft3d::Matrix4> palette = {offscreen, soft3d::Matrix4::Identity()};
+    soft3d::SojSurface surface;
+    surface.vertices = vertices;
+    surface.indices = indices;
+    surface.primitiveType = 4;
+    surface.primitiveCount = 1;
+    renderer.DrawIndexedSurface(surface, nullptr, nullptr, nullptr, palette);
+    const uint32_t* pixels = reinterpret_cast<const uint32_t*>(
+        renderer.GetCurrentTexture()->GetPixels());
+    CHECK(std::any_of(pixels, pixels + 16 * 16,
+                      [](uint32_t pixel) { return (pixel & 0xffff) == 0xf800; }));
+}
+
+void TestRealLamp()
+{
+#ifndef SOFT3D_SPK_ENGLISH_LAYOUT
+    soft3d::s3dResManager manager;
+    const std::filesystem::path archive = SOFT3D_TEST_ARCHIVE;
+    CHECK(soft3d::OpenGameResourceArchive(&manager, archive.u16string().c_str()) == soft3d::S3D_OK);
+    soft3d::Renderer renderer(64, 64);
+    soft3d::Object object(&renderer);
+    CHECK(object.Load(&manager, u"oszp_diaodeng_a", 0) == soft3d::S3D_OK);
+    CHECK(object.LoadMaterials(0) == soft3d::S3D_OK);
+    auto* animation = dynamic_cast<soft3d::Animation*>(manager.GetResource(
+        soft3d::ResourceAnimation, 0, u"oszp_diaodeng_a"));
+    CHECK(animation != nullptr);
+    CHECK(animation->GetTrackCount() == 5);
+    object.SetAnimation(animation);
+    object.SetPosition({0, 0, 0x80000});
+    object.UpdateTransform();
+    renderer.Clear(0x1111);
+    object.Render();
+    const uint32_t* pixels = reinterpret_cast<const uint32_t*>(
+        renderer.GetCurrentTexture()->GetPixels());
+    CHECK(std::any_of(pixels, pixels + 64 * 64,
+                      [](uint32_t pixel) { return (pixel & 0xffff) != 0x1111; }));
+    const std::vector<uint32_t> firstFrame(pixels, pixels + 64 * 64);
+    object.SetAnimationTime(1200);
+    renderer.Clear(0x1111);
+    object.Render();
+    CHECK(!std::equal(firstFrame.begin(), firstFrame.end(), pixels));
+#endif
+}
+
 void TestRealObject()
 {
 #ifndef SOFT3D_SPK_ENGLISH_LAYOUT
@@ -316,6 +384,8 @@ int main()
         TestFakeShadow();
         TestGunFire();
         TestObjectApi();
+        TestMatrixPaletteIndex();
+        TestRealLamp();
         TestRealObject();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
