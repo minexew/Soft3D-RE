@@ -98,9 +98,9 @@ result Object::LoadMaterials(int cacheLevel, const char16_t* directory)
 void Object::SetTransformVectors(const std::array<Vec3, 4>& transform)
 {
     position = transform[0];
-    axisX = transform[1];
-    axisY = transform[2];
-    axisZ = transform[3];
+    axisZ = transform[1];
+    axisX = transform[2];
+    axisY = transform[3];
     UpdateTransform();
 }
 

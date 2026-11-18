@@ -113,7 +113,7 @@ Thus 0 becomes `0x1f000000`, 128 becomes `0x0f800000`, and 255 becomes `0x001f00
 |---:|---|---|
 | `+0x00` | packed 5-bit name[16] | SOJ resource basename. |
 | `+0x10` | packed 5-bit name[16] | SAI resource basename; a first word of `0x1f` means no animation. |
-| `+0x20` | `float[12]` | Four 3D vectors converted to 16.16 fixed point and copied into `Object + 0x18` through `+0x44`. |
+| `+0x20` | `float[12]` | Position, Z axis, X axis, Y axis; converted to 16.16 fixed point and copied into `Object + 0x18` through `+0x44`. |
 | `+0x50` | `uint32_t` | First global vertex-light index. |
 | `+0x54` | `uint16_t` | Vertex-light count. |
 | `+0x56` | `uint8_t` | Mode controlling optional vertex-light creation and object flags. |
@@ -221,7 +221,7 @@ The palette **byte** offset is `texel * 64 + ((intensity & 0xff00) >> 7)`, used 
 
 ## Map-model transforms
 
-The four serialized model vectors map to position, X axis, Y axis, and Z axis respectively. `Object::SetTransformVectors` restores these fields and calls `Object_UpdateTransform`, matching the ARM loader. ARM's `Matrix4_BuildFromAxes` followed by `Matrix4_Transpose` produces direct axis columns in the portable layout: `matrix[column * 4 + row] = axis[column][row]`, with vector 0 in elements 12–14. An additional portable transpose would invert the authored orientation and collapse the lamps into stretched lines. Mode 0 disables lighting and mode 3 selects ambient-only lighting. Visible map entities submit their non-owning model pointers through the normal Object/Renderer path and advance animation once per submission.
+The four serialized model vectors map to position, Z axis, X axis, and Y axis respectively. This order follows the ARM call `Matrix4_BuildFromAxes(Object + 0x144, Object + 0x30, Object + 0x3c, Object + 0x24)`: the runtime Object stores axes as Z/X/Y at those offsets. `Object::SetTransformVectors` performs the corresponding Z/X/Y assignment and calls `Object_UpdateTransform`. ARM's `Matrix4_BuildFromAxes` followed by `Matrix4_Transpose` produces direct axis columns in the portable layout: `matrix[column * 4 + row] = axis[column][row]`, with vector 0 in elements 12–14. No additional transpose is needed. Mode 0 disables lighting and mode 3 selects ambient-only lighting. Visible map entities submit their non-owning model pointers through the normal Object/Renderer path and advance animation once per submission.
 
 ## Portable verification
 
@@ -241,7 +241,7 @@ The full CTest suite passes. Running `Tools/sbp.py` on the real map exports the 
 - an overlapping two-face fixture verifies that reciprocal depth keeps the nearer black face in front regardless of submission order;
 - directed fixtures reject a node-owned face that has no current leaf mark and reject a PVS-visible node whose bounds are entirely outside the perspective frustum;
 - a full-viewport no-texinfo face covers both horizontal edges despite the camera projection/screen-scale mismatch, preventing clipped borders from retaining prior dialog pixels;
-- exact map-model checks cover every axis-matrix element and translation, including the non-axis-aligned serialized lamp orientations;
+- exact map-model checks cover every axis-matrix element and translation for all five lamps, including the non-axis-aligned orientations and serialized position/Z/X/Y order;
 - the real S3DSTY resource verifies allocation sizes, exact sequences, disabled styles, and a complete 20-frame wrap;
 - the real menu uses camera `(-66,-22,-43)` in cluster 18, decompresses PVS bytes `{1, 248, 47, 254, 31}`, selects 68 visible faces, and submits three queue-3 map models in that view; its exact raw framebuffer and dummy-presented hashes are `0x7d7b433c` and `0x98a24acd`;
 - normal and AddressSanitizer/UndefinedBehaviorSanitizer builds produce identical hashes with no new BSP memory errors.

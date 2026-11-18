@@ -412,6 +412,16 @@ void TestOffscreenSpanClipping()
     CHECK(Pixel(renderer, 1, 1) == 0x0010f800);
 }
 
+void TestEdgeOrderAfterSorting()
+{
+    Renderer renderer(6, 6);
+    renderer.Clear(0x1111);
+    renderer.GetRaster().SetFlatColor(0xf800);
+    renderer.GetRaster().RasterizeTriangle(Vertex(2, 5), Vertex(3, 0), Vertex(1, 5));
+    CHECK(Pixel(renderer, 2, 3) == 0x0010f800);
+    CHECK(Pixel(renderer, 3, 3) == 0x1111);
+}
+
 } // namespace
 
 int main()
@@ -419,6 +429,7 @@ int main()
     try {
         TestCoverageAndDepth();
         TestOffscreenSpanClipping();
+        TestEdgeOrderAfterSorting();
         TestFlatBlends();
         TestTextureKeyLightingAndDetail();
         TestSpecializedDepthComparison();

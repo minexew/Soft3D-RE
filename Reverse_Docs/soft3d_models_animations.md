@@ -175,7 +175,7 @@ Each morph record contains a 32-bit time followed by `targetCount` fixed-point 3
 
 ## Portable reconstruction status
 
-`ObjectRes.*` and `Animation.*` use the corrected names and layouts. `Object.*` implements material loading, animation timing, matrix-palette construction, indexed surface submission, and SBP map-model transforms. `Fixed.hpp` documents the matrix convention in code. For map models, serialized vectors 0–3 supply position, X axis, Y axis, and Z axis; `Object::SetTransformVectors` restores those fields and rebuilds the model matrix and world bounds during loading. ARM `Matrix4_BuildFromAxes` plus `Matrix4_Transpose` is equivalent to writing the three axes directly as columns in the portable matrix convention. `Object_UpdateTransform` therefore performs no additional transpose; doing so produced inverted lamp orientation, incorrect world bounds, and stretched flickering geometry.
+`ObjectRes.*` and `Animation.*` use the corrected names and layouts. `Object.*` implements material loading, animation timing, matrix-palette construction, indexed surface submission, and SBP map-model transforms. `Fixed.hpp` documents the matrix convention in code. For map models, serialized vectors 0–3 supply position, Z axis, X axis, and Y axis; `Object::SetTransformVectors` restores those fields and rebuilds the model matrix and world bounds during loading. ARM `Object_UpdateTransform` passes the vectors at Object offsets `+0x30`, `+0x3c`, and `+0x24` to `Matrix4_BuildFromAxes`, then transposes. This produces direct axis columns in the portable matrix convention without another transpose. Treating the serialized vectors as X/Y/Z instead rotated the real lamps sideways and made the vertical cable horizontal.
 
 `Renderer.*` and `Raster.*` implement the recovered fixed-point software path to `BasicShader` and `VID_impl`, including sequential/indexed/secondary-stream entry points, clipping, winding, lighting, blend/depth state, texture offsets, detail alpha, and specialized scanline behavior. SOJ UV interpolation is affine, not perspective-correct. `test_raster.cpp` covers directed exact output; see `symbian3rd_raster.md` for the recovered arithmetic and original quirks.
 
@@ -186,7 +186,7 @@ The original `Object` is 0x20c bytes. Important recovered fields are:
 | Offset | Meaning |
 |---:|---|
 | `+0x18` | Object-space position. |
-| `+0x24`, `+0x30`, `+0x3c` | Local axis vectors; independent lengths are at `+0x48`..`+0x50`. |
+| `+0x24`, `+0x30`, `+0x3c` | Local Z, X, Y axis vectors respectively; independent lengths are at `+0x48`..`+0x50`. |
 | `+0x54`, `+0x58` | Material count and 0x48-byte `ObjectMaterial` array. |
 | `+0x5c`, `+0x60` | Object intensity and depth bias. |
 | `+0x69`..`+0x6b` | Lighting, ambient-only, and alternate-transform/culling flags. |

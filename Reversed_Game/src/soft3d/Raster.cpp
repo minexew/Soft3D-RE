@@ -404,6 +404,11 @@ void Raster::RasterizeTriangle(const RasterVertex& first, const RasterVertex& se
     std::stable_sort(vertices.begin(), vertices.end(), [](const Vertex& left, const Vertex& right) {
         return left.y < right.y;
     });
+    const int32_t sortedArea = WrapSubtract(
+        WrapMultiply(WrapSubtract(vertices[0].y, vertices[1].y),
+                     WrapSubtract(vertices[0].x, vertices[2].x)),
+        WrapMultiply(WrapSubtract(vertices[0].x, vertices[1].x),
+                     WrapSubtract(vertices[0].y, vertices[2].y)));
     Edge longEdge = SetupEdge(vertices[0], vertices[2]);
     Edge shortEdge = SetupEdge(vertices[0], vertices[1]);
     bool shortIsMiddle = false;
@@ -412,7 +417,7 @@ void Raster::RasterizeTriangle(const RasterVertex& first, const RasterVertex& se
             shortEdge = SetupEdge(vertices[1], vertices[2]);
             shortIsMiddle = true;
         }
-        if (area < 0) {
+        if (sortedArea < 0) {
             DrawSpan(y, longEdge, shortEdge, deltas);
         } else {
             DrawSpan(y, shortEdge, longEdge, deltas);

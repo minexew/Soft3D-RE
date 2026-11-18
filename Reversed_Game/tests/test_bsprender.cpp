@@ -498,19 +498,21 @@ void TestRealMenuRender()
     CHECK(bsp.GetDecompressedPVS() == std::vector<uint8_t>({1, 248, 47, 254, 31}));
     CHECK(bsp.GetVisibleFaces().size() == 68);
     CHECK(context.submittedModels == 5);
-    const soft3d::BspModel& firstModel = bsp.GetModels()[0];
-    const soft3d::Matrix4& modelMatrix = firstModel.object->GetModelMatrix();
-    for (unsigned column = 0; column < 3; ++column) {
-        for (unsigned row = 0; row < 3; ++row) {
-            CHECK(modelMatrix.values[column * 4 + row] ==
-                  (&firstModel.transform[column + 1].x)[row]);
+    const std::array<unsigned, 3> axisIndices = {2, 3, 1};
+    for (const soft3d::BspModel& model : bsp.GetModels()) {
+        const soft3d::Matrix4& modelMatrix = model.object->GetModelMatrix();
+        for (unsigned column = 0; column < 3; ++column) {
+            for (unsigned row = 0; row < 3; ++row) {
+                CHECK(modelMatrix.values[column * 4 + row] ==
+                      (&model.transform[axisIndices[column]].x)[row]);
+            }
         }
+        CHECK(modelMatrix.values[12] == model.transform[0].x);
+        CHECK(modelMatrix.values[13] == model.transform[0].y);
+        CHECK(modelMatrix.values[14] == model.transform[0].z);
+        CHECK(model.object->GetWorldBounds().minimum.y !=
+              model.object->GetPrimaryBounds().minimum.y);
     }
-    CHECK(modelMatrix.values[12] == firstModel.transform[0].x);
-    CHECK(modelMatrix.values[13] == firstModel.transform[0].y);
-    CHECK(modelMatrix.values[14] == firstModel.transform[0].z);
-    CHECK(firstModel.object->GetWorldBounds().minimum.y !=
-          firstModel.object->GetPrimaryBounds().minimum.y);
     bsp.SubmitVisibleEntities(engine.GetRenderQueues());
     CHECK(engine.GetRenderQueues().GetCount(3) == 3);
     bsp.Render();
