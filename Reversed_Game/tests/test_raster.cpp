@@ -211,9 +211,9 @@ void FillSurface(soft3d::SojSurface& surface, uint32_t format, uint32_t primitiv
     surface.vertices.dataByteSize = surface.vertices.strideBytes * 3;
     surface.vertices.data.resize(surface.vertices.dataByteSize);
     const std::array<soft3d::Vec3, 3> positions = {{
-        {-0x8000, -0x8000, 0x20000},
-        {0x8000, -0x8000, 0x20000},
-        {-0x8000, 0x8000, 0x20000},
+        {-0xc000, -0xc000, 0x30000},
+        {0xc000, -0xc000, 0x30000},
+        {-0xc000, 0xc000, 0x30000},
     }};
     for (uint32_t index = 0; index < 3; ++index) {
         uint8_t* output = surface.vertices.data.data() + index * surface.vertices.strideBytes;

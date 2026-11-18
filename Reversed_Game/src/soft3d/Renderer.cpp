@@ -422,10 +422,10 @@ void Renderer::ProjectVertex(Vertex& vertex) const
     const Fixed reciprocal = PerspectiveReciprocal(vertex.camera.z);
     const Fixed scaleX = WrapMultiply(width >> 1, reciprocal >> 8);
     const Fixed scaleY = WrapMultiply(height >> 1, reciprocal >> 8);
-    vertex.x = RoundFixed(AddFixed(FixedMultiply(vertex.camera.x, scaleX),
-                                   (width >> 1) << 16));
-    vertex.y = RoundFixed(AddFixed(FixedMultiply(NegateFixed(vertex.camera.y), scaleY),
-                                   (height >> 1) << 16));
+    const Fixed centerX = SubtractFixed((width >> 1) << 16, 0x8000);
+    const Fixed centerY = SubtractFixed((height >> 1) << 16, 0x8000);
+    vertex.x = RoundFixed(AddFixed(FixedMultiply(vertex.camera.x, scaleX), centerX));
+    vertex.y = RoundFixed(AddFixed(FixedMultiply(NegateFixed(vertex.camera.y), scaleY), centerY));
     vertex.inverseDepth = reciprocal;
 }
 
@@ -439,7 +439,7 @@ void Renderer::RasterizePolygon(const std::vector<Vertex>& polygon)
         const Vertex& second = polygon[index];
         const Vertex& third = polygon[index + 1];
         const int32_t area = TriangleArea(first, second, third);
-        if (area == 0 || (cullMode == 1 && area < 0) || (cullMode == 2 && area > 0)) {
+        if (area == 0) {
             continue;
         }
         auto copy = [](const Vertex& source) {
@@ -487,9 +487,9 @@ void Renderer::ClipAndRasterizeTriangle(const Vertex& first, const Vertex& secon
                     FixedMultiply(SubtractFixed(current.intensity, previous.intensity), factor));
                 intersection.inverseDepth = 0x1000000;
                 intersection.x = RoundFixed(AddFixed(FixedMultiply(intersection.camera.x,
-                    (width >> 1) << 16), (width >> 1) << 16));
+                    (width >> 1) << 16), SubtractFixed((width >> 1) << 16, 0x8000)));
                 intersection.y = RoundFixed(AddFixed(FixedMultiply(NegateFixed(intersection.camera.y),
-                    (height >> 1) << 16), (height >> 1) << 16));
+                    (height >> 1) << 16), SubtractFixed((height >> 1) << 16, 0x8000)));
                 clipped.push_back(intersection);
             }
             if (currentInside) {
@@ -504,6 +504,13 @@ void Renderer::ClipAndRasterizeTriangle(const Vertex& first, const Vertex& secon
         for (Vertex& vertex : polygon) {
             ProjectVertex(vertex);
         }
+    }
+    if (polygon.size() < 3) {
+        return;
+    }
+    const int32_t area = TriangleArea(polygon[0], polygon[1], polygon[2]);
+    if (area == 0 || (cullMode == 1 && area < 0) || (cullMode == 2 && area > 0)) {
+        return;
     }
     if ((flags & 1) != 0) polygon = ClipScreenEdge(polygon, 1, 0, false, false);
     if ((flags & 2) != 0) polygon = ClipScreenEdge(polygon, 2, width, false, true);

@@ -139,9 +139,9 @@ void TestRasterAndSoj()
     surface.vertices.dataByteSize = 36;
     surface.vertices.data.resize(36);
     const std::array<soft3d::Vec3, 3> positions = {{
-        {-0x8000, -0x8000, 0x20000},
-        {0x8000, -0x8000, 0x20000},
-        {-0x8000, 0x8000, 0x20000},
+        {-0xc000, -0xc000, 0x30000},
+        {0xc000, -0xc000, 0x30000},
+        {-0xc000, 0xc000, 0x30000},
     }};
     for (std::size_t index = 0; index < positions.size(); ++index) {
         std::memcpy(surface.vertices.data.data() + index * 12, &positions[index], 12);

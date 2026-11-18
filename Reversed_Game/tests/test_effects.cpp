@@ -255,6 +255,11 @@ void TestObjectApi()
     object.SetAxisX({0, soft3d::fixedOne, 0});
     object.SetAxisY({-soft3d::fixedOne, 0, 0});
     object.UpdateTransform();
+    CHECK(object.GetModelMatrix().values[1] == -soft3d::fixedOne);
+    CHECK(object.GetModelMatrix().values[4] == soft3d::fixedOne);
+    const soft3d::Vec3 transformed = soft3d::Transform(
+        object.GetModelMatrix(), {soft3d::fixedOne, 0, 0});
+    CHECK(transformed.x == 0x20000 && transformed.y == 0x20000 && transformed.z == 0x40000);
     object.RenderNormal();
     const soft3d::Matrix4 sampled = animation.SampleTransform(0, 0);
     const soft3d::Matrix4 expected = soft3d::Multiply(sampled,
@@ -331,10 +336,21 @@ void TestRealLamp()
     CHECK(std::any_of(pixels, pixels + 64 * 64,
                       [](uint32_t pixel) { return (pixel & 0xffff) != 0x1111; }));
     const std::vector<uint32_t> firstFrame(pixels, pixels + 64 * 64);
+    const auto hash = [&pixels] {
+        uint32_t value = 2166136261U;
+        for (std::size_t index = 0; index < 64 * 64; ++index) {
+            value = (value ^ pixels[index]) * 16777619U;
+        }
+        return value;
+    };
+    const uint32_t firstHash = hash();
     object.SetAnimationTime(1200);
     renderer.Clear(0x1111);
     object.Render();
     CHECK(!std::equal(firstFrame.begin(), firstFrame.end(), pixels));
+    const uint32_t secondHash = hash();
+    CHECK(firstHash == 0x82123bcd);
+    CHECK(secondHash == 0x40c26ba9);
 #endif
 }
 
