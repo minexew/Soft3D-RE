@@ -366,8 +366,8 @@ void Object::UpdateMatrixPalette()
         return;
     }
     Matrix4 transform = transformMode == 2
-        ? Multiply(Multiply(modelMatrix, secondaryTransform), renderer->GetViewMatrix())
-        : Multiply(modelMatrix, renderer->GetViewMatrix());
+        ? Multiply(Multiply(modelMatrix, secondaryTransform), renderer->GetViewProjectionMatrix())
+        : Multiply(modelMatrix, renderer->GetViewProjectionMatrix());
     const int32_t trackCount = animation->GetTrackCount();
     for (int32_t track = 0; track < trackCount; ++track) {
         Matrix4 sampled = animation->SampleTransform(static_cast<uint32_t>(track), animationTime);

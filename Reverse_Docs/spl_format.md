@@ -163,6 +163,8 @@ row 3 = (0, 0, -near * scaleZ, 0)
 
 The default matrix entries are `scaleX = 118667`, `scaleY = 158223`, `scaleZ = 66007`, and translation Z `-66007`. The portable implementation reproduces the menu/default values exactly; non-default tangent entries currently come from the equivalent mathematical function rather than a copied 2049-word table.
 
+`Camera_UpdateRoll` calls `Renderer_UpdateViewProjection` (`0x00050e4c`) after each camera update. The renderer retains the view and projection matrices separately and computes `view * projection` in the original multiplication order. Generic SOJ model-view state and animation palettes use this combined matrix, while object queue-depth sorting uses the unprojected view matrix. Palette vertices obtain camera depth from the combined matrix's fourth row. The portable `Renderer` exposes these as `GetViewMatrix`, `GetProjectionMatrix`, and `GetViewProjectionMatrix` and keeps them synchronized.
+
 RTTI identifies the generic `CameraSpot` interface and its `DummySpot` descendant. The interface has two destructor slots followed by position/right/up/forward getters and right/up/forward setters. `DummySpot` additionally exposes a position setter (`0x000226c8`). Its layout is:
 
 | Offset | Field |

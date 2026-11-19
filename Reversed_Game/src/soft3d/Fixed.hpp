@@ -223,13 +223,14 @@ inline Matrix4 Multiply(const Matrix4& left, const Matrix4& right)
     Matrix4 result;
     for (unsigned column = 0; column < 4; ++column) {
         for (unsigned row = 0; row < 4; ++row) {
-            Fixed value = 0;
+            int64_t value = 0;
             for (unsigned index = 0; index < 4; ++index) {
-                value = static_cast<Fixed>(static_cast<uint32_t>(value) +
-                    static_cast<uint32_t>(FixedMultiply(left.values[column * 4 + index],
-                                                        right.values[index * 4 + row])));
+                value += static_cast<int64_t>(left.values[column * 4 + index]) *
+                         right.values[index * 4 + row];
             }
-            result.values[column * 4 + row] = value;
+            const uint64_t bits = static_cast<uint64_t>(value);
+            result.values[column * 4 + row] =
+                static_cast<Fixed>(static_cast<uint32_t>(bits >> 16));
         }
     }
     return result;
@@ -238,18 +239,12 @@ inline Matrix4 Multiply(const Matrix4& left, const Matrix4& right)
 inline Vec3 Transform(const Matrix4& matrix, const Vec3& value)
 {
     return {
-        static_cast<Fixed>(static_cast<uint32_t>(FixedMultiply(matrix.values[0], value.x)) +
-                           static_cast<uint32_t>(FixedMultiply(matrix.values[4], value.y)) +
-                           static_cast<uint32_t>(FixedMultiply(matrix.values[8], value.z)) +
-                           static_cast<uint32_t>(matrix.values[12])),
-        static_cast<Fixed>(static_cast<uint32_t>(FixedMultiply(matrix.values[1], value.x)) +
-                           static_cast<uint32_t>(FixedMultiply(matrix.values[5], value.y)) +
-                           static_cast<uint32_t>(FixedMultiply(matrix.values[9], value.z)) +
-                           static_cast<uint32_t>(matrix.values[13])),
-        static_cast<Fixed>(static_cast<uint32_t>(FixedMultiply(matrix.values[2], value.x)) +
-                           static_cast<uint32_t>(FixedMultiply(matrix.values[6], value.y)) +
-                           static_cast<uint32_t>(FixedMultiply(matrix.values[10], value.z)) +
-                           static_cast<uint32_t>(matrix.values[14]))
+        AddFixed(Dot({matrix.values[0], matrix.values[4], matrix.values[8]}, value),
+                 matrix.values[12]),
+        AddFixed(Dot({matrix.values[1], matrix.values[5], matrix.values[9]}, value),
+                 matrix.values[13]),
+        AddFixed(Dot({matrix.values[2], matrix.values[6], matrix.values[10]}, value),
+                 matrix.values[14])
     };
 }
 

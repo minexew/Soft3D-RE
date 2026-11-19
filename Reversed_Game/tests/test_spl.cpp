@@ -179,6 +179,9 @@ void TestCameraAndSpot()
     CHECK(camera.GetWorldToCamera().values[12] == -0x10000);
     CHECK(camera.GetWorldToCamera().values[13] == -0x20000);
     CHECK(camera.GetWorldToCamera().values[14] == -0x30000);
+    CHECK(renderer.GetViewMatrix().values == camera.GetWorldToCamera().values);
+    CHECK(renderer.GetViewProjectionMatrix().values ==
+          soft3d::Multiply(camera.GetWorldToCamera(), camera.GetProjection()).values);
 
     soft3d::DummySpot spot;
     CHECK_VEC(spot.GetRight(), {0x10000, 0, 0});

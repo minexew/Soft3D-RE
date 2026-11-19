@@ -135,6 +135,8 @@ s32 entityBrushIndex           // -1 means none
 
 If a target array is absent, the ARM reader clears the corresponding runtime link instead of resolving it. Otherwise it forms native pointers into link, pair, brush, and model arrays. It then invokes the callback at `Bsp + 0x2aae0` with the runtime record, callback context at `+0x2aae4`, and the record-array base. The host owns concrete entity behavior; the portable `BspEntityFactory` preserves this boundary without implementing game-specific entities.
 
+The lamp pair records duplicate model/animation names, axes, position, and a second position-like vector. That second vector is the animated model's world-bounds center, not another render position. For model 0 it is `(-59.7589,-18.0604,14.5371)`, matching the corrected transform's bounds. It must not be used to shift the lamp geometry.
+
 ### Leaves and nodes
 
 A serialized leaf is 32 bytes: three signed 16-bit minima, three maxima, contents, signed cluster, then four 16-bit first/count pairs for visible faces, visible entities, brushes, and visible brushes. The runtime form resolves those arrays and writes the owning leaf into every referenced visible brush.

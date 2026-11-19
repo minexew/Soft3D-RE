@@ -225,7 +225,7 @@ The three render entries are now named by behavior:
 
 Each `ObjectMaterial` is 0x48 bytes: descriptor, packed name, primary/detail texture and resource pointers, blend selector, U/V scroll, intensity minimum/maximum/current/speed, and resource manager. `ObjectMaterial_SetIntensityBounce` (`0x000ed5bc`) resets current intensity to `0x1999` and computes speed from `(maximum-minimum)/period`; zero period disables it.
 
-Portable `Object.*` implements these APIs with non-owning resources and adds direct model/texture injection for tests and map loading. Matrix-palette composition uses the original ARM call order. The portable `Multiply` correction is described in `symbian3rd_effects.md`; with the corrected operand order, an identity model and a `0xffff` sampled transform preserve view translation `0x40000` rather than incorrectly scaling it to `0x3fffc`.
+Portable `Object.*` implements these APIs with non-owning resources and adds direct model/texture injection for tests and map loading. Matrix-palette composition uses the original ARM call order and the renderer's combined view-projection matrix; queue-depth sorting still uses view only. The portable `Multiply` correction is described in `symbian3rd_effects.md`; with the corrected operand order, an identity model and a `0xffff` sampled transform preserve view translation `0x40000` rather than incorrectly scaling it to `0x3fffc`. Palette transformation uses the fourth matrix row for camera depth, and matrix/vector dot products retain ARM's signed 64-bit accumulation with one final shift.
 
 ## Converter and animation-frame export
 

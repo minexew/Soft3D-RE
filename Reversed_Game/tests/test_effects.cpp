@@ -1,4 +1,5 @@
 #include "soft3d/Effects.hpp"
+#include "soft3d/Camera.hpp"
 #include "soft3d/Object.hpp"
 #include "soft3d/s3dResManager.hpp"
 
@@ -147,7 +148,7 @@ void TestBillboardGroup()
     CHECK(!group.AddBillboard({soft3d::fixedOne, soft3d::fixedOne, {0, 0, 0x40000}}));
     renderer.Clear(0x1111);
     group.Render();
-    CHECK(Pixel(renderer, 8, 7) == 0x4000ffff);
+    CHECK(Pixel(renderer, 8, 7) == 0x54b8ffff);
     CHECK(Pixel(renderer, 0, 0) == 0x1111);
 
     group.ClearBillboards();
@@ -195,7 +196,7 @@ void TestGunFire()
     renderer.Clear(0x1111);
     fire.Render();
     CHECK(fire.GetFramesRemaining() == 1);
-    CHECK(Pixel(renderer, 8, 7) == 0x4000ffff);
+    CHECK(Pixel(renderer, 8, 7) == 0x54b8ffff);
     fire.Render();
     CHECK(fire.GetFramesRemaining() == 0);
     renderer.Clear(0x1111);
@@ -260,6 +261,15 @@ void TestObjectApi()
     const soft3d::Vec3 transformed = soft3d::Transform(
         object.GetModelMatrix(), {soft3d::fixedOne, 0, 0});
     CHECK(transformed.x == 0x20000 && transformed.y == 0x40000 && transformed.z == 0x40000);
+    soft3d::Matrix4 accumulated = soft3d::Matrix4::Identity();
+    accumulated.values[0] = 0xb6;
+    accumulated.values[1] = 0xb6;
+    accumulated.values[4] = 0xb6;
+    soft3d::Matrix4 coefficients;
+    coefficients.values[0] = 0xb6;
+    coefficients.values[4] = 0xb6;
+    CHECK(soft3d::Multiply(accumulated, coefficients).values[0] == 1);
+    CHECK(soft3d::Transform(accumulated, {0xb6, 0xb6, 0}).x == 1);
     object.RenderNormal();
     const soft3d::Matrix4 sampled = animation.SampleTransform(0, 0);
     const soft3d::Matrix4 expected = soft3d::Multiply(sampled,
@@ -310,6 +320,14 @@ void TestMatrixPaletteIndex()
         renderer.GetCurrentTexture()->GetPixels());
     CHECK(std::any_of(pixels, pixels + 16 * 16,
                       [](uint32_t pixel) { return (pixel & 0xffff) == 0xf800; }));
+    soft3d::Matrix4 perspective = soft3d::Matrix4::Identity();
+    perspective.values[10] = 0;
+    perspective.values[11] = soft3d::fixedOne;
+    perspective.values[15] = 0;
+    renderer.Clear(0);
+    renderer.DrawIndexedSurface(surface, nullptr, nullptr, nullptr, {offscreen, perspective});
+    CHECK(std::any_of(pixels, pixels + 16 * 16,
+                      [](uint32_t pixel) { return (pixel & 0xffff) == 0xf800; }));
 }
 
 void TestRealLamp()
@@ -319,6 +337,7 @@ void TestRealLamp()
     const std::filesystem::path archive = SOFT3D_TEST_ARCHIVE;
     CHECK(soft3d::OpenGameResourceArchive(&manager, archive.u16string().c_str()) == soft3d::S3D_OK);
     soft3d::Renderer renderer(64, 64);
+    soft3d::Camera camera(64, 64, &renderer);
     soft3d::Object object(&renderer);
     CHECK(object.Load(&manager, u"oszp_diaodeng_a", 0) == soft3d::S3D_OK);
     CHECK(object.LoadMaterials(0) == soft3d::S3D_OK);
@@ -359,8 +378,8 @@ void TestRealLamp()
     object.Render();
     CHECK(!std::equal(firstFrame.begin(), firstFrame.end(), pixels));
     const uint32_t secondHash = hash();
-    CHECK(firstHash == 0x33971fb7);
-    CHECK(secondHash == 0x794c9615);
+    CHECK(firstHash == 0x85d115c5);
+    CHECK(secondHash == 0xf347549f);
 #endif
 }
 
@@ -371,6 +390,7 @@ void TestRealObject()
     const std::filesystem::path archive = SOFT3D_TEST_ARCHIVE;
     CHECK(soft3d::OpenGameResourceArchive(&manager, archive.u16string().c_str()) == soft3d::S3D_OK);
     soft3d::Renderer renderer(64, 64);
+    soft3d::Camera camera(64, 64, &renderer);
     soft3d::Object object(&renderer);
     CHECK(object.Load(&manager, u"cg_bully_tuomao_a", 0) == soft3d::S3D_OK);
     CHECK(object.LoadMaterials(0) == soft3d::S3D_OK);
@@ -384,7 +404,7 @@ void TestRealObject()
         soft3d::ResourceAnimation, 0, u"cg_bully_cc_aa"));
     CHECK(animation != nullptr);
     object.SetAnimation(animation);
-    object.SetPosition({0, 0, 0x80000});
+    object.SetPosition({0, 0, 0x100000});
     object.UpdateTransform();
     renderer.Clear(0x1111);
     object.Render();

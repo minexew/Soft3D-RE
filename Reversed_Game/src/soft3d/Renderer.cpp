@@ -233,6 +233,7 @@ Renderer::Renderer(int rendererWidth, int rendererHeight)
     , modelMatrix(Matrix4::Identity())
     , viewMatrix(Matrix4::Identity())
     , projectionMatrix(Matrix4::Identity())
+    , viewProjectionMatrix(Matrix4::Identity())
     , modelViewMatrix(Matrix4::Identity())
     , raster(rendererWidth, rendererHeight)
 {
@@ -253,11 +254,13 @@ void Renderer::SetModelMatrix(const Matrix4& matrix)
 void Renderer::SetViewMatrix(const Matrix4& matrix)
 {
     viewMatrix = matrix;
+    viewProjectionMatrix = Multiply(viewMatrix, projectionMatrix);
 }
 
 void Renderer::SetProjectionMatrix(const Matrix4& matrix)
 {
     projectionMatrix = matrix;
+    viewProjectionMatrix = Multiply(viewMatrix, projectionMatrix);
 }
 
 void Renderer::SetOrientation(int orientation)
@@ -349,7 +352,7 @@ void Renderer::SetMaterialLighting(Fixed directional, Fixed ambient, Fixed objec
 
 void Renderer::PrepareDrawState(uint32_t vertexFormat)
 {
-    modelViewMatrix = Multiply(modelMatrix, viewMatrix);
+    modelViewMatrix = Multiply(modelMatrix, viewProjectionMatrix);
     if ((vertexFormat & 2) != 0 && (vertexFormat & 8) == 0 && lightingEnabled) {
         if (ambientLightOnly) {
             lightDirection = {0, 0, -fixedOne};
@@ -377,10 +380,13 @@ Renderer::Vertex Renderer::TransformVertex(const SojVertices& vertices, uint32_t
         format &= ~2U;
     }
     Vertex result;
-    const Matrix4& transform = (format & 0x10) != 0 &&
-            source.matrixIndex < matrixPalette.size()
-        ? matrixPalette[source.matrixIndex] : modelViewMatrix;
+    const bool usePalette = (format & 0x10) != 0 && source.matrixIndex < matrixPalette.size();
+    const Matrix4& transform = usePalette ? matrixPalette[source.matrixIndex] : modelViewMatrix;
     result.camera = Transform(transform, source.position);
+    if (usePalette) {
+        const Vec3 depthRow = {transform.values[3], transform.values[7], transform.values[11]};
+        result.camera.z = AddFixed(Dot(depthRow, source.position), transform.values[15]);
+    }
     if (result.camera.x < NegateFixed(result.camera.z)) result.clipFlags |= 1;
     else if (result.camera.x > result.camera.z) result.clipFlags |= 2;
     if (result.camera.y < NegateFixed(result.camera.z)) result.clipFlags |= 8;
@@ -706,7 +712,7 @@ void Renderer::Present()
 
 bool Renderer::ProjectPoint(const Vec3& point, Vec3& projected) const
 {
-    const Matrix4 transform = Multiply(modelMatrix, Multiply(viewMatrix, projectionMatrix));
+    const Matrix4 transform = Multiply(modelMatrix, viewProjectionMatrix);
     const Vec3 camera = Transform(transform, point);
     if (camera.z < fixedOne) {
         return false;
@@ -733,6 +739,7 @@ int Renderer::GetHeight() const { return height; }
 Fixed Renderer::GetObjectIntensity() const { return objectIntensity; }
 Fixed Renderer::GetMinimumIntensity() const { return minimumIntensity; }
 const Matrix4& Renderer::GetViewMatrix() const { return viewMatrix; }
+const Matrix4& Renderer::GetViewProjectionMatrix() const { return viewProjectionMatrix; }
 const Matrix4& Renderer::GetProjectionMatrix() const { return projectionMatrix; }
 
 Texture* Renderer::GetCurrentTexture() const

@@ -63,6 +63,7 @@ public:
     Fixed GetObjectIntensity() const;
     Fixed GetMinimumIntensity() const;
     const Matrix4& GetViewMatrix() const;
+    const Matrix4& GetViewProjectionMatrix() const;
     const Matrix4& GetProjectionMatrix() const;
     Texture* GetCurrentTexture() const;
     Raster& GetRaster();
@@ -84,6 +85,7 @@ private:
     Matrix4 modelMatrix;
     Matrix4 viewMatrix;
     Matrix4 projectionMatrix;
+    Matrix4 viewProjectionMatrix;
     Matrix4 modelViewMatrix;
     std::vector<Vertex> transformed;
     uint32_t cullMode = 0;
