@@ -504,7 +504,7 @@ void TestRealMenuRender()
         for (unsigned column = 0; column < 3; ++column) {
             for (unsigned row = 0; row < 3; ++row) {
                 CHECK(modelMatrix.values[column * 4 + row] ==
-                      (&model.transform[axisIndices[row]].x)[column]);
+                      (&model.transform[axisIndices[column]].x)[row]);
             }
         }
         CHECK(modelMatrix.values[12] == model.transform[0].x);

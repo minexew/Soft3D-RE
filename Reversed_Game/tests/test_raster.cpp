@@ -211,9 +211,9 @@ void FillSurface(soft3d::SojSurface& surface, uint32_t format, uint32_t primitiv
     surface.vertices.dataByteSize = surface.vertices.strideBytes * 3;
     surface.vertices.data.resize(surface.vertices.dataByteSize);
     const std::array<soft3d::Vec3, 3> positions = {{
-        {-0xc000, -0xc000, 0x30000},
-        {0xc000, -0xc000, 0x30000},
-        {-0xc000, 0xc000, 0x30000},
+        {-0x18000, -0x18000, 0x30000},
+        {0x18000, -0x18000, 0x30000},
+        {-0x18000, 0x18000, 0x30000},
     }};
     for (uint32_t index = 0; index < 3; ++index) {
         uint8_t* output = surface.vertices.data.data() + index * surface.vertices.strideBytes;
@@ -358,6 +358,58 @@ void TestClippingAndCulling()
     CHECK(std::all_of(pixels, pixels + 64, [](uint32_t pixel) { return pixel == 0x4444; }));
 }
 
+void TestVerticalScreenClipping()
+{
+    const auto render = [](const std::array<soft3d::Vec3, 3>& positions) {
+        Renderer renderer(8, 8);
+        renderer.Clear(0x1111);
+        renderer.SetCullMode(0);
+        renderer.SetDepthTestEnabled(false);
+        renderer.SetDepthWriteEnabled(false);
+        renderer.SetFlatColor(0xf800);
+        soft3d::SojSurface surface;
+        FillSurface(surface, 1);
+        for (uint32_t index = 0; index < 3; ++index) {
+            std::memcpy(surface.vertices.data.data() + index * 12, &positions[index], 12);
+        }
+        renderer.DrawIndexed(surface.vertices, surface.indices, 4, 0, 1);
+        const uint32_t* pixels = reinterpret_cast<const uint32_t*>(
+            renderer.GetCurrentTexture()->GetPixels());
+        std::array<uint16_t, 64> colors{};
+        for (std::size_t index = 0; index < colors.size(); ++index) {
+            colors[index] = static_cast<uint16_t>(pixels[index]);
+        }
+        return colors;
+    };
+    const auto check = [&render](const std::array<soft3d::Vec3, 3>& positions,
+                                 const char* expected) {
+        const auto colors = render(positions);
+        for (std::size_t index = 0; index < colors.size(); ++index) {
+            CHECK((colors[index] == 0xf800) == (expected[index] == '#'));
+        }
+    };
+    check({{{0, 0x30000, 0x30000}, {-0x10000, -0x10000, 0x30000},
+            {0x10000, -0x10000, 0x30000}}},
+          "........"
+          "........"
+          "....#..."
+          "....#..."
+          "....##.."
+          "....##.."
+          "........"
+          "........");
+    check({{{0, -0x30000, 0x30000}, {0x10000, 0x10000, 0x30000},
+            {-0x10000, 0x10000, 0x30000}}},
+          "........"
+          "........"
+          "........"
+          "...###.."
+          "....##.."
+          "....##.."
+          "....#..."
+          "....#...");
+}
+
 void TestSelectedPathMatrix()
 {
     auto texture = MakeTexture();
@@ -435,6 +487,7 @@ int main()
         TestSpecializedDepthComparison();
         TestRendererStatesAndEntryPoints();
         TestClippingAndCulling();
+        TestVerticalScreenClipping();
         TestSelectedPathMatrix();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

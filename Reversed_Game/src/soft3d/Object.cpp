@@ -201,7 +201,6 @@ void Object::UpdateTransform()
             modelMatrix.values[4 + axis] = (&axisY.x)[axis];
             modelMatrix.values[8 + axis] = (&axisZ.x)[axis];
         }
-        modelMatrix = Transpose(modelMatrix);
     }
     modelMatrix.values[12] = AddFixed(modelMatrix.values[12], position.x);
     modelMatrix.values[13] = AddFixed(modelMatrix.values[13], position.y);

@@ -255,11 +255,11 @@ void TestObjectApi()
     object.SetAxisX({0, soft3d::fixedOne, 0});
     object.SetAxisY({-soft3d::fixedOne, 0, 0});
     object.UpdateTransform();
-    CHECK(object.GetModelMatrix().values[1] == -soft3d::fixedOne);
-    CHECK(object.GetModelMatrix().values[4] == soft3d::fixedOne);
+    CHECK(object.GetModelMatrix().values[1] == soft3d::fixedOne);
+    CHECK(object.GetModelMatrix().values[4] == -soft3d::fixedOne);
     const soft3d::Vec3 transformed = soft3d::Transform(
         object.GetModelMatrix(), {soft3d::fixedOne, 0, 0});
-    CHECK(transformed.x == 0x20000 && transformed.y == 0x20000 && transformed.z == 0x40000);
+    CHECK(transformed.x == 0x20000 && transformed.y == 0x40000 && transformed.z == 0x40000);
     object.RenderNormal();
     const soft3d::Matrix4 sampled = animation.SampleTransform(0, 0);
     const soft3d::Matrix4 expected = soft3d::Multiply(sampled,
@@ -326,6 +326,16 @@ void TestRealLamp()
         soft3d::ResourceAnimation, 0, u"oszp_diaodeng_a"));
     CHECK(animation != nullptr);
     CHECK(animation->GetTrackCount() == 5);
+    CHECK(object.GetModel()->GetObjects().size() == 3);
+    for (const soft3d::SojObject& material : object.GetModel()->GetObjects()) {
+        CHECK(material.cullMode == 2);
+    }
+    CHECK(object.GetModel()->GetSurfaces().size() == 5);
+    CHECK(object.GetSurface(0)->primitiveCount == 12);
+    CHECK(object.GetSurface(1)->primitiveCount == 4);
+    CHECK(object.GetSurface(2)->primitiveCount == 4);
+    CHECK(object.GetSurface(3)->primitiveCount == 2);
+    CHECK(object.GetSurface(4)->primitiveCount == 2);
     object.SetAnimation(animation);
     object.SetPosition({0, 0, 0x80000});
     object.UpdateTransform();
@@ -349,8 +359,8 @@ void TestRealLamp()
     object.Render();
     CHECK(!std::equal(firstFrame.begin(), firstFrame.end(), pixels));
     const uint32_t secondHash = hash();
-    CHECK(firstHash == 0x82123bcd);
-    CHECK(secondHash == 0x40c26ba9);
+    CHECK(firstHash == 0x33971fb7);
+    CHECK(secondHash == 0x794c9615);
 #endif
 }
 

@@ -422,10 +422,10 @@ void Renderer::ProjectVertex(Vertex& vertex) const
     const Fixed reciprocal = PerspectiveReciprocal(vertex.camera.z);
     const Fixed scaleX = WrapMultiply(width >> 1, reciprocal >> 8);
     const Fixed scaleY = WrapMultiply(height >> 1, reciprocal >> 8);
-    const Fixed centerX = SubtractFixed((width >> 1) << 16, 0x8000);
-    const Fixed centerY = SubtractFixed((height >> 1) << 16, 0x8000);
-    vertex.x = RoundFixed(AddFixed(FixedMultiply(vertex.camera.x, scaleX), centerX));
-    vertex.y = RoundFixed(AddFixed(FixedMultiply(NegateFixed(vertex.camera.y), scaleY), centerY));
+    vertex.x = RoundFixed(AddFixed(FixedMultiply(vertex.camera.x, scaleX),
+                                   (width >> 1) << 16));
+    vertex.y = RoundFixed(AddFixed(FixedMultiply(NegateFixed(vertex.camera.y), scaleY),
+                                   (height >> 1) << 16));
     vertex.inverseDepth = reciprocal;
 }
 
@@ -514,8 +514,8 @@ void Renderer::ClipAndRasterizeTriangle(const Vertex& first, const Vertex& secon
     }
     if ((flags & 1) != 0) polygon = ClipScreenEdge(polygon, 1, 0, false, false);
     if ((flags & 2) != 0) polygon = ClipScreenEdge(polygon, 2, width, false, true);
-    if ((flags & 8) != 0) polygon = ClipScreenEdge(polygon, 8, 0, true, false);
-    if ((flags & 4) != 0) polygon = ClipScreenEdge(polygon, 4, height, true, true);
+    if ((flags & 4) != 0) polygon = ClipScreenEdge(polygon, 4, 0, true, false);
+    if ((flags & 8) != 0) polygon = ClipScreenEdge(polygon, 8, height, true, true);
     RasterizePolygon(polygon);
 }
 
