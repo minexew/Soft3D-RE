@@ -167,7 +167,7 @@ Script-level states observed in the ARM implementation are:
 
 State 2 runs the initializer. If the current command's post-order ordinal is at most 2, the original performs only one `Step`; otherwise it loops until a step completes. It then enters state 3. State 4 iterates functions in index order, updating running/suspended functions and evaluating enabled entry conditions. A newly enabled later-index function can run in the same update.
 
-`Reset` clears shared words and value payloads and resets task cursors. `Unload` releases the parsed script in the portable implementation. The original also has archive-state readers/writers at `0x00135268`, `0x00135560`, and helpers nearby; their generic stream/state integration belongs to stage 12, not the SST instruction parser.
+`Reset` clears shared words and value payloads and resets task cursors. `Unload` releases the parsed script in the portable implementation. Generic archive-state readers/writers at `0x00135268` and `0x00135560` are now implemented: a 64-byte script name, 256 shared words, scope-0 values, globals, and per-task state/current/called ordinals and locals. Records are little-endian with four-byte-aligned value payloads. Scope 0 is the separate native array at `+0x34b4`, not function locals; the portable resolver has been corrected accordingly. Archive loading resolves ordinals with a working tree search and validates truncation and trailing data rather than using the original broken recursive lookup. See `symbian3rd_streams.md` for the exact layout and tests.
 
 ### Portable safety differences
 

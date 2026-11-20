@@ -41,8 +41,8 @@ The `Engine` vtable at `0x0015d7b0` and `GameEngine` vtable at `0x00141888` esta
 |---:|---|---|
 | `+0x0c` | Init | `GameEngine_Init` `0x0006ebc0` |
 | `+0x10` | Shutdown | `GameEngine_Shutdown` `0x000705b4` |
-| `+0x14` | Load state | `GameEngine_LoadGameState` `0x0006f39c` |
-| `+0x18` | Save state | `GameEngine_SaveGameState` `0x0006f6a4` |
+| `+0x14` | Load state | `GameEngine_LoadConfigSdt` `0x0006f39c` |
+| `+0x18` | Save state | `GameEngine_SaveConfigSdt` `0x0006f6a4` |
 | `+0x1c` | Suspend | `Engine_Suspend` |
 | `+0x20` | Resume | `Engine_Resume` |
 | `+0x24` | PreUpdate | `0x0007080c` → `Scene_Update` |

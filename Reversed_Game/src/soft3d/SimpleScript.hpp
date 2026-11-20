@@ -131,6 +131,9 @@ public:
     result Init();
     result LoadFromPak(const char16_t* name, s3dFilePak* archive);
     result Load(const uint8_t* data, size_t size);
+    size_t GetArchiveSize() const;
+    result SaveArchive(const char16_t* path);
+    result LoadArchive(const char16_t* path, s3dFilePak* archive);
     void Start();
     void Update();
     void Reset();
@@ -173,11 +176,15 @@ private:
     void Evaluate(ScriptValue* output, const ScriptValue& left, const ScriptValue& right,
                   uint16_t operation);
     void ProcessPendingLoad();
+    static size_t GetSerializedValueSize(const ScriptValue& value);
+    static void WriteSerializedValue(std::vector<uint8_t>& output, const ScriptValue& value);
+    static ScriptCommand* FindCommandByOrdinal(const ScriptFunction& function, uint32_t ordinal);
 
     std::unique_ptr<ScriptFunction> initializer;
     std::vector<std::unique_ptr<ScriptFunction>> functions;
     std::vector<std::unique_ptr<ScriptCommand>> commands;
     std::vector<std::unique_ptr<ScriptValue>> variables;
+    std::vector<ScriptValue*> scope0Variables;
     std::vector<ScriptValue*> globals;
     std::array<uint32_t, 256> shared{};
     ScriptInterface* scriptInterface = nullptr;

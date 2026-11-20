@@ -4,6 +4,7 @@
 #include "soft3d/Effects.hpp"
 #include "soft3d/Object.hpp"
 #include "soft3d/SoundInstance.hpp"
+#include "soft3d/Stream.hpp"
 #include "soft3d/s3dBase.hpp"
 
 #include <array>
@@ -62,6 +63,8 @@ public:
     virtual void SubmitRenderables(RenderQueues& queues);
     virtual void Update();
     virtual void PostUpdate();
+    virtual void SaveState(OutputStream& stream) const;
+    virtual void LoadState(InputStream& stream);
 
     int32_t GetUnitType() const;
     int32_t GetUnitId() const;
@@ -101,6 +104,8 @@ public:
     void SubmitRenderables(RenderQueues& queues) override;
     void Update() override;
     void PostUpdate() override;
+    void SaveState(OutputStream& stream) const override;
+    void LoadState(InputStream& stream) override;
     virtual result LoadMaterials(const char16_t* directory = nullptr);
     virtual void SetAnimation(const Animation* animation, int32_t direction = 1,
                               bool loop = true);
@@ -111,6 +116,7 @@ public:
 
     result LoadObjects(const char16_t* name, const char16_t* directory, int count);
     result LoadAlternateObject(const char16_t* name, const char16_t* directory = nullptr);
+    result LoadAnimation(const char16_t* name, const char16_t* directory = nullptr);
     void EnableShadow(bool enabled);
     void SetPositionalAudio(bool enabled);
     void StopSound();
@@ -125,6 +131,7 @@ public:
     bool IsAnimationFinished() const;
     bool IsShadowEnabled() const;
     bool IsShadowTransformDirty() const;
+    bool IsPositionalAudio() const;
     int GetCurrentObjectIndex() const;
 
 protected:

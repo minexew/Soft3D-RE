@@ -17,6 +17,7 @@ public:
     ~s3dIO() override = default;
 
     bool Open(const char16_t* path, const char16_t* mode);
+    bool Open(const char* path, const char* mode);
     void Close();
     void Seek(uint32_t offset, int whence);
     uint32_t Tell() const;
@@ -26,11 +27,13 @@ public:
     int Printf(const char16_t* format, ...);
     int VPrintf(const char16_t* format, va_list arguments);
     bool Reopen(const char16_t* path, const char16_t* mode);
+    bool Reopen(const char* path, const char* mode);
 
 private:
     platform::File* file = nullptr;
 };
 
+char16_t* ConvertAsciiToWide(char16_t* output, const char* input);
 int FormatWideString(char16_t* output, const char16_t* format, va_list arguments);
 int WideSprintf(char16_t* output, const char16_t* format, ...);
 

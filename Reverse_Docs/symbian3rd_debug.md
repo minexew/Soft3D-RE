@@ -17,7 +17,7 @@ Useful diagnostic logic exists as two standalone S2D-compatible functions, not a
 | `0x000a77ec` | `MemTotal` | Return `TMemoryInfoV1::iTotalRamInBytes`, or `-1` if `UserHal::MemoryInfo` fails. |
 | `0x000a7840` | `MemRemain` | Return `TMemoryInfoV1::iFreeRamInBytes` at structure offset `+0x0c`, or `-1` on failure. |
 
-Both construct a `TMemoryInfoV1Buf` with `TMemoryInfoV1Buf_Ctor` (`0x000a79e4`) and access its payload with `TMemoryInfoV1Buf_Data` (`0x000a7a28`). The SDK declaration in `s2dbase_memory.h` confirms the corresponding `memtotal()`/`memremain()` roles and `-1` error result. Neither function has a caller in this game build, so there is no recovered game-facing memory display to enable. Portable wrappers remain in the stage 12 diagnostics work rather than being presented as methods of the empty class.
+Both construct a `TMemoryInfoV1Buf` with `TMemoryInfoV1Buf_Ctor` (`0x000a79e4`) and access its payload with `TMemoryInfoV1Buf_Data` (`0x000a7a28`). The SDK declaration in `s2dbase_memory.h` confirms the corresponding `memtotal()`/`memremain()` roles and `-1` error result. Neither function has a caller in this game build, so there is no recovered game-facing memory display to enable. `s3dMemory.hpp` and `platform/linux/Memory.cpp` implement standalone wrappers using `sysinfo`, returning total/free bytes or `-1`. The portable API uses 64-bit values to avoid overflow on modern hosts and remains separate from the empty class. `tests/test_stream.cpp` verifies successful queries and their ordering.
 
 ## FPS text and stale real-FPS field
 

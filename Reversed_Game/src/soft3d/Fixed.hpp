@@ -105,10 +105,22 @@ inline Fixed FixedInverseSqrt(Fixed value)
     return result;
 }
 
+struct Vec2 {
+    Fixed x = 0;
+    Fixed y = 0;
+};
+
 struct Vec3 {
     Fixed x = 0;
     Fixed y = 0;
     Fixed z = 0;
+};
+
+struct Vec4 {
+    Fixed x = 0;
+    Fixed y = 0;
+    Fixed z = 0;
+    Fixed w = 0;
 };
 
 inline Vec3 Add(const Vec3& left, const Vec3& right)

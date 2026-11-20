@@ -22,14 +22,14 @@ Every stage should include the corresponding Ghidra names/types/comments, Englis
 - 23-key input transitions and translation, SDL event mapping, microsecond target-FPS limiting, lifecycle helpers, and opt-in FPS text;
 - complete startup/sound/main-menu flow, all seven concrete dialog classes, orientation-aware controls, and `config.sdt`/save-slot persistence;
 - SST loading, typed values/references, recursive command trees, the generic VM/host interface, task lifecycle, and script update integration;
-- generic messages, units, visual/physics bases, reusable state templates, eight-bucket `GameUnitManager`, and BSP collision/path queries.
+- generic messages, units, visual/physics bases, reusable state templates, eight-bucket `GameUnitManager`, and BSP collision/path queries;
+- memory/file streams, big-endian typed IO, generic `GameUnit`/`VisUnit`/`SimpleScript` state serialization, narrow-path IO, and standalone RAM diagnostics.
 
-The game hooks that invoke audio are not automatically supplied by the audio implementation. Stages 7 and 8 resolved renderer-facing SOJ material fields, raster feature parity, and all presentation shaders. Stage 9 completed Object loading/control APIs and all four renderable effects. Stage 10 completed the generic script parser, VM, and interface. Stage 11 completed generic units, state machines, physics, and BSP collision.
+The game hooks that invoke audio are not automatically supplied by the audio implementation. Stages 7 and 8 resolved renderer-facing SOJ material fields, raster feature parity, and all presentation shaders. Stage 9 completed Object loading/control APIs and all four renderable effects. Stage 10 completed the generic script parser, VM, and interface. Stage 11 completed generic units, state machines, physics, and BSP collision. Stage 12 completed streams, generic state serialization, narrow IO, and standalone diagnostics.
 
 ### Missing or incomplete engine facilities
 
 - episode-specific `Scene` gameplay, concrete units, and game-data semantics;
-- generic streams, state load/save support, standalone RAM diagnostics, and currently unused IO/debug facilities;
 - S3DTEX engine/tool parity and remaining STX/SOJ/SAI unknown fields.
 
 The old video documentation's statement that audio remains a stub is obsolete; `symbian3rd_audio.md` is the current audio reference.
@@ -260,9 +260,9 @@ Real-resource tests verify exact counts for `day1/ep0`, `day1/ep1010`, `day5/ep2
 
 `Units.*`, `StateMachine.hpp`, `BspCollision.cpp`, and `test_units.cpp` implement and test the recovered infrastructure. Message queues, all three unit queries, eight-bucket ownership/update/submission, child-first state transitions, LOD/visuals, simple and slide movement, ground/shadow traces, `Things` destruction, and `Creature` hearing/navigation are covered. The real `menu.sbp` is exercised without episode logic, and real SOJ resources exercise the visual path.
 
-The shared BSP leaf decoding now matches ARM's direct `-child` leaf index, including collision and point queries; synthetic maps include the unused leaf-0 sentinel. The fixed render camera reports cluster 18, five PVS bytes, 68 visible faces, and three queue-3 models, with raw/presented hashes `0x9919103f`/`0x566dc515`. The update also fixes per-frame light assignment to object intensity rather than depth bias. All 25 normal CTest tests and all 19 SDL-independent ASan/UBSan tests pass, as do all six standalone SOJ converter tests. See `symbian3rd_units.md` for exact behavior, addresses, original quirks, and portable safety differences. Stream-backed state serialization remains in stage 12.
+The shared BSP leaf decoding now matches ARM's direct `-child` leaf index, including collision and point queries; synthetic maps include the unused leaf-0 sentinel. The fixed render camera reports cluster 18, five PVS bytes, 68 visible faces, and three queue-3 models, with raw/presented hashes `0x9919103f`/`0x566dc515`. The update also fixes per-frame light assignment to object intensity rather than depth bias. All 25 normal CTest tests and all 19 SDL-independent ASan/UBSan tests pass, as do all six standalone SOJ converter tests. See `symbian3rd_units.md` for exact behavior, addresses, original quirks, and portable safety differences. Stream-backed state serialization is completed in stage 12.
 
-## Stage 12 — Streams, state serialization, and small engine utilities
+## Stage 12 — Streams, state serialization, and small engine utilities — complete
 
 **Scope**
 
@@ -275,6 +275,12 @@ The shared BSP leaf decoding now matches ARM's direct `-child` leaf index, inclu
 
 - Test stream read/write/reopen/truncation/error paths and standalone state fixtures.
 - Exercise suspend/resume/quit, memory diagnostics, and deterministic restart.
+
+**Completion**
+
+`Stream.*`, `Units.*`, `SimpleScript.*`, `s3dIO.*`, `s3dMemory.hpp`, `platform/linux/Memory.cpp`, `test_stream.cpp`, and the expanded `test_script.cpp` implement the recovered behavior. All seven stream classes preserve big-endian typed words, raw little-endian UTF-16 payloads, sentinel-inclusive sizes, strict bounds, growth, whole-file input, explicit buffered-file flushing, and truncating `wb` output. Portable checks reject malformed reads and zero the original indeterminate sentinel byte. `GameUnit` omits collision-enabled and consumes type separately; `VisUnit` restores resources and applies the last object's playback record to all objects. `SimpleScript` archives preserve name/shared/global/local/task/call state with working ordinal resolution. Narrow IO and shared byte-to-UTF-16 conversion are implemented, and the SDL app no longer duplicates widening. Standalone Linux RAM queries use 64-bit totals.
+
+All 26 normal CTest tests, all 20 stdio-logging tests, and all 20 SDL-independent ASan/UBSan tests pass, as do all six standalone SOJ converter tests. Ghidra has saved stream layouts and 82 recovered function documentations, plus the corrected render-mode/external-transform fields and 0x48-byte `ObjectMaterial` layout. See `symbian3rd_streams.md` for exact layouts, addresses, original quirks, portable safety differences, and verification.
 
 ## Stage 13 — S3DTEX, secondary formats, and final engine audit
 

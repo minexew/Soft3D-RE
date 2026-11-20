@@ -104,6 +104,13 @@ void Object::SetTransformVectors(const std::array<Vec3, 4>& transform)
     UpdateTransform();
 }
 
+void Object::RestoreAxes(const Vec3& newAxisZ, const Vec3& newAxisX, const Vec3& newAxisY)
+{
+    axisZ = newAxisZ;
+    axisX = newAxisX;
+    axisY = newAxisY;
+}
+
 void Object::SetModelMatrix(const Matrix4& matrix)
 {
     modelMatrix = matrix;
@@ -186,7 +193,7 @@ void Object::UpdateTransform()
     if (model == nullptr) {
         return;
     }
-    if (cullingDisabled) {
+    if (externalTransformEnabled) {
         modelMatrix = secondaryTransform;
         for (unsigned column = 0; column < 4; ++column) {
             modelMatrix.values[column * 4] = FixedMultiply(modelMatrix.values[column * 4],
@@ -205,7 +212,7 @@ void Object::UpdateTransform()
     modelMatrix.values[12] = AddFixed(modelMatrix.values[12], position.x);
     modelMatrix.values[13] = AddFixed(modelMatrix.values[13], position.y);
     modelMatrix.values[14] = AddFixed(modelMatrix.values[14], position.z);
-    if (cullingDisabled) {
+    if (externalTransformEnabled) {
         return;
     }
     worldBounds.minimum = worldBounds.maximum = Transform(modelMatrix, localCorners[0]);
@@ -318,6 +325,7 @@ void Object::SetBoneTransform(int32_t track, const Matrix4& transform)
 void Object::SetLightingEnabled(bool enabled) { lightingEnabled = enabled; }
 void Object::SetAmbientLightOnly(bool enabled) { ambientLightOnly = enabled; }
 void Object::SetCullingDisabled(bool disabled) { cullingDisabled = disabled; }
+void Object::SetExternalTransformEnabled(bool enabled) { externalTransformEnabled = enabled; }
 void Object::SetObjectIntensity(Fixed intensity) { objectIntensity = intensity; }
 void Object::SetDepthBias(Fixed bias) { depthBias = bias; }
 void Object::SetSecondaryVertices(const SojVertices* vertices) { secondaryVertices = vertices; }
@@ -335,6 +343,28 @@ void Object::SetMaterialIntensityBounce(uint32_t material, Fixed minimum, Fixed 
     state.intensity = 0x1999;
     state.intensitySpeed = period == 0 ? 0 : FixedMultiply(
         SubtractFixed(maximum, minimum), FixedDivide(fixedOne, period << 16));
+}
+
+void Object::SetMaterialIntensityState(uint32_t material, Fixed minimum, Fixed maximum,
+                                       Fixed intensity, Fixed speed)
+{
+    if (material < materialStates.size()) {
+        MaterialState& state = materialStates[material];
+        state.minimumIntensity = minimum;
+        state.maximumIntensity = maximum;
+        state.intensity = intensity;
+        state.intensitySpeed = speed;
+    }
+}
+
+void Object::RestoreAnimationState(int32_t paused, int32_t time, int32_t direction,
+                                   int32_t loop, int32_t speed)
+{
+    animationPaused = paused != 0;
+    animationTime = time;
+    animationDirection = direction;
+    loopAnimation = loop != 0;
+    animationSpeed = speed;
 }
 
 void Object::SetMaterialBlendMode(uint32_t material, uint32_t mode)
@@ -614,6 +644,25 @@ int32_t Object::GetAnimationDirection() const { return animationDirection; }
 int32_t Object::GetAnimationSpeed() const { return animationSpeed; }
 bool Object::IsAnimationLooping() const { return loopAnimation; }
 bool Object::IsAnimationPaused() const { return animationPaused; }
+const Vec3& Object::GetPosition() const { return position; }
+const Vec3& Object::GetAxisX() const { return axisX; }
+const Vec3& Object::GetAxisY() const { return axisY; }
+const Vec3& Object::GetAxisZ() const { return axisZ; }
+Fixed Object::GetObjectIntensity() const { return objectIntensity; }
+Fixed Object::GetDepthBias() const { return depthBias; }
+bool Object::IsLightingEnabled() const { return lightingEnabled; }
+bool Object::IsAmbientLightOnly() const { return ambientLightOnly; }
+bool Object::IsCullingDisabled() const { return cullingDisabled; }
+bool Object::IsExternalTransformEnabled() const { return externalTransformEnabled; }
+std::array<Fixed, 4> Object::GetMaterialIntensityState(uint32_t material) const
+{
+    if (material >= materialStates.size()) {
+        return {0x1999, fixedOne, 0x1999, 0};
+    }
+    const MaterialState& state = materialStates[material];
+    return {state.minimumIntensity, state.maximumIntensity, state.intensity,
+            state.intensitySpeed};
+}
 uint32_t Object::GetMaterialBlendMode(uint32_t material) const
 {
     return material < materialStates.size() ? materialStates[material].blendMode : 0;

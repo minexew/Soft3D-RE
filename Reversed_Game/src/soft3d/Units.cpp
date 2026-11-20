@@ -124,6 +124,27 @@ void GameUnit::SubmitRenderables(RenderQueues&) {}
 void GameUnit::Update() {}
 void GameUnit::PostUpdate() {}
 
+void GameUnit::SaveState(OutputStream& stream) const
+{
+    stream.WriteInt32(unitType);
+    stream.WriteInt32(unitId);
+    stream.WriteInt32(visible ? 1 : 0);
+    WriteVec3(stream, position);
+    WriteBounds(stream, localBounds);
+    WriteBounds(stream, collisionBounds);
+}
+
+void GameUnit::LoadState(InputStream& stream)
+{
+    int32_t flags = 0;
+    stream.ReadInt32(unitId);
+    stream.ReadInt32(flags);
+    visible = flags != 0;
+    ReadVec3(stream, position);
+    ReadBounds(stream, localBounds);
+    ReadBounds(stream, collisionBounds);
+}
+
 int32_t GameUnit::GetUnitType() const { return unitType; }
 int32_t GameUnit::GetUnitId() const { return unitId; }
 const Vec3& GameUnit::GetPosition() const { return position; }
@@ -198,6 +219,7 @@ void VisUnit::EnableShadow(bool enabled)
 }
 
 void VisUnit::SetPositionalAudio(bool enabled) { positionalAudio = enabled; }
+bool VisUnit::IsPositionalAudio() const { return positionalAudio; }
 
 void VisUnit::StopSound()
 {
@@ -315,6 +337,169 @@ void VisUnit::SetAnimation(const Animation* resource, int32_t direction, bool lo
         localBounds = primaryObject->GetPrimaryBounds();
     }
     animationFinished = false;
+}
+
+result VisUnit::LoadAnimation(const char16_t* name, const char16_t* directory)
+{
+    if (resourceManager == nullptr || name == nullptr) {
+        return S3D_FILE;
+    }
+    const auto* resource = dynamic_cast<const Animation*>(resourceManager->GetResource(
+        ResourceAnimation, cacheLevel, name, directory));
+    if (resource == nullptr) {
+        return S3D_FILE;
+    }
+    SetAnimation(resource, 1, true);
+    return S3D_OK;
+}
+
+void VisUnit::SaveState(OutputStream& stream) const
+{
+    GameUnit::SaveState(stream);
+    stream.WriteInt32(cacheLevel);
+    const uint32_t count = objectGroup != nullptr
+        ? static_cast<uint32_t>(objectGroup->objects.size()) : 0;
+    stream.WriteUInt32(count);
+    if (count != 0) {
+        const ObjectRes* model = objectGroup->objects.front()->GetModel();
+        stream.WriteWideString(model != nullptr ? model->GetFileName() : u"");
+        stream.WriteWideString(model != nullptr ? model->GetDirectory() : u"");
+        for (const auto& object : objectGroup->objects) {
+            WriteVec3(stream, object->GetAxisZ());
+            WriteVec3(stream, object->GetAxisX());
+            WriteVec3(stream, object->GetAxisY());
+            WriteFixed(stream, object->GetDepthBias());
+            WriteFixed(stream, object->GetObjectIntensity());
+            stream.WriteInt32(static_cast<int32_t>(object->GetRenderMode()));
+            stream.WriteByte(object->IsLightingEnabled() ? 1 : 0);
+            stream.WriteByte(object->IsAmbientLightOnly() ? 1 : 0);
+            stream.WriteByte(object->IsCullingDisabled() ? 1 : 0);
+            stream.WriteByte(object->IsExternalTransformEnabled() ? 1 : 0);
+            stream.WriteInt32(object->IsAnimationPaused() ? 1 : 0);
+            stream.WriteInt32(object->GetAnimationTime());
+            stream.WriteInt32(object->GetAnimationDirection());
+            stream.WriteInt32(object->IsAnimationLooping() ? 1 : 0);
+            stream.WriteInt32(object->GetAnimationSpeed());
+            const auto intensity = object->GetMaterialIntensityState(0);
+            for (Fixed value : intensity) {
+                WriteFixed(stream, value);
+            }
+        }
+    }
+    stream.WriteByte(shadowEnabled ? 1 : 0);
+    stream.WriteByte(shadowTransformDirty ? 1 : 0);
+    stream.WriteByte(shadowObject != nullptr ? 1 : 0);
+    if (shadowObject != nullptr) {
+        const ObjectRes* model = shadowObject->GetModel();
+        stream.WriteWideString(model != nullptr ? model->GetFileName() : u"");
+    }
+    stream.WriteByte(animation != nullptr ? 1 : 0);
+    if (animation != nullptr) {
+        stream.WriteWideString(animation->GetFileName());
+        stream.WriteWideString(animation->GetDirectory());
+    }
+    stream.WriteInt32(animationFinished ? 1 : 0);
+    stream.WriteInt32(positionalAudio ? 1 : 0);
+}
+
+void VisUnit::LoadState(InputStream& stream)
+{
+    GameUnit::LoadState(stream);
+    stream.ReadInt32(cacheLevel);
+    uint32_t count = 0;
+    stream.ReadUInt32(count);
+    int32_t paused = 0;
+    int32_t time = 0;
+    int32_t direction = 1;
+    int32_t loop = 1;
+    int32_t speed = 300;
+    if (count != 0) {
+        char16_t name[256]{};
+        char16_t directory[256]{};
+        if (stream.ReadWideString(name, 256) != S3D_OK ||
+            stream.ReadWideString(directory, 256) != S3D_OK || count > INT32_MAX) {
+            return;
+        }
+        LoadObjects(name, directory, static_cast<int32_t>(count));
+        LoadMaterials(directory);
+        for (uint32_t index = 0; index < count; ++index) {
+            Object* object = GetObject(index);
+            if (object == nullptr) {
+                return;
+            }
+            Vec3 axisZ;
+            Vec3 axisX;
+            Vec3 axisY;
+            ReadVec3(stream, axisZ);
+            ReadVec3(stream, axisX);
+            ReadVec3(stream, axisY);
+            object->RestoreAxes(axisZ, axisX, axisY);
+            Fixed fixedValue = 0;
+            ReadFixed(stream, fixedValue);
+            object->SetDepthBias(fixedValue);
+            ReadFixed(stream, fixedValue);
+            object->SetObjectIntensity(fixedValue);
+            int32_t integerValue = 0;
+            stream.ReadInt32(integerValue);
+            object->SetRenderMode(static_cast<ObjectRenderMode>(integerValue));
+            uint8_t byteValue = 0;
+            stream.ReadByte(byteValue);
+            object->SetLightingEnabled(byteValue != 0);
+            stream.ReadByte(byteValue);
+            object->SetAmbientLightOnly(byteValue != 0);
+            stream.ReadByte(byteValue);
+            object->SetCullingDisabled(byteValue != 0);
+            stream.ReadByte(byteValue);
+            object->SetExternalTransformEnabled(byteValue != 0);
+            stream.ReadInt32(paused);
+            stream.ReadInt32(time);
+            stream.ReadInt32(direction);
+            stream.ReadInt32(loop);
+            stream.ReadInt32(speed);
+            object->RestoreAnimationState(paused, time, direction, loop, speed);
+            std::array<Fixed, 4> intensity{};
+            for (Fixed& value : intensity) {
+                ReadFixed(stream, value);
+            }
+            object->SetMaterialIntensityState(0, intensity[0], intensity[1], intensity[2],
+                                              intensity[3]);
+        }
+    }
+    bool flag = false;
+    stream.ReadBool(flag);
+    shadowEnabled = flag;
+    stream.ReadBool(flag);
+    shadowTransformDirty = flag;
+    uint8_t present = 0;
+    stream.ReadByte(present);
+    if (present != 0) {
+        char16_t name[256]{};
+        if (stream.ReadWideString(name, 256) != S3D_OK) {
+            return;
+        }
+        LoadAlternateObject(name);
+    }
+    stream.ReadByte(present);
+    if (present != 0) {
+        char16_t name[256]{};
+        char16_t directory[256]{};
+        if (stream.ReadWideString(name, 256) != S3D_OK ||
+            stream.ReadWideString(directory, 256) != S3D_OK) {
+            return;
+        }
+        LoadAnimation(name, directory);
+        for (uint32_t index = 0; index < count; ++index) {
+            Object* object = GetObject(index);
+            if (object != nullptr) {
+                object->RestoreAnimationState(paused, time, direction, loop, speed);
+            }
+        }
+    }
+    int32_t integerValue = 0;
+    stream.ReadInt32(integerValue);
+    animationFinished = integerValue != 0;
+    stream.ReadInt32(integerValue);
+    positionalAudio = integerValue != 0;
 }
 
 void VisUnit::SetDirection(const Vec3& direction)

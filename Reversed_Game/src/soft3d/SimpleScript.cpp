@@ -1,5 +1,7 @@
 #include "soft3d/SimpleScript.hpp"
 
+#include "soft3d/s3dIO.hpp"
+
 #include <algorithm>
 #include <cstdio>
 
@@ -58,6 +60,77 @@ int CompareStrings(const std::u16string& left, const std::u16string& right)
         return 0;
     }
     return left.size() < right.size() ? -1 : 1;
+}
+
+void Append16(std::vector<uint8_t>& output, uint16_t value)
+{
+    output.push_back(static_cast<uint8_t>(value));
+    output.push_back(static_cast<uint8_t>(value >> 8));
+}
+
+void Append32(std::vector<uint8_t>& output, uint32_t value)
+{
+    Append16(output, static_cast<uint16_t>(value));
+    Append16(output, static_cast<uint16_t>(value >> 16));
+}
+
+class ArchiveReader {
+public:
+    ArchiveReader(const uint8_t* data, size_t size)
+        : data(data), size(size)
+    {
+    }
+
+    bool Read16(uint16_t& value)
+    {
+        if (position + 2 > size) {
+            return false;
+        }
+        value = static_cast<uint16_t>(data[position]) |
+                static_cast<uint16_t>(data[position + 1]) << 8;
+        position += 2;
+        return true;
+    }
+
+    bool Read32(uint32_t& value)
+    {
+        uint16_t low = 0;
+        uint16_t high = 0;
+        if (!Read16(low) || !Read16(high)) {
+            return false;
+        }
+        value = low | static_cast<uint32_t>(high) << 16;
+        return true;
+    }
+
+    bool Skip(size_t bytes)
+    {
+        if (bytes > size - position) {
+            return false;
+        }
+        position += bytes;
+        return true;
+    }
+
+    const uint8_t* data;
+    size_t size;
+    size_t position = 0;
+};
+
+ScriptCommand* FindOrdinalInCommand(ScriptCommand* command, uint32_t ordinal)
+{
+    if (command == nullptr) {
+        return nullptr;
+    }
+    if (command->GetOrdinal() == ordinal) {
+        return command;
+    }
+    for (ScriptCommand* child : command->GetBody()) {
+        if (ScriptCommand* found = FindOrdinalInCommand(child, ordinal)) {
+            return found;
+        }
+    }
+    return nullptr;
 }
 
 } // namespace
@@ -413,6 +486,224 @@ result SimpleScript::Load(const uint8_t* data, size_t size)
     return S3D_OK;
 }
 
+size_t SimpleScript::GetSerializedValueSize(const ScriptValue& value)
+{
+    const size_t payload = value.GetType() == ScriptValueType::String
+        ? (value.GetString().size() + 1) * sizeof(char16_t) : sizeof(uint32_t);
+    return (payload + 7) & ~size_t(3);
+}
+
+void SimpleScript::WriteSerializedValue(std::vector<uint8_t>& output, const ScriptValue& value)
+{
+    const size_t recordStart = output.size();
+    const size_t recordSize = GetSerializedValueSize(value);
+    if (value.GetType() == ScriptValueType::String) {
+        const std::u16string& string = value.GetString();
+        Append32(output, static_cast<uint32_t>((string.size() + 1) * sizeof(char16_t)));
+        for (char16_t character : string) {
+            Append16(output, character);
+        }
+        Append16(output, 0);
+    } else {
+        Append32(output, sizeof(uint32_t));
+        Append32(output, static_cast<uint32_t>(value.GetInt()));
+    }
+    output.resize(recordStart + recordSize, 0);
+}
+
+size_t SimpleScript::GetArchiveSize() const
+{
+    size_t result = 0x440;
+    const auto addValue = [&result](const ScriptValue* value) {
+        result += GetSerializedValueSize(*value);
+    };
+    for (const ScriptValue* value : scope0Variables) {
+        addValue(value);
+    }
+    for (const ScriptValue* value : globals) {
+        addValue(value);
+    }
+    for (const auto& function : functions) {
+        result += 0x10;
+        for (const ScriptValue* value : function->locals) {
+            addValue(value);
+        }
+    }
+    return result;
+}
+
+ScriptCommand* SimpleScript::FindCommandByOrdinal(const ScriptFunction& function, uint32_t ordinal)
+{
+    for (ScriptCommand* command : function.commandList) {
+        if (ScriptCommand* found = FindOrdinalInCommand(command, ordinal)) {
+            return found;
+        }
+    }
+    return nullptr;
+}
+
+result SimpleScript::SaveArchive(const char16_t* path)
+{
+    if (path == nullptr) {
+        return S3D_PARAM;
+    }
+    std::vector<uint8_t> output;
+    output.reserve(GetArchiveSize());
+    for (size_t index = 0; index < 32; ++index) {
+        Append16(output, index < name.size() ? name[index] : 0);
+    }
+    for (uint32_t value : shared) {
+        Append32(output, value);
+    }
+    const auto writeValue = [&output](const ScriptValue* value) {
+        WriteSerializedValue(output, *value);
+    };
+    for (const ScriptValue* value : scope0Variables) {
+        writeValue(value);
+    }
+    for (const ScriptValue* value : globals) {
+        writeValue(value);
+    }
+    for (const auto& function : functions) {
+        Append32(output, static_cast<uint32_t>(function->state));
+        Append32(output, function->currentCommand != nullptr
+            ? function->currentCommand->GetOrdinal() : 0);
+        Append32(output, function->calledTask);
+        Append32(output, function->calledCommand != nullptr
+            ? function->calledCommand->GetOrdinal() : 0);
+        for (const ScriptValue* value : function->locals) {
+            writeValue(value);
+        }
+    }
+
+    s3dIO file;
+    if (!file.Open(path, u"wb")) {
+        return S3D_FILE;
+    }
+    const int status = output.empty() ? 0 : file.Write(output.data(),
+        static_cast<int>(output.size()), 1);
+    file.Close();
+    return status == 0 ? S3D_OK : S3D_FILE;
+}
+
+result SimpleScript::LoadArchive(const char16_t* path, s3dFilePak* resourceArchive)
+{
+    if (path == nullptr || resourceArchive == nullptr) {
+        return S3D_PARAM;
+    }
+    s3dIO file;
+    if (!file.Open(path, u"rb")) {
+        return S3D_FILE;
+    }
+    file.Seek(0, SEEK_END);
+    const uint32_t byteCount = file.Tell();
+    file.Seek(0, SEEK_SET);
+    std::vector<uint8_t> data(byteCount);
+    const uint32_t read = data.empty() ? 0 : file.Read(data.data(), byteCount);
+    file.Close();
+    if (read != data.size()) {
+        return S3D_FILE;
+    }
+
+    ArchiveReader reader(data.data(), data.size());
+    std::u16string archiveName;
+    for (size_t index = 0; index < 32; ++index) {
+        uint16_t character = 0;
+        if (!reader.Read16(character)) {
+            return S3D_FORMAT;
+        }
+        if (character != 0) {
+            archiveName.push_back(character);
+        }
+    }
+    std::array<uint32_t, 256> loadedShared{};
+    for (uint32_t& value : loadedShared) {
+        if (!reader.Read32(value)) {
+            return S3D_FORMAT;
+        }
+    }
+    const result loadStatus = LoadFromPak(archiveName.c_str(), resourceArchive);
+    if (loadStatus != S3D_OK) {
+        return loadStatus;
+    }
+    shared = loadedShared;
+
+    const auto readValue = [&reader](ScriptValue& value) {
+        uint32_t payloadSize = 0;
+        if (!reader.Read32(payloadSize)) {
+            return false;
+        }
+        const size_t payloadStart = reader.position;
+        const size_t paddedSize = (static_cast<size_t>(payloadSize) + 3) & ~size_t(3);
+        if (paddedSize > reader.size - payloadStart) {
+            return false;
+        }
+        if (value.GetType() == ScriptValueType::String) {
+            if (payloadSize < 2 || (payloadSize & 1) != 0) {
+                return false;
+            }
+            std::u16string string;
+            for (size_t offset = 0; offset < payloadSize; offset += 2) {
+                uint16_t character = 0;
+                if (!reader.Read16(character)) {
+                    return false;
+                }
+                if (character != 0) {
+                    string.push_back(character);
+                }
+            }
+            value.SetString(std::move(string));
+        } else {
+            uint32_t number = 0;
+            if (payloadSize != sizeof(uint32_t) || !reader.Read32(number)) {
+                return false;
+            }
+            value.SetInt(static_cast<int32_t>(number));
+        }
+        reader.position = payloadStart + paddedSize;
+        return true;
+    };
+
+    for (ScriptValue* value : scope0Variables) {
+        if (!readValue(*value)) {
+            return S3D_FORMAT;
+        }
+    }
+    for (ScriptValue* value : globals) {
+        if (!readValue(*value)) {
+            return S3D_FORMAT;
+        }
+    }
+    for (const auto& function : functions) {
+        uint32_t taskState = 0;
+        uint32_t currentOrdinal = 0;
+        uint32_t calledOrdinal = 0;
+        if (!reader.Read32(taskState) || !reader.Read32(currentOrdinal) ||
+            !reader.Read32(function->calledTask) || !reader.Read32(calledOrdinal)) {
+            return S3D_FORMAT;
+        }
+        function->state = static_cast<ScriptTaskState>(taskState);
+        function->currentCommand = currentOrdinal == 0 ? nullptr
+            : FindCommandByOrdinal(*function, currentOrdinal);
+        function->calledCommand = nullptr;
+        if (calledOrdinal != 0 && function->calledTask < functions.size()) {
+            function->calledCommand = FindCommandByOrdinal(
+                *functions[function->calledTask], calledOrdinal);
+        }
+        for (ScriptValue* value : function->locals) {
+            if (!readValue(*value)) {
+                return S3D_FORMAT;
+            }
+        }
+    }
+    if (reader.position != reader.size) {
+        return S3D_FORMAT;
+    }
+    state = ScriptState::Running;
+    previousState = ScriptState::Running;
+    return S3D_OK;
+}
+
 void SimpleScript::Start()
 {
     state = ScriptState::Initializing;
@@ -477,6 +768,9 @@ void SimpleScript::Reset()
     }
     currentFunction = 0;
     shared.fill(0);
+    for (ScriptValue* value : scope0Variables) {
+        value->Clear();
+    }
     for (ScriptValue* global : globals) {
         global->Clear();
     }
@@ -489,6 +783,7 @@ void SimpleScript::Unload()
     functions.clear();
     commands.clear();
     variables.clear();
+    scope0Variables.clear();
     globals.clear();
     state = ScriptState::Unloaded;
     previousState = ScriptState::Unloaded;
@@ -634,11 +929,11 @@ ScriptCommand* SimpleScript::AllocateCommand()
 }
 
 ScriptValue* SimpleScript::ResolveReference(uint16_t scope, uint16_t index,
-                                            ScriptFunction* function) const
+                                            ScriptFunction*) const
 {
     const std::vector<ScriptValue*>* values = nullptr;
-    if (scope == 0 && function != nullptr) {
-        values = &function->locals;
+    if (scope == 0) {
+        values = &scope0Variables;
     } else if (scope == 1) {
         values = &globals;
     } else if (scope == 2) {

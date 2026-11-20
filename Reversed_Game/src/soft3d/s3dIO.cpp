@@ -2,7 +2,9 @@
 
 #include "platform/linux/File.hpp"
 
+#include <cstring>
 #include <new>
+#include <vector>
 
 namespace soft3d {
 namespace {
@@ -174,6 +176,12 @@ void SignedToWide(int32_t value, char16_t* output)
 
 } // namespace
 
+char16_t* ConvertAsciiToWide(char16_t* output, const char* input)
+{
+    WidenString(output, input);
+    return output;
+}
+
 s3dIO::s3dIO() = default;
 
 bool s3dIO::Open(const char16_t* path, const char16_t* mode)
@@ -189,6 +197,15 @@ bool s3dIO::Open(const char16_t* path, const char16_t* mode)
         return false;
     }
     return true;
+}
+
+bool s3dIO::Open(const char* path, const char* mode)
+{
+    std::vector<char16_t> widePath(std::strlen(path) + 1);
+    std::vector<char16_t> wideMode(std::strlen(mode) + 1);
+    ConvertAsciiToWide(widePath.data(), path);
+    ConvertAsciiToWide(wideMode.data(), mode);
+    return Open(widePath.data(), wideMode.data());
 }
 
 void s3dIO::Close()
@@ -242,6 +259,12 @@ int s3dIO::VPrintf(const char16_t* format, va_list arguments)
 }
 
 bool s3dIO::Reopen(const char16_t* path, const char16_t* mode)
+{
+    Close();
+    return Open(path, mode);
+}
+
+bool s3dIO::Reopen(const char* path, const char* mode)
 {
     Close();
     return Open(path, mode);

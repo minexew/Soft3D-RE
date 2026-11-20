@@ -13,6 +13,7 @@ add_library(soft3d
     src/platform/dummy/DummyAudioBackend.cpp
     src/platform/dummy/DummyVideoBackend.cpp
     src/platform/linux/File.cpp
+    src/platform/linux/Memory.cpp
     src/platform/linux/StdioLog.cpp
     src/platform/linux/SystemClock.cpp
     src/soft3d/Animation.cpp
@@ -47,6 +48,7 @@ add_library(soft3d
     src/soft3d/ScreenBlitter.cpp
     src/soft3d/SimpleScript.cpp
     src/soft3d/SoundInstance.cpp
+    src/soft3d/Stream.cpp
     src/soft3d/Texture.cpp
     src/soft3d/TextureRes.cpp
     src/soft3d/UiManager.cpp
@@ -127,6 +129,16 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_io_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_io COMMAND soft3d_io_tests)
+
+    add_executable(soft3d_stream_tests tests/test_stream.cpp)
+    target_link_libraries(soft3d_stream_tests PRIVATE soft3d)
+    target_compile_definitions(soft3d_stream_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_stream_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_stream COMMAND soft3d_stream_tests)
 
     add_executable(soft3d_log_tests tests/test_s3dlog.cpp)
     target_link_libraries(soft3d_log_tests PRIVATE soft3d)

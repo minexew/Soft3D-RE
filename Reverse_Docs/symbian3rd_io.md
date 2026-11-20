@@ -22,6 +22,7 @@ The class is 12 bytes: an 8-byte `s3dBase` followed by a platform-file pointer a
 | `0x000ab864` | `ReadIoFile` | Reads a byte count and returns the resulting descriptor length, or `-1` on read error. |
 | `0x000ab7d0` | `ReadIoFileElements` | Reads `size * count` bytes with the same result convention. |
 | `0x000ab8e4` | `S3dIO_Write` | Writes `size * count` bytes; returns `0` on success and `-1` on failure, not a byte count. |
+| `0x000ab974` | `WriteIoFile` | Raw-byte-count variant used by configuration, script archives, and `OutputFileStream_Flush`; same 0/-1 result convention. |
 | `0x000ac788` | `ReopenIoFile` | Calls close followed by wide open. No callers were found in this binary. |
 
 The mode parser accepts `r`, `w`, `a`, `b`, `t`, and `+`; an unrecognized character makes open fail. It does not require the order used by libc.
@@ -38,7 +39,7 @@ Three additional routines form a narrow-character counterpart to wide open/reope
 
 The narrow conversion allocates `(length + 1) * 4` bytes even though the wide output uses two-byte characters. This over-allocation is present in the binary and is not evidence of 32-bit wide characters.
 
-The Linux reconstruction currently exposes the wide operations used by the engine and `s3dIO::Reopen`; the unused narrow public overloads remain documented but are not needed by reconstructed callers.
+The Linux reconstruction exposes both wide and narrow open/reopen overloads. `ConvertAsciiToWide` is also public and is shared by the formatter, narrow-path IO, and the SDL application's resource-path setup; the application no longer has a separate widening helper. `tests/test_stream.cpp` exercises narrow write/reopen/read and invalid-mode paths.
 
 ## Formatted output
 
@@ -126,8 +127,8 @@ The original `%c` path does not visibly append a terminator before field-length 
 
 `Reversed_Game/src/soft3d/s3dIO.cpp` now contains:
 
-- `s3dIO::Write`, `Printf`, `VPrintf`, and `Reopen`;
-- `FormatWideString` and `WideSprintf`;
+- `s3dIO::Write`, `Printf`, `VPrintf`, and wide/narrow `Open`/`Reopen` overloads;
+- public `ConvertAsciiToWide`, `FormatWideString`, and `WideSprintf`;
 - internal equivalents of the format parser, field formatter, and numeric/string converters.
 
 `Reversed_Game/src/platform/linux/File.cpp` adds stdio-backed `File::Write`, returning `0` only when the complete requested byte count was written and `-1` otherwise.

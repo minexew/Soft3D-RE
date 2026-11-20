@@ -193,7 +193,9 @@ The original `Object` is 0x20c bytes. Important recovered fields are:
 | `+0x24`, `+0x30`, `+0x3c` | Local Z, X, Y axis vectors respectively; independent lengths are at `+0x48`..`+0x50`. |
 | `+0x54`, `+0x58` | Material count and 0x48-byte `ObjectMaterial` array. |
 | `+0x5c`, `+0x60` | Object intensity and depth bias. |
-| `+0x69`..`+0x6b` | Lighting, ambient-only, and alternate-transform/culling flags. |
+| `+0x64` | Render mode: normal, secondary streams, or wireframe. |
+| `+0x68`..`+0x6a` | Lighting, ambient-only, and culling flags. |
+| `+0x6b`, `+0x6c` | External-transform enable byte and external matrix pointer. |
 | `+0x70`, `+0x88` | Primary and secondary bounds, each minimum and maximum vectors. |
 | `+0xa0` | Eight local bounding-box corners. |
 | `+0x100` | Transformed world bounds. |
@@ -223,7 +225,7 @@ The three render entries are now named by behavior:
 
 `Object_GetSurface`, `GetVertexCount`, and `GetTriangleCount` are at `0x000ec158`, `0x000ec1dc`, and `0x000ec290`. `Object_GetCameraDepth` (`0x000ebfc8`) transforms world-bounds center by the view matrix. `Object_HasTransparency` checks runtime blend and detail texture state. Rotation and scaling APIs are at `0x000ea240`..`0x000ea700`, and `Object_UpdateTransform` is `0x000ea96c`.
 
-Each `ObjectMaterial` is 0x48 bytes: descriptor, packed name, primary/detail texture and resource pointers, blend selector, U/V scroll, intensity minimum/maximum/current/speed, and resource manager. `ObjectMaterial_SetIntensityBounce` (`0x000ed5bc`) resets current intensity to `0x1999` and computes speed from `(maximum-minimum)/period`; zero period disables it.
+Each `ObjectMaterial` is 0x48 bytes: descriptor, packed name, primary/detail texture and resource pointers, blend selector, U/V scroll, intensity minimum/maximum/current/speed, and resource manager. U/V are at `+0x2c/+0x30`, intensity minimum/maximum/current/speed at `+0x34/+0x38/+0x3c/+0x40`, and the manager at `+0x44`. `ObjectMaterial_SetIntensityBounce` (`0x000ed5bc`) resets current intensity to `0x1999` and computes speed from `(maximum-minimum)/period`; zero period disables it. These offsets also define the four material words serialized by `VisUnit_SaveState`; earlier Ghidra layouts shifted those names and omitted the manager.
 
 Portable `Object.*` implements these APIs with non-owning resources and adds direct model/texture injection for tests and map loading. Matrix-palette composition uses the original ARM call order and the renderer's combined view-projection matrix; queue-depth sorting still uses view only. The portable `Multiply` correction is described in `symbian3rd_effects.md`; with the corrected operand order, an identity model and a `0xffff` sampled transform preserve view translation `0x40000` rather than incorrectly scaling it to `0x3fffc`. Palette transformation uses the fourth matrix row for camera depth, and matrix/vector dot products retain ARM's signed 64-bit accumulation with one final shift.
 

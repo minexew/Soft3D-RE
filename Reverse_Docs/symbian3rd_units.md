@@ -45,7 +45,7 @@ Important native fields are:
 | `0x4c` | Visible/submission flag |
 | `0x50` | Collision enabled |
 
-The three query methods return `this` on a hit and null otherwise. Point and AABB tests are inclusive on all six comparisons (`0x00026914`, `0x0002682c`). Segment/AABB testing (`0x0002689c`) uses the center and half extents of the box, half the segment direction, and the three face and three cross-product separating axes. Save/load slots are present but their stream implementation belongs to stage 12.
+The three query methods return `this` on a hit and null otherwise. Point and AABB tests are inclusive on all six comparisons (`0x00026914`, `0x0002682c`). Segment/AABB testing (`0x0002689c`) uses the center and half extents of the box, half the segment direction, and the three face and three cross-product separating axes. `GameUnit_SaveState` (`0x000267a0`) serializes type, id, visibility, position, and both bounds; collision-enabled is omitted. `GameUnit_LoadState` (`0x00026334`) expects the manager to consume type before constructing the unit, then restores id and the remaining base state. `VisUnit_SaveState`/`LoadState` (`0x000263b8`/`0x00025eac`) add visual resources and object/material/animation state; `PhysicUnit`, `Things`, and `Creature` reuse those slots. See `symbian3rd_streams.md` for the exact records, last-object playback rule, and tests.
 
 `GameUnitManager` has eight `{count, first}` buckets at `0x38`, a result count at `0x78`, 64 result pointers at `0x7c`, and six host context pointers at `0x17c`–`0x190`.
 
@@ -160,4 +160,4 @@ The unit suite uses synthetic message receivers, manager units, state chains, a 
 
 Real-resource tests load `menu.sbp` without an episode and exercise leaf/point/swept queries, and load `cg_bully_tuomao_a` twice through `VisUnit`, materials, transforms, direction, shadow creation, and submission.
 
-All 25 normal CTest tests and all 19 SDL-independent ASan/UBSan tests pass. All six standalone SOJ converter tests also pass. Ghidra has been saved after verifying typed decompilation of `PhysicUnit_Update` and `Bsp_ClipBrush`.
+All 26 normal CTest tests and all 20 SDL-independent ASan/UBSan tests pass. All six standalone SOJ converter tests also pass. Stage 12 adds exact `GameUnit` and real `VisUnit` serialization coverage in `test_stream.cpp`; Ghidra has been saved after verifying typed decompilation of `PhysicUnit_Update`, `Bsp_ClipBrush`, and `VisUnit_SaveState`.

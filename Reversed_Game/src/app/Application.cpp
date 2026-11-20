@@ -8,22 +8,13 @@
 #include <filesystem>
 #include <iostream>
 #include <utility>
+#include <vector>
 
 namespace app {
 namespace {
 
 constexpr int frameWidth = 320;
 constexpr int frameHeight = 240;
-
-std::u16string WidePath(const std::string& path)
-{
-    std::u16string result;
-    result.reserve(path.size());
-    for (unsigned char character : path) {
-        result.push_back(static_cast<char16_t>(character));
-    }
-    return result;
-}
 
 std::string FindResourceArchive(const std::string& configured)
 {
@@ -127,7 +118,9 @@ bool Application::InitializeVideo()
     sdlVideo->SetLandscapeSource([this] { return IsLandscapeDisplay(); });
     engine->SetFpsDisplayEnabled(config.showFps);
     config.resourceArchive = FindResourceArchive(config.resourceArchive);
-    engine->SetResourceArchive(WidePath(config.resourceArchive));
+    std::vector<char16_t> resourceArchive(config.resourceArchive.size() + 1);
+    soft3d::ConvertAsciiToWide(resourceArchive.data(), config.resourceArchive.c_str());
+    engine->SetResourceArchive(resourceArchive.data());
     if (engine->Init() != 0) {
         std::cerr << "Game initialization failed using resources: " << config.resourceArchive << '\n';
         return false;

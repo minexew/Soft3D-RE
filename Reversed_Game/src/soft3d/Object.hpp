@@ -33,6 +33,7 @@ public:
     result LoadMaterials(int cacheLevel, const char16_t* directory = nullptr);
 
     void SetTransformVectors(const std::array<Vec3, 4>& transform);
+    void RestoreAxes(const Vec3& axisZ, const Vec3& axisX, const Vec3& axisY);
     void SetModelMatrix(const Matrix4& matrix);
     void SetSecondaryTransform(const Matrix4& matrix);
     void SetTransformMode(int mode);
@@ -59,6 +60,7 @@ public:
     void SetLightingEnabled(bool enabled);
     void SetAmbientLightOnly(bool enabled);
     void SetCullingDisabled(bool disabled);
+    void SetExternalTransformEnabled(bool enabled);
     void SetObjectIntensity(Fixed intensity);
     void SetDepthBias(Fixed bias);
     void SetSecondaryVertices(const SojVertices* vertices);
@@ -88,6 +90,21 @@ public:
     int32_t GetAnimationSpeed() const;
     bool IsAnimationLooping() const;
     bool IsAnimationPaused() const;
+    const Vec3& GetPosition() const;
+    const Vec3& GetAxisX() const;
+    const Vec3& GetAxisY() const;
+    const Vec3& GetAxisZ() const;
+    Fixed GetObjectIntensity() const;
+    Fixed GetDepthBias() const;
+    bool IsLightingEnabled() const;
+    bool IsAmbientLightOnly() const;
+    bool IsCullingDisabled() const;
+    bool IsExternalTransformEnabled() const;
+    std::array<Fixed, 4> GetMaterialIntensityState(uint32_t material) const;
+    void SetMaterialIntensityState(uint32_t material, Fixed minimum, Fixed maximum,
+                                   Fixed intensity, Fixed speed);
+    void RestoreAnimationState(int32_t paused, int32_t time, int32_t direction,
+                               int32_t loop, int32_t speed);
     uint32_t GetMaterialBlendMode(uint32_t material) const;
     ObjectRenderMode GetRenderMode() const;
 
@@ -143,6 +160,7 @@ private:
     bool lightingEnabled = true;
     bool ambientLightOnly = false;
     bool cullingDisabled = false;
+    bool externalTransformEnabled = false;
     Fixed objectIntensity = 0;
     Fixed depthBias = 0;
 };

@@ -2,6 +2,8 @@
 #include "soft3d/s3dResManager.hpp"
 
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -55,10 +57,10 @@ struct Command {
     std::vector<Command> conditions;
 };
 
-Command Op(uint16_t id, std::vector<Argument> arguments = {}, Reference output = {0, 0})
+Command Op(uint16_t id, std::vector<Argument> arguments = {}, Reference output = {0xffff, 0})
 {
     Command command{id, 1, std::move(arguments), false, {0, 0}, {}, {}};
-    command.hasOutput = true;
+    command.hasOutput = output.scope != 0xffff;
     command.output = output;
     return command;
 }
@@ -579,6 +581,82 @@ void TestInitializerAndReset()
     CHECK(initialized.GetFunctionCount() == 0 && initialized.GetVariableCount() == 0);
 }
 
+std::vector<uint8_t> ReadBinaryFile(const std::filesystem::path& path)
+{
+    std::ifstream input(path, std::ios::binary);
+    return std::vector<uint8_t>(std::istreambuf_iterator<char>(input),
+                                std::istreambuf_iterator<char>());
+}
+
+void TestArchiveState()
+{
+#ifndef SOFT3D_SPK_ENGLISH_LAYOUT
+    const std::filesystem::path directory =
+        std::filesystem::temp_directory_path() / "soft3d-script-archive";
+    std::error_code error;
+    std::filesystem::remove_all(directory, error);
+    CHECK(std::filesystem::create_directories(directory));
+    const std::filesystem::path firstPath = directory / "first.spt";
+    const std::filesystem::path secondPath = directory / "second.spt";
+    s3dResManager manager;
+    CHECK(OpenGameResourceArchive(&manager, SOFT3D_TEST_ARCHIVE) == S3D_OK);
+    SimpleScript source;
+    CHECK(source.LoadFromPak(u".\\day5\\ep2050", manager.GetFilePak()) == S3D_OK);
+    for (uint32_t index = 0; index < source.GetGlobalVariableCount(); ++index) {
+        ScriptValue* value = source.GetGlobalVariable(index);
+        switch (value->GetType()) {
+        case ScriptValueType::Byte: value->SetByte(0xab); break;
+        case ScriptValueType::Short: value->SetShort(-1234); break;
+        case ScriptValueType::Int: value->SetInt(0x12345678); break;
+        case ScriptValueType::String: value->SetString(u"archive\u00e9"); break;
+        case ScriptValueType::Bool: value->SetBool(true); break;
+        case ScriptValueType::Fixed: value->SetFixed(0x18000); break;
+        default: break;
+        }
+    }
+    CHECK(source.SetSharedVariable(7, 0x89abcdef) == 1);
+    source.EnableTask(0);
+    ScriptFunction& function = const_cast<ScriptFunction&>(source.GetFunction(0));
+    if (function.GetLocalVariableCount() != 0) {
+        function.GetLocalVariable(0)->SetInt(0x24680);
+    }
+    CHECK(source.SaveArchive(firstPath.u16string().c_str()) == S3D_OK);
+    CHECK(ReadBinaryFile(firstPath).size() == source.GetArchiveSize());
+
+    SimpleScript restored;
+    CHECK(restored.LoadArchive(firstPath.u16string().c_str(), manager.GetFilePak()) == S3D_OK);
+    CHECK(restored.GetState() == ScriptState::Running);
+    CHECK(restored.GetSharedVariable(7) == 0x89abcdef);
+    CHECK(restored.GetTaskState(0) == ScriptTaskState::Enabled);
+    CHECK(restored.GetGlobalVariableCount() == source.GetGlobalVariableCount());
+    for (uint32_t index = 0; index < source.GetGlobalVariableCount(); ++index) {
+        const ScriptValue* expected = source.GetGlobalVariable(index);
+        const ScriptValue* actual = restored.GetGlobalVariable(index);
+        CHECK(actual != nullptr && actual->GetType() == expected->GetType());
+        CHECK(actual->GetInt() == expected->GetInt());
+        CHECK(actual->GetString() == expected->GetString());
+    }
+    const ScriptFunction& restoredFunction = restored.GetFunction(0);
+    if (function.GetLocalVariableCount() != 0) {
+        CHECK(restoredFunction.GetLocalVariable(0)->GetInt() == 0x24680);
+    }
+    CHECK(restored.SaveArchive(secondPath.u16string().c_str()) == S3D_OK);
+    CHECK(ReadBinaryFile(firstPath) == ReadBinaryFile(secondPath));
+
+    std::vector<uint8_t> truncated = ReadBinaryFile(firstPath);
+    truncated.pop_back();
+    {
+        std::ofstream output(firstPath, std::ios::binary | std::ios::trunc);
+        output.write(reinterpret_cast<const char*>(truncated.data()),
+                     static_cast<std::streamsize>(truncated.size()));
+    }
+    CHECK(restored.LoadArchive(firstPath.u16string().c_str(), manager.GetFilePak()) == S3D_FORMAT);
+    CHECK(restored.LoadArchive(u".\\path-that-does-not-exist\\missing.spt",
+                               manager.GetFilePak()) == S3D_FILE);
+    std::filesystem::remove_all(directory, error);
+#endif
+}
+
 void TestRunScriptCommand()
 {
 #ifndef SOFT3D_SPK_ENGLISH_LAYOUT
@@ -608,6 +686,7 @@ int main()
         TestStructuredControlAndSuspension();
         TestTasksCallsAndGenericCommands();
         TestInitializerAndReset();
+        TestArchiveState();
         TestRunScriptCommand();
         std::cout << "script tests passed\n";
         return 0;
