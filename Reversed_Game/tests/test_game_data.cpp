@@ -1,6 +1,7 @@
 #include "game/GameData.hpp"
 #include "game/MyGameUnitMgr.hpp"
 #include "platform/dummy/DummyVideoBackend.hpp"
+#include "soft3d/AudioData.hpp"
 #include "soft3d/GameEngine.hpp"
 #include "soft3d/MenuDialogs.hpp"
 #include "soft3d/s3dFilePak.hpp"
@@ -101,18 +102,22 @@ void TestResourceNames()
     CHECK(*data.GetAnimationName(128) == u'\0');
     CHECK(*data.GetAnimationName(200) == u'\0');
 
-    CHECK(Wide("ui_select") == data.GetSoundName(0));
-    CHECK(Wide("c_damnedken_whistle") == data.GetSoundName(27));
-    CHECK(Wide("c_ghost_walk02") == data.GetSoundName(46));
-    CHECK(Wide("c_weed_walk") == data.GetSoundName(57));
-    CHECK(Wide("c_baron_walk01") == data.GetSoundName(94));
-    CHECK(Wide("c_bully_attack_a") == data.GetSoundName(109));
-    CHECK(Wide("c_victor_stand") == data.GetSoundName(118));
-    CHECK(Wide("a_getitem") == data.GetSoundName(140));
-    CHECK(Wide("a_gunlevelup") == data.GetSoundName(141));
-    CHECK(data.GetSoundName(142) == nullptr);
-    CHECK(data.GetSoundNameTable() + 140 * game::resourceNameCapacity == data.GetSoundName(140));
-    CHECK(*data.GetSoundName(31) == u'\0');
+    CHECK(*data.GetSoundName(0) == u'\0');
+    CHECK(Wide("ui_select") == data.GetSoundName(1));
+    CHECK(Wide("ui_selectitem") == data.GetSoundName(2));
+    CHECK(Wide("ui_confirm") == data.GetSoundName(3));
+    CHECK(Wide("ui_cancel") == data.GetSoundName(4));
+    CHECK(Wide("c_damnedken_whistle") == data.GetSoundName(28));
+    CHECK(Wide("c_ghost_walk02") == data.GetSoundName(47));
+    CHECK(Wide("c_weed_walk") == data.GetSoundName(58));
+    CHECK(Wide("c_baron_walk01") == data.GetSoundName(95));
+    CHECK(Wide("c_bully_attack_a") == data.GetSoundName(110));
+    CHECK(Wide("c_victor_stand") == data.GetSoundName(119));
+    CHECK(Wide("a_getitem") == data.GetSoundName(141));
+    CHECK(Wide("a_gunlevelup") == data.GetSoundName(142));
+    CHECK(data.GetSoundName(143) == nullptr);
+    CHECK(data.GetSoundNameTable() + 141 * game::resourceNameCapacity == data.GetSoundName(141));
+    CHECK(*data.GetSoundName(32) == u'\0');
 
     static constexpr int openSounds[] = {
         0, 10, 10, 11, 12, 14, 18, 10, 13, 19, 20,
@@ -129,6 +134,45 @@ void TestResourceNames()
         CHECK(std::u16string(door.modelName.data()) == data.GetAnimationName(238 + index));
     }
     CHECK(Wide("oscj_door_ra") == data.GetDoorResource(21).modelName.data());
+}
+
+void TestIndexedSoundPlayback()
+{
+    soft3d::s3dResManager resources;
+    const std::filesystem::path archive = SOFT3D_TEST_ARCHIVE;
+    CHECK(soft3d::OpenGameResourceArchive(&resources, archive.u16string().c_str()) == soft3d::S3D_OK);
+    game::GameData data;
+    soft3d::AudioManager manager(&resources, nullptr);
+    manager.SetSoundNameTable(data.GetSoundNameTable());
+
+    CHECK(manager.PlaySound(0, false) == -1);
+    CHECK(manager.PlaySound(1, false) == 1);
+    std::vector<int16_t> indexed;
+    for (int block = 0; block < 16; ++block) {
+        const auto& mixed = manager.GetDevice().MixBlock();
+        indexed.insert(indexed.end(), mixed.begin(), mixed.end());
+    }
+    manager.StopAllSounds();
+    soft3d::AudioManager namedManager(&resources, nullptr);
+    CHECK(namedManager.PlaySound(u"ui_select", false) == 1);
+    std::vector<int16_t> named;
+    for (int block = 0; block < 16; ++block) {
+        const auto& mixed = namedManager.GetDevice().MixBlock();
+        named.insert(named.end(), mixed.begin(), mixed.end());
+    }
+    CHECK(indexed == named);
+    manager.StopAllSounds();
+
+    soft3d::EngineConfig config;
+    config.width = 320;
+    config.height = 240;
+    config.videoBackend = std::make_unique<soft3d::platform::DummyVideoBackend>();
+    soft3d::GameEngine engine(std::move(config));
+    engine.SetResourceArchive(SOFT3D_TEST_ARCHIVE);
+    CHECK(engine.Init() == soft3d::S3D_OK);
+    CHECK(engine.GetAudioManager().PlaySound(0, false) == -1);
+    CHECK(engine.GetAudioManager().PlaySound(1, false) == 1);
+    engine.GetAudioManager().StopAllSounds();
 }
 
 void TestRealItemData(TestArchive& archive)
@@ -266,7 +310,7 @@ void TestRealGameItemData(TestArchive& archive)
     CHECK(game::GameData::ParseGameItemData(malformed.data(), malformed.size(), groups) ==
           soft3d::S3D_FORMAT);
     Write32(malformed, 12, 1038);
-    Write32(malformed, 16, 142);
+    Write32(malformed, 16, 143);
     CHECK(game::GameData::ParseGameItemData(malformed.data(), malformed.size(), groups) ==
           soft3d::S3D_FORMAT);
     CHECK(game::GameData::ParseGameItemData(day1.data(), day1.size() - 1, groups) ==
@@ -431,7 +475,7 @@ void TestEngineIntegration()
     CHECK(manager.GetData().GetGameItemGroups().size() == 9);
     CHECK(manager.GetData().GetEnemyInfoGroups().empty());
     CHECK(manager.GetData().FindGameItemGroup(1010)->records[0].itemId == 1038);
-    CHECK(engine.GetAudioManager().PlaySound(140, false) >= 0);
+    CHECK(engine.GetAudioManager().PlaySound(141, false) >= 0);
 
     engine.ShowMainMenu(2);
     engine.ActivateMenuDialog(2);
@@ -449,6 +493,7 @@ int main()
     try {
         TestArchive archive;
         TestResourceNames();
+        TestIndexedSoundPlayback();
         TestRealItemData(archive);
         TestRealGameItemData(archive);
         TestRealEnemyInfoData(archive);

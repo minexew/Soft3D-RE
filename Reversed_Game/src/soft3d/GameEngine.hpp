@@ -126,7 +126,7 @@ private:
     GameContent content;
     GameplayHooks gameplayHooks;
     std::array<SaveSlotInfo, 3> saveSlots;
-    std::array<char16_t, 8 * 64> uiSoundNames{};
+    std::array<char16_t, 9 * 64> uiSoundNames{};
     s3dIO persistenceIo;
 };
 

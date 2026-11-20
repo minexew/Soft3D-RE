@@ -200,7 +200,7 @@ These are not UI string hierarchies. `GameEngine_Init` reads 512 bytes from `mes
 
 ### Resource-name and statistics tables
 
-`InitializeAnimationResourceNames` (`0x00089238`) fills 260 names and `InitializeSoundResourceNames` (`0x00088594`, formerly `InitializeUiResourceNames`) fills 142 sound names, all now present in `src/game/ResourceNames.cpp`. `Scene_InitializeDoorResources` (`0x0002b554`) has 22 model records and two 22-entry sound-index arrays; animation entries 238–259 mirror the door models. HUD/inventory/map/QTE/story behavior, item effects, statistics counters, save headers, and runtime unlock updates remain later-stage consumers.
+`InitializeAnimationResourceNames` (`0x00089238`) fills 260 names. `InitializeSoundResourceNames` (`0x00088594`, formerly `InitializeUiResourceNames`) fills 142 named slots following a reserved empty index 0, producing a 143-slot indexed table now present in `src/game/ResourceNames.cpp`. `Scene_InitializeDoorResources` (`0x0002b554`) has 22 model records and two 22-entry sound-index arrays; animation entries 238–259 mirror the door models. HUD/inventory/map/QTE/story behavior, item effects, statistics counters, save headers, and runtime unlock updates remain later-stage consumers.
 
 ## Game UI and progression
 

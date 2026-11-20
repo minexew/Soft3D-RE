@@ -13,7 +13,7 @@
 namespace game {
 
 inline constexpr std::size_t animationResourceNameCount = 260;
-inline constexpr std::size_t soundResourceNameCount = 142;
+inline constexpr std::size_t soundResourceNameCount = 143;
 inline constexpr std::size_t doorResourceCount = 22;
 inline constexpr std::size_t resourceNameCapacity = 64;
 inline constexpr std::size_t enemyInfoGroupCapacity = 100;

@@ -434,11 +434,11 @@ std::u16string GameEngine::PersistencePath(const char16_t* name) const
 void GameEngine::InitializeUiSoundNames()
 {
     static constexpr const char16_t* names[] = {
-        u"ui_select", u"ui_selectitem", u"ui_confirm", u"ui_cancel",
+        u"", u"ui_select", u"ui_selectitem", u"ui_confirm", u"ui_cancel",
         u"ui_item", u"ui_false", u"ui_paper", u"t_lock_open",
     };
     uiSoundNames.fill(0);
-    for (size_t index = 0; index < 8; ++index) {
+    for (size_t index = 0; index < 9; ++index) {
         const char16_t* source = names[index];
         char16_t* destination = uiSoundNames.data() + index * 64;
         do {

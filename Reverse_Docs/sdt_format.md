@@ -330,7 +330,7 @@ Construction order and SDT indices match exactly. `ParseStateSdtTable` populates
 
 The original loader reads the entire file without a layout-size guard. The portable parser requires at least 1,252 bytes and ignores trailing data. Saving refreshes the volume from the audio device before writing. The unlock arrays contain persistence flags only; model names, text indices, item definitions, and other episode content do not belong to this file.
 
-The three `str.sdt` sound names are not the menu sound table used by `AudioManager_PlaySoundByIndex`. UI indices 0–7 resolve to `ui_select`, `ui_selectitem`, `ui_confirm`, `ui_cancel`, `ui_item`, `ui_false`, `ui_paper`, and `t_lock_open`. Stage 1 supplies all 142 entries through `game::GameData`; see `game_data_tables.md`.
+The three `str.sdt` sound names are not the menu sound table used by `AudioManager_PlaySoundByIndex`. Index 0 is reserved and empty; indices 1–8 resolve to `ui_select`, `ui_selectitem`, `ui_confirm`, `ui_cancel`, `ui_item`, `ui_false`, `ui_paper`, and `t_lock_open`. Stage 1 supplies all 143 slots through `game::GameData`; see `game_data_tables.md`.
 
 Each save slot is a separate 44-byte `slot%d.sav` header. Its confirmed fields are day at `0x00`, play time at `0x14`, and present flag at `0x18`; the other words are consumed by the later game loader and are not reinterpreted here.
 

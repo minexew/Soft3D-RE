@@ -269,6 +269,7 @@ static constexpr const char16_t* animationResourceNames[] = {
 };
 
 static constexpr const char16_t* soundResourceNames[] = {
+    u"",
     u"ui_select",
     u"ui_selectitem",
     u"ui_confirm",

@@ -55,7 +55,7 @@ Each compressed byte produces two PCM samples, so the stored value is a sample c
 
 The original overlapping 32-bit reload can request four bytes with fewer than four bytes remaining in the compressed allocation. The portable decoder copies the remaining bytes into a zero-initialized word instead of reading past the buffer; the bits consumed by the final samples are unchanged. `ui_selectitem.sau` (1,010 bytes) exercises this boundary in the real menu path, and a one-byte synthetic case covers it directly.
 
-Menu sound indices use a separate table, not the three names in `str.sdt`: indices 0–7 are `ui_select`, `ui_selectitem`, `ui_confirm`, `ui_cancel`, `ui_item`, `ui_false`, `ui_paper`, and `t_lock_open`. `GameEngine` binds this table before constructing the menu dialogs.
+Menu sound indices use a separate table, not the three names in `str.sdt`: index 0 is reserved and empty, while indices 1–8 are `ui_select`, `ui_selectitem`, `ui_confirm`, `ui_cancel`, `ui_item`, `ui_false`, `ui_paper`, and `t_lock_open`. `GameEngine` binds this table before constructing the menu dialogs. The full game table has 143 slots: 142 named entries plus the reserved slot.
 
 `GetAudioDataPcmSampleCount` (`0x001145c8`) returns `+0x12c`; `GetAudioDataPcmBuffer` (`0x001145f0`) returns `+0x130`.
 
@@ -99,6 +99,8 @@ Primary entry points:
 | `0x00113f78` | `AudioManager_StartMusicFade` | Initializes fixed-point fade state and direction. |
 
 Recovered helpers are `AudioManager_PlayMusicByIndex` `0x00113780`, `AudioManager_PlaySoundByIndex` `0x001137d4`, `AudioManager_IsVoiceFinished` `0x00114108`, `AudioManager_AddSoundInstance` `0x00114138`, `AudioManager_CreateSoundInstance` `0x001141b0`, `AudioManager_LoadSoundInstanceByIndex` `0x001142a4`, `AudioManager_SetListenerPosition` `0x0011437c`, `AudioManager_RemoveSoundInstance` `0x001143e8`, `AudioManager_ClearSoundInstances` `0x001144fc`, and `AudioManager_StopVoice` `0x00031ccc`. The list append helpers return the new zero-based index. Removal reindexes every following instance.
+
+`AudioManager_SetSoundNameTable` (`0x00071ae4`) stores the indexed table base. `GameEngine_Init` passes `GameEngine + 0x82a8` (`0x0006ed00`–`0x0006ed10`), while `InitializeSoundResourceNames` writes the first name at `+0x8328`. `AudioManager_PlaySoundByIndex` then uses `tableBase + nameIndex * 0x80`. This proves that index 0 is an empty reserved slot, not `ui_select`; `a_getitem` and `a_gunlevelup` are indices 141 and 142 respectively.
 
 All named sound loads use directory `.\audio\`, resource type 0, and cache level 3. Music uses the music enable/level field; effects and positional instances use the effects field. A full 16-voice device therefore leaves no free effect voice, but voice 0 remains reserved for music.
 
