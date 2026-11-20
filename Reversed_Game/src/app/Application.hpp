@@ -6,6 +6,10 @@
 #include <memory>
 #include <string>
 
+namespace game {
+class MyGameUnitMgr;
+}
+
 namespace app {
 
 enum class DisplayOrientation {
@@ -40,6 +44,7 @@ private:
     void Shutdown();
 
     ApplicationConfig config;
+    std::unique_ptr<game::MyGameUnitMgr> unitManager;
     std::unique_ptr<soft3d::GameEngine> engine;
     uint64_t currentFrame = 0;
 };

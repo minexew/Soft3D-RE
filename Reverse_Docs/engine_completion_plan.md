@@ -311,7 +311,7 @@ Verification passes 27 default CTest tests, 21 math tests, 21 stdio-logging test
 - `Scene`'s episode state machine and game progression;
 - concrete Player/Enemy/Things descendants and trigger behavior;
 - `GameSI` command implementations and episode-specific SST scripts;
-- semantic implementations of `itemdata.sdt`, `gameitem*.sdt`, `einfo*.sdt`, and `message.sdt` as game content;
+- license `message.sdt`/`domain.sdt` consumers; `itemdata.sdt`, `gameitem*.sdt`, and `einfo*.sdt` are now implemented under game stage 1 in `game_data_tables.md`;
 - Symbian network/IMEI/SMS application services unless a portable engine feature actually depends on them.
 
 This boundary lets the engine become reusable and testable without embedding unfinished game behavior in its base systems.

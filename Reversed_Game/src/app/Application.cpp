@@ -1,5 +1,6 @@
 #include "app/Application.hpp"
 
+#include "game/MyGameUnitMgr.hpp"
 #include "platform/sdl/SdlAudioBackend.hpp"
 #include "platform/sdl/SdlClock.hpp"
 #include "platform/sdl/SdlInput.hpp"
@@ -125,6 +126,19 @@ bool Application::InitializeVideo()
         std::cerr << "Game initialization failed using resources: " << config.resourceArchive << '\n';
         return false;
     }
+    unitManager = std::make_unique<game::MyGameUnitMgr>();
+    if (unitManager->Initialize(*engine) != soft3d::S3D_OK) {
+        std::cerr << "Game data initialization failed using resources: " << config.resourceArchive << '\n';
+        return false;
+    }
+    soft3d::GameplayHooks hooks;
+    hooks.startNewGame = [this](const soft3d::NewGameOptions&) {
+        const soft3d::result status = unitManager->LoadDayContent(1, *engine);
+        if (status != soft3d::S3D_OK) {
+            std::cerr << "Day 1 content loading failed: " << status << '\n';
+        }
+    };
+    engine->SetGameplayHooks(std::move(hooks));
     engine->Start();
     return engine->IsRunning();
 }
@@ -147,6 +161,7 @@ void Application::Shutdown()
         engine->GetVideo().Stop();
         engine->Shutdown();
         engine.reset();
+        unitManager.reset();
     }
     SDL_Quit();
 }

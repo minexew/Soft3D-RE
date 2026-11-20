@@ -14,7 +14,7 @@ The reconstructed engine has generic hooks but no game implementation behind the
 
 - `GameEngine` owns an empty `SceneHost`; `src/app/Application.cpp` installs neither a concrete scene nor `GameplayHooks`.
 - Starting a new game only flips `inGame` and initializes `GameUIDlg`. No episode, map, player, unit, or script interface is installed.
-- `GameContent` has storage but no `itemdata.sdt`, `gameitem*.sdt`, or `einfo*.sdt` loaders, so item/model/document text and gameplay content are never populated.
+- Stage 1 adds `seven_days_game` with `GameData`, fixed resource tables, and a concrete `MyGameUnitMgr` data owner. `itemdata.sdt`, all seven `gameitem` files, and all five `einfo` files now populate `GameContent`; day 1 loads through the real new-game path, and the full sound table reaches `AudioManager`. Concrete scene/map spawning and later-day transitions remain stage 2+ work.
 - `GameUIDlg` delegates the actual HUD, map, about-model rendering, item use, and item combination to empty hooks.
 - `BspEntityFactory` creates no game entities. `BspEntity` is not the concrete `BspUnit` implementation.
 - Save-slot support reads the 44-byte header only. It does not load the scene, units, or script state.
@@ -36,7 +36,8 @@ These are real missing code paths, not interfaces that can remain empty in a fea
 | `0x914`–`0x91c` | Ink, Fade, and other presentation-shader owners. |
 | `0x92c`–`0x978` | Two randomized environment-audio channels, each with four resources, interval state, countdown, and voice. |
 | `0x98c`–`0x9f4` | Day-intro, next-script, next-map, save-request, spawn, door-transition, and incremental-load state. |
-| `0x9f8`–`0x1af4` | Twenty-one door/cinematic model-name records and two sound-index tables. |
+| `0x9f8`–`0x14f7` | Twenty-two 64-character door/cinematic model-name records. |
+| `0x19f8`–`0x1acf` | Two 22-entry `int32_t` door open/close sound-index arrays. |
 | `0x1afc`, `0x42fc` | Two 0x2800-byte progression/snapshot blocks. |
 | `0x6b04`, `0x6b08` | Authorization/registration state. |
 
@@ -183,20 +184,15 @@ The save writer, exact field order, per-class extensions, EOF rules, script arch
 
 ### `itemdata.sdt`
 
-`LoadItemDataSdt` (`0x00045d98`) parses two unrelated sections:
-
-- 67 item records, each 52 serialized bytes: ID, one data word, 32-byte narrow model name, and three trailing data words;
-- 65 text records, each 12 bytes: ID and two string indices.
-
-The computed size is exactly 4,272 bytes, matching the shipped file. Runtime item records are 0x264 bytes and include model/UI state, strings, unlocks, and effect data. Text records feed the document/photo/model content arrays. These semantics belong in `src/game`, not the generic UI SDT parser.
+`LoadItemDataSdt` (`0x00045d98`) parses 67 52-byte item records and 65 12-byte text records, exactly 4,272 bytes. Item fields are now confirmed as name string, 32-byte model name, directional combination input/result, and description string. Text IDs 1000–1999 populate documents and 2000–2099 populate photos; there is no separate populated model-text section. The 0x264-byte runtime item includes its 0x20c-byte `Object`, 64-character model name, those four words, saved runtime state, and model unlock. About-model rendering shares this same item array. See `game_data_tables.md` for complete layouts and consumers.
 
 ### `gameitem1.sdt`–`gameitem7.sdt`
 
-`LoadGameItemSdt` (`0x00046288`, formerly `LoadNumberedSdtResourceA`) reads a 32-bit group count, then `{int16 id, int16 count}` groups with `count * 0x60` bytes of records. Shipped group counts are 9, 13, 13, 18, 14, 4, and 3. Every 0x60 record and its consumer fields still need typed recovery.
+`LoadGameItemSdt` (`0x00046288`, formerly `LoadNumberedSdtResourceA`) reads a 32-bit group count and **two 32-bit header words per group**, not a packed `{int16 id, int16 count}` pair. Each 0x60 record contains item ID, pickup sound, 16-byte packed model name, position, three orientation axes, and pickup bounds. Shipped group counts are 9, 13, 13, 18, 14, 4, and 3. `MyGameUnitMgr_SpawnMapItems` (`0x00047198`) selects the first matching map group and creates `Pickable`/`PickTrigger` pairs.
 
 ### `einfo1.sdt`–`einfo5.sdt`
 
-`LoadEnemyInfoSdt` (`0x00046750`, formerly `LoadNumberedSdtResourceB`) reads a 32-bit group count and `{int16 id, int16 count}` groups. Each top-level entry has two fixed Vec3 values, two initialized `-1` words, a type word, a nested-count word, and nested `0x1c`-byte records. The runtime entry stride is 0x24 including the nested pointer. Shipped group counts are 0, 4, 9, 1, and 5. The missing day-6/day-7 files are valid absence cases to test, not files to invent.
+`LoadEnemyInfoSdt` (`0x00046750`, formerly `LoadNumberedSdtResourceB`) uses the same eight-byte group-header rule. A 0x20-byte spawn contains enemy type, position, direction, and waypoint count, followed by 0x1c-byte `{position, waitTime, direction}` waypoints. Runtime entries are 0x24 bytes with active/type/unit-ID/count words and a nested pointer; groups hold 32 entries in 0x484 bytes. Shipped group counts are 0, 4, 9, 1, and 5. Missing day-6/day-7 files are valid. Spawn and persistence consumers are documented in `game_data_tables.md`.
 
 ### `message.sdt` and `domain.sdt`
 
@@ -204,7 +200,7 @@ These are not UI string hierarchies. `GameEngine_Init` reads 512 bytes from `mes
 
 ### Resource-name and statistics tables
 
-`InitializeAnimationResourceNames` (`0x00089238`) and `InitializeUiResourceNames` (`0x00088594`) populate fixed game resource tables used by scene, enemies, UI, and audio. The current eight-name UI sound table is only a small subset. Full HUD/inventory/map/QTE/story/door resources, item effects, statistics counters, save headers, and unlock updates must be recovered from their consumers.
+`InitializeAnimationResourceNames` (`0x00089238`) fills 260 names and `InitializeSoundResourceNames` (`0x00088594`, formerly `InitializeUiResourceNames`) fills 142 sound names, all now present in `src/game/ResourceNames.cpp`. `Scene_InitializeDoorResources` (`0x0002b554`) has 22 model records and two 22-entry sound-index arrays; animation entries 238–259 mirror the door models. HUD/inventory/map/QTE/story behavior, item effects, statistics counters, save headers, and runtime unlock updates remain later-stage consumers.
 
 ## Game UI and progression
 
@@ -230,4 +226,4 @@ A portable implementation needs a platform interface for license state, device i
 
 ## Ghidra status
 
-Confirmed scene, player, manager, trigger, data-loader, and selected `GameSI` names have been applied and saved. The callback table has a typed `GameSI_Callback` first record, a full-table bookmark, and a `game_completion_research` property. Existing pointer labels inside the table were deliberately preserved rather than forcibly replacing the entire range with one array. Remaining `FUN_*` methods and vague `*_vfunc_*` names are recovery work for the stages in `game_completion_plan.md`.
+Confirmed scene, player, manager, trigger, data-loader, spawn, item-operation, resource-table, and selected `GameSI` names have been applied and saved. Stage 1 also adds typed `SdtItemRecord`, `SdtGameTextRecord`, `GameItemSpawnRecord`, `EnemyWaypoint`, `SdtEnemySpawnRecord`, `EnemySpawnRecord`, `GameItemGroup`, `EnemyInfoGroup`, and `GameItemRuntime` structures, loader locals, prototypes, plate comments, and `game,data,stage1` tags. The callback table has a typed `GameSI_Callback` first record, a full-table bookmark, and a `game_completion_research` property. Existing pointer labels inside the table were deliberately preserved rather than forcibly replacing the entire range with one array. Remaining `FUN_*` methods and vague `*_vfunc_*` names are recovery work for later stages.

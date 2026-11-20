@@ -73,10 +73,10 @@ The shipped 217 SST files exercise 162 game callback IDs. The other 53 game call
 **Scope**
 
 - Implement `itemdata.sdt` in `src/game/GameData.*`: 67 52-byte item records and 65 12-byte text records, with checked ID mapping and the 0x264-byte runtime consumers identified from ARM.
-- Implement all seven `gameitem` tables with `{id,count}` groups and 0x60-byte records; implement all five `einfo` tables with nested 0x1c-byte records and the 0x24-byte runtime entries.
+- Implement all seven `gameitem` tables with eight-byte `{int32 id,int32 count}` group headers (truncated to 16 bits at runtime) and 0x60-byte records; implement all five `einfo` tables with nested 0x1c-byte records and the 0x24-byte runtime entries.
 - Recover record field meanings from consumers rather than labeling raw words by position alone.
 - Populate the existing item/model/document/photo storage and connect unlock flags without duplicating ownership.
-- Recover `InitializeAnimationResourceNames` (`0x00089238`), `InitializeUiResourceNames` (`0x00088594`), and the additional sound/model/UI tables needed by later stages.
+- Recover `InitializeAnimationResourceNames` (`0x00089238`), `InitializeSoundResourceNames` (`0x00088594`, formerly `InitializeUiResourceNames`), and the additional sound/model/UI tables needed by later stages.
 - Keep `message.sdt` and `domain.sdt` out of the item parser; stage 14 handles their license consumers.
 
 **Integration**
@@ -89,6 +89,8 @@ The shipped 217 SST files exercise 162 game callback IDs. The other 53 game call
 - Test truncation, bad counts/IDs, nested allocation overflow, missing files, and reload/destruction.
 - Prove item descriptions, model names, enemy/thing spawn records, and unlock arrays contain real data in the application path.
 - Run all existing tests and add `test_game_data.cpp` with real and malformed resources.
+
+**Status: complete.** `seven_days_game` implements the checked parsers, all fixed resource tables, and `MyGameUnitMgr` ownership; the SDL new-game path loads day 1. Ghidra contains the recovered structures, names, prototypes, locals, comments, and tags. All 28 default tests pass, and core/logging/math/WAR/ASan-UBSan variants each pass 22 tests. Detailed layouts and any intentional malformed-input checks are in `game_data_tables.md`.
 
 ## Stage 2 — Concrete scene, `GameSI` binding, and application startup
 
@@ -117,7 +119,7 @@ Use existing `SetSceneHost`, `SetScriptInterface`, `StartNewGame`, `LoadSaveSlot
 
 - Recover the game `CameraController`: all eight modes, fixed/curve/follow targets, position/look-at, binding to player/enemy, unbinding, interpolation speed, shake, freeze, and completion.
 - Implement `CameraTrigger` interaction with the controller and SPL paths.
-- Implement spawn position/direction, next-level parameters, the 21 door/cinematic model and sound records, fades, camera restoration, day titles, and game-over/Ink/restart/menu flows.
+- Implement spawn position/direction, next-level parameters, the 22 door/cinematic model and sound records, fades, camera restoration, day titles, and game-over/Ink/restart/menu flows.
 - Implement two randomized environment-audio channels, music changes, listener selection, and all six presentation-shader selections used by scene commands.
 - Implement the corresponding camera/audio/scene `GameSI` commands and SBP fog/light/header consumers.
 

@@ -18,6 +18,7 @@ No parent repository, analysis tools, Ghidra installation, or external format do
   - input, timing, dialogs, menu flow, configuration, and save-slot support;
   - SAU/WAR decoding, a 16-voice software mixer, fades, and positional sound;
   - the generic SST script loader, VM, task lifecycle, and host interface.
+- `src/game/` — the `seven_days_game` library: checked `itemdata`/`gameitem`/`einfo` parsing, fixed animation/sound/door resource tables, and `MyGameUnitMgr` content ownership. Concrete scene and gameplay behavior remains staged work.
 - `src/platform/linux/` — Linux file, clock, logging, and memory support.
 - `src/platform/sdl/` — SDL3 video, audio, input, and clock backends.
 - `src/platform/dummy/` — deterministic video/audio backends used by tests and other headless hosts.
@@ -45,7 +46,7 @@ cmake -S . -B build
 cmake --build build --parallel
 ```
 
-This builds the `soft3d` static library, the `seven_days` executable when SDL3 is available, and the test executables.
+This builds the `soft3d` and `seven_days_game` static libraries, the `seven_days` executable when SDL3 is available, and the test executables.
 
 To build only the engine and SDL-independent tests:
 
@@ -131,9 +132,10 @@ After a default build:
 ctest --test-dir build --output-on-failure
 ```
 
-The default suite has 27 tests, including SDL application smoke tests. A `SOFT3D_BUILD_APP=OFF` build has 21 tests. Coverage includes:
+The default suite has 28 tests, including SDL application smoke tests. A `SOFT3D_BUILD_APP=OFF` build has 22 tests. Coverage includes:
 
 - resource/archive parsing and cache lifecycle;
+- all shipped item/day data tables, fixed resource names, malformed data, missing files, and engine integration;
 - stream and file behavior;
 - real font, UI, map, model, animation, camera-path, and audio resources;
 - exact software-rendering and presentation pixels;
@@ -154,10 +156,10 @@ The English-layout option requires a matching English resource archive for real-
 
 ## Use as a library
 
-The CMake target is `soft3d`, with public headers under `src/`:
+The reusable engine target is `soft3d`; game data and content ownership are in `seven_days_game`, which links it publicly. Public headers are under `src/`:
 
 ```cmake
-target_link_libraries(your_target PRIVATE soft3d)
+target_link_libraries(your_target PRIVATE seven_days_game)
 target_include_directories(your_target PRIVATE path/to/this/directory/src)
 ```
 

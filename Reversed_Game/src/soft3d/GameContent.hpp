@@ -10,6 +10,7 @@ struct AboutModelRecord {
     uint32_t nameString = 0;
     uint32_t descriptionString = 0;
     std::u16string modelName;
+    int32_t previewZoom = 0x3333;
 };
 
 struct GameTextRecord {
@@ -20,6 +21,10 @@ struct GameTextRecord {
 struct GameItemRecord {
     uint32_t nameString = 0;
     uint32_t descriptionString = 0;
+    int32_t combineWithItemId = 0;
+    int32_t combinedItemId = 0;
+    std::u16string modelName;
+    int32_t runtimeState = 0;
 };
 
 struct HelpStatistics {

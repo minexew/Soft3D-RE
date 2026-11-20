@@ -88,6 +88,18 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     target_compile_options(soft3d PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
+add_library(seven_days_game STATIC
+    src/game/GameData.cpp
+    src/game/MyGameUnitMgr.cpp
+    src/game/ResourceNames.cpp
+)
+target_include_directories(seven_days_game PUBLIC src)
+target_compile_features(seven_days_game PUBLIC cxx_std_17)
+target_link_libraries(seven_days_game PUBLIC soft3d)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(seven_days_game PRIVATE -Wall -Wextra -Wpedantic)
+endif()
+
 option(SOFT3D_BUILD_APP "Build the SDL3 application shell" ON)
 if(SOFT3D_BUILD_APP)
     find_package(SDL3 REQUIRED CONFIG)
@@ -101,7 +113,7 @@ if(SOFT3D_BUILD_APP)
     )
     target_include_directories(seven_days PRIVATE src)
     target_compile_features(seven_days PRIVATE cxx_std_17)
-    target_link_libraries(seven_days PRIVATE soft3d SDL3::SDL3)
+    target_link_libraries(seven_days PRIVATE seven_days_game SDL3::SDL3)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         target_compile_options(seven_days PRIVATE -Wall -Wextra -Wpedantic)
     endif()
@@ -294,6 +306,16 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_audio_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_audio COMMAND soft3d_audio_tests)
+
+    add_executable(game_data_tests tests/test_game_data.cpp)
+    target_link_libraries(game_data_tests PRIVATE seven_days_game)
+    target_compile_definitions(game_data_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(game_data_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME game_data COMMAND game_data_tests)
 
     if(TARGET seven_days)
         add_executable(soft3d_sdl_input_tests
