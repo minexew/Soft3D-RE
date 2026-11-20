@@ -1,1 +1,2 @@
 Other/** linguist-vendored
+Ghidra_Project/*.gzf filter=lfs diff=lfs merge=lfs -text

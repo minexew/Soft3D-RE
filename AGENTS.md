@@ -23,6 +23,7 @@ Upstream: `git@github.com:minexew/Soft3D-RE.git`. The README's file-format table
 | `Tools/` | The main working code (see below). |
 | `Tools_Other/` | Third-party/legacy Windows executables (`salvador_*.exe`, `stxgraph.exe`). |
 | `Extractor/` | Qt Widgets GUI tool for extracting `.spk` archives (qmake project). Also contains committed build artifacts (`*.o`, `moc_*`, `ui_*.h`, `Makefile*`) and extracted output (`extracted_spkres/`, `a/`, `res.spk`). |
+| `Ghidra_Project/` | `7days_symbian3rd.bin.gzf` — a Git LFS Ghidra program archive stored for sharing only. Do not assume it is currently loaded in Ghidra or reflects recent analysis; agents should ignore it during reverse-engineering work. |
 | `Leaked_Source/` | Leaked original engine script sources: `ep0.cpp`, `ep2050.cpp`, `commandlist.txt` (script API reference). **Text is Chinese in GBK/GB2312 encoding with CRLF** — do not re-encode. |
 | `Leaked_Docs/` | `音效列表.xls` — sound-effects list (Excel, codepage 936). |
 | `Leaked_Tools/` | Original Windows tools for WAR audio playback. |
