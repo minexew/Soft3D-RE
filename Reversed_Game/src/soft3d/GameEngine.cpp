@@ -13,7 +13,7 @@ namespace soft3d {
 
 GameEngine::GameEngine(EngineConfig config)
     : Engine(std::move(config))
-    , scene(std::make_unique<SceneStub>())
+    , scene(std::make_unique<SceneHost>())
     , menuBackdrop(std::make_unique<MenuBackdrop>(this))
     , uiManager(std::make_unique<UiManager>())
     , baseFont(std::make_unique<StringManager>())
@@ -193,6 +193,13 @@ void GameEngine::SetPersistenceDirectory(std::u16string path)
 void GameEngine::SetGameplayHooks(GameplayHooks hooks)
 {
     gameplayHooks = std::move(hooks);
+}
+
+void GameEngine::SetSceneHost(std::unique_ptr<SceneHost> value)
+{
+    if (value != nullptr) {
+        scene = std::move(value);
+    }
 }
 
 result GameEngine::LoadMenuBackdrop()

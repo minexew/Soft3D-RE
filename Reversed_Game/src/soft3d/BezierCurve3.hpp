@@ -13,9 +13,11 @@ namespace soft3d {
 class BezierCurve3 {
 public:
     BezierCurve3() = default;
+    explicit BezierCurve3(int32_t segmentCount);
     explicit BezierCurve3(const std::vector<Vec3>& points);
 
     void Reset();
+    void Refine();
     void Rebuild();
     Vec3 Evaluate(Fixed time) const;
     Vec3 EvaluateDerivative(Fixed time) const;
@@ -27,6 +29,8 @@ public:
     const std::vector<Fixed>& GetCoefficientMatrix() const;
     const std::vector<Vec3>& GetFirstDifferences() const;
     const std::vector<Vec3>& GetSecondDifferences() const;
+    Vec3* GetPoint(int32_t index);
+    const Vec3* GetPoint(int32_t index) const;
 
 private:
     Vec3 Evaluate(const std::vector<Vec3>& points, int32_t degree, Fixed scale,
@@ -45,6 +49,12 @@ public:
     explicit CameraPathCollection(std::size_t capacity = 64);
 
     bool Append(const BezierCurve3& curve);
+    void Reset();
+    void RemoveLast();
+    void SetPoint(std::size_t curveIndex, std::size_t pointIndex, const Vec3& delta);
+    void Translate(const Vec3& delta);
+    void Transform(const Matrix4& matrix);
+    void GetBounds(Vec3& minimum, Vec3& maximum) const;
     void RebuildTiming();
     Vec3 EvaluatePosition(Fixed time) const;
     Vec3 EvaluateDerivative(Fixed time) const;
@@ -52,6 +62,7 @@ public:
 
     std::size_t GetCapacity() const;
     std::size_t GetCount() const;
+    BezierCurve3& GetCurve(std::size_t index);
     const BezierCurve3& GetCurve(std::size_t index) const;
     const std::vector<Fixed>& GetPathLengths() const;
     const std::vector<Fixed>& GetPathEndTimes() const;

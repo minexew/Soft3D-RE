@@ -38,13 +38,13 @@ struct GameplayHooks {
     std::function<bool(int, int)> combineItems;
 };
 
-class SceneStub {
+class SceneHost {
 public:
-    void Update() {}
-    void PostUpdate() {}
-    void PrepareRender() {}
-    void SubmitRenderables() {}
-    // Episode-specific scene and creature behavior remains to be reconstructed.
+    virtual ~SceneHost() = default;
+    virtual void Update() {}
+    virtual void PostUpdate() {}
+    virtual void PrepareRender() {}
+    virtual void SubmitRenderables() {}
 };
 
 class GameEngine : public Engine {
@@ -67,6 +67,7 @@ public:
     void SetResourceArchive(std::u16string path);
     void SetPersistenceDirectory(std::u16string path);
     void SetGameplayHooks(GameplayHooks hooks);
+    void SetSceneHost(std::unique_ptr<SceneHost> scene);
     void SetInGame(bool inGame);
     void SetLanguage(int value);
     result LoadMenuBackdrop();
@@ -106,7 +107,7 @@ private:
     std::u16string PersistencePath(const char16_t* name) const;
     void InitializeUiSoundNames();
 
-    std::unique_ptr<SceneStub> scene;
+    std::unique_ptr<SceneHost> scene;
     std::unique_ptr<MenuBackdrop> menuBackdrop;
     std::unique_ptr<UiManager> uiManager;
     MainUIDlg* mainMenu = nullptr;

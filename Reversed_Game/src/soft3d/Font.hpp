@@ -91,6 +91,8 @@ public:
 
     result LoadBaseFont(uint32_t language, s3dFilePak* filePak);
     result LoadSbnFont(const char16_t* entryName, s3dFilePak* filePak);
+    result LoadSbnFontFromFile(const char16_t* path);
+    result ParseSbnFont(const void* data, size_t size);
     void Clear();
 
     void SetRenderProperties(uint32_t* target, int32_t width, int32_t height);

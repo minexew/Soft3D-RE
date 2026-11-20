@@ -153,6 +153,58 @@ void TestMalformedSpl()
           soft3d::S3D_FORMAT);
 }
 
+void TestPathEditing()
+{
+    soft3d::BezierCurve3 zeroSegments(2);
+    CHECK(zeroSegments.GetSegmentCount() == 2 && zeroSegments.GetPointCount() == 3);
+    soft3d::BezierCurve3 elevated(std::vector<soft3d::Vec3>{{0, 0, 0}, {0x10000, 0, 0}});
+    elevated.Refine();
+    CHECK(elevated.GetSegmentCount() == 2 && elevated.GetPointCount() == 3);
+    CHECK_VEC(elevated.GetPoints()[1], {0x8000, 0, 0});
+    CHECK_VEC(elevated.Evaluate(0x8000), {0x8000, 0, 0});
+    CHECK_VEC(elevated.EvaluateDerivative(0x8000), {0x10000, 0, 0});
+
+    soft3d::CameraPathCollection paths;
+    CHECK(paths.Append(soft3d::BezierCurve3(
+        std::vector<soft3d::Vec3>{{0, 0, 0}, {0x10000, 0, 0}})));
+    CHECK(paths.Append(soft3d::BezierCurve3(
+        std::vector<soft3d::Vec3>{{0x10000, 0, 0}, {0x20000, 0, 0}})));
+    paths.SetPoint(1, 0, {0, 0x10000, 0});
+    CHECK_VEC(paths.GetCurve(0).GetPoints()[0], {0, 0x10000, 0});
+    CHECK_VEC(paths.GetCurve(0).GetPoints()[1], {0x10000, 0x10000, 0});
+    CHECK_VEC(paths.GetCurve(1).GetPoints()[0], {0x10000, 0x10000, 0});
+    CHECK_VEC(paths.GetCurve(1).GetPoints()[1], {0x20000, 0x10000, 0});
+    paths.SetPoint(0, 99, {1, 2, 3});
+    paths.Translate({0x10000, 0, 0});
+    soft3d::Vec3 minimum;
+    soft3d::Vec3 maximum;
+    paths.GetBounds(minimum, maximum);
+    CHECK_VEC(minimum, {0x10000, 0x10000, 0});
+    CHECK_VEC(maximum, {0x30000, 0x10000, 0});
+    soft3d::Matrix4 transform = soft3d::Matrix4::Identity();
+    transform.values[14] = 0x20000;
+    paths.Transform(transform);
+    paths.GetBounds(minimum, maximum);
+    CHECK_VEC(minimum, {0x10000, 0x10000, 0x20000});
+    CHECK_VEC(maximum, {0x30000, 0x10000, 0x20000});
+    const soft3d::CameraPathCollection copied = paths;
+    CHECK(copied.GetCount() == 2 && copied.GetCapacity() == paths.GetCapacity());
+    CHECK_VEC(copied.GetCurve(1).GetPoints()[1], {0x30000, 0x10000, 0x20000});
+    paths.RemoveLast();
+    CHECK(paths.GetCount() == 1);
+    paths.RemoveLast();
+    paths.RemoveLast();
+    CHECK(paths.GetCount() == 0);
+    minimum = {1, 2, 3};
+    maximum = {4, 5, 6};
+    paths.GetBounds(minimum, maximum);
+    CHECK_VEC(minimum, {1, 2, 3});
+    CHECK_VEC(maximum, {4, 5, 6});
+    paths.Reset();
+    CHECK(paths.GetCount() == 0 && paths.GetCapacity() == 0);
+    CHECK(!paths.Append(elevated));
+}
+
 void TestCameraAndSpot()
 {
     soft3d::Renderer renderer(320, 240);
@@ -168,11 +220,21 @@ void TestCameraAndSpot()
     CHECK(camera.GetProjection().values[11] == 0x10000);
     CHECK(camera.GetProjection().values[14] == -66007);
     CHECK(camera.GetProjection().values[15] == 0);
-    camera.SetProjection(0x400, 87381, 0x10000, 0x8c0000);
+    CHECK(camera.GetViewport().left == 0 && camera.GetViewport().right == 320);
+    CHECK(camera.GetViewport().centerXFixed == 0x9f8000);
+    CHECK(renderer.GetViewport().halfHeightFixed == 0x780000);
+    camera.SetViewport(-10, 20, 100, 80);
+    CHECK(camera.GetViewport().left == -10 && camera.GetViewport().right == 90);
+    CHECK(camera.GetViewport().centerXFixed == 0x278000);
+    CHECK(renderer.GetViewport().centerYFixed == camera.GetViewport().centerYFixed);
+    camera.SetProjection(0x400, 87381, 0x20000, 0x1000000);
     CHECK(camera.GetScreenScaleX() == 34567141);
     CHECK(camera.GetInverseScreenScaleX() == 124);
     CHECK(camera.GetScreenScaleY() == 18986777);
     CHECK(camera.GetInverseScreenScaleY() == 226);
+    CHECK(camera.GetAspectRatio() == 87381);
+    CHECK(camera.GetProjection().values[10] == 66007);
+    CHECK(camera.GetProjection().values[14] == -66007);
     CHECK(camera.GetWorldToCamera().values == soft3d::Matrix4::Identity().values);
     camera.SetLookAt({0x10000, 0x20000, 0x30000}, {0x10000, 0x20000, 0x40000},
                      {0, 0x10000, 0});
@@ -321,6 +383,7 @@ int main()
     try {
         TestRealSpl();
         TestMalformedSpl();
+        TestPathEditing();
         TestCameraAndSpot();
         TestCameraPathController();
         TestRealMenuBackdrop();

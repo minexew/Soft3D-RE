@@ -3,36 +3,19 @@
 #include "soft3d/Renderer.hpp"
 
 #include <algorithm>
-#include <cmath>
-#include <limits>
 
 namespace soft3d {
-namespace {
-
-Fixed FixedTan(uint16_t angle)
-{
-    const uint16_t index = angle & 0x7ff;
-    constexpr double pi = 3.14159265358979323846;
-    const double value = std::tan(static_cast<double>(index) * pi / 4096.0) * 65536.0;
-    Fixed result = std::numeric_limits<Fixed>::max();
-    if (index == 1024) {
-        result = fixedOne;
-    } else if (value < static_cast<double>(std::numeric_limits<Fixed>::max())) {
-        result = static_cast<Fixed>(value);
-    }
-    return (angle & 0x800) != 0 ? NegateFixed(result) : result;
-}
-
-} // namespace
 
 Camera::Camera(int cameraWidth, int cameraHeight, Renderer* cameraRenderer)
     : width(cameraWidth)
     , height(cameraHeight)
     , aspectRatio(FixedDivide(width << 16, height << 16))
+    , projectionAspectRatio(aspectRatio)
     , renderer(cameraRenderer)
 {
     SetLookAt(position, {0, 0, fixedOne}, up);
     ApplyProjection(true);
+    SetViewport(0, 0, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
 }
 
 void Camera::SetLookAt(const Vec3& newPosition, const Vec3& newTarget, const Vec3& newUp)
@@ -74,19 +57,30 @@ void Camera::SetLookAt(const Vec3& newPosition, const Vec3& newTarget, const Vec
 void Camera::SetProjection(int16_t newAngle, Fixed newAspectRatio, Fixed newNearDistance,
                            Fixed newFarDistance)
 {
+    (void)newNearDistance;
+    (void)newFarDistance;
     angle = newAngle;
-    aspectRatio = newAspectRatio;
-    nearDistance = newNearDistance;
-    farDistance = newFarDistance;
+    projectionAspectRatio = newAspectRatio;
+    nearDistance = fixedOne;
+    farDistance = 0x8c0000;
     ApplyProjection(false);
+}
+
+void Camera::SetViewport(int32_t left, int32_t top, uint32_t newWidth, uint32_t newHeight)
+{
+    viewportBounds = {left, top, static_cast<int32_t>(newWidth), static_cast<int32_t>(newHeight)};
+    viewport.SetBounds(left, top, newWidth, newHeight);
+    if (renderer != nullptr) {
+        renderer->SetViewport(viewport);
+    }
 }
 
 void Camera::ApplyProjection(bool multiplyAspect)
 {
     const Fixed angleFixed = static_cast<Fixed>(angle) << 16;
     verticalAngle = static_cast<int16_t>((multiplyAspect
-        ? FixedMultiply(angleFixed, aspectRatio)
-        : FixedDivide(angleFixed, aspectRatio)) >> 16);
+        ? FixedMultiply(angleFixed, projectionAspectRatio)
+        : FixedDivide(angleFixed, projectionAspectRatio)) >> 16);
     const Fixed tangentX = FixedTan(static_cast<uint16_t>(verticalAngle) >> 1);
     const Fixed tangentY = FixedTan(static_cast<uint16_t>(angle) >> 1);
     const Fixed doubleTangentX = FixedMultiply(0x20000, tangentX);
@@ -97,7 +91,7 @@ void Camera::ApplyProjection(bool multiplyAspect)
     inverseScreenScaleY = FixedDivide(doubleTangentY, height << 16);
 
     const Fixed scaleY = FixedDivide(fixedOne, tangentY);
-    const Fixed scaleX = FixedDivide(scaleY, aspectRatio);
+    const Fixed scaleX = FixedDivide(scaleY, projectionAspectRatio);
     const Fixed scaleZ = FixedDivide(farDistance, SubtractFixed(farDistance, nearDistance));
     projection.values = {
         scaleX, 0, 0, 0,
@@ -123,6 +117,7 @@ const Vec3& Camera::GetUp() const { return up; }
 const Matrix4& Camera::GetWorldToCamera() const { return worldToCamera; }
 const Matrix4& Camera::GetProjection() const { return projection; }
 const Matrix4& Camera::GetRollMatrix() const { return rollMatrix; }
+const Viewport& Camera::GetViewport() const { return viewport; }
 
 void CameraPathController::Start(const CameraPathCollection& newPaths, CameraSpot* newSpot,
                                  Fixed newSpeed, bool newLoop, bool snapToStart)

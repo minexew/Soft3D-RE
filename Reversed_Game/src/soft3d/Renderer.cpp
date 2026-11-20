@@ -227,6 +227,20 @@ std::vector<Renderer::Vertex> ClipScreenEdge(const std::vector<Renderer::Vertex>
 
 } // namespace
 
+void Viewport::SetBounds(int32_t newLeft, int32_t newTop, uint32_t newWidth, uint32_t newHeight)
+{
+    left = newLeft;
+    right = static_cast<int32_t>(static_cast<uint32_t>(left) + newWidth);
+    top = newTop;
+    bottom = static_cast<int32_t>(static_cast<uint32_t>(top) + newHeight);
+    halfWidth = static_cast<int32_t>(newWidth >> 1);
+    halfHeight = static_cast<int32_t>(newHeight >> 1);
+    halfWidthFixed = ShiftLeftFixed(halfWidth, 16);
+    halfHeightFixed = ShiftLeftFixed(halfHeight, 16);
+    centerXFixed = SubtractFixed(AddFixed(ShiftLeftFixed(left, 16), halfWidthFixed), 0x8000);
+    centerYFixed = SubtractFixed(AddFixed(ShiftLeftFixed(top, 16), halfHeightFixed), 0x8000);
+}
+
 Renderer::Renderer(int rendererWidth, int rendererHeight)
     : width(rendererWidth)
     , height(rendererHeight)
@@ -237,6 +251,7 @@ Renderer::Renderer(int rendererWidth, int rendererHeight)
     , modelViewMatrix(Matrix4::Identity())
     , raster(rendererWidth, rendererHeight)
 {
+    viewport.SetBounds(0, 0, static_cast<uint32_t>(width), static_cast<uint32_t>(height));
     frameTexture.Resize(static_cast<uint32_t>(width), static_cast<uint32_t>(height), 2);
     raster.SetCurrentTexture(&frameTexture);
 }
@@ -244,6 +259,11 @@ Renderer::Renderer(int rendererWidth, int rendererHeight)
 void Renderer::SetBackBufferPtr(uint32_t* address)
 {
     raster.SetBackBufferPtr(address);
+}
+
+void Renderer::SetViewport(const Viewport& value)
+{
+    viewport = value;
 }
 
 void Renderer::SetModelMatrix(const Matrix4& matrix)
@@ -426,12 +446,12 @@ Renderer::Vertex Renderer::TransformVertex(const SojVertices& vertices, uint32_t
 void Renderer::ProjectVertex(Vertex& vertex) const
 {
     const Fixed reciprocal = PerspectiveReciprocal(vertex.camera.z);
-    const Fixed scaleX = WrapMultiply(width >> 1, reciprocal >> 8);
-    const Fixed scaleY = WrapMultiply(height >> 1, reciprocal >> 8);
+    const Fixed scaleX = WrapMultiply(viewport.halfWidth, reciprocal >> 8);
+    const Fixed scaleY = WrapMultiply(viewport.halfHeight, reciprocal >> 8);
     vertex.x = RoundFixed(AddFixed(FixedMultiply(vertex.camera.x, scaleX),
-                                   (width >> 1) << 16));
+                                   viewport.halfWidthFixed));
     vertex.y = RoundFixed(AddFixed(FixedMultiply(NegateFixed(vertex.camera.y), scaleY),
-                                   (height >> 1) << 16));
+                                   viewport.halfHeightFixed));
     vertex.inverseDepth = reciprocal;
 }
 
@@ -493,9 +513,9 @@ void Renderer::ClipAndRasterizeTriangle(const Vertex& first, const Vertex& secon
                     FixedMultiply(SubtractFixed(current.intensity, previous.intensity), factor));
                 intersection.inverseDepth = 0x1000000;
                 intersection.x = RoundFixed(AddFixed(FixedMultiply(intersection.camera.x,
-                    (width >> 1) << 16), SubtractFixed((width >> 1) << 16, 0x8000)));
+                    viewport.halfWidthFixed), viewport.centerXFixed));
                 intersection.y = RoundFixed(AddFixed(FixedMultiply(NegateFixed(intersection.camera.y),
-                    (height >> 1) << 16), SubtractFixed((height >> 1) << 16, 0x8000)));
+                    viewport.halfHeightFixed), viewport.centerYFixed));
                 clipped.push_back(intersection);
             }
             if (currentInside) {
@@ -518,10 +538,10 @@ void Renderer::ClipAndRasterizeTriangle(const Vertex& first, const Vertex& secon
     if (area == 0 || (cullMode == 1 && area < 0) || (cullMode == 2 && area > 0)) {
         return;
     }
-    if ((flags & 1) != 0) polygon = ClipScreenEdge(polygon, 1, 0, false, false);
-    if ((flags & 2) != 0) polygon = ClipScreenEdge(polygon, 2, width, false, true);
-    if ((flags & 4) != 0) polygon = ClipScreenEdge(polygon, 4, 0, true, false);
-    if ((flags & 8) != 0) polygon = ClipScreenEdge(polygon, 8, height, true, true);
+    if ((flags & 1) != 0) polygon = ClipScreenEdge(polygon, 1, viewport.left, false, false);
+    if ((flags & 2) != 0) polygon = ClipScreenEdge(polygon, 2, viewport.right, false, true);
+    if ((flags & 4) != 0) polygon = ClipScreenEdge(polygon, 4, viewport.top, true, false);
+    if ((flags & 8) != 0) polygon = ClipScreenEdge(polygon, 8, viewport.bottom, true, true);
     RasterizePolygon(polygon);
 }
 
@@ -718,11 +738,11 @@ bool Renderer::ProjectPoint(const Vec3& point, Vec3& projected) const
         return false;
     }
     const Fixed reciprocal = FixedDivide(0x1000000, camera.z);
-    const Fixed scaleX = (width >> 1) << 16;
-    const Fixed scaleY = (height >> 1) << 16;
-    projected.x = AddFixed(SubtractFixed(scaleX, 0x8000),
+    const Fixed scaleX = viewport.halfWidthFixed;
+    const Fixed scaleY = viewport.halfHeightFixed;
+    projected.x = AddFixed(viewport.centerXFixed,
         FixedMultiply(FixedMultiply(camera.x, reciprocal) >> 8, scaleX));
-    projected.y = SubtractFixed(SubtractFixed(scaleY, 0x8000),
+    projected.y = SubtractFixed(viewport.centerYFixed,
         FixedMultiply(FixedMultiply(camera.y, reciprocal) >> 8, scaleY));
     projected.z = reciprocal >> 8;
     return true;
@@ -741,6 +761,7 @@ Fixed Renderer::GetMinimumIntensity() const { return minimumIntensity; }
 const Matrix4& Renderer::GetViewMatrix() const { return viewMatrix; }
 const Matrix4& Renderer::GetViewProjectionMatrix() const { return viewProjectionMatrix; }
 const Matrix4& Renderer::GetProjectionMatrix() const { return projectionMatrix; }
+const Viewport& Renderer::GetViewport() const { return viewport; }
 
 Texture* Renderer::GetCurrentTexture() const
 {

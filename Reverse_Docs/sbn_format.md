@@ -78,7 +78,8 @@ The punctuation tail observed by the older parser notes (and `Tools/sbn.py`) is 
 | `0x000dd370` | `ParseSbnFontData` | Parses `system.sbn` local glyphs and string table. |
 | `0x000dd5ac` | `ParseBaseFontData` | Parses `basefont.sbn`; adds 2 to `maxHeight` for languages other than 2. |
 | `0x000defdc` | `LoadBaseFontResource` | Loads the base font resource. |
-| `0x000df514` | `LoadSbnFontResource` | Loads an SBN font/string resource. |
+| `0x000df514` | `LoadSbnFontResource` | Loads an SBN font/string resource from the active FilePak. |
+| `0x000df2c0` | `StringManager_LoadSbnFontFromFile` | Uncalled in this binary; loads the same layout through standalone `s3dIO` file access. |
 | `0x000de3f8` | `VisString_AppendText` | Maps input characters to glyph codes per the table above. |
 | `0x000de72c` | `VisString_AppendNumber` | Appends decimal digit codes. |
 | `0x000e11a4` | `StringManager_DrawChar` | Draws one glyph into the framebuffer. |
@@ -95,4 +96,4 @@ The initial handedness labels are STX palette images, not SBN text. See `sdt_for
 
 ## Portable implementation and verification
 
-`Reversed_Game/src/soft3d/Font.*` implements the recovered parsing and drawing, and `tests/test_font.cpp` validates it against both real SBN resources from the reference archive.
+`Reversed_Game/src/soft3d/Font.*` implements the recovered parsing and drawing. Archive and standalone-file loading share `StringManager::ParseSbnFont`, so the uncalled file path cannot drift into a simplified parser. `tests/test_font.cpp` validates both real SBN resources, exercises `LoadSbnFontFromFile` with the actual 581-string `system.sbn`, and checks glyph drawing, wrapping, anchoring, and ranged text.

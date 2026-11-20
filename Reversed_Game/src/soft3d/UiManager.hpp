@@ -47,9 +47,9 @@ public:
     const std::vector<std::u16string>& GetSoundNames() const;
     uint32_t GetStrReserved0() const;
     uint32_t GetDeclaredVisualTotal() const;
+    uint32_t InternTextureName(const std::u16string& name);
 
 private:
-    uint32_t InternTextureName(const std::u16string& name);
 
     s3dResManager* resourceManager = nullptr;
     ScreenBlitter* screenBlitter = nullptr;

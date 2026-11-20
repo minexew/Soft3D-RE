@@ -2,12 +2,12 @@
 
 #include "soft3d/BezierCurve3.hpp"
 #include "soft3d/CameraSpot.hpp"
+#include "soft3d/Renderer.hpp"
 
+#include <array>
 #include <cstdint>
 
 namespace soft3d {
-
-class Renderer;
 
 class Camera {
 public:
@@ -15,6 +15,7 @@ public:
 
     void SetLookAt(const Vec3& position, const Vec3& target, const Vec3& up);
     void SetProjection(int16_t angle, Fixed aspectRatio, Fixed nearDistance, Fixed farDistance);
+    void SetViewport(int32_t left, int32_t top, uint32_t width, uint32_t height);
 
     int GetWidth() const;
     int GetHeight() const;
@@ -29,6 +30,7 @@ public:
     const Matrix4& GetWorldToCamera() const;
     const Matrix4& GetProjection() const;
     const Matrix4& GetRollMatrix() const;
+    const Viewport& GetViewport() const;
 
 private:
     void ApplyProjection(bool multiplyAspect);
@@ -36,6 +38,7 @@ private:
     int width;
     int height;
     Fixed aspectRatio;
+    Fixed projectionAspectRatio;
     int16_t angle = 0x400;
     int16_t verticalAngle = 0;
     Fixed nearDistance = fixedOne;
@@ -46,6 +49,8 @@ private:
     Matrix4 worldToCamera = Matrix4::Identity();
     Matrix4 projection = Matrix4::Identity();
     Matrix4 rollMatrix = Matrix4::Identity();
+    Viewport viewport;
+    std::array<int32_t, 4> viewportBounds{};
     Fixed screenScaleX = 0;
     Fixed screenScaleY = 0;
     Fixed inverseScreenScaleX = 0;

@@ -1,11 +1,22 @@
 #include "soft3d/Fixed.hpp"
 
+#ifdef SOFT3D_TRIG_USE_MATH
+#include <cmath>
+#include <limits>
+#endif
+
 namespace soft3d {
 namespace {
 
+#ifndef SOFT3D_TRIG_USE_MATH
 constexpr Fixed sineTable[] = {
 #include "soft3d/FixedSinTable.inc"
 };
+
+constexpr Fixed tangentTable[] = {
+#include "soft3d/FixedTanTable.inc"
+};
+#endif
 
 Fixed FixedArcTangentUnit(Fixed value)
 {
@@ -32,13 +43,41 @@ Fixed FixedSin(uint16_t angle)
     const unsigned index = (angle & 0x800) == 0
         ? angle & 0x7ff
         : 0x800 - (angle & 0x7ff);
+#ifdef SOFT3D_TRIG_USE_MATH
+    constexpr double pi = 3.14159265358979323846;
+    const Fixed value = static_cast<Fixed>(
+        std::sin(static_cast<double>(index) * pi / 4096.0) * 65536.0);
+#else
     const Fixed value = sineTable[index];
+#endif
     return (angle & 0x1000) == 0 ? value : NegateFixed(value);
 }
 
 Fixed FixedCos(int16_t angle)
 {
     return FixedSin(static_cast<uint16_t>(angle + 0x800) & 0x1fff);
+}
+
+Fixed FixedTan(uint16_t angle)
+{
+    const unsigned index = (angle & 0x800) == 0
+        ? angle & 0x7ff
+        : 0x800 - (angle & 0x7ff);
+#ifdef SOFT3D_TRIG_USE_MATH
+    constexpr double pi = 3.14159265358979323846;
+    Fixed value = std::numeric_limits<Fixed>::max();
+    if (index == 1024) {
+        value = fixedOne;
+    } else if (index != 2048) {
+        const double tangent = std::tan(static_cast<double>(index) * pi / 4096.0) * 65536.0;
+        if (tangent < static_cast<double>(std::numeric_limits<Fixed>::max())) {
+            value = static_cast<Fixed>(tangent);
+        }
+    }
+#else
+    const Fixed value = tangentTable[index];
+#endif
+    return (angle & 0x800) == 0 ? value : NegateFixed(value);
 }
 
 uint16_t FixedArcTangent(Fixed value)

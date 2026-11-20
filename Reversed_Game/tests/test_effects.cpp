@@ -71,11 +71,25 @@ void TestFixedMath()
 {
     CHECK(soft3d::FixedSin(0) == 0);
     CHECK(soft3d::FixedSin(0x400) == 46340);
+#ifdef SOFT3D_TRIG_USE_MATH
+    CHECK(soft3d::FixedSin(0x800) == 65536);
+    CHECK(soft3d::FixedCos(0) == 65536);
+#else
     CHECK(soft3d::FixedSin(0x800) == 65535);
     CHECK(soft3d::FixedCos(0) == 65535);
+    CHECK(soft3d::FixedTan(0x7ff) == 85450510);
+#endif
+    CHECK(soft3d::FixedTan(0) == 0);
+    CHECK(soft3d::FixedTan(0x400) == 65536);
+    CHECK(soft3d::FixedTan(0x800) == static_cast<soft3d::Fixed>(0x80000001U));
+    CHECK(soft3d::FixedTan(0xc00) == -65536);
     CHECK(soft3d::FixedArcTangent(soft3d::fixedOne) == 0x41d);
     const soft3d::Vec3 rotated = soft3d::RotateY({soft3d::fixedOne, 0, 0}, 0x800);
+#ifdef SOFT3D_TRIG_USE_MATH
+    CHECK(rotated.x == 0 && rotated.y == 0 && rotated.z == -65536);
+#else
     CHECK(rotated.x == 0 && rotated.y == 0 && rotated.z == -65535);
+#endif
     soft3d::Matrix4 model = soft3d::Matrix4::Identity();
     model.values[0] = 0;
     model.values[1] = -soft3d::fixedOne;
@@ -94,7 +108,11 @@ void TestFixedMath()
     soft3d::Camera camera(8, 8, &renderer);
     camera.SetLookAt({0, 0, 0}, {soft3d::fixedOne, 0, 0}, {0, soft3d::fixedOne, 0});
     CHECK(camera.GetRollMatrix().values[0] == 0);
+#ifdef SOFT3D_TRIG_USE_MATH
+    CHECK(camera.GetRollMatrix().values[8] == 65536);
+#else
     CHECK(camera.GetRollMatrix().values[8] == 65535);
+#endif
 }
 
 void TestTextureResize()

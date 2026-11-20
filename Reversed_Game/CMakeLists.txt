@@ -57,6 +57,7 @@ add_library(soft3d
     src/soft3d/s3dBase.cpp
     src/soft3d/s3dFilePak.cpp
     src/soft3d/s3dIO.cpp
+    src/soft3d/s3dImageLoader.cpp
     src/soft3d/s3dLog.cpp
     src/soft3d/s3dResManager.cpp
 )
@@ -71,6 +72,11 @@ option(SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER
     "Decode high-nibble-first WAR audio instead of low-nibble-first SAU audio" OFF)
 if(SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER)
     target_compile_definitions(soft3d PUBLIC SOFT3D_AUDIO_REVERSE_NIBBLE_ORDER)
+endif()
+option(SOFT3D_TRIG_USE_MATH
+    "Use host trigonometry instead of the original sine and tangent lookup tables" OFF)
+if(SOFT3D_TRIG_USE_MATH)
+    target_compile_definitions(soft3d PUBLIC SOFT3D_TRIG_USE_MATH=1)
 endif()
 option(SOFT3D_SPK_ENGLISH_LAYOUT
     "Use 32-byte-path English SPK entries instead of 64-byte-path Chinese entries" OFF)
@@ -129,6 +135,13 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_io_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_io COMMAND soft3d_io_tests)
+
+    add_executable(soft3d_image_tests tests/test_image.cpp)
+    target_link_libraries(soft3d_image_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_image_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_image COMMAND soft3d_image_tests)
 
     add_executable(soft3d_stream_tests tests/test_stream.cpp)
     target_link_libraries(soft3d_stream_tests PRIVATE soft3d)

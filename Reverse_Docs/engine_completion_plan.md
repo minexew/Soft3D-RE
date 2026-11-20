@@ -30,7 +30,7 @@ The game hooks that invoke audio are not automatically supplied by the audio imp
 ### Missing or incomplete engine facilities
 
 - episode-specific `Scene` gameplay, concrete units, and game-data semantics;
-- S3DTEX engine/tool parity and remaining STX/SOJ/SAI unknown fields.
+- No secondary-format loader remains to be invented for Soft3D: S3DTEX belongs to the recovered S2D tool path, while the Symbian image class supplies TGA. Remaining format questions are limited to unused/reserved or game-specific fields without consumer evidence.
 
 The old video documentation's statement that audio remains a stub is obsolete; `symbian3rd_audio.md` is the current audio reference.
 
@@ -99,7 +99,7 @@ Therefore S3DSTY and SPL belong with the map/menu milestone, not in an unrelated
 
 **Completion**
 
-`BezierCurve3.*`, `Camera.*`, `CameraSpot.*`, `MenuBackdrop.*`, and `test_spl.cpp` implement and test every item. All 11 real cubic records pass exact fixed-point and derivative checks; collection timing uses the recovered control-polygon lengths. The original `snap == 0` start-position polarity is covered with a nonzero path origin. `GameEngine::LoadMenuBackdrop` drives 484 real-map dummy-video frames with moving camera, 73,555 depth-covered pixels in the first frame, corrected BSP/model visibility and transforms, and exact hashes (`0x9be83101`/`0x3593f585` initially, `0xff34b1b9`/`0x68f2b585` at frame 120). Frames 52 and 86 explicitly cover the cabinet interval, and the wrapped second round verifies two submitted models without episode classes. See `spl_format.md` for layouts, projection arithmetic, update order, and hashes. Non-default camera tangent entries still use the mathematical equivalent rather than a copied original lookup table; this does not affect the default/menu camera.
+`BezierCurve3.*`, `Camera.*`, `CameraSpot.*`, `MenuBackdrop.*`, and `test_spl.cpp` implement and test every item. All 11 real cubic records pass exact fixed-point and derivative checks; collection timing uses the recovered control-polygon lengths. The original `snap == 0` start-position polarity is covered with a nonzero path origin. `GameEngine::LoadMenuBackdrop` drives 484 real-map dummy-video frames with moving camera, 73,555 depth-covered pixels in the first frame, corrected BSP/model visibility and transforms, and exact hashes (`0x9be83101`/`0x3593f585` initially, `0xff34b1b9`/`0x68f2b585` at frame 120). Frames 52 and 86 explicitly cover the cabinet interval, and the wrapped second round verifies two submitted models without episode classes. See `spl_format.md` for layouts, projection arithmetic, update order, and hashes. Stage 13 later added the complete original tangent table and the non-default `SOFT3D_TRIG_USE_MATH` option; see below.
 
 ## Stage 4 — Input, target-FPS timer, lifecycle, and restorable FPS display — complete
 
@@ -295,6 +295,16 @@ All 26 normal CTest tests, all 20 stdio-logging tests, and all 20 SDL-independen
 
 - Run the full CTest matrix, relevant decoder/layout/logging variants, Python converter suites, and headless SDL scenarios.
 - Perform a final fresh-start scenario covering handedness, menu background, navigation, configuration, audio, timing, and shutdown.
+
+**Completion**
+
+Stage 13 is complete. S3DTEX is now decoded from the recovered S2D header: byte depth, palette count, 16-bit format/flags, dimensions, and signed 32-bit color key. `Tools/s3dtex.py` supports direct/keyed images, luminance, all six palette representations, palette alignment, and malformed-input checks. `Tools/test_s3dtex.py` loads all 173 vendored samples and synthetic variants; the previous `unknown04` was the format word's high byte. No Soft3D S3DTEX loader was invented: the Symbian `s3dImageLoader` instead supplies the previously uncalled TGA loader, reconstructed in `s3dImageLoader.*` with safe RLE/bounds behavior and tests.
+
+The original 2049-entry tangent table is linked as `FixedTanTable.inc` and checked byte-for-byte against ARM and the SDK. Both sine and tangent tables are default; `SOFT3D_TRIG_USE_MATH=ON` explicitly selects host trigonometry. The final unused-code pass implements camera-path degree elevation/editing/bounds/transforms and storage lifecycle, camera/renderer viewports, file-based SBN loading, dialog field/runtime accessors and direct blits, and a replaceable `SceneHost` instead of a named stub. Camera projection now preserves the separate projection aspect ratio and the setter's original ignored near/far arguments.
+
+The RTTI audit accounts for every recovered class. Concrete gameplay classes, episode `Scene` semantics, `GameSI` commands, and Symbian network/application services remain game/platform work under the boundary below. No unnamed RTTI class requires a new portable engine facility. STX/SOJ/SAI reserved fields were left unchanged where no consumer evidence justified new semantics.
+
+Verification passes 27 default CTest tests, 21 math tests, 21 stdio-logging tests, 21 ASan/UBSan tests, and 21 WAR-decoder tests. The English SPK build passes its ten applicable non-Chinese-fixture tests; real-archive tests still require the Chinese fixture as documented. Eight S3DTEX and six SOJ Python tests pass. The final Xvfb/xdotool run uses real SDL input and 16 kHz dummy audio, reaches and captures the moving main menu, enters and captures Exit Game, confirms shutdown, and writes the expected 1252-byte `config.sdt`. See `s3dtex_format.md`, `symbian3rd_image.md`, `spl_format.md`, `sdt_format.md`, `sbn_format.md`, `symbian3rd_raster.md`, and `symbian3rd_rtti.md`.
 
 ## Explicitly postponed after engine completion
 

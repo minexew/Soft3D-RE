@@ -117,7 +117,15 @@ Thus long control polygons receive proportionally more playback time. The real r
 44816, 50521, 55546, 60586, 65536
 ```
 
-The original also has editing helpers for removal, insertion/refinement, translation, transformation, and bounds. They are not needed by menu playback and are not part of the portable runtime API.
+The original editing helpers are now represented in the portable API even though menu playback does not call them. `BezierCurve3_Refine` (`0x00085c00`) performs degree elevation: a degree-N curve becomes degree N+1, endpoints are retained, and each interior point is `old[i-1] * i/(N+1) + old[i] * (N+1-i)/(N+1)` using fixed-point arithmetic. A segment-count constructor, collection copy, and `CameraPathCollection_Reset` (`0x00086f24`) complete the storage lifecycle; reset leaves capacity zero until the caller supplies a new collection.
+
+- `CameraPathCollection_RemoveLast` (`0x00086eac`) removes a nonempty final curve and rebuilds timing;
+- `CameraPathCollection_SetPoint` (`0x00086fd8`) adds a delta to one control point, propagates it across shared endpoints and their adjacent handles, adjusts neighboring tangent handles while preserving their lengths, and rebuilds timing;
+- `CameraPathCollection_Translate` (`0x00087728`) adds a vector to every control point;
+- `CameraPathCollection_Transform` (`0x00087aec`) matrix-transforms every point in place;
+- `CameraPathCollection_GetBounds` (`0x000877ec`) computes control-point bounds, starting from `+/-0x270f0000`; an empty collection leaves both outputs untouched.
+
+The original translate/transform routines do not themselves rebuild timing. Portable callers can invoke `RebuildTiming` explicitly when a transform changes control-polygon lengths. Bounds describe control points, not extrema of the evaluated Bezier curve. Directed synthetic tests cover shared-point propagation, invalid-point rejection, empty bounds, transforms, and repeated removal.
 
 ## Camera and `CameraSpot`
 
@@ -147,6 +155,8 @@ inverseScreenScaleY = 226
 
 Calling `SetProjection` with those same defaults instead produces vertical angle 768, `screenScaleX = 34567141`, and `inverseScreenScaleX = 124`; the Y values are unchanged. The portable `Camera` deliberately preserves this constructor/setter difference.
 
+The screen descriptor's aspect ratio and the projection aspect ratio are separate fields. The constructor initializes both from width/height, but `Camera_SetProjection` changes only the latter. It also ignores its near/far arguments and restores the original defaults `near = 1.0` and `far = 140.0`; earlier portable code incorrectly honored those arguments. `Camera_SetViewport` (`0x000fd41c`) updates the camera's copied bounds and embedded viewport, then forwards the viewport to the renderer. Stage 13 tests cover the separate aspect field, ignored near/far arguments, negative viewport origins, and renderer propagation.
+
 Forward scales are `width / (2 * tan(verticalAngle / 2))` and `height / (2 * tan(angle / 2))`; inverse scales are the corresponding reciprocals in fixed point. The tangent table begins at `0x001a2084`, has 2049 entries, and uses the angle bit `0x800` for sign symmetry. Ordinary entries are truncated fixed-point tangents; the 45-degree entry is exactly `0x10000`, and the final entry is `0x7fffffff`.
 
 The perspective matrix uses:
@@ -161,7 +171,9 @@ row 2 = (0, 0, scaleZ, 1)
 row 3 = (0, 0, -near * scaleZ, 0)
 ```
 
-The default matrix entries are `scaleX = 118667`, `scaleY = 158223`, `scaleZ = 66007`, and translation Z `-66007`. The portable implementation reproduces the menu/default values exactly; non-default tangent entries currently come from the equivalent mathematical function rather than a copied 2049-word table.
+The default matrix entries are `scaleX = 118667`, `scaleY = 158223`, `scaleZ = 66007`, and translation Z `-66007`. `FixedTanTable.inc` now contains all 2049 original signed 32-bit entries, independently checked against the ARM image at `0x001a2084` and the SDK `TanLUT`; their packed SHA-256 is `57b70bc252ea593be08d5538a7d3314c53bd2e723bded9cc127b41cf2f00d3c3`. The default build uses this table for every entry. `-DSOFT3D_TRIG_USE_MATH=ON` is a non-default option that substitutes host sine/tangent calculations, including explicit 45-degree and singular-point handling.
+
+The sign branch has an observable singularity quirk: `FixedTan(0x800)` mirrors to entry 2048 and then negates `0x7fffffff`, returning `0x80000001`, not positive `INT32_MAX`. Tests preserve this behavior in both modes.
 
 `Camera_UpdateRoll` calls `Renderer_UpdateViewProjection` (`0x00050e4c`) after each camera update. The renderer retains the view and projection matrices separately and computes `view * projection` in the original multiplication order. Generic SOJ model-view state and animation palettes use this combined matrix, while object queue-depth sorting uses the unprojected view matrix. Palette vertices obtain camera depth from the combined matrix's fourth row. The portable `Renderer` exposes these as `GetViewMatrix`, `GetProjectionMatrix`, and `GetViewProjectionMatrix` and keeps them synchronized.
 

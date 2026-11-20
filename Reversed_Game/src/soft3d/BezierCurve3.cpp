@@ -67,6 +67,13 @@ Fixed ClampTime(Fixed time)
 
 } // namespace
 
+BezierCurve3::BezierCurve3(int32_t count)
+    : points(static_cast<std::size_t>(std::max(count, 0)) + 1, Vec3{})
+    , segmentCount(std::max(count, 0))
+{
+    Rebuild();
+}
+
 BezierCurve3::BezierCurve3(const std::vector<Vec3>& controlPoints)
     : points(controlPoints)
     , segmentCount(static_cast<int32_t>(controlPoints.size()) - 1)
@@ -82,6 +89,29 @@ void BezierCurve3::Reset()
     coefficientMatrix.clear();
     firstDifferences.clear();
     secondDifferences.clear();
+}
+
+void BezierCurve3::Refine()
+{
+    if (points.empty() || points.size() != static_cast<std::size_t>(segmentCount + 1)) {
+        return;
+    }
+    const int32_t oldSegmentCount = segmentCount;
+    const int32_t newSegmentCount = oldSegmentCount + 1;
+    std::vector<Vec3> elevated(static_cast<std::size_t>(newSegmentCount) + 1);
+    elevated.front() = points.front();
+    elevated.back() = points.back();
+    const Fixed divisor = ShiftLeftFixed(newSegmentCount, 16);
+    for (int32_t index = 1; index < newSegmentCount; ++index) {
+        const Fixed previousWeight = FixedDivide(ShiftLeftFixed(index, 16), divisor);
+        const Fixed currentWeight = FixedDivide(
+            ShiftLeftFixed(newSegmentCount - index, 16), divisor);
+        elevated[index] = Add(Scale(points[index - 1], previousWeight),
+                              Scale(points[index], currentWeight));
+    }
+    points = std::move(elevated);
+    segmentCount = newSegmentCount;
+    Rebuild();
 }
 
 void BezierCurve3::Rebuild()
@@ -155,6 +185,18 @@ const std::vector<Fixed>& BezierCurve3::GetCoefficientMatrix() const { return co
 const std::vector<Vec3>& BezierCurve3::GetFirstDifferences() const { return firstDifferences; }
 const std::vector<Vec3>& BezierCurve3::GetSecondDifferences() const { return secondDifferences; }
 
+Vec3* BezierCurve3::GetPoint(int32_t index)
+{
+    return index >= 0 && static_cast<std::size_t>(index) < points.size()
+        ? &points[static_cast<std::size_t>(index)] : nullptr;
+}
+
+const Vec3* BezierCurve3::GetPoint(int32_t index) const
+{
+    return index >= 0 && static_cast<std::size_t>(index) < points.size()
+        ? &points[static_cast<std::size_t>(index)] : nullptr;
+}
+
 CameraPathCollection::CameraPathCollection(std::size_t curveCapacity)
     : capacity(curveCapacity)
 {
@@ -170,6 +212,131 @@ bool CameraPathCollection::Append(const BezierCurve3& curve)
     curves.back().Rebuild();
     RebuildTiming();
     return true;
+}
+
+void CameraPathCollection::Reset()
+{
+    curves.clear();
+    pathLengths.clear();
+    pathEndTimes.clear();
+    capacity = 0;
+}
+
+void CameraPathCollection::RemoveLast()
+{
+    if (!curves.empty()) {
+        curves.pop_back();
+        RebuildTiming();
+    }
+}
+
+void CameraPathCollection::SetPoint(std::size_t curveIndex, std::size_t pointIndex,
+                                    const Vec3& delta)
+{
+    if (curveIndex >= curves.size()) {
+        return;
+    }
+    BezierCurve3& current = curves[curveIndex];
+    Vec3* selected = current.GetPoint(static_cast<int32_t>(pointIndex));
+    if (selected == nullptr) {
+        return;
+    }
+    *selected = Add(*selected, delta);
+    const int32_t segmentCount = current.GetSegmentCount();
+    if (pointIndex == 0 && curveIndex > 0) {
+        BezierCurve3& previous = curves[curveIndex - 1];
+        Vec3* incoming = previous.GetPoint(previous.GetPointCount() - 2);
+        Vec3* endpoint = previous.GetPoint(previous.GetSegmentCount());
+        Vec3* outgoing = current.GetPoint(1);
+        if (incoming != nullptr && endpoint != nullptr && outgoing != nullptr) {
+            *incoming = Add(*incoming, delta);
+            *endpoint = Add(*endpoint, delta);
+            *outgoing = Add(*outgoing, delta);
+        }
+    }
+    if (pointIndex == 1 && curveIndex > 0) {
+        BezierCurve3& previous = curves[curveIndex - 1];
+        const Vec3* start = current.GetPoint(0);
+        const Vec3* next = current.GetPoint(1);
+        Vec3* endpoint = previous.GetPoint(previous.GetSegmentCount());
+        Vec3* incoming = previous.GetPoint(previous.GetSegmentCount() - 1);
+        if (start != nullptr && next != nullptr && endpoint != nullptr && incoming != nullptr) {
+            const Vec3 direction = Normalize(Subtract(*start, *next));
+            const Fixed length = Length(Subtract(*endpoint, *incoming));
+            *incoming = Add(*start, Scale(direction, length));
+        }
+    }
+    if (segmentCount > 0 && pointIndex == static_cast<std::size_t>(segmentCount - 1) &&
+        curveIndex + 1 < curves.size()) {
+        BezierCurve3& next = curves[curveIndex + 1];
+        const Vec3* nextStart = next.GetPoint(0);
+        const Vec3* nextOutgoing = next.GetPoint(1);
+        const Vec3* endpoint = current.GetPoint(segmentCount);
+        const Vec3* incoming = current.GetPoint(segmentCount - 1);
+        Vec3* adjusted = next.GetPoint(1);
+        if (nextStart != nullptr && nextOutgoing != nullptr && endpoint != nullptr &&
+            incoming != nullptr && adjusted != nullptr) {
+            const Fixed length = Length(Subtract(*nextStart, *nextOutgoing));
+            const Vec3 direction = Normalize(Subtract(*endpoint, *incoming));
+            *adjusted = Add(*endpoint, Scale(direction, length));
+        }
+    }
+    if (pointIndex == static_cast<std::size_t>(segmentCount) && curveIndex + 1 < curves.size()) {
+        BezierCurve3& next = curves[curveIndex + 1];
+        Vec3* incoming = current.GetPoint(segmentCount - 1);
+        Vec3* nextStart = next.GetPoint(0);
+        Vec3* nextOutgoing = next.GetPoint(1);
+        if (incoming != nullptr && nextStart != nullptr && nextOutgoing != nullptr) {
+            *incoming = Add(*incoming, delta);
+            *nextStart = Add(*nextStart, delta);
+            *nextOutgoing = Add(*nextOutgoing, delta);
+        }
+    }
+    RebuildTiming();
+}
+
+void CameraPathCollection::Translate(const Vec3& delta)
+{
+    for (BezierCurve3& curve : curves) {
+        for (int32_t index = 0; index < curve.GetPointCount(); ++index) {
+            Vec3* point = curve.GetPoint(index);
+            if (point != nullptr) {
+                *point = Add(*point, delta);
+            }
+        }
+    }
+}
+
+void CameraPathCollection::GetBounds(Vec3& minimum, Vec3& maximum) const
+{
+    if (curves.empty()) {
+        return;
+    }
+    minimum = {0x270f0000, 0x270f0000, 0x270f0000};
+    maximum = {static_cast<Fixed>(0xd8f10000), static_cast<Fixed>(0xd8f10000),
+               static_cast<Fixed>(0xd8f10000)};
+    for (const BezierCurve3& curve : curves) {
+        for (const Vec3& point : curve.GetPoints()) {
+            minimum.x = std::min(minimum.x, point.x);
+            minimum.y = std::min(minimum.y, point.y);
+            minimum.z = std::min(minimum.z, point.z);
+            maximum.x = std::max(maximum.x, point.x);
+            maximum.y = std::max(maximum.y, point.y);
+            maximum.z = std::max(maximum.z, point.z);
+        }
+    }
+}
+
+void CameraPathCollection::Transform(const Matrix4& matrix)
+{
+    for (BezierCurve3& curve : curves) {
+        for (int32_t index = 0; index < curve.GetPointCount(); ++index) {
+            Vec3* point = curve.GetPoint(index);
+            if (point != nullptr) {
+                *point = soft3d::Transform(matrix, *point);
+            }
+        }
+    }
 }
 
 void CameraPathCollection::RebuildTiming()
@@ -239,6 +406,7 @@ Vec3 CameraPathCollection::EvaluateDerivative(Fixed time) const { return Evaluat
 Vec3 CameraPathCollection::EvaluateSecondDerivative(Fixed time) const { return Evaluate(time, 2); }
 std::size_t CameraPathCollection::GetCapacity() const { return capacity; }
 std::size_t CameraPathCollection::GetCount() const { return curves.size(); }
+BezierCurve3& CameraPathCollection::GetCurve(std::size_t index) { return curves.at(index); }
 const BezierCurve3& CameraPathCollection::GetCurve(std::size_t index) const { return curves.at(index); }
 const std::vector<Fixed>& CameraPathCollection::GetPathLengths() const { return pathLengths; }
 const std::vector<Fixed>& CameraPathCollection::GetPathEndTimes() const { return pathEndTimes; }

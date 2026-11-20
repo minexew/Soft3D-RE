@@ -325,6 +325,21 @@ void TestInterpolation()
     CHECK(dialog->SetElementTime(0, 0, 11) == 1 && visual->hidden);
     CHECK(dialog->SetElementTime(0, 1, 0) == 1);
     CHECK(visual->hidden);
+    CHECK(dialog->GetElementWidth(0, 0, 5) == 20);
+    CHECK(dialog->GetElementHeight(0, 0, 5) == 30);
+    CHECK(dialog->GetElementBlitMode(0, 0, 5) == 3);
+    CHECK(dialog->GetElementWidth(0, 0, -1) == 1);
+    CHECK(dialog->GetElementHeight(0, 0, 11) == 1);
+    dialog->SetKeyWidth(0, 0, 1, 45);
+    dialog->SetKeyHeight(0, 0, 1, 55);
+    CHECK(dialog->GetKeyWidth(0, 0, 1) == 45);
+    CHECK(dialog->GetKeyHeight(0, 0, 1) == 55);
+    CHECK(dialog->GetKeySourceHeight(0, 0, 1) == 10);
+    dialog->InitializeRuntimeTimes();
+    dialog->SetElementCurrentTime(0, 0, 7);
+    CHECK(dialog->GetElementCurrentTime(0, 0) == 7);
+    dialog->SetIndex(9);
+    CHECK(dialog->GetIndex() == 9);
 }
 
 void CheckExactKey(const soft3d::SdtVisual& visual, const soft3d::SdtAnimationKey& key)
@@ -458,6 +473,46 @@ void TestInitialScreen(soft3d::GameEngine& engine,
     CHECK(HashFrame(*frame) == leftFrame);
 }
 
+void TestDialogBlitting()
+{
+    soft3d::TextureRes resource;
+    std::vector<uint8_t> bytes;
+    Append32(bytes, 4 | (0x90U << 8) | (0xffffU << 16));
+    Append32(bytes, 2);
+    Append32(bytes, 1);
+    Append16(bytes, 0xf800);
+    Append16(bytes, 0x07e0);
+    bytes.insert(bytes.end(), {0, 1, 0, 1, 0, 1, 0, 1});
+    CHECK(resource.GetTexture()->ParseStx(bytes.data()) == soft3d::S3D_OK);
+
+    auto target = MakeTarget(4, 2, 0);
+    soft3d::ScreenBlitter blitter;
+    blitter.SetTexture(target.get());
+    soft3d::UiManager manager;
+    manager.SetScreenBlitter(&blitter);
+    manager.AddDialog(std::make_unique<soft3d::Dialog>(&manager, 0));
+    soft3d::Dialog* dialog = manager.GetDialogRuntime(0);
+    soft3d::SdtVisual visual;
+    visual.resource = &resource;
+    dialog->GetData().visuals.push_back(visual);
+    dialog->SetOrigin(1, 1);
+    CHECK(dialog->BlitVisualAtPoint(0, 0, 0));
+    const uint32_t* pixels = reinterpret_cast<const uint32_t*>(target->GetPixels());
+    CHECK(pixels[5] == (0x7fff0000U | 0xf800));
+    CHECK(pixels[6] == (0x7fff0000U | 0x07e0));
+    CHECK(!dialog->BlitVisualAtPoint(1, 0, 0));
+    dialog->SetOrigin(0, 0);
+    CHECK(dialog->BlitVisualInRect(0, {0, 0, 4, 2}));
+    for (uint32_t y = 0; y < 2; ++y) {
+        CHECK(pixels[y * 4] == (0x7fff0000U | 0xf800));
+        CHECK(pixels[y * 4 + 1] == (0x7fff0000U | 0xf800));
+        CHECK(pixels[y * 4 + 2] == (0x7fff0000U | 0x07e0));
+        CHECK(pixels[y * 4 + 3] == (0x7fff0000U | 0x07e0));
+    }
+    CHECK(!dialog->BlitVisualInRect(0, {1, 1, 1, 2}));
+    CHECK(!dialog->SetVisualResource(1, u"missing"));
+}
+
 } // namespace
 
 int main()
@@ -466,6 +521,7 @@ int main()
         TestBlitterModes();
         TestBlitterClippingAndSecondary();
         TestInterpolation();
+        TestDialogBlitting();
 
         soft3d::EngineConfig config;
         config.width = 320;

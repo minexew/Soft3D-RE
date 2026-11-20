@@ -7,6 +7,21 @@
 
 namespace soft3d {
 
+struct Viewport {
+    int32_t left = 0;
+    int32_t right = 0;
+    int32_t top = 0;
+    int32_t bottom = 0;
+    int32_t halfWidth = 0;
+    int32_t halfHeight = 0;
+    Fixed halfWidthFixed = 0;
+    Fixed halfHeightFixed = 0;
+    Fixed centerXFixed = 0;
+    Fixed centerYFixed = 0;
+
+    void SetBounds(int32_t newLeft, int32_t newTop, uint32_t width, uint32_t height);
+};
+
 class Renderer : public s3dBase {
 public:
     Renderer(int width, int height);
@@ -15,6 +30,7 @@ public:
     void SetModelMatrix(const Matrix4& matrix);
     void SetViewMatrix(const Matrix4& matrix);
     void SetProjectionMatrix(const Matrix4& matrix);
+    void SetViewport(const Viewport& viewport);
     void SetOrientation(int orientation);
     void SetCullMode(uint32_t mode);
     void SetBlendMode(uint32_t mode);
@@ -65,6 +81,7 @@ public:
     const Matrix4& GetViewMatrix() const;
     const Matrix4& GetViewProjectionMatrix() const;
     const Matrix4& GetProjectionMatrix() const;
+    const Viewport& GetViewport() const;
     Texture* GetCurrentTexture() const;
     Raster& GetRaster();
 
@@ -87,6 +104,7 @@ private:
     Matrix4 projectionMatrix;
     Matrix4 viewProjectionMatrix;
     Matrix4 modelViewMatrix;
+    Viewport viewport;
     std::vector<Vertex> transformed;
     uint32_t cullMode = 0;
     uint32_t textureCoordinateMode = 0;

@@ -1,5 +1,6 @@
 #include "soft3d/Dialog.hpp"
 
+#include "soft3d/Fixed.hpp"
 #include "soft3d/TextureRes.hpp"
 #include "soft3d/UiManager.hpp"
 #include "soft3d/s3dIO.hpp"
@@ -282,6 +283,120 @@ int32_t Dialog::GetKeyHeight(int32_t stateIndex, int32_t elementIndex, int32_t k
     return key != nullptr ? KeyValue(key->height) : 0;
 }
 
+int32_t Dialog::GetKeySourceHeight(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const
+{
+    const SdtAnimationKey* key = GetKey(stateIndex, elementIndex, keyIndex);
+    return key != nullptr ? KeyValue(key->sourceHeight) : 0;
+}
+
+int32_t Dialog::GetElementFieldAtTime(int32_t stateIndex, int32_t elementIndex, int32_t time,
+                                      uint32_t field)
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
+        elementIndex < 0) {
+        return 0;
+    }
+    const SdtState& state = data.states[stateIndex];
+    if (static_cast<size_t>(elementIndex) >= state.elements.size()) {
+        return 0;
+    }
+    const SdtElement& element = state.elements[elementIndex];
+    SdtVisual* visual = GetVisual(element.visualIndex);
+    if (visual == nullptr) {
+        return 0;
+    }
+    auto read = [field](const SdtAnimationKey& key) {
+        switch (field) {
+            case 0: return key.time;
+            case 1: return key.x;
+            case 2: return key.y;
+            case 3: return key.width;
+            case 4: return key.height;
+            case 5: return key.mode;
+            case 6: return key.sourceX;
+            case 7: return key.sourceY;
+            case 8: return key.sourceWidth;
+            case 9: return key.sourceHeight;
+            case 10: return key.widthDivisor;
+            case 11: return key.heightDivisor;
+            default: return key.extra;
+        }
+    };
+    for (size_t keyIndex = 0; keyIndex < element.keys.size(); ++keyIndex) {
+        const SdtAnimationKey& next = element.keys[keyIndex];
+        if (KeyValue(next.time) == time) {
+            return KeyValue(read(next));
+        }
+        if (time >= KeyValue(next.time)) {
+            continue;
+        }
+        if (keyIndex == 0) {
+            visual->hidden = true;
+            return 0;
+        }
+        const SdtAnimationKey& previous = element.keys[keyIndex - 1];
+        if (field == 5) {
+            visual->hidden = false;
+            return KeyValue(previous.mode);
+        }
+        visual->hidden = false;
+        return Interpolate(read(previous), read(next), static_cast<int16_t>(time) -
+            KeyValue(previous.time), KeyValue(next.time) - KeyValue(previous.time));
+    }
+    visual->hidden = true;
+    return -1;
+}
+
+int32_t Dialog::GetElementWidth(int32_t stateIndex, int32_t elementIndex, int32_t time)
+{
+    const int16_t result = static_cast<int16_t>(
+        GetElementFieldAtTime(stateIndex, elementIndex, time, 3));
+    if (stateIndex >= 0 && static_cast<size_t>(stateIndex) < data.states.size() &&
+        elementIndex >= 0 && static_cast<size_t>(elementIndex) < data.states[stateIndex].elements.size()) {
+        const SdtVisual* visual = GetVisual(data.states[stateIndex].elements[elementIndex].visualIndex);
+        if (visual != nullptr && visual->hidden) {
+            return 1;
+        }
+    }
+    return result;
+}
+
+int32_t Dialog::GetElementHeight(int32_t stateIndex, int32_t elementIndex, int32_t time)
+{
+    const int16_t result = static_cast<int16_t>(
+        GetElementFieldAtTime(stateIndex, elementIndex, time, 4));
+    if (stateIndex >= 0 && static_cast<size_t>(stateIndex) < data.states.size() &&
+        elementIndex >= 0 && static_cast<size_t>(elementIndex) < data.states[stateIndex].elements.size()) {
+        const SdtVisual* visual = GetVisual(data.states[stateIndex].elements[elementIndex].visualIndex);
+        if (visual != nullptr && visual->hidden) {
+            return 1;
+        }
+    }
+    return result;
+}
+
+int32_t Dialog::GetElementBlitMode(int32_t stateIndex, int32_t elementIndex, int32_t time)
+{
+    return GetElementFieldAtTime(stateIndex, elementIndex, time, 5);
+}
+
+void Dialog::SetElementCurrentTime(int32_t stateIndex, int32_t elementIndex, int32_t time)
+{
+    if (stateIndex >= 0 && static_cast<size_t>(stateIndex) < elementTimes.size() &&
+        elementIndex >= 0 && static_cast<size_t>(elementIndex) < elementTimes[stateIndex].size()) {
+        elementTimes[stateIndex][elementIndex] = time;
+    }
+}
+
+int32_t Dialog::GetElementCurrentTime(int32_t stateIndex, int32_t elementIndex) const
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= elementTimes.size() ||
+        elementIndex < 0 || static_cast<size_t>(elementIndex) >= elementTimes[stateIndex].size()) {
+        return 0;
+    }
+    return elementTimes[stateIndex][elementIndex];
+}
+
 void Dialog::SetKeyX(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value)
 {
     if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
@@ -314,6 +429,38 @@ void Dialog::SetKeyY(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex,
     }
 }
 
+void Dialog::SetKeyWidth(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value)
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
+        elementIndex < 0 || keyIndex < 0) {
+        return;
+    }
+    SdtState& state = data.states[stateIndex];
+    if (static_cast<size_t>(elementIndex) >= state.elements.size()) {
+        return;
+    }
+    SdtElement& element = state.elements[elementIndex];
+    if (static_cast<size_t>(keyIndex) < element.keys.size()) {
+        element.keys[keyIndex].width = value;
+    }
+}
+
+void Dialog::SetKeyHeight(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value)
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
+        elementIndex < 0 || keyIndex < 0) {
+        return;
+    }
+    SdtState& state = data.states[stateIndex];
+    if (static_cast<size_t>(elementIndex) >= state.elements.size()) {
+        return;
+    }
+    SdtElement& element = state.elements[elementIndex];
+    if (static_cast<size_t>(keyIndex) < element.keys.size()) {
+        element.keys[keyIndex].height = value;
+    }
+}
+
 ScreenRect Dialog::GetKeyDestinationRect(int32_t stateIndex, int32_t elementIndex,
                                          int32_t keyIndex) const
 {
@@ -321,6 +468,73 @@ ScreenRect Dialog::GetKeyDestinationRect(int32_t stateIndex, int32_t elementInde
     const int32_t y = GetKeyY(stateIndex, elementIndex, keyIndex);
     return {x, y, x + GetKeyWidth(stateIndex, elementIndex, keyIndex),
             y + GetKeyHeight(stateIndex, elementIndex, keyIndex)};
+}
+
+bool Dialog::BlitVisualInRect(uint32_t visualIndex, ScreenRect destination)
+{
+    const SdtVisual* visual = GetVisual(visualIndex);
+    if (visual == nullptr || visual->resource == nullptr || manager == nullptr ||
+        manager->GetScreenBlitter() == nullptr || destination.right <= destination.left ||
+        destination.bottom <= destination.top) {
+        return false;
+    }
+    const Texture* texture = visual->resource->GetTexture();
+    destination.left = AddFixed(destination.left, originX);
+    destination.right = AddFixed(destination.right, originX);
+    destination.top = AddFixed(destination.top, originY);
+    destination.bottom = AddFixed(destination.bottom, originY);
+    const ScreenRect source{0, 0, static_cast<int32_t>(texture->GetWidth()),
+                            static_cast<int32_t>(texture->GetHeight())};
+    manager->GetScreenBlitter()->Blit(texture, destination, source,
+                                      static_cast<uint32_t>(visual->blitMode));
+    return true;
+}
+
+bool Dialog::BlitVisualAtPoint(uint32_t visualIndex, int32_t x, int32_t y)
+{
+    const SdtVisual* visual = GetVisual(visualIndex);
+    if (visual == nullptr || visual->resource == nullptr || manager == nullptr ||
+        manager->GetScreenBlitter() == nullptr) {
+        return false;
+    }
+    const Texture* texture = visual->resource->GetTexture();
+    const ScreenRect source{0, 0, static_cast<int32_t>(texture->GetWidth()),
+                            static_cast<int32_t>(texture->GetHeight())};
+    manager->GetScreenBlitter()->BlitUnscaled(texture, AddFixed(x, originX), AddFixed(y, originY),
+                                              source, static_cast<uint32_t>(visual->blitMode));
+    return true;
+}
+
+bool Dialog::SetVisualResource(uint32_t visualIndex, const char16_t* name)
+{
+    if (manager == nullptr || name == nullptr) {
+        return false;
+    }
+    if (visualIndex >= data.visuals.size()) {
+        data.visuals.resize(static_cast<size_t>(visualIndex) + 1);
+    }
+    const uint32_t resourceIndex = manager->InternTextureName(name);
+    TextureRes* resource = manager->GetResourceByIndex(resourceIndex);
+    if (resource == nullptr) {
+        return false;
+    }
+    SdtVisual& visual = data.visuals[visualIndex];
+    visual.resourceIndex = resourceIndex;
+    visual.resource = resource;
+    const Texture* texture = resource->GetTexture();
+    visual.x = 0;
+    visual.y = 0;
+    visual.width = static_cast<int16_t>(texture->GetWidth());
+    visual.height = static_cast<int16_t>(texture->GetHeight());
+    visual.sourceWidth = visual.width;
+    visual.sourceHeight = visual.height;
+    return true;
+}
+
+void Dialog::SetOrigin(int32_t x, int32_t y)
+{
+    originX = x;
+    originY = y;
 }
 
 int Dialog::RenderNumber(uint32_t value, int32_t x, int32_t y,
@@ -399,6 +613,11 @@ void Dialog::SetActive(bool value)
 bool Dialog::IsActive() const
 {
     return active;
+}
+
+void Dialog::SetIndex(uint16_t value)
+{
+    index = value;
 }
 
 uint16_t Dialog::GetIndex() const

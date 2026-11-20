@@ -141,6 +141,8 @@ The loader resolves `zp_huoguang_a` and `zp_huoguang_a_alp` at cache level 2. Re
 
 `FixedSin` (`0x00061b38`) uses the 2049-entry quarter-wave table at `0x001a0080`. Angles use 0x2000 units per revolution. The table's peak is 65535, not 65536. Quadrants select direct or mirrored indices and optional negation. `FixedCos` (`0x00061ac4`) is sine at `angle + 0x800`.
 
+`FixedTan` (`0x00124fb0`) similarly uses the 2049-entry table at `0x001a2084`. Entry 1024 is exactly `0x10000`; entry 2048 is `0x7fffffff`. Bit `0x800` selects the mirrored index `0x800 - (angle & 0x7ff)` and negates the result, so angle `0x800` returns `0x80000001`. `FixedTanTable.inc` now preserves every original entry. The default build uses both recovered tables; `SOFT3D_TRIG_USE_MATH=ON` explicitly selects host trigonometry instead, with special handling for 45 degrees and the singular endpoint. See `spl_format.md` for the tangent-table hash and camera consumers.
+
 `FixedArcTangent` (`0x00125488`) folds values outside [-1,1] through reciprocal and evaluates an odd polynomial through x^21. Coefficients are:
 
 ```text

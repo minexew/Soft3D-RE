@@ -130,7 +130,7 @@ Soft3D repeats those behaviors. Its fields are widened/reorganized and prefixed 
 | `+0x48`, `+0x4c` | Allocation base and four-byte-aligned pixels. |
 | `+0x50`, `+0x54` | Palette count and palette allocation. |
 
-The serialized formats differ. S2D's file loader uses narrower header fields and a 32-bit color key; Soft3D STX packs palette count/type/transparency into the first word and stores 32-bit width/height. Palette alignment and pixel-copy logic remain closely related. STX therefore must not be replaced with the older SDK header parser.
+The serialized formats differ. S2D's S3DTEX header is 16 bytes: one-byte depth, one-byte palette count, a 16-bit format/flags word, 32-bit width/height, and a signed 32-bit color key. `TF_ALPHA` (`0x8000`) and `TF_TRUECOLOR` (`0x4000`) bypass palette loading; low selectors 0–5 represent RGB332/444/555/565/666/888. Soft3D STX instead packs palette count/type/transparency into its first word. Palette alignment and pixel-copy logic remain closely related, but STX must not be replaced with the older SDK header parser. `Tools/s3dtex.py` now agrees with the recovered S2D loader and tests all 173 vendored samples; see `s3dtex_format.md`.
 
 `Texture_Resize` is the Soft3D counterpart of S2D `Create`; `Texture_Reset` corresponds to `Free`. Existing Soft3D names accurately describe the observed behavior and are retained.
 

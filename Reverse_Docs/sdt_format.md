@@ -162,6 +162,10 @@ Between keys, `blitMode`, `widthDivisor`, and `heightDivisor` come from the **pr
 
 `Dialog_RenderElementAtTime` (`0x000fa6a0`) combines element-time selection and rendering. The original also has per-element current-time storage and advance helpers, state end-time/advance helpers, key field accessors, and a digit-image number renderer; their names have been applied in Ghidra.
 
+Stage 13 fills the previously unused generic accessors in the portable runtime. `Dialog_GetElementWidth`/`GetElementHeight` (`0x000f8c70`/`0x000f8d2c`) evaluate width/height at an arbitrary time with the same signed-16-bit interpolation. They return one when the selected visual is hidden, including before the first or after the last key. `Dialog_GetElementBlitMode` (`0x000f8de8`) retains the previous key's mode during interpolation. Mutable width/height and source-height accessors, `Dialog_SetIndex`, and element-current-time access are also covered.
+
+`Dialog_BlitVisualInRect` (`0x000f8248`) and `Dialog_BlitVisualAtPoint` (`0x000f8344`) perform direct scaled and unscaled blits of a selected visual through the manager's existing `ScreenBlitter`, applying the dialog origin and visual blend mode. Empty rectangles and missing resources return false. `Dialog_SetVisualResource` (`0x000fbc2c`) grows the visual array when necessary, interns the requested texture, and resets its rectangle from the actual texture dimensions. The portable implementation adds null/bounds checks; `tests/test_ui.cpp` exercises exact scaled and unscaled output, hidden-element sizes, mutable keys, and runtime times.
+
 ## ScreenBlitter
 
 `ScreenBlitter_BlitUnscaled` (`0x000d49c8`, formerly `BlitTexture`) and `ScreenBlitter_BlitScaled` (`0x000d4cb0`) share a 26-entry mode table. `ScreenBlitter_SelectMode` (`0x000d53c0`) chooses:

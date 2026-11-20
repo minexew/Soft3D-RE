@@ -151,7 +151,7 @@ Ghidra now has a **`Logging`** function tag on all 43 known `NullLog` callers pl
 | `0x00141774..0x001417c0` | `FUN_000702a0` |
 | `0x001417f0`, `0x00141824` | `FUN_00070464` |
 | `0x001427c0` | `LoadSplCameraResource` |
-| `0x001464d8..0x00146588` | TGA loader `FUN_0009ebac` |
+| `0x001464d8..0x00146588` | `ImageLoader_LoadTGA` (`0x0009ebac`); see `symbian3rd_image.md` |
 | `0x0014cd28` | `FUN_000a3438` |
 | `0x0014dc50` | `VidImpl_GetBackBufferPtr` |
 | `0x0015b4b0` cluster | Renderer functions `FUN_000b106c`, `FUN_000b1404`, `FUN_000b1c38`, and destructors |

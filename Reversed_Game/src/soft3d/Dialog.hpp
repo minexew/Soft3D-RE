@@ -84,10 +84,22 @@ public:
     int32_t GetKeyY(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const;
     int32_t GetKeyWidth(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const;
     int32_t GetKeyHeight(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const;
+    int32_t GetKeySourceHeight(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex) const;
     void SetKeyX(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
     void SetKeyY(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
+    void SetKeyWidth(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
+    void SetKeyHeight(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
+    int32_t GetElementWidth(int32_t stateIndex, int32_t elementIndex, int32_t time);
+    int32_t GetElementHeight(int32_t stateIndex, int32_t elementIndex, int32_t time);
+    int32_t GetElementBlitMode(int32_t stateIndex, int32_t elementIndex, int32_t time);
+    void SetElementCurrentTime(int32_t stateIndex, int32_t elementIndex, int32_t time);
+    int32_t GetElementCurrentTime(int32_t stateIndex, int32_t elementIndex) const;
     ScreenRect GetKeyDestinationRect(int32_t stateIndex, int32_t elementIndex,
                                      int32_t keyIndex) const;
+    bool BlitVisualInRect(uint32_t visualIndex, ScreenRect destination);
+    bool BlitVisualAtPoint(uint32_t visualIndex, int32_t x, int32_t y);
+    bool SetVisualResource(uint32_t visualIndex, const char16_t* name);
+    void SetOrigin(int32_t x, int32_t y);
     int RenderNumber(uint32_t value, int32_t x, int32_t y,
                      int32_t stateIndex, int32_t elementIndex);
     virtual int HandleInput(int32_t type, int32_t key, int32_t context);
@@ -98,6 +110,7 @@ public:
 
     void SetActive(bool active);
     bool IsActive() const;
+    void SetIndex(uint16_t index);
     uint16_t GetIndex() const;
     int32_t GetStateTime() const;
     SdtVisual* GetVisual(uint32_t index);
@@ -107,6 +120,9 @@ public:
     UiManager* GetManager() const;
 
 private:
+    int32_t GetElementFieldAtTime(int32_t stateIndex, int32_t elementIndex, int32_t time,
+                                  uint32_t field);
+
     UiManager* manager;
     SdtDialog data;
     std::vector<std::vector<int32_t>> elementTimes;
@@ -114,6 +130,8 @@ private:
     int32_t stateTime = 0;
     bool advanceInitialized = true;
     bool active;
+    int32_t originX = 0;
+    int32_t originY = 0;
 };
 
 } // namespace soft3d

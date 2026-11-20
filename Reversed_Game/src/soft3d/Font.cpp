@@ -346,13 +346,42 @@ result StringManager::LoadSbnFont(const char16_t* entryName, s3dFilePak* filePak
         return S3D_STATE;
     }
     std::vector<uint8_t> data;
-    result status = ReadArchiveEntry(filePak, entryName, data);
-    if (status != S3D_OK) {
-        return status;
+    const result status = ReadArchiveEntry(filePak, entryName, data);
+    return status == S3D_OK ? ParseSbnFont(data.data(), data.size()) : status;
+}
+
+result StringManager::LoadSbnFontFromFile(const char16_t* path)
+{
+    if (font == nullptr) {
+        return S3D_STATE;
     }
-    const uint8_t* input = data.data();
-    size_t remaining = data.size();
-    status = font->ParseLocalFont(input, remaining);
+    if (!io.Open(path, u"rb")) {
+        return S3D_FILE;
+    }
+    io.Seek(0, SEEK_END);
+    const uint32_t bytes = io.Tell();
+    if (bytes == static_cast<uint32_t>(S3D_EOF)) {
+        io.Close();
+        return S3D_FILE;
+    }
+    std::vector<uint8_t> data(bytes);
+    io.Seek(0, SEEK_SET);
+    const uint32_t read = data.empty() ? 0 : io.Read(data.data(), bytes);
+    io.Close();
+    if (read != bytes) {
+        return S3D_FILE;
+    }
+    return ParseSbnFont(data.data(), data.size());
+}
+
+result StringManager::ParseSbnFont(const void* data, size_t size)
+{
+    if (font == nullptr) {
+        return S3D_STATE;
+    }
+    const uint8_t* input = static_cast<const uint8_t*>(data);
+    size_t remaining = size;
+    result status = font->ParseLocalFont(input, remaining);
     if (status != S3D_OK) {
         return status;
     }

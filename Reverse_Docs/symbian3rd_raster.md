@@ -53,6 +53,8 @@ Near clipping (`Renderer_ClipNearEdge`, `0x000d5f2c`) interpolates camera positi
 
 Culling is decided once per source triangle. Without near clipping, ARM tests the original projected triangle before screen clipping. Near clipping defers the test to the first three vertices of the near-clipped polygon. Later screen-clipped fan triangles are not culled independently. The former portable implementation re-culled every generated fan triangle; wrapped areas at large offscreen coordinates could then flip between fan triangles, producing camera-dependent clipped-face artifacts. The lamp's separate animated insect cards are intentional and must not be removed as stray geometry. `Viewport_SetBounds` (`0x000d75e0`, formerly `FUN_000d75e0`) establishes the viewport bounds, half sizes, and adjusted centers.
 
+Stage 13 adds the previously uncalled `Camera_SetViewport` (`0x000fd41c`) and renderer viewport propagation. Right/bottom are `left + width` and `top + height`; integer halves use `>> 1`, fixed halves are those integers shifted left 16, and centers are `origin + half - 0x8000`. Normal vertex projection uses unadjusted halves, while point projection and near intersections use adjusted centers. Screen clipping uses the configured left/right/top/bottom rather than assuming a zero-origin full-screen viewport. Synthetic tests cover a negative origin and propagation from camera to renderer; all original full-screen hashes remain unchanged.
+
 ## SOJ material state
 
 The parsed material remains 0x34 bytes. The renderer-facing names are:

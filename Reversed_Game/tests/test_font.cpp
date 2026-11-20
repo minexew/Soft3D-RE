@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
@@ -46,6 +48,26 @@ void TestRealFonts(soft3d::s3dFilePak& archive)
     CHECK(localized.GetString(30) != nullptr);
     CHECK(localized.GetString(30)->GetLength() == 0);
     CHECK(localized.GetString(582) == nullptr);
+
+    CHECK(archive.Select(u".\\ui\\system.sbn") == soft3d::S3D_OK);
+    archive.Seek(0, SEEK_END);
+    const uint32_t size = archive.Tell();
+    archive.Seek(0, SEEK_SET);
+    std::vector<uint8_t> bytes(size);
+    CHECK(archive.Read(bytes.data(), size) == soft3d::S3D_OK);
+    const std::filesystem::path path = std::filesystem::temp_directory_path() /
+        "soft3d-font-test.sbn";
+    {
+        std::ofstream output(path, std::ios::binary);
+        output.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+    }
+    soft3d::StringManager fileBased;
+    CHECK(fileBased.LoadBaseFont(2, &archive) == soft3d::S3D_OK);
+    CHECK(fileBased.LoadSbnFontFromFile(path.u16string().c_str()) == soft3d::S3D_OK);
+    CHECK(fileBased.GetFont()->GetLocalCharCnt() == 18);
+    CHECK(fileBased.GetCount() == 581);
+    CHECK(fileBased.GetString(1)->GetBuffer()[0] == 32);
+    std::filesystem::remove(path);
 }
 
 void TestTextAndDrawing(soft3d::StringManager& manager)
