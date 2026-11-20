@@ -136,6 +136,14 @@ The base interface owns seven direct callbacks. `ScriptInterface_ExecuteCommand`
 
 The shared-word array is separate from typed script globals. The reconstruction exposes the same contract through `ScriptInterface::Execute` and a protected `ExecuteGameCommand` override for higher IDs; it does not implement `GameSI`.
 
+### `GameSI` callback inventory
+
+The original `GameSI_Ctor` (`0x000636e0`, duplicate `0x00061df0`) installs 218 eight-byte `{handler, thisAdjustment}` records at `0x00140cc0`, selected by `commandId - 43` in `GameSI_ExecuteCommand` (`0x0006528c`). IDs 43–260 are present. IDs 258 and 260 are empty, while ID 259 writes one to shared word 255; none of those three is used by shipped scripts.
+
+All 217 shipped Mobile SST files contain 19,251 host calls: 2,261 generic calls and 16,990 game calls. They exercise 162 game IDs, leaving 53 game IDs plus the final three slots for directed synthetic coverage. The full game inventory and initial ARM-confirmed mappings are in `symbian3rd_game.md`.
+
+`Leaked_Source/commandlist.txt`, leaked episode sources, and `Tools/SimpleScriptDecompiler/bin/Debug/names/*` are stale early-build references. They disagree with ARM callback bodies and real SST signatures and must not be used to assign IDs, argument lists, or behavior. Recover each callback from ARM and use shipped scripts only as execution fixtures.
+
 ## Task execution and calls
 
 Function states are:

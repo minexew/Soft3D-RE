@@ -20,6 +20,8 @@ MsgReceiverInterface
 
 Ghidra now has function names, prototypes, comments, stage tags, and native structure layouts for this subsystem. Confirmed sizes are `GameUnit` `0x54`, `VisUnit` `0x90`, `PhysicUnit` `0x668`, `Things` `0x684`, `Creature` `0x6f0`, `GameUnitManager` `0x194`, and `PlayerStateSet` `0x4f4`. The public BSP trace result is 48 bytes. Two ordinary alternate `GameUnitManager` constructors were recovered at `0x000ef53c` and `0x000ef6d0`; the latter had been missed by function analysis.
 
+The concrete game layer remains separate: `MyGameUnitMgr`, `Player`, 20 player states, `Enemy` plus 17 enemy classes, nine interaction/camera/light trigger classes, three `Things` descendants, `BspUnit`, `ElectricSaw`, `Sword`, `StayBox`, and `Trap`. Their class/method inventory, save type codes, and integration points are documented in `symbian3rd_game.md` and staged in `game_completion_plan.md`.
+
 ## Messages
 
 `MsgReceiverInterface` has two destructor slots followed by `GetMsgReceiver` and `ProcessMessages`. The defaults at `0x000119c8` and `0x000119ac` return null and do nothing.

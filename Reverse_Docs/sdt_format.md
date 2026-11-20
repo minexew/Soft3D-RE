@@ -336,9 +336,11 @@ Each save slot is a separate 44-byte `slot%d.sav` header. Its confirmed fields a
 
 ## Other SDT families and scope
 
-The extension is also used by unrelated game-data tables. `LoadItemDataSdt` (`0x00045d98`) reads `.\common\itemdata.sdt`; `LoadNumberedSdtResourceA` (`0x00046288`) reads numbered `gameitem` tables; and `LoadNumberedSdtResourceB` (`0x00046750`) reads numbered `einfo` tables with nested fixed-size records. Strings also identify `message.sdt` and `config.sdt`. These are not variants of the UI hierarchy and should not be parsed with `ParseStateSdtTable`.
+The extension is also used by unrelated game-data tables. `LoadItemDataSdt` (`0x00045d98`) reads 67 52-byte item records and 65 12-byte text records from `.\common\itemdata.sdt`, exactly matching its 4,272-byte size. `LoadGameItemSdt` (`0x00046288`, formerly `LoadNumberedSdtResourceA`) reads numbered `gameitem` groups with 0x60-byte records. `LoadEnemyInfoSdt` (`0x00046750`, formerly `LoadNumberedSdtResourceB`) reads numbered `einfo` groups with nested 0x1c-byte records. These are not variants of the UI hierarchy and must not be parsed with `ParseStateSdtTable`.
 
-The item/enemy/message content belongs to later game-specific work. Generic menu configuration and concrete menu dialog flow belong to stage 6 of `engine_completion_plan.md`.
+`message.sdt` is a 512-byte license/message blob read into two 256-byte buffers, not a string table. `domain.sdt` is a 36-byte opaque service record consumed by license/network work. `config.sdt` is the separate menu/configuration file documented above.
+
+`CalcRank` at `0x000669fc` is intentionally empty in this build; do not invent a rank algorithm. Full game-data layouts, GameUI/progression gaps, and license consumers are inventoried in `symbian3rd_game.md`. Generic menu configuration and concrete menu dialog flow belong to stage 6 of `engine_completion_plan.md`; their game-specific consumers belong to `game_completion_plan.md`.
 
 ## Portable implementation and verification
 

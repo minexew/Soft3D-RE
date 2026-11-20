@@ -69,7 +69,7 @@ The reusable `Engine` declares the initialization, state, update, submission, an
 | `+0x106f0` | Language/resource-variant selector. |
 | `+0x106f4`–`+0x106fc` | Three serialized game-state words. |
 
-The remaining large game-state and embedded structures have not been assigned invented field names.
+The remaining large game-state and embedded structures have not been assigned invented field names. `symbian3rd_game.md` now inventories the confirmed scene members, lifecycle methods, `GameSI` binding, and full save schema. In particular, `GameEngine_BindSceneInterface` (`0x00070464`) connects `GameSI` to the scene, player, unit manager, camera, UI, and engine services, and `Scene_LoadSave` (`0x0002f864`) resumes after the 44-byte header rather than treating that header as the complete save.
 
 ### Early initialization order
 
