@@ -178,6 +178,9 @@ public:
     Sword* GetSword() const { return sword.get(); }
     soft3d::GunFire& GetGunFire() { return gunFire; }
     const soft3d::Vec3& GetGunTargetPosition() const { return gunPosition; }
+    const soft3d::Vec3& GetPreviousPosition() const { return previousPosition; }
+    const soft3d::Vec3& GetExternalVelocity() const { return externalVelocity; }
+    void SetExternalVelocity(const soft3d::Vec3& value) { externalVelocity = value; }
 
     void SetHealth(int32_t value);
     void AddHealth(int32_t value);
@@ -227,6 +230,7 @@ public:
     void SetAnimationPaused(bool paused);
     void SetAnimationSpeed(int32_t speed);
     int32_t GetAnimationTime() const;
+    int32_t GetAttackPhase() const { return attackPhase; }
     int32_t GetAttackDamage(soft3d::GameUnit* target);
     bool HasAttackingEnemy() const;
     bool HasAnyEnemy() const;

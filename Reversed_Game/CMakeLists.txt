@@ -92,6 +92,7 @@ add_library(seven_days_game STATIC
     src/game/CameraController.cpp
     src/game/GameData.cpp
     src/game/GameSI.cpp
+    src/game/MapUnits.cpp
     src/game/MyGameUnitMgr.cpp
     src/game/Player.cpp
     src/game/PlayerStates.cpp
@@ -340,6 +341,16 @@ if(BUILD_TESTING)
         target_compile_options(game_scene_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME game_scene COMMAND game_scene_tests)
+
+    add_executable(game_mapunit_tests tests/test_game_mapunits.cpp)
+    target_link_libraries(game_mapunit_tests PRIVATE seven_days_game)
+    target_compile_definitions(game_mapunit_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(game_mapunit_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME game_mapunits COMMAND game_mapunit_tests)
 
     add_executable(game_player_tests tests/test_game_player.cpp)
     target_link_libraries(game_player_tests PRIVATE seven_days_game)

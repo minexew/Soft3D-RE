@@ -20,7 +20,7 @@ MsgReceiverInterface
 
 Ghidra now has function names, prototypes, comments, stage tags, and native structure layouts for this subsystem. Confirmed sizes are `GameUnit` `0x54`, `VisUnit` `0x90`, `PhysicUnit` `0x668`, `Things` `0x684`, `Creature` `0x6f0`, `GameUnitManager` `0x194`, and `PlayerStateSet` `0x4f4`. The public BSP trace result is 48 bytes. Two ordinary alternate `GameUnitManager` constructors were recovered at `0x000ef53c` and `0x000ef6d0`; the latter had been missed by function analysis.
 
-The concrete game layer remains separate: `MyGameUnitMgr`, `Player`, 20 player states, `Enemy` plus 17 enemy classes, nine interaction/camera/light trigger classes, three `Things` descendants, `BspUnit`, `ElectricSaw`, `Sword`, `StayBox`, and `Trap`. Their class/method inventory, save type codes, and integration points are documented in `symbian3rd_game.md` and staged in `game_completion_plan.md`.
+The concrete game layer remains separate: `MyGameUnitMgr`, `Player`, 20 player states, `Enemy` plus 17 enemy classes, and the trigger/thing/map classes. Player, Sword, camera/light triggers, the three `Things` descendants, `BspUnit`, `ElectricSaw`, `StayBox`, and `Trap` are implemented; the remaining interaction triggers and enemies retain their staged boundaries. Class/method inventories, save type codes, and integration points are documented in `symbian3rd_game.md`, `symbian3rd_mapunits.md`, and `game_completion_plan.md`.
 
 ## Messages
 
@@ -105,6 +105,8 @@ Destruction (`0x000dbf3c`) stores a signed 16-bit duration and resets the timer.
 
 Alternate model/animation loaders return zero even when the underlying load fails; null-resource safety checks in the portable implementation are explicit rather than reproducing a crash. `MoveTowards` (`0x000dbf90`) compares squared distance, snaps on arrival, and otherwise takes one normalized fixed-point step.
 
+Stage 5 adds `Things_SaveState`/`LoadState` (`0x0003261c`/`0x0003276c`) after the visual record: alternate model and animation presence/name/directory, destroying int32, duration/timer int16, and the opaque serialized word at `0x67c`. This word is not the transient BSP leaf pointer at `0x680`; portable code keeps them separate. Shared visual animation time/playback/speed helpers operate on all LODs and the optional shadow as recovered from their ARM consumers.
+
 ## `Creature`
 
 `Creature` sets type 6, navigation speed `0x8000`, and empty path/hearing state. `NavigateTo` (`0x00076c94`) does the following:
@@ -162,4 +164,4 @@ The unit suite uses synthetic message receivers, manager units, state chains, a 
 
 Real-resource tests load `menu.sbp` without an episode and exercise leaf/point/swept queries, and load `cg_bully_tuomao_a` twice through `VisUnit`, materials, transforms, direction, shadow creation, and submission.
 
-All 26 normal CTest tests and all 20 SDL-independent ASan/UBSan tests pass. All six standalone SOJ converter tests also pass. Stage 12 adds exact `GameUnit` and real `VisUnit` serialization coverage in `test_stream.cpp`; Ghidra has been saved after verifying typed decompilation of `PhysicUnit_Update`, `Bsp_ClipBrush`, and `VisUnit_SaveState`.
+The earlier engine-stage run had 26 normal CTest tests and 20 SDL-independent ASan/UBSan tests; all six standalone SOJ converter tests also passed. Stage 12 added exact `GameUnit` and real `VisUnit` serialization coverage in `test_stream.cpp`. After stage 5, all 33 default tests and all 26 tests in each core/logging/math/WAR/ASan-UBSan variant pass. `test_game_mapunits.cpp` adds the derived-class and real-map coverage described in `symbian3rd_mapunits.md`; Ghidra has been saved with the corrected layouts and typed decompilation.

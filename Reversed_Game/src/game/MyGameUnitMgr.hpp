@@ -1,7 +1,9 @@
 #pragma once
 
 #include "game/GameData.hpp"
+#include "game/MapUnits.hpp"
 #include "soft3d/Bsp.hpp"
+#include "soft3d/Effects.hpp"
 #include "soft3d/Units.hpp"
 
 namespace soft3d {
@@ -33,6 +35,16 @@ public:
 
     void ConfigureScene(CameraController* cameraController, soft3d::Creature* player);
     void HandleMapEntity(const soft3d::BspEntityRecord& record, const soft3d::Bsp& bsp);
+    soft3d::Things* AddThing(int32_t unitId, int8_t thingType, int8_t variant, bool collisionEnabled,
+                     const char16_t* modelName, const soft3d::Vec3& position,
+                     const soft3d::Vec3& axisX, const soft3d::Vec3& axisY,
+                     const soft3d::Vec3& axisZ);
+    Trap* AddTrap(int32_t unitId, const soft3d::ObjectBounds& bounds,
+                  const soft3d::Vec3& impulse);
+    void Update();
+    void SubmitRenderables(soft3d::RenderQueues& queues);
+    std::size_t GetLensflareCount() const { return lensflareCount; }
+    soft3d::Lensflare* GetLensflare(std::size_t index) const;
     uint32_t NextRandom();
     uint32_t* GetRandomState() { return &randomState; }
     void SetRandomSeed(uint32_t seed) { randomState = seed; }
@@ -51,6 +63,10 @@ private:
     int32_t mapId = 0;
     int32_t healthPackCount = 0;
     soft3d::GameUnit* pushTarget = nullptr;
+    std::array<std::unique_ptr<soft3d::Lensflare>, 16> lensflares{};
+    std::array<StayBox, 100> stayBoxes{};
+    std::size_t lensflareCount = 0;
+    int32_t stayBoxCount = 0;
     bool mapReady = false;
     bool paused = false;
 };

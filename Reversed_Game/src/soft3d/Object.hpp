@@ -47,6 +47,7 @@ public:
     void Rotate(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle);
     void Scale(Fixed x, Fixed y, Fixed z);
     void UpdateTransform();
+    void UpdateFrustumVisibility();
     const Matrix4& GetModelMatrix() const;
 
     void SetAnimation(const Animation* animation);
@@ -61,8 +62,8 @@ public:
 
     void SetLightingEnabled(bool enabled);
     void SetAmbientLightOnly(bool enabled);
-    void SetCullingDisabled(bool disabled);
     void SetExternalTransformEnabled(bool enabled);
+    void SetFrustumCulled(bool culled) { frustumCulled = culled; }
     void SetObjectIntensity(Fixed intensity);
     void SetDepthBias(Fixed bias);
     void SetSecondaryVertices(const SojVertices* vertices);
@@ -101,8 +102,8 @@ public:
     Fixed GetDepthBias() const;
     bool IsLightingEnabled() const;
     bool IsAmbientLightOnly() const;
-    bool IsCullingDisabled() const;
     bool IsExternalTransformEnabled() const;
+    bool IsFrustumCulled() const { return frustumCulled; }
     std::array<Fixed, 4> GetMaterialIntensityState(uint32_t material) const;
     void SetMaterialIntensityState(uint32_t material, Fixed minimum, Fixed maximum,
                                    Fixed intensity, Fixed speed);
@@ -162,8 +163,8 @@ private:
     bool animationPaused = false;
     bool lightingEnabled = true;
     bool ambientLightOnly = false;
-    bool cullingDisabled = false;
     bool externalTransformEnabled = false;
+    bool frustumCulled = false;
     Fixed objectIntensity = 0;
     Fixed depthBias = 0;
 };

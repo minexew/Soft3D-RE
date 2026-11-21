@@ -194,8 +194,8 @@ The original `Object` is 0x20c bytes. Important recovered fields are:
 | `+0x54`, `+0x58` | Material count and 0x48-byte `ObjectMaterial` array. |
 | `+0x5c`, `+0x60` | Object intensity and depth bias. |
 | `+0x64` | Render mode: normal, secondary streams, or wireframe. |
-| `+0x68`..`+0x6a` | Lighting, ambient-only, and culling flags. |
-| `+0x6b`, `+0x6c` | External-transform enable byte and external matrix pointer. |
+| `+0x68`..`+0x6a` | Frustum-culled, lighting-enabled, and ambient-only flags. |
+| `+0x6b`, `+0x6c` | External-transform enable byte (also disables material culling) and external matrix pointer. There is no separate native culling byte. |
 | `+0x70`, `+0x88` | Primary and secondary bounds, each minimum and maximum vectors. |
 | `+0xa0` | Eight local bounding-box corners. |
 | `+0x100` | Transformed world bounds. |

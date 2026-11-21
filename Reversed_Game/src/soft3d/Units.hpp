@@ -125,8 +125,13 @@ public:
     int PlaySound(int nameIndex, bool looping = false);
     void SetMaterialIntensityBounce(Fixed minimum, Fixed maximum, int32_t period);
     void SetDepthBias(Fixed bias);
+    void SetAnimationPaused(bool paused);
+    void SetAnimationTime(int32_t time);
+    void SetAnimationSpeed(int32_t speed);
+    void SetAnimationPlayback(int32_t direction, bool loop, int32_t speed);
 
     Object* GetObject(std::size_t index = 0) const;
+    Object* GetShadowObject() const { return shadowObject.get(); }
     std::size_t GetObjectCount() const;
     const Animation* GetAnimation() const;
     bool IsAnimationFinished() const;
@@ -244,6 +249,8 @@ public:
     void SubmitRenderables(RenderQueues& queues) override;
     void Update() override;
     void PostUpdate() override;
+    void SaveState(OutputStream& stream) const override;
+    void LoadState(InputStream& stream) override;
     result LoadMaterials(const char16_t* directory = nullptr) override;
     void SetAnimation(const Animation* animation, int32_t direction = 1,
                       bool loop = true) override;
@@ -255,6 +262,13 @@ public:
     void UpdateCurrentLeaf();
     bool IsDestroying() const;
     uint16_t GetDestructionTimer() const;
+    uint16_t GetDestructionDuration() const { return destructionDuration; }
+    int32_t GetCurrentLeaf() const { return currentLeaf; }
+    int32_t GetSerializedState67c() const { return serializedState67c; }
+    void SetSerializedState67c(int32_t value) { serializedState67c = value; }
+    Object* GetAlternateObject() const { return alternateObject.get(); }
+    const Animation* GetAlternateAnimation() const { return alternateAnimation; }
+    void SetCurrentLeaf(int32_t value) { currentLeaf = value; }
 
 private:
     bool placedOnGround = true;
@@ -263,6 +277,7 @@ private:
     uint16_t destructionTimer = 0;
     std::unique_ptr<Object> alternateObject;
     const Animation* alternateAnimation = nullptr;
+    int32_t serializedState67c = 0;
     int32_t currentLeaf = -1;
 };
 

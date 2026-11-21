@@ -106,6 +106,42 @@ GameSI::GameSI()
     callbacks[99 - gameSIFirstCommand].handler = &GameSI::GetLightStyle;
     callbacks[100 - gameSIFirstCommand].handler = &GameSI::SetFog;
     callbacks[103 - gameSIFirstCommand].handler = &GameSI::SelectPresentationShader;
+    callbacks[219 - gameSIFirstCommand].handler = &GameSI::AddTrap;
+    callbacks[220 - gameSIFirstCommand].handler = &GameSI::RemoveTrap;
+    callbacks[221 - gameSIFirstCommand].handler = &GameSI::AddThing;
+    callbacks[222 - gameSIFirstCommand].handler = &GameSI::SetThingDirection;
+    callbacks[223 - gameSIFirstCommand].handler = &GameSI::SetPickableItem;
+    callbacks[224 - gameSIFirstCommand].handler = &GameSI::SetThingCollision;
+    callbacks[225 - gameSIFirstCommand].handler = &GameSI::SetThingIntensityBounce;
+    callbacks[226 - gameSIFirstCommand].handler = &GameSI::SetThingVisible;
+    callbacks[227 - gameSIFirstCommand].handler = &GameSI::IsThingVisible;
+    callbacks[228 - gameSIFirstCommand].handler = &GameSI::SetThingAnimation;
+    callbacks[229 - gameSIFirstCommand].handler = &GameSI::SetThingAnimationPaused;
+    callbacks[230 - gameSIFirstCommand].handler = &GameSI::IsThingAnimationPaused;
+    callbacks[231 - gameSIFirstCommand].handler = &GameSI::SetThingAnimationTime;
+    callbacks[232 - gameSIFirstCommand].handler = &GameSI::GetThingAnimationTime;
+    callbacks[233 - gameSIFirstCommand].handler = &GameSI::IsThingAnimationFinished;
+    callbacks[234 - gameSIFirstCommand].handler = &GameSI::SetThingBreakModel;
+    callbacks[235 - gameSIFirstCommand].handler = &GameSI::SetThingBreakAnimation;
+    callbacks[236 - gameSIFirstCommand].handler = &GameSI::SetBreakableSound;
+    callbacks[237 - gameSIFirstCommand].handler = &GameSI::SetPushableSound;
+    callbacks[238 - gameSIFirstCommand].handler = &GameSI::RotateThingX;
+    callbacks[239 - gameSIFirstCommand].handler = &GameSI::RotateThingY;
+    callbacks[240 - gameSIFirstCommand].handler = &GameSI::RotateThingZ;
+    callbacks[241 - gameSIFirstCommand].handler = &GameSI::SetThingPosition;
+    callbacks[242 - gameSIFirstCommand].handler = &GameSI::MoveThing;
+    callbacks[243 - gameSIFirstCommand].handler = &GameSI::MoveThingTowards;
+    callbacks[244 - gameSIFirstCommand].handler = &GameSI::DestroyThing;
+    callbacks[245 - gameSIFirstCommand].handler = &GameSI::SetThingDepthBias;
+    callbacks[246 - gameSIFirstCommand].handler = &GameSI::RemoveThing;
+    callbacks[247 - gameSIFirstCommand].handler = &GameSI::ThingExists;
+    callbacks[248 - gameSIFirstCommand].handler = &GameSI::ConsumeBreakableEvent;
+    callbacks[249 - gameSIFirstCommand].handler = &GameSI::ThingBoundsInside;
+    callbacks[250 - gameSIFirstCommand].handler = &GameSI::ThingBoundsOutside;
+    callbacks[251 - gameSIFirstCommand].handler = &GameSI::SetThingLighting;
+    callbacks[252 - gameSIFirstCommand].handler = &GameSI::SetPushableEnabled;
+    callbacks[253 - gameSIFirstCommand].handler = &GameSI::SetThingTexture;
+    callbacks[254 - gameSIFirstCommand].handler = &GameSI::GetMagicCubeOrientation;
     callbacks[117 - gameSIFirstCommand].handler = &GameSI::SetPlayerDirection;
     callbacks[118 - gameSIFirstCommand].handler = &GameSI::SetPlayerClipping;
     callbacks[119 - gameSIFirstCommand].handler = &GameSI::SetPlayerAnimation;
@@ -434,6 +470,340 @@ void GameSI::SelectPresentationShader(soft3d::ScriptCommand& command)
 {
     RequireArguments(command, 1);
     context.scene->SelectPresentationShader(command.GetArgument(0).GetInt());
+}
+
+soft3d::Things& GameSI::RequireThing(soft3d::ScriptCommand& command)
+{
+    const int32_t id = command.GetArgument(0).GetShort();
+    soft3d::GameUnit* unit = context.unitManager->FindUnit(2, id);
+    auto* thing = dynamic_cast<soft3d::Things*>(unit);
+    if (thing == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "thing ID " + std::to_string(id) + " does not exist");
+    }
+    return *thing;
+}
+
+Breakable& GameSI::RequireBreakable(soft3d::ScriptCommand& command)
+{
+    auto* breakable = dynamic_cast<Breakable*>(&RequireThing(command));
+    if (breakable == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "thing is not Breakable");
+    }
+    return *breakable;
+}
+
+Pushable& GameSI::RequirePushable(soft3d::ScriptCommand& command)
+{
+    auto* pushable = dynamic_cast<Pushable*>(&RequireThing(command));
+    if (pushable == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "thing is not Pushable");
+    }
+    return *pushable;
+}
+
+void GameSI::AddTrap(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 10);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()},
+        {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+         command.GetArgument(6).GetFixed()}};
+    context.unitManager->AddTrap(command.GetArgument(0).GetShort(), bounds,
+        {command.GetArgument(7).GetFixed(), command.GetArgument(8).GetFixed(),
+         command.GetArgument(9).GetFixed()});
+}
+
+void GameSI::RemoveTrap(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.unitManager->RemoveUnitById(command.GetArgument(0).GetShort(), 5, true);
+}
+
+void GameSI::AddThing(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 17);
+    soft3d::Things& thing = *context.unitManager->AddThing(
+        command.GetArgument(0).GetShort(),
+        static_cast<int8_t>(command.GetArgument(1).GetInt()),
+        static_cast<int8_t>(command.GetArgument(2).GetInt()), true,
+        command.GetArgument(3).GetString().c_str(),
+        {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+         command.GetArgument(6).GetFixed()},
+        {command.GetArgument(7).GetFixed(), command.GetArgument(8).GetFixed(),
+         command.GetArgument(9).GetFixed()},
+        {command.GetArgument(10).GetFixed(), command.GetArgument(11).GetFixed(),
+         command.GetArgument(12).GetFixed()},
+        {command.GetArgument(13).GetFixed(), command.GetArgument(14).GetFixed(),
+         command.GetArgument(15).GetFixed()});
+    if (thing.GetObject(0) != nullptr) {
+        thing.GetObject(0)->SetRenderMode(command.GetArgument(16).GetBool()
+            ? soft3d::ObjectRenderMode::Normal : soft3d::ObjectRenderMode::SecondaryStreams);
+    }
+}
+
+void GameSI::SetThingDirection(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    RequireThing(command).SetDirection({command.GetArgument(1).GetFixed(),
+        command.GetArgument(2).GetFixed(), command.GetArgument(3).GetFixed()});
+}
+
+void GameSI::SetPickableItem(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    auto* pickable = dynamic_cast<Pickable*>(&RequireThing(command));
+    if (pickable == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "thing is not Pickable");
+    }
+    pickable->SetItemId(command.GetArgument(1).GetShort());
+}
+
+void GameSI::SetThingCollision(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireThing(command).SetCollisionEnabled(command.GetArgument(1).GetBool());
+}
+
+void GameSI::SetThingIntensityBounce(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    RequireThing(command).SetMaterialIntensityBounce(command.GetArgument(1).GetFixed(),
+        command.GetArgument(2).GetFixed(), command.GetArgument(3).GetShort());
+}
+
+void GameSI::SetThingVisible(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireThing(command).SetVisible(command.GetArgument(1).GetBool());
+}
+
+void GameSI::IsThingVisible(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(RequireThing(command).IsVisible());
+    }
+}
+
+void GameSI::SetThingAnimation(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 5);
+    soft3d::Things& thing = RequireThing(command);
+    if (thing.LoadAnimation(command.GetArgument(1).GetString().c_str(), nullptr) != soft3d::S3D_OK) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "animation resource could not be loaded");
+    }
+    thing.SetAnimationPlayback(static_cast<int8_t>(command.GetArgument(3).GetInt()),
+        command.GetArgument(4).GetInt() != 0, command.GetArgument(2).GetInt());
+}
+
+void GameSI::SetThingAnimationPaused(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireThing(command).SetAnimationPaused(command.GetArgument(1).GetBool());
+}
+
+void GameSI::IsThingAnimationPaused(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        soft3d::Object* object = RequireThing(command).GetObject(0);
+        command.GetOutput()->SetBool(object != nullptr && object->IsAnimationPaused());
+    }
+}
+
+void GameSI::SetThingAnimationTime(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireThing(command).SetAnimationTime(command.GetArgument(1).GetInt());
+}
+
+void GameSI::GetThingAnimationTime(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        soft3d::Object* object = RequireThing(command).GetObject(0);
+        command.GetOutput()->SetInt(object != nullptr ? object->GetAnimationTime() : 0);
+    }
+}
+
+void GameSI::IsThingAnimationFinished(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(RequireThing(command).IsAnimationFinished());
+    }
+}
+
+void GameSI::SetThingBreakModel(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    soft3d::Things& thing = RequireThing(command);
+    thing.LoadAlternateModel(command.GetArgument(1).GetString().c_str(), nullptr);
+    thing.LoadMaterials();
+    thing.SetAlternateAnimation(command.GetArgument(2).GetString().c_str(), nullptr);
+}
+
+void GameSI::SetThingBreakAnimation(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireThing(command).SetAlternateAnimation(command.GetArgument(1).GetString().c_str(), nullptr);
+}
+
+void GameSI::SetBreakableSound(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireBreakable(command).SetBreakSound(command.GetArgument(1).GetString().c_str());
+}
+
+void GameSI::SetPushableSound(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequirePushable(command).SetPushSound(command.GetArgument(1).GetString().c_str());
+}
+
+void GameSI::RotateThing(soft3d::ScriptCommand& command, int axis)
+{
+    RequireArguments(command, 2);
+    const int32_t degrees = command.GetArgument(1).GetShort();
+    const auto angle = static_cast<uint16_t>(static_cast<int32_t>(
+        static_cast<float>(degrees * 4096) / 360.0f) & 0x1fff);
+    soft3d::Object* object = RequireThing(command).GetObject(0);
+    if (object == nullptr) {
+        return;
+    }
+    if (axis == 0) object->RotateX(angle);
+    if (axis == 1) object->RotateY(angle);
+    if (axis == 2) object->RotateZ(angle);
+}
+
+void GameSI::RotateThingX(soft3d::ScriptCommand& command) { RotateThing(command, 0); }
+void GameSI::RotateThingY(soft3d::ScriptCommand& command) { RotateThing(command, 1); }
+void GameSI::RotateThingZ(soft3d::ScriptCommand& command) { RotateThing(command, 2); }
+
+void GameSI::SetThingPosition(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    RequireThing(command).SetPosition({command.GetArgument(1).GetFixed(),
+        command.GetArgument(2).GetFixed(), command.GetArgument(3).GetFixed()});
+}
+
+void GameSI::MoveThing(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    soft3d::Things& thing = RequireThing(command);
+    thing.SetPosition(soft3d::Add(thing.GetPosition(),
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()}));
+    thing.SetCollisionBounds({soft3d::Add(thing.GetLocalBounds().minimum, thing.GetPosition()),
+                              soft3d::Add(thing.GetLocalBounds().maximum, thing.GetPosition())});
+}
+
+void GameSI::MoveThingTowards(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 5);
+    const bool reached = RequireThing(command).MoveTowards(
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()}, command.GetArgument(4).GetFixed());
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(reached);
+}
+
+void GameSI::DestroyThing(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireThing(command).StartDestruction(
+        static_cast<uint16_t>(command.GetArgument(1).GetShort()));
+}
+
+void GameSI::SetThingDepthBias(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireThing(command).SetDepthBias(command.GetArgument(1).GetFixed());
+}
+
+void GameSI::RemoveThing(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.unitManager->RemoveUnitById(command.GetArgument(0).GetShort(), 2, true);
+}
+
+void GameSI::ThingExists(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.unitManager->FindUnit(
+            2, command.GetArgument(0).GetShort()) != nullptr);
+    }
+}
+
+void GameSI::ConsumeBreakableEvent(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(RequireBreakable(command).ConsumeBreakEvent());
+    }
+}
+
+void GameSI::TestThingBounds(soft3d::ScriptCommand& command, bool outside)
+{
+    RequireArguments(command, 7);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()},
+        {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+         command.GetArgument(6).GetFixed()}};
+    const bool hit = RequireThing(command).QueryBounds(bounds) != nullptr;
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(outside ? !hit : hit);
+}
+
+void GameSI::ThingBoundsInside(soft3d::ScriptCommand& command) { TestThingBounds(command, false); }
+void GameSI::ThingBoundsOutside(soft3d::ScriptCommand& command) { TestThingBounds(command, true); }
+
+void GameSI::SetThingLighting(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    soft3d::Object* object = RequireThing(command).GetObject(0);
+    if (object != nullptr) object->SetLightingEnabled(command.GetArgument(1).GetBool());
+}
+
+void GameSI::SetPushableEnabled(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequirePushable(command).SetPushEnabled(command.GetArgument(1).GetBool());
+}
+
+void GameSI::SetThingTexture(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    soft3d::Things& thing = RequireThing(command);
+    const uint32_t material = static_cast<uint16_t>(command.GetArgument(1).GetShort());
+    for (std::size_t index = 0; index < thing.GetObjectCount(); ++index) {
+        thing.GetObject(index)->LoadTextureOverride(material,
+            command.GetArgument(2).GetString().c_str(), 3);
+    }
+}
+
+void GameSI::GetMagicCubeOrientation(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    soft3d::Object* object = RequireThing(command).GetObject(0);
+    int32_t orientation = 0;
+    if (object != nullptr) {
+        const soft3d::Vec3 axes[] = {object->GetAxisX(), object->GetAxisY(), object->GetAxisZ()};
+        for (std::size_t index = 0; index < 3; ++index) {
+            if (soft3d::AbsFixed(axes[index].x) < 0x1999 &&
+                soft3d::AbsFixed(axes[index].z) < 0x1999) {
+                orientation = static_cast<int32_t>(index * 2) + (axes[index].y > 0 ? 0 : 1);
+                break;
+            }
+        }
+    }
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetInt(orientation);
 }
 
 void GameSI::SetPlayerDirection(soft3d::ScriptCommand& command)

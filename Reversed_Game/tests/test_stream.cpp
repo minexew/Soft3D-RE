@@ -246,7 +246,7 @@ void TestRealVisUnitState()
     object->SetRenderMode(soft3d::ObjectRenderMode::Wireframe);
     object->SetLightingEnabled(false);
     object->SetAmbientLightOnly(true);
-    object->SetCullingDisabled(true);
+    object->SetFrustumCulled(true);
     object->SetExternalTransformEnabled(false);
     object->SetMaterialIntensityState(0, 0x1000, 0x9000, 0x5000, -0x100);
     object->RestoreAnimationState(1, 123, -1, 0, 450);
@@ -268,7 +268,7 @@ void TestRealVisUnitState()
     CHECK(restored->GetDepthBias() == 0x1234 && restored->GetObjectIntensity() == 0x5678);
     CHECK(restored->GetRenderMode() == soft3d::ObjectRenderMode::Wireframe);
     CHECK(!restored->IsLightingEnabled() && restored->IsAmbientLightOnly());
-    CHECK(restored->IsCullingDisabled() && !restored->IsExternalTransformEnabled());
+    CHECK(restored->IsFrustumCulled() && !restored->IsExternalTransformEnabled());
     const std::array<soft3d::Fixed, 4> expectedIntensity = {0x1000, 0x9000, 0x5000, -0x100};
     CHECK(restored->GetMaterialIntensityState(0) == expectedIntensity);
     CHECK(restored->IsAnimationPaused() && restored->GetAnimationTime() == 123);

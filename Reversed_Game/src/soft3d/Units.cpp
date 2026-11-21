@@ -301,6 +301,53 @@ void VisUnit::SetDepthBias(Fixed bias)
     }
 }
 
+void VisUnit::SetAnimationPaused(bool paused)
+{
+    if (objectGroup != nullptr) {
+        for (const auto& object : objectGroup->objects) {
+            object->SetAnimationPaused(paused);
+        }
+    }
+}
+
+void VisUnit::SetAnimationTime(int32_t time)
+{
+    if (objectGroup != nullptr) {
+        for (const auto& object : objectGroup->objects) {
+            object->SetAnimationTime(time);
+        }
+    }
+    if (shadowEnabled && shadowObject != nullptr) {
+        shadowObject->SetAnimationTime(time);
+    }
+}
+
+void VisUnit::SetAnimationSpeed(int32_t speed)
+{
+    if (objectGroup != nullptr) {
+        for (const auto& object : objectGroup->objects) {
+            object->SetAnimationSpeed(speed);
+        }
+    }
+    if (shadowEnabled && shadowObject != nullptr) {
+        shadowObject->SetAnimationSpeed(speed);
+    }
+}
+
+void VisUnit::SetAnimationPlayback(int32_t direction, bool loop, int32_t speed)
+{
+    if (objectGroup != nullptr) {
+        for (const auto& object : objectGroup->objects) {
+            object->SetAnimationPlayback(direction, loop);
+            object->SetAnimationSpeed(speed);
+        }
+    }
+    if (shadowEnabled && shadowObject != nullptr) {
+        shadowObject->SetAnimationPlayback(direction, loop);
+        shadowObject->SetAnimationSpeed(speed);
+    }
+}
+
 result VisUnit::LoadMaterials(const char16_t* directory)
 {
     if (objectGroup == nullptr) {
@@ -371,9 +418,9 @@ void VisUnit::SaveState(OutputStream& stream) const
             WriteFixed(stream, object->GetDepthBias());
             WriteFixed(stream, object->GetObjectIntensity());
             stream.WriteInt32(static_cast<int32_t>(object->GetRenderMode()));
+            stream.WriteByte(object->IsFrustumCulled() ? 1 : 0);
             stream.WriteByte(object->IsLightingEnabled() ? 1 : 0);
             stream.WriteByte(object->IsAmbientLightOnly() ? 1 : 0);
-            stream.WriteByte(object->IsCullingDisabled() ? 1 : 0);
             stream.WriteByte(object->IsExternalTransformEnabled() ? 1 : 0);
             stream.WriteInt32(object->IsAnimationPaused() ? 1 : 0);
             stream.WriteInt32(object->GetAnimationTime());
@@ -444,11 +491,11 @@ void VisUnit::LoadState(InputStream& stream)
             object->SetRenderMode(static_cast<ObjectRenderMode>(integerValue));
             uint8_t byteValue = 0;
             stream.ReadByte(byteValue);
+            object->SetFrustumCulled(byteValue != 0);
+            stream.ReadByte(byteValue);
             object->SetLightingEnabled(byteValue != 0);
             stream.ReadByte(byteValue);
             object->SetAmbientLightOnly(byteValue != 0);
-            stream.ReadByte(byteValue);
-            object->SetCullingDisabled(byteValue != 0);
             stream.ReadByte(byteValue);
             object->SetExternalTransformEnabled(byteValue != 0);
             stream.ReadInt32(paused);
@@ -1019,6 +1066,61 @@ void Things::PostUpdate()
     } else if (alternateAnimation != nullptr && alternateObject != nullptr) {
         animationFinished = alternateObject->AdvanceAnimation();
     }
+}
+
+void Things::SaveState(OutputStream& stream) const
+{
+    VisUnit::SaveState(stream);
+    if (alternateObject == nullptr) {
+        stream.WriteByte(0);
+    } else {
+        stream.WriteByte(1);
+        const ObjectRes* model = alternateObject->GetModel();
+        stream.WriteWideString(model != nullptr ? model->GetFileName() : u"");
+        stream.WriteWideString(model != nullptr ? model->GetDirectory() : u"");
+    }
+    if (alternateAnimation == nullptr) {
+        stream.WriteByte(0);
+    } else {
+        stream.WriteByte(1);
+        stream.WriteWideString(alternateAnimation->GetFileName());
+        stream.WriteWideString(alternateAnimation->GetDirectory());
+    }
+    stream.WriteInt32(destroying ? 1 : 0);
+    stream.WriteInt16(static_cast<int16_t>(destructionDuration));
+    stream.WriteInt16(static_cast<int16_t>(destructionTimer));
+    stream.WriteInt32(serializedState67c);
+}
+
+void Things::LoadState(InputStream& stream)
+{
+    VisUnit::LoadState(stream);
+    uint8_t present = 0;
+    stream.ReadByte(present);
+    if (present != 0) {
+        char16_t name[256]{};
+        char16_t directory[256]{};
+        stream.ReadWideString(name, 256);
+        stream.ReadWideString(directory, 256);
+        LoadAlternateModel(name, directory);
+    }
+    stream.ReadByte(present);
+    if (present != 0) {
+        char16_t name[256]{};
+        char16_t directory[256]{};
+        stream.ReadWideString(name, 256);
+        stream.ReadWideString(directory, 256);
+        SetAlternateAnimation(name, directory);
+    }
+    int32_t value = 0;
+    stream.ReadInt32(value);
+    destroying = value != 0;
+    int16_t shortValue = 0;
+    stream.ReadInt16(shortValue);
+    destructionDuration = static_cast<uint16_t>(shortValue);
+    stream.ReadInt16(shortValue);
+    destructionTimer = static_cast<uint16_t>(shortValue);
+    stream.ReadInt32(serializedState67c);
 }
 
 result Things::LoadMaterials(const char16_t* directory)

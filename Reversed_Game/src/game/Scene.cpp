@@ -1,5 +1,6 @@
 #include "game/Scene.hpp"
 
+#include "game/MapUnits.hpp"
 #include "game/Triggers.hpp"
 #include "soft3d/AudioData.hpp"
 #include "soft3d/GameUIDlg.hpp"
@@ -630,7 +631,7 @@ void Scene::UpdateWorld()
         bsp->Update();
     }
     player->Update();
-    unitManager->UpdateUnits();
+    unitManager->Update();
     cameraController.Update();
     if (cameraWarmupCounter == 2) {
         cameraController.SetInstant(false);
@@ -789,7 +790,7 @@ void Scene::PrepareRender()
     bsp->Render();
     bsp->SubmitVisibleEntities(engine.GetRenderQueues());
     player->SubmitRenderables(engine.GetRenderQueues());
-    unitManager->SubmitUnits(engine.GetRenderQueues());
+    unitManager->SubmitRenderables(engine.GetRenderQueues());
 }
 
 void Scene::RenderDayTitle()
@@ -939,18 +940,12 @@ soft3d::BspEntity* Scene::CreateGameEntity(soft3d::BspEntityRecord* record, void
         return nullptr;
     }
     auto* scene = static_cast<Scene*>(context);
-    if (record->type == 10 || record->type == 11 || record->type == 102) {
+    if (record->type != -1 && record->type != 0) {
         scene->unitManager->HandleMapEntity(*record, *scene->bsp);
         return nullptr;
     }
-    if (record->type != -1 && record->type != 0) {
-        return nullptr;
-    }
-    auto entity = std::make_unique<soft3d::BspEntity>();
-    if (record->modelIndex >= 0 &&
-        static_cast<std::size_t>(record->modelIndex) < scene->bsp->GetModels().size()) {
-        entity->SetObject(scene->bsp->GetModels()[record->modelIndex].object.get());
-    }
+    auto entity = std::make_unique<BspUnit>();
+    entity->LoadEntity(*record, *scene->bsp);
     return entity.release();
 }
 

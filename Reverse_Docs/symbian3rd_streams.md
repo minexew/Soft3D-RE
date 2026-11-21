@@ -102,7 +102,7 @@ Null wide-string input returns `S3D_PARAM`. The byte count is narrowed to signed
   - Z, X, Y axes;
   - depth bias and object intensity;
   - render mode;
-  - lighting, ambient-only, culling, and external-transform bytes;
+  - frustum-culled, lighting-enabled, ambient-only, and external-transform bytes;
   - pause, time, direction, loop, and speed words;
   - material-zero minimum, maximum, current intensity, and intensity speed;
 - shadow-enabled and shadow-transform-dirty bytes;
@@ -114,7 +114,7 @@ An empty group therefore produces a 92-byte record including `GameUnit`, or 88 b
 
 `VisUnit_LoadState` (`0x00025eac`) reloads models/materials and restores each record. After applying a shared animation, it restores the **last** object's five playback words to every object. This behavior is intentional in the reconstruction. The ARM routine passes the saved text pointers directly to the `SetAnimation` vtable slot, which expects an `Animation *`; portable code resolves the saved name/directory through `ResourceAnimation` instead of treating text as a pointer.
 
-The native `Object` field at `+0x64` is render mode. The external-transform flag is at `+0x6b`, with the external matrix pointer at `+0x6c`; culling at `+0x6a` is separate. The portable implementation no longer merges those flags.
+The native `Object` field at `+0x64` is render mode. The bytes at `+0x68`–`+0x6b` are frustum-culled, lighting-enabled, ambient-only, and external-transform-enabled; the external matrix pointer follows at `+0x6c`. The external-transform byte also disables material culling in the render path, so there is no separate native culling byte. The portable record preserves this exact order.
 
 The corrected 0x48-byte `ObjectMaterial` layout places U/V at `+0x2c/+0x30`, minimum/maximum/current/speed at `+0x34/+0x38/+0x3c/+0x40`, and resource manager at `+0x44`. Earlier Ghidra layouts shifted the intensity names one word and omitted the manager.
 

@@ -2,7 +2,7 @@
 
 This directory is a self-contained C++17/CMake reconstruction of the Soft3D engine and an SDL3 application shell for **7 Days: Salvation**. It is based on reverse engineering of the original binaries and preserves recovered behavior, including fixed-point arithmetic, lookup tables, rendering quirks, and known original bugs where they affect observable behavior.
 
-The reusable engine reconstruction is substantially complete. The application supports startup and handedness selection, logos and sound setup, the animated 3D main-menu background, menu/dialog navigation, UI audio, and configuration persistence. Stages 1–4 install concrete game data, `Scene`, `GameSI`, the eight-mode game camera, map camera/light triggers, door transitions, environment audio, scene presentation, and the concrete player with all 20 states, sword/gunfire, combat, QTE, hide/FPS, and inventory behavior. A new game loads day 1, selects `day1/ep0`, and incrementally loads its initial map through the real engine loop. **This is not yet a complete playable recreation.** Concrete enemies/remaining units, final gameplay UI, full scene persistence, and license services remain staged work; unimplemented script commands fail explicitly rather than advancing silently.
+The reusable engine reconstruction is substantially complete. The application supports startup and handedness selection, logos and sound setup, the animated 3D main-menu background, menu/dialog navigation, UI audio, and configuration persistence. Stages 1–5 install concrete game data, `Scene`, `GameSI`, the eight-mode game camera, map camera/light triggers, door transitions, environment audio, scene presentation, the concrete player with all 20 states, and the Things/map-unit/trap/StayBox implementations with their script commands. A new game loads day 1, selects `day1/ep0`, incrementally loads its initial map through the real engine loop, and advances past thing setup to the remaining interaction-trigger commands. **This is not yet a complete playable recreation.** Concrete enemies/remaining interaction triggers, final gameplay UI, full scene persistence, and license services remain staged work; unimplemented script commands fail explicitly rather than advancing silently.
 
 No parent repository, analysis tools, Ghidra installation, or external format documentation is required to build or use this directory.
 
@@ -18,7 +18,7 @@ No parent repository, analysis tools, Ghidra installation, or external format do
   - input, timing, dialogs, menu flow, configuration, and save-slot support;
   - SAU/WAR decoding, a 16-voice software mixer, fades, and positional sound;
   - the generic SST script loader, VM, task lifecycle, and host interface.
-- `src/game/` — the `seven_days_game` library: checked `itemdata`/`gameitem`/`einfo` parsing, fixed animation/sound/door resource tables, `MyGameUnitMgr`, the eight-mode `CameraController`, camera/light triggers, concrete `Scene` loading/lifecycle/transitions/presentation, `Player`/`Sword` and all 20 player states, and the 218-slot `GameSI` dispatch/context. Concrete enemies/remaining units, final gameplay UI, full save loading, and license behavior remain staged work.
+- `src/game/` — the `seven_days_game` library: checked `itemdata`/`gameitem`/`einfo` parsing, fixed animation/sound/door resource tables, `MyGameUnitMgr`, the eight-mode `CameraController`, camera/light triggers, concrete `Scene` loading/lifecycle/transitions/presentation, `Player`/`Sword` and all 20 player states, `MapUnits` (`Breakable`/`Pushable`/`Pickable`/`BspUnit`/`ElectricSaw`/`Trap`/`StayBox`), and the 218-slot `GameSI` dispatch/context. Concrete enemies/remaining interaction triggers, final gameplay UI, full save loading, and license behavior remain staged work.
 - `src/platform/linux/` — Linux file, clock, logging, and memory support.
 - `src/platform/sdl/` — SDL3 video, audio, input, and clock backends.
 - `src/platform/dummy/` — deterministic video/audio backends used by tests and other headless hosts.
@@ -133,13 +133,14 @@ After a default build:
 ctest --test-dir build --output-on-failure
 ```
 
-The default suite has 32 tests, including SDL application smoke tests and a real new-game/map-load run. A `SOFT3D_BUILD_APP=OFF` build has 25 tests. Coverage includes:
+The default suite has 33 tests, including SDL application smoke tests and a real new-game/map-load run. A `SOFT3D_BUILD_APP=OFF` build has 26 tests. Coverage includes:
 
 - resource/archive parsing and cache lifecycle;
 - all shipped item/day data tables, fixed resource names, malformed data, missing files, and engine integration;
-- all 218 `GameSI` records, recovered scene/camera/audio/presentation commands, explicit unsupported-command errors, real `ep0` loading through ID 221, incremental SBP progress/finalization/fallback, null entities, and repeated scene/menu teardown;
+- all 218 `GameSI` records, recovered scene/camera/audio/presentation/player/thing/map/trap commands, explicit unsupported-command errors, real `ep0` loading through the thing commands to stage-6 ID 159, incremental SBP progress/finalization/fallback, null entities, and repeated scene/menu teardown;
 - every game-camera mode, binding/freeze/interpolation, timed/projected SPL playback, shake, nested trigger restoration, real map camera/light triggers, and type-102 values;
 - every player state and virtual slot, attack chains/damage/hit windows, hurt/death, QTE input/results, hide/FPS, pushing, inventory/save fields, all player script commands, real input, and exact representative player frames;
+- every AddThing variant and thing command, break/push/pickup/trap/StayBox behavior, derived persistence records, real `BspUnit` models, and a real lensflare entity;
 - door transition frames, randomized environment channels, listener selection, ending-specific day titles, and game-over/Ink/restart behavior;
 - stream and file behavior;
 - real font, UI, map, model, animation, camera-path, and audio resources;

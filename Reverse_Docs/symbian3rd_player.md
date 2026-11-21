@@ -258,4 +258,4 @@ hurt   0xff7f3005
 QTE    0x3f72c8dd
 ```
 
-All **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests pass. The real `day1/ep0` application path still reaches the explicit later-stage command 221; no later-stage command was made a silent no-op.
+At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. Stage 5 now has 33 default and 26 variant tests, and the real `day1/ep0` application path advances through thing setup to the explicit stage-6 command 159. No later-stage command was made a silent no-op.

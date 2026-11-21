@@ -227,6 +227,74 @@ void Object::UpdateTransform()
     }
 }
 
+void Object::UpdateFrustumVisibility()
+{
+    frustumCulled = false;
+    if (renderer == nullptr || renderMode != ObjectRenderMode::Normal) {
+        return;
+    }
+    const Matrix4& matrix = renderer->GetViewProjectionMatrix();
+    std::array<std::array<Fixed, 4>, 5> planes{{
+        {AddFixed(matrix.values[3], matrix.values[0]),
+         AddFixed(matrix.values[7], matrix.values[4]),
+         AddFixed(matrix.values[11], matrix.values[8]),
+         AddFixed(matrix.values[15], matrix.values[12])},
+        {SubtractFixed(matrix.values[3], matrix.values[0]),
+         SubtractFixed(matrix.values[7], matrix.values[4]),
+         SubtractFixed(matrix.values[11], matrix.values[8]),
+         SubtractFixed(matrix.values[15], matrix.values[12])},
+        {SubtractFixed(matrix.values[3], matrix.values[1]),
+         SubtractFixed(matrix.values[7], matrix.values[5]),
+         SubtractFixed(matrix.values[11], matrix.values[9]),
+         SubtractFixed(matrix.values[15], matrix.values[13])},
+        {AddFixed(matrix.values[3], matrix.values[1]),
+         AddFixed(matrix.values[7], matrix.values[5]),
+         AddFixed(matrix.values[11], matrix.values[9]),
+         AddFixed(matrix.values[15], matrix.values[13])},
+        {SubtractFixed(matrix.values[3], matrix.values[2]),
+         SubtractFixed(matrix.values[7], matrix.values[6]),
+         SubtractFixed(matrix.values[11], matrix.values[10]),
+         SubtractFixed(matrix.values[15], matrix.values[14])},
+    }};
+    for (Fixed& value : planes[4]) {
+        value = FixedMultiply(value, 0x4000000);
+    }
+    const std::array<std::size_t, 5> order{4, 0, 1, 2, 3};
+    for (const std::size_t planeIndex : order) {
+        auto& plane = planes[planeIndex];
+        Fixed magnitude = AddFixed(AddFixed(AbsFixed(plane[0]), AbsFixed(plane[1])),
+                                   AbsFixed(plane[2]));
+        Fixed threshold = 0xb50000;
+        unsigned shift = 0;
+        while (magnitude > threshold) {
+            threshold = ShiftLeftFixed(threshold, 1);
+            shift += 2;
+        }
+        const Vec3 scaled{plane[0] >> shift, plane[1] >> shift, plane[2] >> shift};
+        Fixed inverseLength = SquaredLength(scaled);
+        if (inverseLength < 0x4000) {
+            inverseLength = FixedInverseSqrt(ShiftLeftFixed(inverseLength, 12)) >> shift;
+            for (Fixed& value : plane) {
+                value = FixedMultiply(ShiftLeftFixed(value, 6), inverseLength);
+            }
+        } else {
+            inverseLength = FixedInverseSqrt(inverseLength) >> shift;
+            for (Fixed& value : plane) {
+                value = FixedMultiply(value, inverseLength);
+            }
+        }
+        const Vec3 point{
+            plane[0] < 0 ? worldBounds.minimum.x : worldBounds.maximum.x,
+            plane[1] < 0 ? worldBounds.minimum.y : worldBounds.maximum.y,
+            plane[2] < 0 ? worldBounds.minimum.z : worldBounds.maximum.z,
+        };
+        if (AddFixed(Dot({plane[0], plane[1], plane[2]}, point), plane[3]) <= 0) {
+            frustumCulled = true;
+            return;
+        }
+    }
+}
+
 const Matrix4& Object::GetModelMatrix() const
 {
     return modelMatrix;
@@ -345,7 +413,6 @@ result Object::LoadTextureOverride(uint32_t material, const char16_t* name, int 
 
 void Object::SetLightingEnabled(bool enabled) { lightingEnabled = enabled; }
 void Object::SetAmbientLightOnly(bool enabled) { ambientLightOnly = enabled; }
-void Object::SetCullingDisabled(bool disabled) { cullingDisabled = disabled; }
 void Object::SetExternalTransformEnabled(bool enabled) { externalTransformEnabled = enabled; }
 void Object::SetObjectIntensity(Fixed intensity) { objectIntensity = intensity; }
 void Object::SetDepthBias(Fixed bias) { depthBias = bias; }
@@ -505,7 +572,7 @@ void Object::RenderNormal()
         }
         renderer->DrawIndexedSurface(surface, material, texture, detail, matrixPalette,
             state != nullptr ? state->textureU : 0, state != nullptr ? state->textureV : 0,
-            state != nullptr ? state->intensity : 0, cullingDisabled);
+            state != nullptr ? state->intensity : 0, externalTransformEnabled);
         if (material != nullptr && state != nullptr) {
             UpdateMaterial(*state, *material, texture);
         }
@@ -549,7 +616,7 @@ void Object::RenderSecondaryStreams()
             detail = detailTextures[index];
             state = &materialStates[index];
             renderer->SetMaterialLighting(material->directionalScale, material->ambientIntensity);
-            renderer->SetCullMode(cullingDisabled ? 0 : material->cullMode);
+            renderer->SetCullMode(externalTransformEnabled ? 0 : material->cullMode);
             renderer->SetTexture(texture);
             renderer->SetDetailTexture(detail);
             renderer->SetTextureCoordinateMode(material->textureCoordinateMode);
@@ -673,7 +740,6 @@ Fixed Object::GetObjectIntensity() const { return objectIntensity; }
 Fixed Object::GetDepthBias() const { return depthBias; }
 bool Object::IsLightingEnabled() const { return lightingEnabled; }
 bool Object::IsAmbientLightOnly() const { return ambientLightOnly; }
-bool Object::IsCullingDisabled() const { return cullingDisabled; }
 bool Object::IsExternalTransformEnabled() const { return externalTransformEnabled; }
 std::array<Fixed, 4> Object::GetMaterialIntensityState(uint32_t material) const
 {

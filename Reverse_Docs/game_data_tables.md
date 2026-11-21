@@ -92,7 +92,7 @@ struct GameItemSpawn {              // 0x60 bytes
 
 The runtime group is eight bytes: `int16 mapId`, `int16 recordCount`, and a pointer to the owned record array. `ClearGameItemGroups` (`0x000465fc`) destroys every record array and the group array before reload/destruction.
 
-`MyGameUnitMgr_SpawnMapItems` (`0x00047198`) selects the **first** group matching the current map. For every nonzero item ID it decodes the model name, creates a `Pickable` through `MyGameUnitMgr_AddThing` (`0x00044b74`), sets its item ID with `Pickable_SetItemId` (`0x0003f79c`), and creates the linked `PickTrigger` with the serialized sound and bounds. Unit IDs descend from 9999. Duplicate map groups are valid: day 4 contains map 3009 twice, and the first occurrence wins.
+`MyGameUnitMgr_SpawnMapItems` (`0x00047198`) selects the **first** group matching the current map. For every nonzero item ID it decodes the model name, creates a `Pickable` through `MyGameUnitMgr_AddThing` (`0x00044b74`), sets its item ID with `Pickable_SetItemId` (`0x0003f79c`), stores the originating record pointer at Pickable `0x68c`, and creates the linked `PickTrigger` with the serialized sound and bounds. `Pickable_PickUp` zeroes that record's item ID to prevent table-driven respawn. Unit IDs descend from 9999. Duplicate map groups are valid: day 4 contains map 3009 twice, and the first occurrence wins. Portable Pickable behavior is implemented in stage 5; concrete PickTrigger creation is stage 6.
 
 Shipped values:
 

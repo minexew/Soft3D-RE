@@ -10,13 +10,13 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-Stages 1–4 are implemented in `seven_days_game`:
+Stages 1–5 are implemented in `seven_days_game`:
 
 - `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
 - Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL new-game smoke test proves that this path reaches progress 100 and executes the stage-3 camera/audio commands.
 - `Scene` owns the BSP, manager, concrete `Player`, game `CameraController`, camera-path resources, six presentation shaders, transition state, event/snapshot arrays, and two environment-channel states. Stage 4 adds the complete 20-state player, sword/gunfire, combat, inventory, and hide/FPS lifecycle; `symbian3rd_player.md` is the detailed reference.
-- `GameSI` contains all 218 ARM handler addresses and zero adjustments. Stage-2 scene commands, stage-3 camera/audio/presentation commands, stage-4 player commands, and the confirmed empty/shared-word callbacks are implemented. Every remaining later-stage command throws `GameSIError` with its ID and ARM address, so scripts cannot silently advance through missing behavior. The real `ep0` test confirms the map handshake and then stops at later-stage command 221.
-- The SBP factory creates generic renderable entities for types -1/0 and real camera/light triggers for types 10/11, stores type-102 words, and returns null for game-owned non-renderable records. The generic loader accepts and skips those null entries, as the ARM loader does; complete `BspUnit` and remaining special-unit construction remains stage 5.
+- `GameSI` contains all 218 ARM handler addresses and zero adjustments. Stage-2 scene commands, stage-3 camera/audio/presentation commands, stage-4 player commands, stage-5 thing/map/trap commands 219–254, and the confirmed empty/shared-word callbacks are implemented. Every remaining later-stage command throws `GameSIError` with its ID and ARM address. The real `ep0` test confirms the map handshake, executes the thing commands, and then stops at stage-6 command 159.
+- The SBP factory creates concrete `BspUnit` renderable entities for types -1/0, real camera/light triggers for types 10/11, type-102 header state, and manager-owned type-202 lensflares. Other game-owned non-renderable records return null and are skipped by the generic loader, as in ARM. See `symbian3rd_mapunits.md` for the completed stage-5 classes and command matrix.
 - `GameUIDlg` HUD/map/about-model/item operations remain stage-8 hooks, including the high-`0x10000` special-door presentation. Full save loading remains stage 13 and reports an explicit error rather than treating the 44-byte header as a scene load. License gating remains stage 14.
 
 These boundaries leave substantial gameplay work, but the application no longer uses an empty scene or an unbound script host.
@@ -160,16 +160,9 @@ The primary vtable's slots 28–34 implement the `CameraSpot` getters/setters: `
 - `MyGameUnitMgr_SubmitRenderables` `0x00045414`;
 - `MyGameUnitMgr_LoadUnitState` `0x00048314`.
 
-The SBP factory handles camera triggers (type 10), light triggers (type 11), six fog/header words (type 102), and lensflare entities (type 202), alongside the ordinary map-model path. `BspUnit_LoadEntity` (`0x000fd5c0`) and `BspUnit_Submit` (`0x000fd790`) implement concrete map-model entity configuration, animation, transparency selection, and queue submission. The portable generic `BspEntity` does not replace these methods.
+The SBP factory handles camera triggers (type 10), light triggers (type 11), six fog/header words (type 102), and lensflare entities (type 202), alongside the ordinary map-model path. `BspUnit_LoadEntity` (`0x000fd5c0`) and `BspUnit_Submit` (`0x000fd790`) implement concrete map-model entity configuration, animation, transparency selection, and queue submission. The portable scene now uses these methods through `game::BspUnit`, not the former generic `BspEntity` submission path.
 
-Remaining concrete classes are:
-
-| Family | Classes and required behavior |
-|---|---|
-| Things | `Breakable`, `Pushable`, `Pickable`: collision/query policy, pushing, pickup/item drops, hit/destruction, animations/sounds, transforms, movement, lighting, state records. |
-| Other units | `ElectricSaw` motion/animation; `Sword` model/combat rendering; `StayBox` enemy restriction/return regions; `Trap` velocity effects. |
-| Camera/map | `CameraTrigger` eight camera modes, SPL paths, interpolation/freeze/binding; `LightTrigger` lightstyle/color regions; `BspUnit` map models. |
-| Interaction triggers | `EventTrigger`, `PickTrigger`, `DoorTrigger`, `ActTrigger`, `HideTrigger`, `ItemTrigger`, `TalkTrigger`. |
+Stage 5 implements `Breakable`, `Pushable`, `Pickable`, `ElectricSaw`, `StayBox`, and `Trap`, including their recovered state records and thing/map script commands. `Sword`, `CameraTrigger`, and `LightTrigger` were completed in stages 3–4. `symbian3rd_mapunits.md` records native layouts and exact behavior. Concrete enemy-pool operations used by StayBox remain behind its host interface until stage 9; the remaining interaction-trigger classes are `EventTrigger`, `PickTrigger`, `DoorTrigger`, `ActTrigger`, `HideTrigger`, `ItemTrigger`, and `TalkTrigger` in stages 6–7.
 
 The trigger unit-type words confirmed by constructors are Event `0x1b`, Camera `0x20`, Act `0x21`, Door `0x22`, Hide `0x23`, Light `0x24`, Pick `0x25`, Item `0x27`, and Talk `0x28`. `Breakable`, `Pushable`, and `Pickable` use `0x1c`, `0x1d`, and `0x1e`; `Trap` uses `0x1f`.
 
@@ -254,3 +247,5 @@ Stage 2 adds saved, explicitly padded native `Scene` (0x6b68) and `GameSI` (0x73
 Stage 3 adds saved `GameCameraController` (0x208), `CameraTriggerLayout` (0x90), `LightTriggerLayout` (0x68), and `EnvironmentAudioChannel` (0x4c) structures, 96 recovered function names, 100 typed signatures, local/parameter names, plate comments, and `game,camera/trigger/scene/script/audio,stage3` tags. All eight update callbacks, trigger stack methods, environment handlers, scene presentation commands, and both basic player positioning commands are included. Two stage-3 bookmarks and the corrected `7nd_a` ending-title rule are saved. The 110-function stage-3 tag set was verified after splitting the bulk-tag operation, and the program was saved afterward.
 
 Stage 4 adds saved `Player` (0xf44) and `Sword` (0x27c) structures with recovered field names, 187 function renames covering player/sword/states/commands, typed state/player/sword/GameSI signatures, plate comments, `game,player/states/sword/script,stage4` tags, a player-constructor bookmark, and a completion property. The former `<State>_vfunc_<slot>` names are now explicit `Enter`/`Exit`/`Update`/`Register` names. The program was saved after verifying typed player construction, attack, QTE, and sword decompilation.
+
+Stage 5 adds native layouts for all seven recovered map/thing classes plus StayBox region/spawn records, named class/helper/command functions, 53 typed class/helper signatures and 36 typed command signatures, behavioral plate comments, 90 verified `stage5` tags, a completion property, and a bookmark at `GameSI_AddThing`. The stale `Things.nUnknown67c` label is now `nSerialized67c`, distinct from `pCurrentLeaf` at `0x680`. Typed decompilation was checked after applying the layouts, and the program was saved. Exact implementation and verification details are in `symbian3rd_mapunits.md`.
