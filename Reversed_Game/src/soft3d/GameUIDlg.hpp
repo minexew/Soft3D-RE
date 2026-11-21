@@ -12,6 +12,7 @@ public:
     GameUIDlg(GameEngine& engine, UiManager* manager);
 
     void Initialize();
+    void ResetLevelState();
     void OpenMenu();
     void CloseMenu();
     int Render(uint32_t context) override;

@@ -10,17 +10,16 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-The reconstructed engine has generic hooks but no game implementation behind them:
+Stages 1 and 2 are implemented in `seven_days_game`:
 
-- `GameEngine` owns an empty `SceneHost`; `src/app/Application.cpp` installs neither a concrete scene nor `GameplayHooks`.
-- Starting a new game only flips `inGame` and initializes `GameUIDlg`. No episode, map, player, unit, or script interface is installed.
-- Stage 1 adds `seven_days_game` with `GameData`, fixed resource tables, and a concrete `MyGameUnitMgr` data owner. `itemdata.sdt`, all seven `gameitem` files, and all five `einfo` files now populate `GameContent`; day 1 loads through the real new-game path, and the full sound table reaches `AudioManager`. Concrete scene/map spawning and later-day transitions remain stage 2+ work.
-- `GameUIDlg` delegates the actual HUD, map, about-model rendering, item use, and item combination to empty hooks.
-- `BspEntityFactory` creates no game entities. `BspEntity` is not the concrete `BspUnit` implementation.
-- Save-slot support reads the 44-byte header only. It does not load the scene, units, or script state.
-- The original `GameSI` is not constructed or connected to `SimpleScript::SetScriptInterface`.
+- `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
+- Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL `--new-game --frames 83` smoke test proves that this path reaches progress 100.
+- `Scene` owns the BSP, manager, player base, camera-path resources, six presentation shaders, transition state, event/snapshot arrays, and two environment-channel states. Concrete player states and the game `CameraController` remain stages 4 and 3 respectively; the current player is the generic `Creature` base, not a claim of completed player behavior.
+- `GameSI` contains all 218 ARM handler addresses and zero adjustments. Scene commands 53–59 and the confirmed empty/shared-word callbacks are implemented. Every other command throws `GameSIError` with its ID and ARM address, so scripts cannot silently advance through missing behavior. The real `ep0` test confirms the map handshake and then stops at later-stage command 121.
+- The SBP factory creates generic renderable entities for types -1/0 and returns null for game-owned non-renderable records until stage 5. The generic loader now accepts and skips those null entries, as the ARM loader does; this is not the completed `BspUnit`/trigger factory.
+- `GameUIDlg` HUD/map/about-model/item operations remain stage-8 hooks. Full save loading remains stage 13 and reports an explicit error rather than treating the 44-byte header as a scene load. License gating remains stage 14.
 
-These are real missing code paths, not interfaces that can remain empty in a feature-complete build.
+These boundaries leave substantial gameplay work, but the application no longer uses an empty scene or an unbound script host.
 
 ## Scene and engine wiring
 
@@ -40,6 +39,12 @@ These are real missing code paths, not interfaces that can remain empty in a fea
 | `0x19f8`–`0x1acf` | Two 22-entry `int32_t` door open/close sound-index arrays. |
 | `0x1afc`, `0x42fc` | Two 0x2800-byte progression/snapshot blocks. |
 | `0x6b04`, `0x6b08` | Authorization/registration state. |
+
+Construction is split rather than performed entirely by `Scene_Ctor`. `BindGameStateSubsystems` (`0x0006f908`) fills the service pointers at `0x754`–`0x774` and calls `Scene_BindEngineServices` (`0x0002badc`), which creates the 0x26018-byte manager, creates `ControlMap`, installs the entity factory, clears the event block, and sets minimum intensity to `0x0ccc`. `GameEngine_LoadPlayerAndLicenseData` (`0x0006f9b8`) calls `Scene_CreatePlayer` (`0x0002bd6c`) to allocate the 0xf44-byte player, initialize its state set, and load `r_ken_a`/`r_ken_shadow_a`. `Scene_InitRendering` then binds the player/camera and loads `default.s3dsty` plus the 64-entry `1000.spl` collection. `GameEngine_StartNewGame` (`0x00071250`) resets state and calls `Scene_LoadDay(1)`.
+
+`Scene_LoadDay` ignores the SBN loader result. In particular, the default `uien/day1.sbn` is absent and is a valid nonfatal case. The portable implementation preserves this while checking required content loading. Cache-level-2 clearing must be followed by player-resource reload; otherwise the retained `ObjectRes` pointers dangle. Portable `GameEngine` also destroys its scene before `UiManager`, because scene teardown resets `GameUIDlg`.
+
+The incremental loader uses 26 calls and progress values 0, 4, …, 96, 98, 100. A failed current-day map restarts at zero under `day1`; failure of the fallback frees the BSP. Once 100 is reached, an active initializer selects 101, while script state 3 selects 102. A newly assigned 102 immediately increments to 103 in the same update; 103 on the following update calls `Scene_FinishMapLoad`, then stores -1. `Scene_FinishMapLoad` uses `SimpleScript_StartTasks` (`0x00031bd0`) to set state 4 and update immediately. The real `day2/ep0` map 1001 exercises the day-1 fallback in the portable tests.
 
 The principal methods are `Scene_Update` (`0x0002d100`), `Scene_PostUpdate` (`0x0002e634`), `Scene_PrepareRender` (`0x0002ee0c`), and `Scene_SubmitRenderables` (`0x0002f088`). Named game-lifecycle methods now recorded in Ghidra include:
 
@@ -80,7 +85,21 @@ struct GameSI_Callback {       // 0x08 bytes
 };
 ```
 
-Each callback receives the argument-pointer array, argument count, and output `ScriptValue` as selected by the generic script interface. IDs 258 and 260 are empty callbacks; ID 259 writes one to shared script word 255. These three have no shipped-script use and must not be assigned invented meaning.
+Each callback receives the argument-pointer array, argument count, and output `ScriptValue` as selected by the generic script interface. The native `GameSI` is 0x738 bytes: `ScriptInterface` at 0, context pointers at `0x40`–`0x60`, reserved word at `0x64`, and the callback array at `0x68`. The context order is scene, manager, camera controller, player, GameUI, audio, resources, BSP, and ControlMap.
+
+The following scene commands are recovered and implemented in stage 2:
+
+| ID | Handler | Behavior |
+|---:|---:|---|
+| 53 | `GameSI_LoadNextDay` `0x00065964` | Calls `Scene_LoadDay(day + 1)`. |
+| 54 | `GameSI_SetLoadMapParams` `0x000659ac` | Takes door/resource word, two fixed XYZ vectors, and an RGB short triple. |
+| 55 | `GameSI_LoadNextLevel` `0x00065b18` | Takes signed-short map and episode IDs. |
+| 56 | `GameSI_LoadMap` `0x00065b78` | Takes a signed-short map ID; `day1/ep0` passes 2008. |
+| 57 | `GameSI_IsMapLoaded` `0x00065bc0` | Writes `mapProgress == 100` to the output. |
+| 58 | `GameSI_SetEventFlag` `0x00065c10` | Sets the selected byte at scene `0x1afc` to one. |
+| 59 | `GameSI_GetEventFlag` `0x00065c64` | Returns whether that event byte is nonzero. |
+
+ID 69 is also an original empty callback at `0x00066504`, in addition to IDs 258 (`0x00064fd0`) and 260 (`0x00065034`). ID 259 (`0x00064ff8`) writes one to shared script word 255. These callbacks have no shipped-script use and must not be assigned invented meaning. The complete ARM address table is preserved in `Reversed_Game/src/game/GameSI.cpp`; unimplemented entries fail explicitly rather than becoming aliases or no-ops.
 
 A direct parse of all 217 shipped Mobile SST files found:
 
@@ -113,7 +132,7 @@ IDs 229–257 form a further thing/item/player command family with distinct hand
 
 ## Player and player states
 
-`Player` multiply inherits `Creature`, `StateMachine<Player>` at 0x6f0, and `CameraSpot` at 0x704. `Player_Ctor` is `0x0003867c` (duplicate `0x00038234`). Its embedded `GunFire`, sword model, physics, combat, QTE, inventory, note/event state, and camera bindings are all game work.
+`Player` multiply inherits `Creature`, `StateMachine<Player>` at 0x6f0, and `CameraSpot` at 0x704. `Player_Ctor` is `0x0003867c` (duplicate `0x00038234`). ARM call evidence gives its parameters as `(resources, renderer, bsp, scene, audio, states)` after `this`; the BSP and audio arguments were previously swapped by the untyped decompiler. Its embedded `GunFire`, sword model, physics, combat, QTE, inventory, note/event state, and camera bindings are all game work.
 
 The primary vtable's slots 28–34 implement the `CameraSpot` getters/setters: `Player_GetPosition`, `Player_GetRight`, `Player_GetUp`, `Player_GetForward`, `Player_SetRight`, `Player_SetUp`, and `Player_SetForward` (`0x000380bc`–`0x000381f8`). `Player_SaveState` and `Player_LoadState` are `0x0003d4f4` and `0x0003d278`.
 
@@ -226,4 +245,6 @@ A portable implementation needs a platform interface for license state, device i
 
 ## Ghidra status
 
-Confirmed scene, player, manager, trigger, data-loader, spawn, item-operation, resource-table, and selected `GameSI` names have been applied and saved. Stage 1 also adds typed `SdtItemRecord`, `SdtGameTextRecord`, `GameItemSpawnRecord`, `EnemyWaypoint`, `SdtEnemySpawnRecord`, `EnemySpawnRecord`, `GameItemGroup`, `EnemyInfoGroup`, and `GameItemRuntime` structures, loader locals, prototypes, plate comments, and `game,data,stage1` tags. The callback table has a typed `GameSI_Callback` first record, a full-table bookmark, and a `game_completion_research` property. Existing pointer labels inside the table were deliberately preserved rather than forcibly replacing the entire range with one array. Remaining `FUN_*` methods and vague `*_vfunc_*` names are recovery work for later stages.
+Confirmed scene, player, manager, trigger, data-loader, spawn, item-operation, resource-table, and `GameSI` names have been applied and saved. Stage 1 added typed `SdtItemRecord`, `SdtGameTextRecord`, `GameItemSpawnRecord`, `EnemyWaypoint`, `SdtEnemySpawnRecord`, `EnemySpawnRecord`, `GameItemGroup`, `EnemyInfoGroup`, and `GameItemRuntime` structures, loader locals, prototypes, plate comments, and `game,data,stage1` tags. The callback table has a typed `GameSI_Callback` first record, a full-table bookmark, and a `game_completion_research` property; existing pointer labels remain preserved.
+
+Stage 2 adds saved, explicitly padded native `Scene` (0x6b68) and `GameSI` (0x738) layouts, `SbpEntityRecord` (0x1c), and the 0x26018-byte manager type. The scene layout includes the engine services, transition state, shaders, environment state, event/snapshot arrays, and authorization words; unrecovered camera/player-state areas stay opaque. Function prototypes, plate comments, and `game,scene/script/map,stage2` tags cover the startup and load paths. The corrected `Player_Ctor` and manager-constructor argument orders are applied. `GameSI_LoadNextDay`, `GameSI_SetLoadMapParams`, `GameSI_LoadNextLevel`, `GameSI_LoadMap`, `GameSI_IsMapLoaded`, event callbacks, `SimpleScript_StartTasks`, and the three confirmed empty callbacks are named. Remaining unnamed methods belong to their later implementation stages.

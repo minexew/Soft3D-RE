@@ -445,7 +445,7 @@ void Bsp::TraverseVisibleNode(int32_t index, uint32_t planeMask)
         }
         for (uint16_t offset = 0; offset < leaf.visibleEntityCount; ++offset) {
             const uint32_t entityIndex = visibleEntityIndices[leaf.firstVisibleEntity + offset];
-            if (entityIndex < entities.size()) {
+            if (entityIndex < entities.size() && entities[entityIndex] != nullptr) {
                 entities[entityIndex]->lastVisibleFrame = frameCounter;
             }
         }
@@ -535,10 +535,13 @@ void Bsp::SubmitVisibleEntities(RenderQueues& queues)
         if (index >= entities.size()) {
             continue;
         }
-        BspEntity& entity = *entities[index];
-        if (entity.lastVisibleFrame == frameCounter) {
-            entity.Submit(queues);
-            --entity.lastVisibleFrame;
+        BspEntity* entity = entities[index].get();
+        if (entity == nullptr) {
+            continue;
+        }
+        if (entity->lastVisibleFrame == frameCounter) {
+            entity->Submit(queues);
+            --entity->lastVisibleFrame;
         }
     }
 }

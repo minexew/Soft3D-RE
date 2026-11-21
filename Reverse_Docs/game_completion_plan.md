@@ -113,6 +113,10 @@ Use existing `SetSceneHost`, `SetScriptInterface`, `StartNewGame`, `LoadSaveSlot
 - Verify return to menu and repeated scene creation/destruction without stale pointers or cache corruption.
 - Add `test_game_scene.cpp` and application smoke coverage; all prior menu tests must remain unchanged.
 
+**Status: complete.** `game::Scene` and `game::GameSI` are installed by the real application. The scene implements the day intro, day/SBN/content setup, episode selection, incremental SBP loading and day-1 fallback, load finalization, update/render ordering, and menu teardown. `GameSI` preserves all 218 ARM addresses/context pointers, implements IDs 53–59 plus the ARM-confirmed empty/shared-word callbacks, and throws `GameSIError` for later-stage handlers. The player currently uses the generic `Creature` base and the camera/game entity behaviors remain stages 3–5; these are not represented as complete gameplay.
+
+The real `day1/ep0` path reaches map 2008/progress 100 in 26 SBP calls, including through the SDL `--new-game` application test. Tests also cover the 100→103→-1 finalization, day-2 map-1001 fallback, real null entity records, repeated menu/new-game teardown, scene commands, and the explicit error at later-stage ID 121. All 30 default, logging, and math tests pass; the core, WAR, and ASan configurations each pass 23 SDL-independent tests. The combined ASan+UBSan `game_scene` test passes; five unrelated existing UBSan failures remain in SPK alignment and negative-left-shift code and are documented rather than hidden.
+
 ## Stage 3 — Camera, transitions, environment audio, and scene presentation
 
 **Scope**

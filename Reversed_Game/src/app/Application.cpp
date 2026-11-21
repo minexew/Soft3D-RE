@@ -1,6 +1,7 @@
 #include "app/Application.hpp"
 
-#include "game/MyGameUnitMgr.hpp"
+#include "game/GameSI.hpp"
+#include "game/Scene.hpp"
 #include "platform/sdl/SdlAudioBackend.hpp"
 #include "platform/sdl/SdlClock.hpp"
 #include "platform/sdl/SdlInput.hpp"
@@ -94,6 +95,10 @@ int Application::Run()
         ++currentFrame;
     }
 
+    if (config.startNewGame && scene != nullptr) {
+        std::cout << "New game: day " << scene->GetDay() << ", map " << scene->GetMapId()
+                  << ", progress " << scene->GetMapProgress() << '\n';
+    }
     Shutdown();
     return 0;
 }
@@ -126,20 +131,37 @@ bool Application::InitializeVideo()
         std::cerr << "Game initialization failed using resources: " << config.resourceArchive << '\n';
         return false;
     }
-    unitManager = std::make_unique<game::MyGameUnitMgr>();
-    if (unitManager->Initialize(*engine) != soft3d::S3D_OK) {
-        std::cerr << "Game data initialization failed using resources: " << config.resourceArchive << '\n';
+
+    auto sceneOwner = std::make_unique<game::Scene>(*engine);
+    scene = sceneOwner.get();
+    const soft3d::result sceneStatus = sceneOwner->Initialize();
+    if (sceneStatus != soft3d::S3D_OK) {
+        std::cerr << "Scene initialization failed with Soft3D result " << sceneStatus << '\n';
+        scene = nullptr;
         return false;
     }
+    engine->SetSceneHost(std::move(sceneOwner));
+    gameInterface = std::make_unique<game::GameSI>();
+    gameInterface->Bind({scene, scene->GetUnitManager(), scene->GetCameraController(),
+                         scene->GetPlayer(), scene->GetGameUi(), scene->GetAudio(),
+                         scene->GetResources(), scene->GetBsp(), scene->GetControlMap()});
+    engine->SetScriptInterface(gameInterface.get());
+
     soft3d::GameplayHooks hooks;
-    hooks.startNewGame = [this](const soft3d::NewGameOptions&) {
-        const soft3d::result status = unitManager->LoadDayContent(1, *engine);
-        if (status != soft3d::S3D_OK) {
-            std::cerr << "Day 1 content loading failed: " << status << '\n';
-        }
+    hooks.startNewGame = [this](const soft3d::NewGameOptions& options) {
+        scene->StartNewGame(options);
+    };
+    hooks.loadGame = [this](int slot) {
+        return scene->LoadSaveSlot(slot);
+    };
+    hooks.returnToMenu = [this] {
+        scene->ReturnToMainMenu();
     };
     engine->SetGameplayHooks(std::move(hooks));
     engine->Start();
+    if (config.startNewGame) {
+        engine->StartNewGame();
+    }
     return engine->IsRunning();
 }
 
@@ -158,10 +180,12 @@ bool Application::IsLandscapeDisplay() const
 void Application::Shutdown()
 {
     if (engine != nullptr) {
+        engine->SetScriptInterface(nullptr);
         engine->GetVideo().Stop();
         engine->Shutdown();
         engine.reset();
-        unitManager.reset();
+        gameInterface.reset();
+        scene = nullptr;
     }
     SDL_Quit();
 }

@@ -13,9 +13,9 @@ namespace soft3d {
 
 GameEngine::GameEngine(EngineConfig config)
     : Engine(std::move(config))
-    , scene(std::make_unique<SceneHost>())
     , menuBackdrop(std::make_unique<MenuBackdrop>(this))
     , uiManager(std::make_unique<UiManager>())
+    , scene(std::make_unique<SceneHost>())
     , baseFont(std::make_unique<StringManager>())
     , secondaryFont(std::make_unique<StringManager>())
     , controlMap(configuration)

@@ -716,6 +716,13 @@ void SimpleScript::Start()
     }
 }
 
+void SimpleScript::StartTasks()
+{
+    state = ScriptState::Running;
+    previousState = ScriptState::Running;
+    Update();
+}
+
 void SimpleScript::Update()
 {
     if (scriptInterface == nullptr) {

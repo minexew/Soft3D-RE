@@ -6,7 +6,7 @@ SBP is the Soft3D map format. It derives from Quake 2 BSP ideas but has its own 
 
 Use `Reversed_Game/src/resources/res.spk` or the intact extraction under `Tools/outdir/` as reference data. `Tools/outdir/common/menu.sbp` is 75,548 bytes and begins with the expected signature. The copy at `Extractor/extracted_spkres/common/menu.sbp` has a different first byte and must not be treated as canonical.
 
-Stage 1 of `engine_completion_plan.md` is implemented in `Reversed_Game/src/soft3d/Bsp.*`: the container, all active chunk readers, incremental loading, map models, entity-factory ownership, link resolution, and cleanup. Rendering, PVS evaluation, collision, and lightstyle playback remain later-stage work. `Tools/sbp.py` and BspViewer use the corrected chunk names below.
+`Reversed_Game/src/soft3d/Bsp.*` implements the container, all active chunk readers, incremental loading, map models, entity-factory ownership, link resolution, cleanup, rendering/PVS, collision, and lightstyle playback. `game::Scene` supplies the stage-2 application factory path. `Tools/sbp.py` and BspViewer use the corrected chunk names below.
 
 ## Header and directory
 
@@ -133,7 +133,11 @@ s16 pairCount
 s32 entityBrushIndex           // -1 means none
 ```
 
-If a target array is absent, the ARM reader clears the corresponding runtime link instead of resolving it. Otherwise it forms native pointers into link, pair, brush, and model arrays. It then invokes the callback at `Bsp + 0x2aae0` with the runtime record, callback context at `+0x2aae4`, and the record-array base. The host owns concrete entity behavior; the portable `BspEntityFactory` preserves this boundary without implementing game-specific entities.
+If a target array is absent, the ARM reader clears the corresponding runtime link instead of resolving it. Otherwise it forms native pointers into link, pair, brush, and model arrays. It then invokes the callback at `Bsp + 0x2aae0` with the runtime record, callback context at `+0x2aae4`, and the record-array base.
+
+The native runtime `SbpEntityRecord` is 0x1c bytes: type at 0, link count at 6, resolved links at 8, pairs at 12, brush at 16, model at 20, and pair count at 24. `Bsp_CreateGameEntity` (`0x000528ec`, relocation cell `0x0002bd68`) creates/loads a 0x68-byte `BspUnit` for types -1 and 0; other types dispatch to `MyGameUnitMgr` virtual slot 5. That game factory handles camera triggers (10), light triggers (11), six fog/header words (102), and lensflares (202) without returning a renderable entity.
+
+A null factory result is valid for these game-owned/non-renderable records, not an out-of-memory error. The portable loader therefore retains null slots and skips them during visibility marking/submission. A missing factory for a nonempty map and malformed references remain errors. Stage 2 binds this dispatch in the concrete scene; complete `BspUnit` and special-unit construction remains stage 5.
 
 The lamp pair records duplicate model/animation names, axes, position, and a second position-like vector. That second vector is the animated model's world-bounds center, not another render position. For model 0 it is `(-59.7589,-18.0604,14.5371)`, matching the corrected transform's bounds. It must not be used to shift the lamp geometry.
 
@@ -235,9 +239,11 @@ The four serialized model vectors map to position, Z axis, X axis, and Y axis re
 - entity-factory lifetime, cleanup, malformed record sizes, out-of-file chunks, bad versions, invalid indices, and missing factories;
 - the original acceptance of arbitrary magic with a valid version.
 
-The full CTest suite passes. Running `Tools/sbp.py` on the real map exports the same 421 vertices and 316 polygons used by the portable checks.
+The default CTest suite passes. Running `Tools/sbp.py` on the real map exports the same 421 vertices and 316 polygons used by the portable checks.
 
-`Reversed_Game/tests/test_bsprender.cpp` adds Stage 2 coverage:
+`Reversed_Game/tests/test_game_scene.cpp` adds the game-stage-2 path: real `day1/2008.sbp` through the concrete scene and factory, null non-renderable records, real `day2`→`day1` fallback for map 1001, finalization, repeated unload/reload, and dummy/SDL frame-loop integration. The scene test also passes under ASan+UBSan.
+
+`Reversed_Game/tests/test_bsprender.cpp` adds engine-stage-2 coverage:
 
 - a one-face fixture verifies PVS selection, all 256 generated lightmap pixels, RGB565 value 31 from the correct palette byte address, nonzero packed depth, and the triangular coverage caused by face-edge index zero selecting the second vertex;
 - an overlapping two-face fixture verifies that reciprocal depth keeps the nearer black face in front regardless of submission order;
@@ -246,6 +252,6 @@ The full CTest suite passes. Running `Tools/sbp.py` on the real map exports the 
 - exact map-model checks cover every axis-matrix element and translation for all five lamps, including the non-axis-aligned orientations and serialized position/Z/X/Y order;
 - the real S3DSTY resource verifies allocation sizes, exact sequences, disabled styles, and a complete 20-frame wrap;
 - the real menu uses camera `(-66,-22,-43)` in cluster 18, decompresses PVS bytes `{1, 248, 47, 254, 31}`, selects 68 visible faces, and submits three queue-3 map models in that view; its exact raw framebuffer and dummy-presented hashes are `0x7d7b433c` and `0x98a24acd`;
-- normal and AddressSanitizer/UndefinedBehaviorSanitizer builds produce identical hashes with no new BSP memory errors.
+- the exact hashes above are confirmed in the normal build, and ASan reports no BSP memory errors. A current combined ASan+UBSan run stops `test_bsprender` at the existing negative left shift in `Bsp::TraverseVisibleNode`, so it does not establish a fresh sanitizer hash-parity result.
 
-The older generic SOJ `Renderer`/`Raster` path used by map models still emits signed-overflow warnings under UBSan. Those warnings belong to the Stage 7 raster-parity work, not the BSP visibility/lightmap implementation.
+The older generic SOJ `Renderer`/`Raster` path still emits signed-overflow warnings under UBSan. The BSP traversal shift warning is separately visible at `BspRender.cpp:482`; these pre-existing undefined-behavior findings are outside the game-stage-2 change and remain documented rather than silently excluded.

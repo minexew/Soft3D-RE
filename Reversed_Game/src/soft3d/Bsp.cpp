@@ -777,9 +777,6 @@ result Bsp::LoadEntities(const SbpChunkDescriptor& chunk)
     for (std::size_t index = 0; index < count; ++index) {
         entities[index].reset(entityFactory(&records[index], entityFactoryContext,
                                             records.data()));
-        if (entities[index] == nullptr) {
-            return S3D_MEMORY;
-        }
     }
     return S3D_OK;
 }

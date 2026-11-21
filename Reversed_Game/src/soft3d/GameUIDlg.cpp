@@ -39,6 +39,11 @@ GameUIDlg::GameUIDlg(GameEngine& owner, UiManager* manager)
 void GameUIDlg::Initialize()
 {
     LoadResources();
+    ResetLevelState();
+}
+
+void GameUIDlg::ResetLevelState()
+{
     mode = -1;
     selection = 0;
     returnSelection = 0;
@@ -154,7 +159,6 @@ int GameUIDlg::Render(uint32_t context)
             engine.ReturnToMainMenu();
             menuOpen = false;
             mode = -1;
-            engine.GetAudioManager().PlaySound(u"e_wind01", true);
         }
         break;
     case 9:

@@ -107,9 +107,9 @@ private:
     std::u16string PersistencePath(const char16_t* name) const;
     void InitializeUiSoundNames();
 
-    std::unique_ptr<SceneHost> scene;
     std::unique_ptr<MenuBackdrop> menuBackdrop;
     std::unique_ptr<UiManager> uiManager;
+    std::unique_ptr<SceneHost> scene;
     MainUIDlg* mainMenu = nullptr;
     GameUIDlg* gameUi = nullptr;
     AboutDlg* aboutDialog = nullptr;

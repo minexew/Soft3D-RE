@@ -135,8 +135,10 @@ public:
     result SaveArchive(const char16_t* path);
     result LoadArchive(const char16_t* path, s3dFilePak* archive);
     void Start();
+    void StartTasks();
     void Update();
     void Reset();
+    void ClearSharedVariables() { shared.fill(0); }
     void Unload();
 
     void SetScriptInterface(ScriptInterface* interface);

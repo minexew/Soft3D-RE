@@ -134,13 +134,15 @@ The base interface owns seven direct callbacks. `ScriptInterface_ExecuteCommand`
 | 41 | `setVar(short, int)` | Write one of 256 shared 32-bit words |
 | 42 | `getVar(short)` | Write a shared word to the command's result reference |
 
-The shared-word array is separate from typed script globals. The reconstruction exposes the same contract through `ScriptInterface::Execute` and a protected `ExecuteGameCommand` override for higher IDs; it does not implement `GameSI`.
+The shared-word array is separate from typed script globals. The reconstruction exposes the same contract through `ScriptInterface::Execute` and a protected `ExecuteGameCommand` override for higher IDs. The game library now supplies `game::GameSI`; the generic engine still contains no episode command semantics.
 
 ### `GameSI` callback inventory
 
-The original `GameSI_Ctor` (`0x000636e0`, duplicate `0x00061df0`) installs 218 eight-byte `{handler, thisAdjustment}` records at `0x00140cc0`, selected by `commandId - 43` in `GameSI_ExecuteCommand` (`0x0006528c`). IDs 43–260 are present. IDs 258 and 260 are empty, while ID 259 writes one to shared word 255; none of those three is used by shipped scripts.
+The original `GameSI_Ctor` (`0x000636e0`, duplicate `0x00061df0`) installs 218 eight-byte `{handler, thisAdjustment}` records at `0x00140cc0`, selected by `commandId - 43` in `GameSI_ExecuteCommand` (`0x0006528c`). IDs 43–260 are present. IDs 69, 258, and 260 are original empty callbacks at `0x00066504`, `0x00064fd0`, and `0x00065034`; ID 259 writes one to shared word 255 through `0x00064ff8`. None is used by shipped scripts.
 
-All 217 shipped Mobile SST files contain 19,251 host calls: 2,261 generic calls and 16,990 game calls. They exercise 162 game IDs, leaving 53 game IDs plus the final three slots for directed synthetic coverage. The full game inventory and initial ARM-confirmed mappings are in `symbian3rd_game.md`.
+The portable `GameSI` stores every ARM address and zero adjustment, implements scene IDs 53–59 and the empty/shared-word callbacks, and throws `GameSIError` for later-stage handlers. The application binds all nine native context pointers. `tests/test_game_scene.cpp` checks every slot, synthetic scene/shared-word calls, malformed arguments, and the real `day1/ep0` load/map-loaded sequence. See `symbian3rd_game.md` for the native context layout and recovered scene table.
+
+All 217 shipped Mobile SST files contain 19,251 host calls: 2,261 generic calls and 16,990 game calls. They exercise 162 game IDs, leaving 53 game IDs plus the final three slots for directed synthetic coverage. Full per-command semantic coverage remains stage 15; merely loading every script is not sufficient.
 
 `Leaked_Source/commandlist.txt`, leaked episode sources, and `Tools/SimpleScriptDecompiler/bin/Debug/names/*` are stale early-build references. They disagree with ARM callback bodies and real SST signatures and must not be used to assign IDs, argument lists, or behavior. Recover each callback from ARM and use shipped scripts only as execution fixtures.
 
@@ -171,7 +173,7 @@ Script-level states observed in the ARM implementation are:
 | 3 | initializer complete |
 | 4 | task functions running |
 
-`LoadFromPak` appends `.sst`, reads the resource, builds the pools, and enters state 1. `Start` resets functions and enters state 2. `Update` is a no-op without a `ScriptInterface`.
+`LoadFromPak` appends `.sst`, reads the resource, builds the pools, and enters state 1. `Start` resets functions and enters state 2. `Update` is a no-op without a `ScriptInterface`. The recovered `SimpleScript_StartTasks` (`0x00031bd0`, portable `StartTasks`) sets current and previous states to 4 and immediately calls `Update`; `Scene_FinishMapLoad` uses it after the post-100 delay. `ClearSharedVariables` implements the standalone shared-word clear used by `Scene_LoadDay`.
 
 State 2 runs the initializer. If the current command's post-order ordinal is at most 2, the original performs only one `Step`; otherwise it loops until a step completes. It then enters state 3. State 4 iterates functions in index order, updating running/suspended functions and evaluating enabled entry conditions. A newly enabled later-index function can run in the same update.
 

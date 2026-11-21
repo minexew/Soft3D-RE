@@ -90,8 +90,10 @@ endif()
 
 add_library(seven_days_game STATIC
     src/game/GameData.cpp
+    src/game/GameSI.cpp
     src/game/MyGameUnitMgr.cpp
     src/game/ResourceNames.cpp
+    src/game/Scene.cpp
 )
 target_include_directories(seven_days_game PUBLIC src)
 target_compile_features(seven_days_game PUBLIC cxx_std_17)
@@ -317,6 +319,16 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME game_data COMMAND game_data_tests)
 
+    add_executable(game_scene_tests tests/test_game_scene.cpp)
+    target_link_libraries(game_scene_tests PRIVATE seven_days_game)
+    target_compile_definitions(game_scene_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(game_scene_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME game_scene COMMAND game_scene_tests)
+
     if(TARGET seven_days)
         add_executable(soft3d_sdl_input_tests
             tests/test_sdlinput.cpp
@@ -356,5 +368,11 @@ if(BUILD_TESTING)
             COMMAND seven_days --frames 3 --renderer software)
         set_tests_properties(seven_days_audio_smoke PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy")
+        add_test(NAME seven_days_new_game_smoke
+            COMMAND seven_days --new-game --frames 83 --renderer software --no-audio
+                --orientation landscape)
+        set_tests_properties(seven_days_new_game_smoke PROPERTIES
+            ENVIRONMENT "SDL_VIDEODRIVER=dummy"
+            PASS_REGULAR_EXPRESSION "New game: day 1, map 2008, progress 100")
     endif()
 endif()

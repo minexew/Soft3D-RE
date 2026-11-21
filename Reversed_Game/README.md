@@ -2,7 +2,7 @@
 
 This directory is a self-contained C++17/CMake reconstruction of the Soft3D engine and an SDL3 application shell for **7 Days: Salvation**. It is based on reverse engineering of the original binaries and preserves recovered behavior, including fixed-point arithmetic, lookup tables, rendering quirks, and known original bugs where they affect observable behavior.
 
-The reusable engine reconstruction is substantially complete. The application currently supports startup and handedness selection, logos and sound setup, the animated 3D main-menu background, menu/dialog navigation, UI audio, and configuration persistence. **This is not yet a complete playable recreation of the game.** Episode progression, concrete gameplay units, the episode-specific `Scene` state machine, and the `GameSI` script command set remain host/game-specific work.
+The reusable engine reconstruction is substantially complete. The application supports startup and handedness selection, logos and sound setup, the animated 3D main-menu background, menu/dialog navigation, UI audio, and configuration persistence. Stage 2 also installs the concrete `Scene` and `GameSI`: a new game loads day 1, selects `day1/ep0`, and incrementally loads its initial map through the real engine loop. **This is not yet a complete playable recreation.** Camera/player/gameplay commands, full scene persistence, and license services remain staged work; unimplemented script commands fail explicitly rather than advancing silently.
 
 No parent repository, analysis tools, Ghidra installation, or external format documentation is required to build or use this directory.
 
@@ -18,7 +18,7 @@ No parent repository, analysis tools, Ghidra installation, or external format do
   - input, timing, dialogs, menu flow, configuration, and save-slot support;
   - SAU/WAR decoding, a 16-voice software mixer, fades, and positional sound;
   - the generic SST script loader, VM, task lifecycle, and host interface.
-- `src/game/` — the `seven_days_game` library: checked `itemdata`/`gameitem`/`einfo` parsing, fixed animation/sound/door resource tables, and `MyGameUnitMgr` content ownership. Concrete scene and gameplay behavior remains staged work.
+- `src/game/` — the `seven_days_game` library: checked `itemdata`/`gameitem`/`einfo` parsing, fixed animation/sound/door resource tables, `MyGameUnitMgr`, concrete `Scene` loading/lifecycle, and the 218-slot `GameSI` dispatch/context. Concrete camera, player, unit, UI, and save behavior remains staged work.
 - `src/platform/linux/` — Linux file, clock, logging, and memory support.
 - `src/platform/sdl/` — SDL3 video, audio, input, and clock backends.
 - `src/platform/dummy/` — deterministic video/audio backends used by tests and other headless hosts.
@@ -76,6 +76,7 @@ Useful options:
 --resources PATH               Resource archive path
 --no-audio                     Disable audio initialization/output
 --show-fps                     Restore the dormant FPS text helper
+--new-game                     Start day 1 immediately; print scene state on exit
 --help                         Print command-line help
 ```
 
@@ -132,10 +133,11 @@ After a default build:
 ctest --test-dir build --output-on-failure
 ```
 
-The default suite has 28 tests, including SDL application smoke tests. A `SOFT3D_BUILD_APP=OFF` build has 22 tests. Coverage includes:
+The default suite has 30 tests, including SDL application smoke tests and a real new-game/map-load run. A `SOFT3D_BUILD_APP=OFF` build has 23 tests. Coverage includes:
 
 - resource/archive parsing and cache lifecycle;
 - all shipped item/day data tables, fixed resource names, malformed data, missing files, and engine integration;
+- all 218 `GameSI` records, recovered scene commands, explicit unsupported-command errors, real `ep0` loading, incremental SBP progress/finalization/fallback, null entities, and repeated scene/menu teardown;
 - stream and file behavior;
 - real font, UI, map, model, animation, camera-path, and audio resources;
 - exact software-rendering and presentation pixels;
