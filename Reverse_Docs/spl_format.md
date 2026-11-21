@@ -208,7 +208,7 @@ target = desiredTarget
 camera.SetLookAt(position, target, (0, 1, 0))
 ```
 
-`0x1999` is the original 0.1 approximation. At speed 30 the time increment is exactly 136, so the 482nd update crosses the endpoint. Position uses the pre-increment time while target uses the advanced time. Other gameplay camera modes, collision avoidance, shake, and trigger behavior are outside this menu-focused stage.
+`0x1999` is the original 0.1 approximation. At speed 30 the time increment is exactly 136, so the 482nd update crosses the endpoint. Position uses the pre-increment time while target uses the advanced time. The game-specific eight-mode controller, zero-speed projection, all four path-target modes, collision recovery, shake, and camera-trigger stack are now recovered in `symbian3rd_camera.md` and implemented under `src/game`; they remain separate from this menu-only helper.
 
 `CameraController_StartPath` initializes the current position and target from the path when `snap == 0` (or its separate byte flag is set). The menu passes zero, so it starts at the SPL position before the first update rather than smoothing from `(0,0,0)`. The portable controller now follows that condition; its earlier inverted test put the camera outside the corridor for the initial frames.
 

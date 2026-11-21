@@ -46,6 +46,7 @@ public:
 
     BasicShader& GetBasicShader();
     FogShader& GetFogShader();
+    BasicShader* GetActiveShader() const;
 
 private:
     struct Vertex {

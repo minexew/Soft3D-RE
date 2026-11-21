@@ -10,14 +10,14 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-Stages 1 and 2 are implemented in `seven_days_game`:
+Stages 1–3 are implemented in `seven_days_game`:
 
 - `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
-- Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL `--new-game --frames 83` smoke test proves that this path reaches progress 100.
-- `Scene` owns the BSP, manager, player base, camera-path resources, six presentation shaders, transition state, event/snapshot arrays, and two environment-channel states. Concrete player states and the game `CameraController` remain stages 4 and 3 respectively; the current player is the generic `Creature` base, not a claim of completed player behavior.
-- `GameSI` contains all 218 ARM handler addresses and zero adjustments. Scene commands 53–59 and the confirmed empty/shared-word callbacks are implemented. Every other command throws `GameSIError` with its ID and ARM address, so scripts cannot silently advance through missing behavior. The real `ep0` test confirms the map handshake and then stops at later-stage command 121.
-- The SBP factory creates generic renderable entities for types -1/0 and returns null for game-owned non-renderable records until stage 5. The generic loader now accepts and skips those null entries, as the ARM loader does; this is not the completed `BspUnit`/trigger factory.
-- `GameUIDlg` HUD/map/about-model/item operations remain stage-8 hooks. Full save loading remains stage 13 and reports an explicit error rather than treating the 44-byte header as a scene load. License gating remains stage 14.
+- Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL new-game smoke test proves that this path reaches progress 100 and executes the stage-3 camera/audio commands.
+- `Scene` owns the BSP, manager, player base, game `CameraController`, camera-path resources, six presentation shaders, transition state, event/snapshot arrays, and two environment-channel states. The current player remains the generic `Creature` base with a `SceneCameraSpot` adapter; concrete player behavior remains stage 4.
+- `GameSI` contains all 218 ARM handler addresses and zero adjustments. Stage-2 scene commands, stage-3 camera/audio/presentation commands, and the confirmed empty/shared-word callbacks are implemented. Every later-stage command throws `GameSIError` with its ID and ARM address, so scripts cannot silently advance through missing behavior. The real `ep0` test confirms the map handshake and then stops at later-stage command 221.
+- The SBP factory creates generic renderable entities for types -1/0 and real camera/light triggers for types 10/11, stores type-102 words, and returns null for game-owned non-renderable records. The generic loader accepts and skips those null entries, as the ARM loader does; complete `BspUnit` and remaining special-unit construction remains stage 5.
+- `GameUIDlg` HUD/map/about-model/item operations remain stage-8 hooks, including the high-`0x10000` special-door presentation. Full save loading remains stage 13 and reports an explicit error rather than treating the 44-byte header as a scene load. License gating remains stage 14.
 
 These boundaries leave substantial gameplay work, but the application no longer uses an empty scene or an unbound script host.
 
@@ -32,7 +32,7 @@ These boundaries leave substantial gameplay work, but the application no longer 
 | `0x254` | Owned concrete `Player`. |
 | `0x770` | Owned `MyGameUnitMgr`. |
 | `0x90c` | `GameUIDlg` pointer. |
-| `0x914`–`0x91c` | Ink, Fade, and other presentation-shader owners. |
+| `0x914`–`0x928` | Ink, Fade, Gray, MotionBlur, Blind, and Twist presentation-shader owners. |
 | `0x92c`–`0x978` | Two randomized environment-audio channels, each with four resources, interval state, countdown, and voice. |
 | `0x98c`–`0x9f4` | Day-intro, next-script, next-map, save-request, spawn, door-transition, and incremental-load state. |
 | `0x9f8`–`0x14f7` | Twenty-two 64-character door/cinematic model-name records. |
@@ -61,6 +61,8 @@ The principal methods are `Scene_Update` (`0x0002d100`), `Scene_PostUpdate` (`0x
 - `Scene_DrawAuthorization` `0x000302fc` and `Scene_BeginAuthorization` `0x00030dd0`.
 
 `GameEngine_BindSceneInterface` (`0x00070464`) initializes scene rendering and populates the `GameSI` context with the scene, unit manager, camera controller, player, GameUI, audio/resource managers, BSP, and control map before calling `SimpleScript_SetScriptInterface`. This is the required integration model for the portable `game::Scene` and `game::GameSI`.
+
+Stage 3 adds the 0x208-byte `GameCameraController`, all eight mode callbacks, `CameraTrigger`/`LightTrigger` layouts, randomized environment channels, exact door transitions, ending-specific titles, and game-over presentation. The detailed field tables, mode semantics, environment algorithm, command list, and verification are in `symbian3rd_camera.md`.
 
 The scene includes the following behavior that was not covered by menu work:
 
@@ -248,3 +250,5 @@ A portable implementation needs a platform interface for license state, device i
 Confirmed scene, player, manager, trigger, data-loader, spawn, item-operation, resource-table, and `GameSI` names have been applied and saved. Stage 1 added typed `SdtItemRecord`, `SdtGameTextRecord`, `GameItemSpawnRecord`, `EnemyWaypoint`, `SdtEnemySpawnRecord`, `EnemySpawnRecord`, `GameItemGroup`, `EnemyInfoGroup`, and `GameItemRuntime` structures, loader locals, prototypes, plate comments, and `game,data,stage1` tags. The callback table has a typed `GameSI_Callback` first record, a full-table bookmark, and a `game_completion_research` property; existing pointer labels remain preserved.
 
 Stage 2 adds saved, explicitly padded native `Scene` (0x6b68) and `GameSI` (0x738) layouts, `SbpEntityRecord` (0x1c), and the 0x26018-byte manager type. The scene layout includes the engine services, transition state, shaders, environment state, event/snapshot arrays, and authorization words; unrecovered camera/player-state areas stay opaque. Function prototypes, plate comments, and `game,scene/script/map,stage2` tags cover the startup and load paths. The corrected `Player_Ctor` and manager-constructor argument orders are applied. `GameSI_LoadNextDay`, `GameSI_SetLoadMapParams`, `GameSI_LoadNextLevel`, `GameSI_LoadMap`, `GameSI_IsMapLoaded`, event callbacks, `SimpleScript_StartTasks`, and the three confirmed empty callbacks are named. Remaining unnamed methods belong to their later implementation stages.
+
+Stage 3 adds saved `GameCameraController` (0x208), `CameraTriggerLayout` (0x90), `LightTriggerLayout` (0x68), and `EnvironmentAudioChannel` (0x4c) structures, 96 recovered function names, 100 typed signatures, local/parameter names, plate comments, and `game,camera/trigger/scene/script/audio,stage3` tags. All eight update callbacks, trigger stack methods, environment handlers, scene presentation commands, and both basic player positioning commands are included. Two stage-3 bookmarks and the corrected `7nd_a` ending-title rule are saved. The 110-function stage-3 tag set was verified after splitting the bulk-tag operation, and the program was saved afterward.

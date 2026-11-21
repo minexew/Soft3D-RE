@@ -4,7 +4,7 @@
 
 ## Game decompilation and reconstruction
 
-[`Reversed_Game/`](Reversed_Game/) contains a self-contained C++17/CMake decompilation and reconstruction of the engine, together with an SDL3 application, platform backends, reference resources, and a test suite. It currently runs the startup and complete menu flow, but episode-specific gameplay remains unfinished. See [`Reversed_Game/README.md`](Reversed_Game/README.md) for standalone build, run, test, configuration, and library-integration instructions.
+[`Reversed_Game/`](Reversed_Game/) contains a self-contained C++17/CMake decompilation and reconstruction of the engine, together with an SDL3 application, platform backends, reference resources, and a test suite. It currently runs the startup and complete menu flow plus the stage-3 game camera, map camera/light triggers, door transitions, environment audio, and scene presentation. Concrete player/unit behavior, full save/load, and license services remain unfinished. See [`Reversed_Game/README.md`](Reversed_Game/README.md) for standalone build, run, test, configuration, and library-integration instructions.
 
 ## File formats overview
 

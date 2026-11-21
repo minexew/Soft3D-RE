@@ -133,6 +133,7 @@ public:
     bool IsShadowTransformDirty() const;
     bool IsPositionalAudio() const;
     int GetCurrentObjectIndex() const;
+    Renderer* GetRenderer() const { return renderer; }
 
 protected:
     struct ObjectGroup {

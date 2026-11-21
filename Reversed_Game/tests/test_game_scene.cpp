@@ -2,6 +2,7 @@
 #include "game/Scene.hpp"
 #include "platform/dummy/DummyVideoBackend.hpp"
 #include "soft3d/MenuBackdrop.hpp"
+#include "soft3d/TextureRes.hpp"
 
 #include <array>
 #include <cstdint>
@@ -22,6 +23,13 @@ void Check(bool condition, int line)
     }
 }
 
+void CheckVec(const soft3d::Vec3& actual, const soft3d::Vec3& expected, int line)
+{
+    Check(actual.x == expected.x && actual.y == expected.y && actual.z == expected.z, line);
+}
+
+#define CHECK_VEC(actual, ...) CheckVec((actual), soft3d::Vec3 __VA_ARGS__, __LINE__)
+
 class TestClock final : public soft3d::EngineClock {
 public:
     uint32_t NowMicroseconds() override { return now; }
@@ -34,10 +42,16 @@ private:
 struct Argument {
     soft3d::ScriptValueType type = soft3d::ScriptValueType::Int;
     int32_t value = 0;
+    std::string text;
 
-    static Argument Int(int32_t value) { return {soft3d::ScriptValueType::Int, value}; }
-    static Argument Short(int16_t value) { return {soft3d::ScriptValueType::Short, value}; }
-    static Argument Fixed(int32_t value) { return {soft3d::ScriptValueType::Fixed, value}; }
+    static Argument Int(int32_t value) { return {soft3d::ScriptValueType::Int, value, {}}; }
+    static Argument Short(int16_t value) { return {soft3d::ScriptValueType::Short, value, {}}; }
+    static Argument Fixed(int32_t value) { return {soft3d::ScriptValueType::Fixed, value, {}}; }
+    static Argument Bool(bool value) { return {soft3d::ScriptValueType::Bool, value ? 1 : 0, {}}; }
+    static Argument String(const char* value)
+    {
+        return {soft3d::ScriptValueType::String, 0, value};
+    }
 };
 
 void Append16(std::vector<uint8_t>& bytes, uint16_t value)
@@ -70,8 +84,19 @@ std::vector<uint8_t> MakeHostScript(uint16_t id, const std::vector<Argument>& ar
     Append16(bytes, static_cast<uint16_t>(arguments.size()));
     for (const Argument& argument : arguments) {
         Append16(bytes, static_cast<uint16_t>(argument.type));
-        Append16(bytes, 4);
-        Append32(bytes, static_cast<uint32_t>(argument.value));
+        if (argument.type == soft3d::ScriptValueType::String) {
+            Append16(bytes, static_cast<uint16_t>((argument.text.size() + 2) & ~std::size_t(1)));
+            for (const char value : argument.text) {
+                bytes.push_back(static_cast<uint8_t>(value));
+            }
+            bytes.push_back(0);
+            while ((bytes.size() & 1) != 0) {
+                bytes.push_back(0);
+            }
+        } else {
+            Append16(bytes, 4);
+            Append32(bytes, static_cast<uint32_t>(argument.value));
+        }
     }
     Append16(bytes, output ? 6 : 0);
     if (output) {
@@ -307,14 +332,23 @@ void TestRealNewGameHandshake()
     }
     CHECK(!fixture.scene->GetBsp()->GetEntities().empty());
     CHECK(nullEntities != 0);
+    CHECK(fixture.scene->GetUnitManager()->GetBucketCount(6) == 9);
+    CHECK(fixture.scene->GetUnitManager()->GetBucketCount(7) == 2);
+    const auto& mapWords = fixture.scene->GetUnitManager()->GetMapHeaderValues();
+    CHECK(mapWords[0] == -88 * 0x10000);
+    CHECK(mapWords[1] == (6 << 16));
+    CHECK(mapWords[2] == (144 << 16));
+    CHECK(mapWords[3] == -16 * 0x10000);
+    CHECK(mapWords[4] == (7 << 16));
+    CHECK(mapWords[5] == (199 << 16));
 
     bool unsupported = false;
-    for (int frame = 0; frame < 4 && !unsupported; ++frame) {
+    for (int frame = 0; frame < 40 && !unsupported; ++frame) {
         try {
             CHECK(fixture.engine.RunFrame());
         } catch (const game::GameSIError& error) {
-            CHECK(error.GetCommandId() == 121);
-            CHECK(error.GetArmAddress() == 0x00067ba4);
+            CHECK(error.GetCommandId() == 221);
+            CHECK(error.GetArmAddress() == 0x0006c08c);
             unsupported = true;
         }
     }
@@ -396,6 +430,215 @@ void TestNextScriptAndDay1Fallback()
     }
 }
 
+uint32_t HashFrame(const uint32_t* pixels)
+{
+    uint32_t hash = 2166136261U;
+    for (std::size_t index = 0; index < 320 * 240; ++index) {
+        hash ^= pixels[index];
+        hash *= 16777619U;
+    }
+    return hash;
+}
+
+void TestStage3Commands()
+{
+    GameFixture fixture;
+    auto& controller = *fixture.scene->GetCameraController();
+    fixture.Execute(64, {Argument::Fixed(1), Argument::Fixed(2), Argument::Fixed(3),
+                         Argument::Fixed(4), Argument::Fixed(5), Argument::Fixed(6)});
+    CHECK(fixture.engine.GetCamera().GetPosition().x == 1);
+    CHECK(fixture.engine.GetCamera().GetTarget().z == 6);
+    CHECK(fixture.Execute(65, {Argument::Fixed(0x10000), Argument::Fixed(0x20000),
+        Argument::Fixed(0x30000), Argument::Fixed(0x10000), Argument::Fixed(0x40000),
+        Argument::Fixed(0x30000), Argument::Fixed(0x1000000)}, true) == 1);
+
+    const std::vector<Argument> fixedMode = {
+        Argument::Int(1), Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0),
+        Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0x10000),
+        Argument::Fixed(0), Argument::String("1000.spl"), Argument::Fixed(0),
+        Argument::Bool(false), Argument::Short(0),
+    };
+    fixture.Execute(66, fixedMode);
+    CHECK(controller.GetMode() == game::CameraController::FixedMode);
+    CHECK_VEC(controller.GetPosition(), {0, 0, 0});
+    CHECK_VEC(controller.GetTarget(), {0, 0, 0x10000});
+    std::vector<Argument> pathMode = fixedMode;
+    pathMode[0] = Argument::Int(5);
+    pathMode[9] = Argument::Fixed(0x1e0000);
+    fixture.Execute(66, pathMode);
+    CHECK(controller.GetMode() == game::CameraController::Path);
+    controller.Update();
+    CHECK(controller.GetPathTime() == 136);
+    CHECK(fixture.Execute(67, {}, true) == 0);
+    for (int index = 1; index < 482; ++index) {
+        controller.Update();
+    }
+    CHECK(fixture.Execute(67, {}, true) == 1);
+    fixture.Execute(70);
+    CHECK(controller.IsBound());
+    fixture.Execute(68);
+    CHECK(controller.IsBound());
+    fixture.Execute(71, {Argument::Int(2), Argument::Fixed(0x10000)});
+    CHECK(controller.GetShakeFrames() == 2);
+    fixture.Execute(72, {Argument::Bool(true), Argument::Fixed(0x8000)});
+    CHECK(controller.IsDirectFollow());
+
+    CHECK(fixture.Execute(51, {Argument::Int(0), Argument::Int(0), Argument::Int(0),
+                               Argument::Int(2)}, true) == 0);
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() == fixture.scene->GetFadeShader());
+    fixture.RunFrames(3);
+    CHECK(fixture.Execute(51, {Argument::Int(0), Argument::Int(0), Argument::Int(0),
+                               Argument::Int(2)}, true) == 1);
+    fixture.Execute(52, {Argument::Int(255), Argument::Int(255), Argument::Int(255),
+                         Argument::Int(2)});
+    fixture.RunFrames(3);
+    CHECK(fixture.Execute(52, {Argument::Int(255), Argument::Int(255), Argument::Int(255),
+                               Argument::Int(2)}, true) == 1);
+
+    fixture.Execute(84, {Argument::String("7DaysPiano03"), Argument::Bool(true)});
+    CHECK(!fixture.scene->GetAudio()->IsVoiceFinished(0));
+    fixture.Execute(85);
+    CHECK(fixture.scene->GetAudio()->IsVoiceFinished(0));
+    fixture.scene->GetUnitManager()->SetRandomSeed(0);
+    fixture.Execute(86, {Argument::Int(0), Argument::String("e_wind01"),
+                         Argument::Int(2), Argument::Int(0)});
+    fixture.scene->Update();
+    CHECK(fixture.scene->GetEnvironmentChannel(0).nextDelay == 2);
+    fixture.scene->Update();
+    CHECK(fixture.scene->GetEnvironmentChannel(0).voice == 0);
+    fixture.scene->Update();
+    CHECK(fixture.scene->GetEnvironmentChannel(0).voice > 0);
+    CHECK(fixture.scene->GetEnvironmentChannel(0).nextDelay == -1);
+    fixture.Execute(87, {Argument::Int(0)});
+    CHECK(fixture.scene->GetEnvironmentChannel(0).resourceCount == 0);
+    fixture.Execute(88, {Argument::String("e_wind01")});
+    fixture.Execute(89);
+    for (int voice = 0; voice < 16; ++voice) {
+        CHECK(fixture.scene->GetAudio()->IsVoiceFinished(voice));
+    }
+    fixture.Execute(90, {Argument::String("e_wind01"), Argument::Fixed(1),
+                         Argument::Fixed(2), Argument::Fixed(3)});
+    fixture.Execute(91);
+    controller.SetMode(game::CameraController::FixedMode, {0x50000, 0x60000, 0x70000},
+                       {0, 0, soft3d::fixedOne}, 0, nullptr, 0, false, 0);
+    fixture.scene->SetUseCameraListener(true);
+    fixture.scene->Update();
+    CHECK_VEC(fixture.scene->GetAudio()->GetListenerPosition(), {0x50000, 0x60000, 0x70000});
+    fixture.scene->SetUseCameraListener(false);
+    fixture.scene->Update();
+    CheckVec(fixture.scene->GetAudio()->GetListenerPosition(),
+             fixture.scene->GetPlayer()->GetPosition(), __LINE__);
+
+    fixture.Execute(98, {Argument::Short(3), Argument::Bool(true)});
+    CHECK(fixture.Execute(99, {Argument::Short(3)}, true) == 1);
+    fixture.Execute(100, {Argument::Short(255), Argument::Short(128), Argument::Short(64),
+                          Argument::Fixed(0x10000), Argument::Fixed(0x20000)});
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() ==
+          &fixture.engine.GetRenderer().GetRaster().GetFogShader());
+    fixture.Execute(100, {Argument::Short(0), Argument::Short(0), Argument::Short(0),
+                          Argument::Fixed(0), Argument::Fixed(0)});
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() ==
+          &fixture.engine.GetRenderer().GetRaster().GetBasicShader());
+    fixture.Execute(103, {Argument::Int(1)});
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() == fixture.scene->GetGrayShader());
+    fixture.Execute(103, {Argument::Int(2)});
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() == fixture.scene->GetMotionBlurShader());
+    fixture.Execute(103, {Argument::Int(7)});
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() == fixture.scene->GetBlindShader());
+    fixture.Execute(103, {Argument::Int(8)});
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() == fixture.scene->GetTwistShader());
+    fixture.Execute(103, {Argument::Int(0)});
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() ==
+          &fixture.engine.GetRenderer().GetRaster().GetBasicShader());
+
+    fixture.Execute(117, {Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0x10000)});
+    CHECK(fixture.scene->GetPlayer()->GetObject(0)->GetAxisZ().z == 0x10000);
+    fixture.Execute(121, {Argument::Fixed(0x10000), Argument::Fixed(0x20000),
+                          Argument::Fixed(0x30000)});
+    CHECK_VEC(fixture.scene->GetPlayer()->GetPosition(), {0x10000, 0x20000, 0x30000});
+}
+
+void TestDoorTransitionFrames()
+{
+    GameFixture fixture;
+    fixture.engine.StartNewGame();
+    fixture.RunFrames(57);
+    fixture.engine.GetScriptEngine().Unload();
+    fixture.engine.GetScriptEngine().SetState(soft3d::ScriptState::Initialized);
+    fixture.scene->SetLoadMapParams(1, {0x10000, 0x20000, 0x30000},
+                                    {0, 0, soft3d::fixedOne}, 0);
+    CHECK(fixture.scene->LoadMap(2008) == 0);
+    fixture.RunFrames(7);
+    CHECK(fixture.scene->GetTransitionStage() == 1);
+    CHECK(fixture.scene->GetDoorModel()->GetObjectCount() == 0);
+    fixture.RunFrames(1);
+    CHECK(fixture.scene->GetTransitionStage() == 2);
+    CHECK(fixture.scene->GetTransitionTimer() == 8);
+    CHECK(fixture.scene->GetDoorModel()->GetObjectCount() == 1);
+    CHECK(fixture.scene->GetDoorModel()->GetAnimation() != nullptr);
+    fixture.RunFrames(16);
+    CHECK(fixture.scene->GetTransitionStage() == 3);
+    CHECK(fixture.scene->GetTransitionTimer() == 24);
+    CHECK_VEC(fixture.scene->GetPlayer()->GetPosition(), {0x10000, 0x20000, 0x30000});
+    fixture.RunFrames(4);
+    CHECK(fixture.scene->GetTransitionStage() == 3);
+    CHECK(fixture.scene->GetTransitionTimer() == 28);
+    fixture.RunFrames(3);
+    CHECK(fixture.scene->GetTransitionStage() == 4);
+    CHECK(fixture.scene->GetTransitionTimer() == 31);
+    fixture.RunFrames(5);
+    CHECK(fixture.scene->GetTransitionStage() == 0);
+    CHECK(fixture.scene->GetTransitionTimer() == 0);
+}
+
+void TestDayTitlesAndGameOver()
+{
+    {
+        GameFixture fixture;
+        fixture.engine.SetLanguage(0);
+        fixture.engine.SetInGame(true);
+        fixture.engine.ActivateMenuDialog(6);
+        auto* alternateResource = static_cast<soft3d::TextureRes*>(
+            fixture.engine.GetResourceManager().GetResource(soft3d::ResourceTexture, 3,
+                                                             u"7nd_a", u".\\ui\\"));
+        auto* normalResource = static_cast<soft3d::TextureRes*>(
+            fixture.engine.GetResourceManager().GetResource(soft3d::ResourceTexture, 3,
+                                                             u"7nd", u".\\ui\\"));
+        CHECK(alternateResource != nullptr && normalResource != nullptr);
+        CHECK(alternateResource->GetTexture() != nullptr && normalResource->GetTexture() != nullptr);
+        CHECK(fixture.scene->LoadDay(7) == soft3d::S3D_OK);
+        fixture.RunFrames(1);
+        const uint32_t alternate = HashFrame(fixture.engine.GetVideo().GetBackBufferPtr());
+        CHECK(alternate == 0x84f3b875);
+        fixture.scene->SetEventFlag(699);
+        CHECK(fixture.scene->LoadDay(7) == soft3d::S3D_OK);
+        fixture.RunFrames(1);
+        const uint32_t normal = HashFrame(fixture.engine.GetVideo().GetBackBufferPtr());
+        CHECK(normal == 0x506a0bad);
+        CHECK(alternate != normal);
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(56);
+        fixture.scene->SetGameOverStage(2);
+        fixture.RunFrames(1);
+        CHECK(fixture.scene->GetGameOverStage() == 2);
+        CHECK(fixture.scene->GetInkShader()->IsActive());
+        CHECK(fixture.engine.GetRenderer().GetActiveShader() == fixture.scene->GetInkShader());
+        for (int frame = 0; frame < 24 && fixture.scene->GetGameOverStage() != 3; ++frame) {
+            fixture.RunFrames(1);
+        }
+        CHECK(fixture.scene->GetGameOverStage() == 3);
+        fixture.engine.GetInput().KeyDown(soft3d::Key::Accept);
+        fixture.engine.GetInput().KeyUp(soft3d::Key::Accept);
+        fixture.RunFrames(1);
+        CHECK(fixture.scene->GetGameOverStage() == 0);
+        CHECK(fixture.scene->IsDayIntroPending());
+        CHECK(fixture.scene->GetDay() == 1);
+    }
+}
+
 } // namespace
 
 int main()
@@ -405,6 +648,9 @@ int main()
         TestRealNewGameHandshake();
         TestMapFinishAndRepeatedStartup();
         TestNextScriptAndDay1Fallback();
+        TestStage3Commands();
+        TestDoorTransitionFrames();
+        TestDayTitlesAndGameOver();
         std::cout << "game scene tests passed\n";
         return 0;
     } catch (const std::exception& error) {

@@ -1,5 +1,7 @@
 #include "game/GameSI.hpp"
 
+#include "soft3d/AudioData.hpp"
+
 #include <sstream>
 
 namespace game {
@@ -73,6 +75,8 @@ GameSI::GameSI()
     for (std::size_t index = 0; index < callbacks.size(); ++index) {
         callbacks[index] = {armHandlers[index], &GameSI::Unimplemented, 0};
     }
+    callbacks[51 - gameSIFirstCommand].handler = &GameSI::FadeOut;
+    callbacks[52 - gameSIFirstCommand].handler = &GameSI::FadeIn;
     callbacks[53 - gameSIFirstCommand].handler = &GameSI::LoadNextDay;
     callbacks[54 - gameSIFirstCommand].handler = &GameSI::SetLoadMapParams;
     callbacks[55 - gameSIFirstCommand].handler = &GameSI::LoadNextLevel;
@@ -80,7 +84,30 @@ GameSI::GameSI()
     callbacks[57 - gameSIFirstCommand].handler = &GameSI::IsMapLoaded;
     callbacks[58 - gameSIFirstCommand].handler = &GameSI::SetEventFlag;
     callbacks[59 - gameSIFirstCommand].handler = &GameSI::GetEventFlag;
+    callbacks[63 - gameSIFirstCommand].handler = &GameSI::SetCameraFrozen;
+    callbacks[64 - gameSIFirstCommand].handler = &GameSI::CameraLookAt;
+    callbacks[65 - gameSIFirstCommand].handler = &GameSI::MoveCamera;
+    callbacks[66 - gameSIFirstCommand].handler = &GameSI::SetCameraMode;
+    callbacks[67 - gameSIFirstCommand].handler = &GameSI::IsCameraPathCompleted;
+    callbacks[68 - gameSIFirstCommand].handler = &GameSI::BindCameraToPlayer;
     callbacks[69 - gameSIFirstCommand].handler = &GameSI::NullCallback;
+    callbacks[70 - gameSIFirstCommand].handler = &GameSI::BindCameraToEnemy;
+    callbacks[71 - gameSIFirstCommand].handler = &GameSI::ShakeCamera;
+    callbacks[72 - gameSIFirstCommand].handler = &GameSI::SetDirectFollow;
+    callbacks[84 - gameSIFirstCommand].handler = &GameSI::PlayMusic;
+    callbacks[85 - gameSIFirstCommand].handler = &GameSI::StopMusic;
+    callbacks[86 - gameSIFirstCommand].handler = &GameSI::AddEnvironmentSound;
+    callbacks[87 - gameSIFirstCommand].handler = &GameSI::ClearEnvironmentChannel;
+    callbacks[88 - gameSIFirstCommand].handler = &GameSI::PlaySound;
+    callbacks[89 - gameSIFirstCommand].handler = &GameSI::StopAllSounds;
+    callbacks[90 - gameSIFirstCommand].handler = &GameSI::CreatePositionalSound;
+    callbacks[91 - gameSIFirstCommand].handler = &GameSI::ClearSoundInstances;
+    callbacks[98 - gameSIFirstCommand].handler = &GameSI::SetLightStyle;
+    callbacks[99 - gameSIFirstCommand].handler = &GameSI::GetLightStyle;
+    callbacks[100 - gameSIFirstCommand].handler = &GameSI::SetFog;
+    callbacks[103 - gameSIFirstCommand].handler = &GameSI::SelectPresentationShader;
+    callbacks[117 - gameSIFirstCommand].handler = &GameSI::SetPlayerDirection;
+    callbacks[121 - gameSIFirstCommand].handler = &GameSI::TeleportPlayer;
     callbacks[258 - gameSIFirstCommand].handler = &GameSI::NullCallback;
     callbacks[259 - gameSIFirstCommand].handler = &GameSI::SetSharedWord255;
     callbacks[260 - gameSIFirstCommand].handler = &GameSI::NullCallback;
@@ -142,6 +169,259 @@ void GameSI::Unimplemented(soft3d::ScriptCommand& command)
 {
     throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
                       "ARM handler is not implemented in the portable reconstruction yet");
+}
+
+void GameSI::FadeOut(soft3d::ScriptCommand& command)
+{
+    Fade(command, false);
+}
+
+void GameSI::FadeIn(soft3d::ScriptCommand& command)
+{
+    Fade(command, true);
+}
+
+void GameSI::Fade(soft3d::ScriptCommand& command, bool fadeOut)
+{
+    RequireArguments(command, 4);
+    const uint16_t color = PackRgb565(static_cast<int16_t>(command.GetArgument(0).GetInt()),
+                                      static_cast<int16_t>(command.GetArgument(1).GetInt()),
+                                      static_cast<int16_t>(command.GetArgument(2).GetInt()));
+    const bool completed = context.scene->FadeCommand(fadeOut, color,
+        command.GetArgument(3).GetInt());
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(completed);
+    }
+}
+
+void GameSI::SetCameraFrozen(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    const bool frozen = command.GetArgument(0).GetBool();
+    context.cameraController->SetFrozen(frozen);
+    if (!frozen) {
+        context.cameraController->SetInstant(true);
+    }
+}
+
+void GameSI::CameraLookAt(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 6);
+    context.cameraController->LookAt(
+        {command.GetArgument(0).GetFixed(), command.GetArgument(1).GetFixed(),
+         command.GetArgument(2).GetFixed()},
+        {command.GetArgument(3).GetFixed(), command.GetArgument(4).GetFixed(),
+         command.GetArgument(5).GetFixed()});
+}
+
+void GameSI::MoveCamera(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 7);
+    const bool reached = context.cameraController->MoveCamera(
+        {command.GetArgument(0).GetFixed(), command.GetArgument(1).GetFixed(),
+         command.GetArgument(2).GetFixed()},
+        {command.GetArgument(3).GetFixed(), command.GetArgument(4).GetFixed(),
+         command.GetArgument(5).GetFixed()},
+        command.GetArgument(6).GetFixed());
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(reached);
+    }
+}
+
+void GameSI::SetCameraMode(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 12);
+    cameraCommandPaths.reset();
+    const int32_t mode = command.GetArgument(0).GetInt();
+    soft3d::Fixed pathSpeed = 0;
+    const int32_t targetMode = command.GetArgument(11).GetShort();
+    if (mode == CameraController::Path) {
+        cameraCommandPaths = std::make_unique<soft3d::CameraPathCollection>(64);
+        std::u16string path = u".\\common\\";
+        path += command.GetArgument(8).GetString().c_str();
+        if (path.size() < 5 || path.compare(path.size() - 4, 4, u".spl") != 0) {
+            path += u".spl";
+        }
+        const soft3d::result status = soft3d::LoadSplCameraResource(
+            *cameraCommandPaths, path.c_str(), context.resources->GetFilePak());
+        if (status != soft3d::S3D_OK) {
+            throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                              "LoadSplCameraResource failed with Soft3D result " +
+                                  std::to_string(status));
+        }
+        pathSpeed = command.GetArgument(9).GetFixed();
+    }
+    const soft3d::Vec3 position{command.GetArgument(1).GetFixed(),
+                                command.GetArgument(2).GetFixed(),
+                                command.GetArgument(3).GetFixed()};
+    const soft3d::Vec3 target{command.GetArgument(4).GetFixed(),
+                              command.GetArgument(5).GetFixed(),
+                              command.GetArgument(6).GetFixed()};
+    soft3d::Vec3 direction = soft3d::Subtract(target, position);
+    if (mode != CameraController::Path || targetMode == 2) {
+        direction = soft3d::Normalize(direction);
+    }
+    context.cameraController->SetMode(mode, position, direction,
+        command.GetArgument(7).GetFixed(), cameraCommandPaths.get(), pathSpeed,
+        command.GetArgument(10).GetBool(), targetMode);
+}
+
+void GameSI::IsCameraPathCompleted(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.cameraController->IsPathCompleted());
+    }
+}
+
+void GameSI::BindCameraToPlayer(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.scene->BindCameraToPlayer();
+}
+
+void GameSI::BindCameraToEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.scene->BindCameraToEnemy();
+}
+
+void GameSI::ShakeCamera(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    context.cameraController->Shake(command.GetArgument(0).GetInt(),
+                                    command.GetArgument(1).GetFixed());
+}
+
+void GameSI::SetDirectFollow(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    context.cameraController->SetDirectFollow(command.GetArgument(0).GetBool(),
+                                              command.GetArgument(1).GetFixed());
+}
+
+void GameSI::PlayMusic(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    context.audio->PlayMusic(command.GetArgument(0).GetString().c_str(),
+                             command.GetArgument(1).GetBool(), 0);
+}
+
+void GameSI::StopMusic(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.audio->StopMusic(0);
+}
+
+void GameSI::AddEnvironmentSound(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    context.scene->AddEnvironmentSound(command.GetArgument(0).GetInt(),
+        command.GetArgument(1).GetString().c_str(), command.GetArgument(2).GetInt(),
+        command.GetArgument(3).GetInt());
+}
+
+void GameSI::ClearEnvironmentChannel(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.scene->ClearEnvironmentChannel(command.GetArgument(0).GetInt());
+}
+
+void GameSI::PlaySound(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.audio->PlaySound(command.GetArgument(0).GetString().c_str(), false);
+}
+
+void GameSI::StopAllSounds(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.audio->StopAllSounds();
+}
+
+void GameSI::CreatePositionalSound(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    auto* data = static_cast<soft3d::AudioData*>(context.resources->GetResource(
+        soft3d::ResourceAudio, 3, command.GetArgument(0).GetString().c_str(), u".\\audio\\"));
+    context.audio->CreateSoundInstance(data,
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()}, false);
+}
+
+void GameSI::ClearSoundInstances(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.audio->ClearSoundInstances();
+}
+
+void GameSI::SetLightStyle(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    const int16_t index = command.GetArgument(0).GetShort();
+    if (index < 0 || index > 255) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "lightstyle index is outside 0..255");
+    }
+    context.bsp->SetLightStyleEnabled(static_cast<uint8_t>(index),
+                                      command.GetArgument(1).GetBool() ? 1 : 0);
+    context.bsp->AdvanceLightStyles();
+}
+
+void GameSI::GetLightStyle(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    const int16_t index = command.GetArgument(0).GetShort();
+    if (index < 0 || index > 255) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "lightstyle index is outside 0..255");
+    }
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetInt(
+            context.bsp->GetLightStyles()[static_cast<uint8_t>(index)].enabled != 0 ? 1 : 0);
+    }
+}
+
+void GameSI::SetFog(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 5);
+    const soft3d::Fixed end = command.GetArgument(4).GetFixed();
+    if (end <= 0) {
+        context.scene->GetEngine().GetRenderer().SetFogEnabled(false);
+        return;
+    }
+    const uint16_t color = PackRgb565(command.GetArgument(0).GetShort(),
+                                      command.GetArgument(1).GetShort(),
+                                      command.GetArgument(2).GetShort());
+    context.scene->GetEngine().GetRenderer().SetFog(command.GetArgument(3).GetFixed(), end, color);
+    context.scene->GetEngine().GetRenderer().SetFogEnabled(true);
+}
+
+void GameSI::SelectPresentationShader(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.scene->SelectPresentationShader(command.GetArgument(0).GetInt());
+}
+
+void GameSI::SetPlayerDirection(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    context.scene->SetPlayerDirection({command.GetArgument(0).GetFixed(),
+                                       command.GetArgument(1).GetFixed(),
+                                       command.GetArgument(2).GetFixed()});
+}
+
+void GameSI::TeleportPlayer(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    const soft3d::Vec3 position{command.GetArgument(0).GetFixed(),
+                                command.GetArgument(1).GetFixed(),
+                                command.GetArgument(2).GetFixed()};
+    context.player->SetPosition(position);
+    context.player->SnapToGround();
+    context.player->SetCollisionBounds({
+        soft3d::Add(context.player->GetLocalBounds().minimum, context.player->GetPosition()),
+        soft3d::Add(context.player->GetLocalBounds().maximum, context.player->GetPosition())});
 }
 
 void GameSI::LoadNextDay(soft3d::ScriptCommand& command)

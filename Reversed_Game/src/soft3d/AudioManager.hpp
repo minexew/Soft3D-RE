@@ -50,6 +50,7 @@ public:
     void ClearSoundInstances();
     void ScheduleSoundInstance(SoundInstance* instance);
     void SetListenerPosition(const Vec3& position);
+    const Vec3& GetListenerPosition() const { return listenerPosition; }
     void SetSoundNameTable(const char16_t* names);
 
     s3dAudioDevice& GetDevice();
@@ -67,6 +68,7 @@ private:
     int fadeIn = 0;
     s3dResManager* resourceManager;
     AudioData* musicData = nullptr;
+    Vec3 listenerPosition;
     std::vector<SoundInstance*> soundInstances;
     std::array<SoundInstance*, 16> scheduledInstances{};
 };

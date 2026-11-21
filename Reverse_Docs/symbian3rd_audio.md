@@ -104,6 +104,10 @@ Recovered helpers are `AudioManager_PlayMusicByIndex` `0x00113780`, `AudioManage
 
 All named sound loads use directory `.\audio\`, resource type 0, and cache level 3. Music uses the music enable/level field; effects and positional instances use the effects field. A full 16-voice device therefore leaves no free effect voice, but voice 0 remains reserved for music.
 
+### Scene environment channels and listener
+
+The game owns two additional 0x4c-byte randomized environment channels (`Scene_AddEnvironmentSound` `0x0002f3d0` and `Scene_ClearEnvironmentChannel` `0x0002f590`). Each holds four `AudioData *` slots, base/random delays, elapsed/next-delay counters, and a voice. Delay and resource selection use the manager's wrapping LCG: `state = state * 0x343fd + 0x269ec3`, result `(state >> 16) & 0x7fff`. A delay is selected with `Random() % (randomDelay << 7) >> 7` when the range is nonzero; playback selects `Random() % (resourceCount << 7) >> 7`. Active voices block further countdown until finished, while clearing a channel does not stop its current voice. Scene listener selection chooses player position by default or game-controller position when enabled. Exact update ordering and field offsets are in `symbian3rd_camera.md`.
+
 ### Music fades and end heuristic
 
 Fade durations are counts of **engine audio updates**, not milliseconds. `fadeCurrent` is a 16.16 value. Fade-in starts at zero and uses:

@@ -115,7 +115,7 @@ Use existing `SetSceneHost`, `SetScriptInterface`, `StartNewGame`, `LoadSaveSlot
 
 **Status: complete.** `game::Scene` and `game::GameSI` are installed by the real application. The scene implements the day intro, day/SBN/content setup, episode selection, incremental SBP loading and day-1 fallback, load finalization, update/render ordering, and menu teardown. `GameSI` preserves all 218 ARM addresses/context pointers, implements IDs 53–59 plus the ARM-confirmed empty/shared-word callbacks, and throws `GameSIError` for later-stage handlers. The player currently uses the generic `Creature` base and the camera/game entity behaviors remain stages 3–5; these are not represented as complete gameplay.
 
-The real `day1/ep0` path reaches map 2008/progress 100 in 26 SBP calls, including through the SDL `--new-game` application test. Tests also cover the 100→103→-1 finalization, day-2 map-1001 fallback, real null entity records, repeated menu/new-game teardown, scene commands, and the explicit error at later-stage ID 121. All 30 default, logging, and math tests pass; the core, WAR, and ASan configurations each pass 23 SDL-independent tests. The combined ASan+UBSan `game_scene` test passes; five unrelated existing UBSan failures remain in SPK alignment and negative-left-shift code and are documented rather than hidden.
+The real `day1/ep0` path reaches map 2008/progress 100 in 26 SBP calls, including through the SDL `--new-game` application test. Tests also cover the 100→103→-1 finalization, day-2 map-1001 fallback, real null entity records, repeated menu/new-game teardown, scene commands, and the explicit error at later-stage ID 121. Stage 3 subsequently advances the same real script to ID 221; the current counts and sanitizer results are recorded there. Earlier unrelated existing UBSan findings remain documented rather than hidden.
 
 ## Stage 3 — Camera, transitions, environment audio, and scene presentation
 
@@ -136,6 +136,10 @@ Use existing `CameraPathCollection`, `Camera`, `CameraSpot`, `Bsp` lightstyles/f
 - Directed tests for every camera mode, binding/freeze/interpolation, path completion, shake, and restoration.
 - Exact transition-frame tests for door models, fades, titles, game-over, and listener/environment scheduling with deterministic random/time sources.
 - Real map/SPL/audio fixtures and dummy-video output; no invented transition timings.
+
+**Status: complete.** `game::CameraController` implements all eight modes, binding, interpolation, direct-follow, shake, freeze, trigger restoration, collision recovery, and SPL completion/projection. `CameraTrigger` and `LightTrigger` consume real SBP records, while type-102 words are preserved without inventing a semantic name. The scene implements the 22 door resources, exact transition frames, spawn/direction, fades, ending-specific day titles, game-over/Ink/restart/menu behavior, both environment channels, listener selection, and all six presentation-shader paths. Corresponding `GameSI` handlers are implemented, including IDs 117 and 121 needed by the real startup script.
+
+The real `day1/ep0` now reaches later-stage command 221. `test_game_camera.cpp` covers every mode, binding/freeze/interpolation, timed/projected paths, deterministic shake, and nested trigger restoration; `test_game_scene.cpp` covers commands, real map trigger counts/type-102 values, door frames, environment/listener scheduling, ending-title hashes, and game-over restart. All 31 default, logging, and math tests pass; all 24 core, WAR, and ASan-UBSan tests pass. Recovered layouts, 96 function names, 100 typed signatures, comments, and `stage3` tags are saved in Ghidra; details are in `symbian3rd_camera.md`.
 
 ## Stage 4 — Player, sword, and all 20 player states
 
@@ -162,7 +166,7 @@ Reuse `PhysicUnit` movement/collision, `VisUnit` animation/audio, generic state 
 **Scope**
 
 - Implement `Breakable`, `Pushable`, and `Pickable`: setup, collision/query policy, model/material/animation, hit/destruction, pushing, pickup/drop, sound, transform/rotation, movement, lighting, and depth bias.
-- Implement `BspUnit_LoadEntity`/`BspUnit_Submit` and the concrete SBP factory: map models, camera/light triggers, six fog/header words, and lensflare entities.
+- Implement `BspUnit_LoadEntity`/`BspUnit_Submit` and complete the remaining concrete SBP factory work: map models and lensflare entities. Stage-3 camera/light triggers and type-102 storage are already implemented; add only their missing command/persistence consumers.
 - Implement `ElectricSaw`, `StayBox`, and `Trap`, including update and persistence behavior.
 - Implement thing/map `GameSI` commands, including the separate later thing-command family in IDs 229–257, each from its own ARM body.
 
@@ -194,14 +198,14 @@ Connect the real `BspEntityFactory` to `MyGameUnitMgr_EntityFactory` (`0x00043ed
 
 **Scope**
 
-- Implement `HideTrigger`, `ItemTrigger`, `TalkTrigger`, `CameraTrigger`, and `LightTrigger`, including mask/hide points, linked items, talker/camera positions, timed dialogue, completion, path playback, lightstyle/color state, enable/disable, and save fields.
+- Implement `HideTrigger`, `ItemTrigger`, and `TalkTrigger`, including mask/hide points, linked items, talker/camera positions, timed dialogue, completion, enable/disable, and save fields. Complete `LightTrigger` command/save integration; the stage-3 regional consumer already exists. Extend the stage-3 `CameraTrigger` only where script commands or persistence require more work—do not replace its working controller, mode, SPL, or restoration logic.
 - Complete `StayBox` and `Trap` command/integration details left from stage 5.
 - Implement all corresponding `GameSI` handlers and removal paths.
 
 **Verification**
 
 - Hide enter/exit and player visibility/mask state; item-link capacity and acquisition; multi-line talk timing/completion/camera restoration.
-- Every camera trigger mode and SPL completion/freeze path; light region/style state.
+- Preserve the stage-3 tests for every camera mode and SPL completion/freeze path; add only new command/persistence cases. Verify light region/style state.
 - Save-field fixtures are prepared here but only end-to-end verified after stage 13.
 
 ## Stage 8 — GameUI, HUD, dialogs, QTE, inventory, maps, and extras

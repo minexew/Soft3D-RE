@@ -444,4 +444,9 @@ FogShader& Raster::GetFogShader()
     return fogShader;
 }
 
+BasicShader* Raster::GetActiveShader() const
+{
+    return activeShader;
+}
+
 } // namespace soft3d

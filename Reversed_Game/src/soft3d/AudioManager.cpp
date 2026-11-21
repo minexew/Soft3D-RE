@@ -313,6 +313,7 @@ void AudioManager::ScheduleSoundInstance(SoundInstance* instance)
 
 void AudioManager::SetListenerPosition(const Vec3& position)
 {
+    listenerPosition = position;
     for (SoundInstance* instance : soundInstances) {
         instance->SetListenerPosition(position);
     }

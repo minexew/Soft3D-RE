@@ -1,5 +1,6 @@
 #pragma once
 
+#include "game/CameraController.hpp"
 #include "game/MyGameUnitMgr.hpp"
 #include "soft3d/BezierCurve3.hpp"
 #include "soft3d/Bsp.hpp"
@@ -13,8 +14,38 @@
 
 namespace game {
 
+class SceneCameraSpot final : public soft3d::CameraSpot {
+public:
+    explicit SceneCameraSpot(soft3d::Creature* unit = nullptr) : unit(unit) {}
+
+    void SetUnit(soft3d::Creature* value) { unit = value; }
+    const soft3d::Vec3& GetPosition() const override;
+    const soft3d::Vec3& GetRight() const override { return right; }
+    const soft3d::Vec3& GetUp() const override { return up; }
+    const soft3d::Vec3& GetForward() const override { return forward; }
+    void SetRight(const soft3d::Vec3& value) override;
+    void SetUp(const soft3d::Vec3& value) override;
+    void SetForward(const soft3d::Vec3& value) override;
+
+private:
+    soft3d::Creature* unit;
+    soft3d::Vec3 right{soft3d::fixedOne, 0, 0};
+    soft3d::Vec3 up{0, soft3d::fixedOne, 0};
+    soft3d::Vec3 forward{0, 0, soft3d::fixedOne};
+};
+
 class Scene final : public soft3d::SceneHost {
 public:
+    struct EnvironmentChannel {
+        std::array<soft3d::AudioData*, 4> resources{};
+        int32_t resourceCount = 0;
+        int32_t baseDelay = 0;
+        int32_t randomDelay = 0;
+        int32_t elapsed = 0;
+        int32_t nextDelay = -1;
+        int32_t voice = 0;
+    };
+
     explicit Scene(soft3d::GameEngine& engine);
     ~Scene() override;
 
@@ -45,7 +76,7 @@ public:
     soft3d::Bsp* GetBsp() { return bsp.get(); }
     MyGameUnitMgr* GetUnitManager() { return unitManager.get(); }
     soft3d::Creature* GetPlayer() { return player.get(); }
-    soft3d::CameraPathController* GetCameraController() { return &cameraController; }
+    CameraController* GetCameraController() { return &cameraController; }
     soft3d::GameUIDlg* GetGameUi() { return engine.GetGameUi(); }
     soft3d::AudioManager* GetAudio() { return &engine.GetAudioManager(); }
     soft3d::s3dResManager* GetResources() { return &engine.GetResourceManager(); }
@@ -62,6 +93,9 @@ public:
     const soft3d::Vec3& GetSpawnPosition() const { return spawnPosition; }
     const soft3d::Vec3& GetSpawnDirection() const { return spawnDirection; }
     uint16_t GetTransitionColor() const { return transitionColor; }
+    const soft3d::Vec3& GetTransitionCameraPosition() const { return transitionCameraPosition; }
+    const soft3d::Vec3& GetTransitionCameraTarget() const { return transitionCameraTarget; }
+    soft3d::Fixed GetTransitionCameraSpeed() const { return transitionCameraSpeed; }
     bool IsDayIntroPending() const { return dayIntroPending; }
     bool IsDayTitleVisible() const { return showDayTitle; }
     bool IsNextLevelPending() const { return nextLevelPending; }
@@ -70,32 +104,49 @@ public:
     const std::u16string& GetScriptName() const { return scriptName; }
     const soft3d::CameraPathCollection& GetCameraPaths() const { return *cameraPaths; }
     soft3d::FadeShader* GetFadeShader() { return &fadeShader; }
+    soft3d::InkShader* GetInkShader() { return &inkShader; }
+    soft3d::GrayShader* GetGrayShader() { return &grayShader; }
+    soft3d::BlindShader* GetBlindShader() { return &blindShader; }
+    soft3d::TwistShader* GetTwistShader() { return &twistShader; }
+    soft3d::MotionBlurShader* GetMotionBlurShader() { return &motionBlurShader; }
+    soft3d::VisUnit* GetDoorModel() { return doorModel.get(); }
+    const EnvironmentChannel& GetEnvironmentChannel(int index) const;
+    int GetGameOverStage() const { return gameOverStage; }
+    int GetInkTimer() const { return inkTimer; }
+    int GetSpecialDoorIndex() const { return specialDoorIndex; }
+    bool UsesCameraListener() const { return useCameraListener != 0; }
+
+    bool AddEnvironmentSound(int channel, const char16_t* name, int32_t baseDelay,
+                             int32_t randomDelay);
+    bool ClearEnvironmentChannel(int channel);
+    void SelectPresentationShader(int selection);
+    bool FadeCommand(bool fadeOut, uint16_t color, int frameCount);
+    void BindCameraToPlayer();
+    void BindCameraToEnemy();
+    void SetPlayerDirection(const soft3d::Vec3& direction);
+    void SetGameOverStage(int stage) { gameOverStage = stage; }
+    void SetUseCameraListener(bool enabled) { useCameraListener = enabled ? 1 : 0; }
 
     static soft3d::BspEntity* CreateGameEntity(soft3d::BspEntityRecord* record, void* context,
                                                 soft3d::BspEntityRecord* recordBase);
 
 private:
-    struct EnvironmentChannel {
-        std::array<soft3d::AudioData*, 4> resources{};
-        int32_t resourceCount = 0;
-        int32_t baseDelay = 0;
-        int32_t randomDelay = 0;
-        int32_t elapsed = 0;
-        int32_t nextDelay = -1;
-        int32_t voice = 0;
-    };
-
     void ResetEnvironmentAudio();
+    void UpdateEnvironmentAudio();
     void UpdateMapLoad();
     void UpdateWorld();
+    void UpdateTransition();
     void LoadNextScript();
     void RenderDayTitle();
+    void RestartAfterGameOver();
 
     soft3d::GameEngine& engine;
     std::unique_ptr<soft3d::Bsp> bsp;
     std::unique_ptr<soft3d::CameraPathCollection> cameraPaths;
-    soft3d::CameraPathController cameraController;
+    CameraController cameraController;
     std::unique_ptr<soft3d::Creature> player;
+    SceneCameraSpot playerSpot;
+    soft3d::DummySpot enemySpot;
     std::unique_ptr<MyGameUnitMgr> unitManager;
     std::unique_ptr<soft3d::VisUnit> doorModel;
     soft3d::InkShader inkShader;
@@ -123,11 +174,17 @@ private:
     soft3d::Vec3 spawnPosition;
     soft3d::Vec3 spawnDirection{0, 0, soft3d::fixedOne};
     uint16_t transitionColor = 0;
+    soft3d::Vec3 transitionCameraPosition;
+    soft3d::Vec3 transitionCameraTarget;
+    soft3d::Fixed transitionCameraSpeed = 0;
     int32_t transitionStage = 0;
     int32_t transitionTimer = 0;
     int32_t restoreSavedState = 0;
     int32_t cameraWarmupCounter = 0;
     int32_t useCameraListener = 0;
+    int32_t gameOverStage = 0;
+    int32_t inkTimer = 0;
+    int32_t specialDoorIndex = -1;
     bool initialized = false;
 };
 

@@ -164,7 +164,7 @@ open:  0,10,10,11,12,14,18,10,13,19,20,12,12,11,13,14,11,11,12,12,11,10
 close: 0,15,15,16,17, 0, 0,15,15, 0, 0,17,17,16,15, 0,16,16,17,17,16,15
 ```
 
-The portable `GameData` owns fixed 64-character tables for all three sets and installs the full sound-name table in `AudioManager` through `MyGameUnitMgr::Initialize`.
+The portable `GameData` owns fixed 64-character tables for all three sets and installs the full sound-name table in `AudioManager` through `MyGameUnitMgr::Initialize`. Stage 3 consumes the door records during the recovered transition: model and animation entries 238+index load at timer 8, the open index plays at that point, and the close index plays at timer 31. Camera speed is `distance/8` before door creation and `distance/20` afterward. Exact model positioning, fades, and frame tests are in `symbian3rd_camera.md`.
 
 ## Portable validation and integration
 

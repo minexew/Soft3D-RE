@@ -14,6 +14,7 @@ public:
     Camera(int width, int height, Renderer* renderer);
 
     void SetLookAt(const Vec3& position, const Vec3& target, const Vec3& up);
+    void UpdateRoll();
     void SetProjection(int16_t angle, Fixed aspectRatio, Fixed nearDistance, Fixed farDistance);
     void SetViewport(int32_t left, int32_t top, uint32_t width, uint32_t height);
 

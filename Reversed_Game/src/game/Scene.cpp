@@ -1,5 +1,7 @@
 #include "game/Scene.hpp"
 
+#include "game/Triggers.hpp"
+#include "soft3d/AudioData.hpp"
 #include "soft3d/GameUIDlg.hpp"
 #include "soft3d/TextureRes.hpp"
 
@@ -22,7 +24,43 @@ uint16_t PackRgb565(int32_t red, int32_t green, int32_t blue)
                                  ((green & 0xff) >> 2) << 5 | ((blue & 0xff) >> 3));
 }
 
+soft3d::ObjectBounds TranslateBounds(const soft3d::ObjectBounds& bounds,
+                                     const soft3d::Vec3& position)
+{
+    return {soft3d::Add(bounds.minimum, position), soft3d::Add(bounds.maximum, position)};
+}
+
 } // namespace
+
+const soft3d::Vec3& SceneCameraSpot::GetPosition() const
+{
+    static const soft3d::Vec3 empty;
+    return unit != nullptr ? unit->GetPosition() : empty;
+}
+
+void SceneCameraSpot::SetRight(const soft3d::Vec3& value)
+{
+    right = value;
+    if (unit != nullptr) {
+        unit->SetAxisX(value);
+    }
+}
+
+void SceneCameraSpot::SetUp(const soft3d::Vec3& value)
+{
+    up = value;
+    if (unit != nullptr) {
+        unit->SetAxisY(value);
+    }
+}
+
+void SceneCameraSpot::SetForward(const soft3d::Vec3& value)
+{
+    forward = value;
+    if (unit != nullptr) {
+        unit->SetAxisZ(value);
+    }
+}
 
 Scene::Scene(soft3d::GameEngine& owner)
     : engine(owner)
@@ -77,6 +115,15 @@ soft3d::result Scene::Initialize()
     }
     player->EnableShadow(true);
     player->SetDirection(spawnDirection);
+    playerSpot.SetUnit(player.get());
+    playerSpot.SetForward(spawnDirection);
+    unitManager->ConfigureScene(&cameraController, player.get());
+    cameraController.SetServices(&engine.GetCamera(), bsp.get(), &engine.GetControlMap(),
+                                 &engine.GetInput(), unitManager->GetRandomState());
+    cameraController.Bind(&playerSpot, true);
+    cameraController.SetMode(CameraController::OrbitFollow, {},
+                             soft3d::Normalize({0, -0x6666, -0x10000}),
+                             0x1a8000, nullptr, 0, false, 0);
 
     doorModel = std::make_unique<soft3d::VisUnit>(&engine.GetResourceManager(), 3,
                                                    &engine.GetRenderer(), &engine.GetAudioManager());
@@ -116,10 +163,16 @@ void Scene::StartNewGame(const soft3d::NewGameOptions& options)
     useDay1Fallback = 0;
     cameraWarmupCounter = 0;
     useCameraListener = 0;
+    gameOverStage = 0;
+    specialDoorIndex = -1;
+    eventFlags.fill(0);
     player->SetPosition({});
     player->SetDirection({0, 0, soft3d::fixedOne});
+    playerSpot.SetForward({0, 0, soft3d::fixedOne});
     player->SetVelocity({});
     player->SetVisible(true);
+    cameraController.Bind(&playerSpot, true);
+    cameraController.Reset();
     engine.GetRenderer().SelectShader(nullptr);
     RequireStatus(LoadDay(1), "Scene_StartNewGame");
 }
@@ -132,8 +185,13 @@ bool Scene::LoadSaveSlot(int slot)
 
 void Scene::ReturnToMainMenu()
 {
+    for (int action = 1; action <= 7; ++action) {
+        engine.GetControlMap().SetActionEnabled(action, false);
+    }
+    cameraController.SetFrozen(false);
     UnloadLevel();
     engine.GetScriptEngine().Unload();
+    engine.GetRenderer().SetFogEnabled(false);
     engine.GetRenderer().SelectShader(nullptr);
     inkShader.StopInk();
     inkShader.Reset();
@@ -146,7 +204,10 @@ void Scene::ReturnToMainMenu()
     mapProgress = -1;
     day = 0;
     mapId = 0;
+    gameOverStage = 0;
+    specialDoorIndex = -1;
     engine.GetAudioManager().PlaySound(u"e_wind01", true);
+    engine.GetInput().ClearKey();
 }
 
 soft3d::result Scene::LoadDay(int value)
@@ -207,6 +268,8 @@ int Scene::LoadMap(int value)
 
 void Scene::LoadNextLevel(int nextMap, int nextEpisode)
 {
+    cameraController.ClearTriggers();
+    cameraController.SetFrozen(false);
     nextLevelPending = 1;
     nextMapId = nextMap;
     nextEpisodeId = nextEpisode;
@@ -226,23 +289,69 @@ void Scene::BeginMapLoad()
     if (transitionStage != 0) {
         return;
     }
+    const bool standardDoor = doorResourceIndex >= 0 &&
+        (static_cast<uint32_t>(doorResourceIndex) & 0xffff0000U) != 0x10000U;
+    if (standardDoor) {
+        if (doorResourceIndex == 0) {
+            cameraController.SetMode(CameraController::FixedMode, player->GetPosition(),
+                                     {0, 0, soft3d::fixedOne}, 0, nullptr, 0, false, 0);
+            cameraController.SetCurrentTarget(player->GetPosition());
+            player->SetDirection({0, 0, soft3d::fixedOne});
+            playerSpot.SetForward({0, 0, soft3d::fixedOne});
+            transitionCameraPosition = soft3d::Subtract(player->GetPosition(),
+                soft3d::Scale(playerSpot.GetForward(), 0x90000));
+        } else {
+            transitionCameraPosition = player->GetPosition();
+        }
+        const soft3d::Fixed halfHeight = soft3d::SubtractFixed(
+            player->GetLocalBounds().maximum.y, player->GetLocalBounds().minimum.y) >> 1;
+        transitionCameraPosition.y = soft3d::AddFixed(transitionCameraPosition.y, halfHeight);
+        transitionCameraPosition = soft3d::Add(transitionCameraPosition, playerSpot.GetForward());
+        transitionCameraTarget = soft3d::Add(transitionCameraPosition,
+                                             soft3d::Scale(playerSpot.GetForward(), 0x20000));
+        cameraController.SetCurrentTarget(transitionCameraTarget);
+        transitionCameraSpeed = soft3d::Length(soft3d::Subtract(
+            transitionCameraPosition, cameraController.GetPosition())) >> 3;
+        cameraController.Bind(nullptr, true);
+        cameraController.SetDirectFollow(false, 0);
+    }
     engine.GetRenderer().SetLightingEnabled(true);
-    engine.GetAudioManager().SetEffectsVolume(255);
-    engine.GetAudioManager().SetMusicVolume(255);
+    engine.GetRenderer().SetGlobalLightDirection(soft3d::Normalize({0xa666, -0x10000, 0xcccc}));
+    engine.GetRenderer().SetAmbientIntensity(0xb333);
+    engine.GetRenderer().SetFogEnabled(false);
+    if (engine.GetControlMap().IsEnabled()) {
+        engine.GetInput().ClearKey();
+    }
+    engine.GetControlMap().SetEnabled(false);
     if (!fadeShader.IsActive()) {
         fadeShader.StartFade(1, transitionColor, 8, 1);
+    }
+    if (doorResourceIndex >= 0) {
+        player->SetVisible(true);
     }
     transitionStage = 1;
     transitionTimer = 0;
     mapProgress = 0;
     useDay1Fallback = 0;
+    engine.GetAudioManager().SetEffectsVolume(255);
+    engine.GetAudioManager().SetMusicVolume(255);
+    if ((static_cast<uint32_t>(doorResourceIndex) & 0xffff0000U) == 0x10000U) {
+        specialDoorIndex = doorResourceIndex & 0xffff;
+    } else {
+        specialDoorIndex = -1;
+    }
 }
 
 void Scene::FinishMapLoad()
 {
     player->SnapToGround();
     player->SetVisible(true);
+    cameraController.Bind(&playerSpot, true);
+    cameraController.Reset();
+    cameraController.SetInstant(true);
+    cameraController.Update(nullptr, true);
     unitManager->FinishMapLoad(restoreSavedState != 0);
+    engine.GetControlMap().SetEnabled(true);
     engine.GetInput().ClearKey();
     cameraWarmupCounter = 0;
     engine.GetScriptEngine().StartTasks();
@@ -250,6 +359,7 @@ void Scene::FinishMapLoad()
 
 void Scene::UnloadLevel()
 {
+    cameraController.ClearTriggers();
     if (player != nullptr) {
         player->StopSound();
     }
@@ -275,6 +385,78 @@ void Scene::ResetEnvironmentAudio()
 {
     for (EnvironmentChannel& channel : environment) {
         channel = EnvironmentChannel{};
+    }
+}
+
+bool Scene::AddEnvironmentSound(int index, const char16_t* name, int32_t baseDelay,
+                                int32_t randomDelay)
+{
+    if (index < 0 || index >= 2) {
+        return false;
+    }
+    EnvironmentChannel& channel = environment[index];
+    if (channel.resourceCount >= 4) {
+        return false;
+    }
+    auto* data = static_cast<soft3d::AudioData*>(engine.GetResourceManager().GetResource(
+        soft3d::ResourceAudio, 3, name, u".\\audio\\"));
+    channel.resources[channel.resourceCount] = data;
+    channel.baseDelay = baseDelay;
+    channel.randomDelay = randomDelay;
+    channel.nextDelay = -1;
+    ++channel.resourceCount;
+    channel.voice = 0;
+    return true;
+}
+
+bool Scene::ClearEnvironmentChannel(int index)
+{
+    if (index < 0 || index >= 2) {
+        return false;
+    }
+    EnvironmentChannel& channel = environment[index];
+    channel.resources.fill(nullptr);
+    channel.resourceCount = 0;
+    channel.voice = 0;
+    return true;
+}
+
+const Scene::EnvironmentChannel& Scene::GetEnvironmentChannel(int index) const
+{
+    if (index < 0 || index >= 2) {
+        throw std::out_of_range("Scene environment channel " + std::to_string(index));
+    }
+    return environment[index];
+}
+
+void Scene::UpdateEnvironmentAudio()
+{
+    for (EnvironmentChannel& channel : environment) {
+        if (channel.resourceCount == 0) {
+            continue;
+        }
+        if (channel.nextDelay == -1) {
+            const int32_t random = channel.randomDelay != 0
+                ? static_cast<int32_t>(unitManager->NextRandom() %
+                    static_cast<uint32_t>(channel.randomDelay << 7) >> 7)
+                : 0;
+            channel.nextDelay = channel.baseDelay + random;
+            channel.elapsed = 0;
+            continue;
+        }
+        if (channel.voice != 0) {
+            if (!engine.GetAudioManager().IsVoiceFinished(channel.voice)) {
+                continue;
+            }
+            channel.voice = 0;
+        }
+        ++channel.elapsed;
+        if (channel.elapsed >= channel.nextDelay) {
+            channel.nextDelay = -1;
+            const int32_t selection = static_cast<int32_t>(unitManager->NextRandom() %
+                static_cast<uint32_t>(channel.resourceCount << 7) >> 7);
+            channel.voice = engine.GetAudioManager().PlaySound(channel.resources[selection], false);
+        }
     }
 }
 
@@ -352,15 +534,116 @@ void Scene::UpdateMapLoad()
     }
 }
 
+void Scene::UpdateTransition()
+{
+    const bool standardDoor = doorResourceIndex >= 0 &&
+        (static_cast<uint32_t>(doorResourceIndex) & 0xffff0000U) != 0x10000U;
+    if (transitionStage == 1) {
+        showDayTitle = 0;
+        if (standardDoor) {
+            cameraController.MoveCamera(transitionCameraPosition, transitionCameraTarget,
+                                        transitionCameraSpeed);
+        }
+        if (transitionTimer == 8) {
+            if (standardDoor) {
+                const DoorResourceRecord& resource = unitManager->GetData().GetDoorResource(
+                    static_cast<std::size_t>(doorResourceIndex));
+                RequireStatus(doorModel->LoadObjects(resource.modelName.data(), nullptr, 1),
+                              "Scene transition door model");
+                if (doorModel->GetObject(0) != nullptr) {
+                    doorModel->GetObject(0)->SetAnimationPaused(false);
+                }
+                RequireStatus(doorModel->LoadAnimation(
+                    unitManager->GetData().GetAnimationName(238 + doorResourceIndex), nullptr),
+                    "Scene transition door animation");
+                doorModel->SetAnimation(doorModel->GetAnimation(), 1, false);
+                doorModel->SetPosition(soft3d::Add(transitionCameraTarget,
+                    soft3d::Scale(playerSpot.GetForward(), 0x140000)));
+                doorModel->SetDirection(playerSpot.GetForward());
+            }
+            fadeShader.StartFade(0, transitionColor, 4, 1);
+            if (restoreSavedState == 0) {
+                engine.GetAudioManager().StopAllSounds();
+            } else {
+                for (int voice = 1; voice < 16; ++voice) {
+                    engine.GetAudioManager().StopVoice(voice);
+                }
+            }
+            if (standardDoor) {
+                transitionCameraPosition = soft3d::Subtract(doorModel->GetPosition(),
+                    soft3d::Scale(playerSpot.GetForward(), doorResourceIndex == 0 ? 0x40000 : 0xa0000));
+                transitionCameraTarget = soft3d::Add(transitionCameraPosition,
+                    soft3d::Scale(playerSpot.GetForward(), 0x20000));
+                cameraController.SetCurrentTarget(transitionCameraTarget);
+                transitionCameraSpeed = soft3d::FixedDivide(soft3d::Length(soft3d::Subtract(
+                    transitionCameraPosition, cameraController.GetPosition())), 0x140000);
+                const int32_t sound = unitManager->GetData().GetDoorResource(
+                    static_cast<std::size_t>(doorResourceIndex)).openSoundIndex;
+                if (sound > 0) {
+                    engine.GetAudioManager().PlaySound(sound, false);
+                }
+            }
+            transitionStage = 2;
+        }
+    } else if (transitionStage == 2) {
+        if (standardDoor) {
+            cameraController.MoveCamera(transitionCameraPosition, transitionCameraTarget,
+                                        transitionCameraSpeed);
+        }
+        if (transitionTimer == 24) {
+            if (restoreSavedState == 0) {
+                player->SetPosition(spawnPosition);
+                player->SetDirection(spawnDirection);
+                playerSpot.SetForward(spawnDirection);
+                player->SetCollisionBounds(TranslateBounds(player->GetLocalBounds(), spawnPosition));
+            }
+            specialDoorIndex = -1;
+            fadeShader.StartFade(1, transitionColor, 4, 1);
+            transitionStage = 3;
+        }
+    } else if (transitionStage == 3) {
+        if (transitionTimer == 28) {
+            player->SetVisible(false);
+            cameraController.Bind(&playerSpot, false);
+        } else if (transitionTimer == 31) {
+            fadeShader.StartFade(0, transitionColor, 8, 1);
+            transitionStage = 4;
+            if (standardDoor) {
+                const int32_t sound = unitManager->GetData().GetDoorResource(
+                    static_cast<std::size_t>(doorResourceIndex)).closeSoundIndex;
+                if (sound > 0) {
+                    engine.GetAudioManager().PlaySound(sound, false);
+                }
+            }
+        }
+    } else if (transitionStage == 4 && transitionTimer == 36) {
+        transitionStage = 0;
+        restoreSavedState = 0;
+        transitionTimer = 0;
+    }
+    if ((transitionStage == 2 || transitionStage == 3) && standardDoor) {
+        doorModel->Update();
+    }
+    UpdateMapLoad();
+}
+
 void Scene::UpdateWorld()
 {
+    UpdateEnvironmentAudio();
     if (!unitManager->IsPaused()) {
         bsp->Update();
     }
     player->Update();
     unitManager->UpdateUnits();
+    cameraController.Update();
+    if (cameraWarmupCounter == 2) {
+        cameraController.SetInstant(false);
+    }
+    if (cameraWarmupCounter < 2) {
+        ++cameraWarmupCounter;
+    }
     engine.GetAudioManager().SetListenerPosition(useCameraListener == 0
-        ? player->GetPosition() : engine.GetCamera().GetPosition());
+        ? player->GetPosition() : cameraController.GetPosition());
 }
 
 void Scene::Update()
@@ -390,37 +673,37 @@ void Scene::Update()
 
     if (transitionStage != 0) {
         ++transitionTimer;
-        if (transitionStage == 1) {
-            showDayTitle = 0;
-            if (transitionTimer == 8) {
-                transitionStage = 2;
-            }
-        } else if (transitionStage == 2) {
-            if (transitionTimer == 24) {
-                if (restoreSavedState == 0) {
-                    player->SetPosition(spawnPosition);
-                    player->SetDirection(spawnDirection);
-                }
-                transitionStage = 3;
-            }
-        } else if (transitionStage == 3) {
-            if (transitionTimer == 28) {
-                player->SetVisible(false);
-            } else if (transitionTimer == 31) {
-                transitionStage = 4;
-            }
-        } else if (transitionStage == 4 && transitionTimer == 36) {
-            transitionStage = 0;
-            restoreSavedState = 0;
-            transitionTimer = 0;
-        }
-        UpdateMapLoad();
-        if (transitionStage > 0 && transitionStage < 4) {
+        UpdateTransition();
+        if (transitionStage > 0 && transitionStage < 5) {
             engine.GetInput().ClearKey();
-            return;
+            if (transitionStage != 4) {
+                return;
+            }
         }
     }
     UpdateWorld();
+}
+
+void Scene::RestartAfterGameOver()
+{
+    engine.GetRenderer().SelectShader(nullptr);
+    inkShader.StopInk();
+    inkShader.Reset();
+    engine.GetInput().ClearKey();
+    cameraController.SetFrozen(false);
+    cameraWarmupCounter = 0;
+    cameraController.SetInstant(true);
+    engine.SetPreUpdateEnabled(true);
+    for (int action = 1; action <= 7; ++action) {
+        engine.GetControlMap().SetActionEnabled(action, false);
+    }
+    engine.GetScriptEngine().Reset();
+    cameraController.Reset();
+    unitManager->Reset();
+    restoreSavedState = 0;
+    eventFlags = dayStartSnapshot;
+    RequireStatus(LoadDay(day), "Scene_RestartAfterGameOver");
+    gameOverStage = 0;
 }
 
 void Scene::PostUpdate()
@@ -429,9 +712,49 @@ void Scene::PostUpdate()
         return;
     }
     if (transitionStage == 2 || transitionStage == 3) {
+        if (transitionTimer < 29 && doorResourceIndex >= 0 &&
+            (static_cast<uint32_t>(doorResourceIndex) & 0xffff0000U) != 0x10000U) {
+            doorModel->PostUpdate();
+        }
         return;
     }
     player->PostUpdate();
+    if (gameOverStage == 3) {
+        if (engine.GetInput().IsKeyClick(soft3d::Key::Number7) ||
+            engine.GetInput().IsKeyClick(soft3d::Key::Accept)) {
+            RestartAfterGameOver();
+        }
+        if (engine.GetInput().IsKeyClick(soft3d::Key::SoftRight) ||
+            engine.GetInput().IsKeyClick(soft3d::Key::Number9)) {
+            engine.SetPreUpdateEnabled(true);
+            engine.ReturnToMainMenu();
+            gameOverStage = 0;
+        }
+    }
+    if (gameOverStage == 2) {
+        if (inkShader.IsActive()) {
+            ++inkTimer;
+            if (inkTimer > 16 || (inkTimer > 8 && engine.GetInput().IsAnyKeyClick())) {
+                engine.SetPreUpdateEnabled(false);
+                gameOverStage = 3;
+                return;
+            }
+        }
+        if (inkShader.IsCompleted()) {
+            engine.SetPreUpdateEnabled(false);
+            gameOverStage = 3;
+        } else if (!inkShader.IsActive()) {
+            engine.GetAudioManager().StopAllSounds();
+            auto* audio = static_cast<soft3d::AudioData*>(engine.GetResourceManager().GetResource(
+                soft3d::ResourceAudio, 3, u"m_gameover", u".\\audio\\"));
+            engine.GetAudioManager().PlaySound(audio, false);
+            engine.GetScriptEngine().Unload();
+            unitManager->SetPaused(true);
+            engine.GetRenderer().SelectShader(&inkShader);
+            inkShader.StartInk(&engine, 1, engine.GetVideo().GetBackBufferPtr(), 1);
+            inkTimer = 0;
+        }
+    }
     unitManager->PostUpdateUnits();
 }
 
@@ -442,9 +765,12 @@ void Scene::PrepareRender()
     }
     if (transitionStage >= 1 && transitionStage <= 3) {
         engine.GetRenderer().Clear(transitionColor);
-        if (doorModel != nullptr && doorResourceIndex >= 0 &&
+        if ((transitionStage == 2 || transitionStage == 3) && transitionTimer < 29 &&
+            doorResourceIndex >= 0 &&
             (static_cast<uint32_t>(doorResourceIndex) & 0xffff0000U) != 0x10000U) {
             doorModel->SubmitRenderables(engine.GetRenderQueues());
+        } else if (transitionStage == 1 && doorResourceIndex < 0) {
+            player->SubmitRenderables(engine.GetRenderQueues());
         }
         return;
     }
@@ -472,7 +798,11 @@ void Scene::RenderDayTitle()
     char16_t dateName[32];
     char16_t numberName[32];
     soft3d::WideSprintf(dateName, u"riqi_%d", day);
-    soft3d::WideSprintf(numberName, u"%dnd", day);
+    if (day == 7 && eventFlags[699] == 0) {
+        soft3d::WideSprintf(numberName, u"%dnd_a", day);
+    } else {
+        soft3d::WideSprintf(numberName, u"%dnd", day);
+    }
     const char16_t* directory = engine.GetLanguage() == 2 ? u".\\uien\\" : u".\\ui\\";
     auto* date = static_cast<soft3d::TextureRes*>(engine.GetResourceManager().GetResource(
         soft3d::ResourceTexture, 3, dateName, directory));
@@ -502,6 +832,63 @@ void Scene::SubmitRenderables()
     }
 }
 
+void Scene::SelectPresentationShader(int selection)
+{
+    fadeShader.Complete();
+    switch (selection) {
+    case 1:
+        engine.GetRenderer().SelectShader(&grayShader);
+        break;
+    case 2:
+        engine.GetRenderer().SelectShader(&motionBlurShader);
+        motionBlurShader.ResetHistory();
+        break;
+    case 7:
+        engine.GetRenderer().SelectShader(&blindShader);
+        break;
+    case 8:
+        engine.GetRenderer().SelectShader(&twistShader);
+        break;
+    default:
+        engine.GetRenderer().SelectShader(nullptr);
+        break;
+    }
+}
+
+bool Scene::FadeCommand(bool fadeOut, uint16_t color, int frameCount)
+{
+    if (fadeShader.IsActive()) {
+        if (!fadeShader.IsCompleted()) {
+            return false;
+        }
+        fadeShader.Complete();
+        return true;
+    }
+    fadeShader.StartFade(fadeOut ? 1 : 0, color, frameCount, 0);
+    return false;
+}
+
+void Scene::BindCameraToPlayer()
+{
+    cameraController.Bind(&playerSpot, true);
+}
+
+void Scene::SetPlayerDirection(const soft3d::Vec3& direction)
+{
+    player->SetDirection(direction);
+    playerSpot.SetForward(player->GetObject(0) != nullptr
+        ? player->GetObject(0)->GetAxisZ() : direction);
+}
+
+void Scene::BindCameraToEnemy()
+{
+    enemySpot.SetPosition(playerSpot.GetPosition());
+    enemySpot.SetRight(playerSpot.GetRight());
+    enemySpot.SetUp(playerSpot.GetUp());
+    enemySpot.SetForward(playerSpot.GetForward());
+    cameraController.Bind(&enemySpot, true);
+}
+
 void Scene::SetEventFlag(int32_t index)
 {
     if (index < 0 || static_cast<std::size_t>(index) >= eventFlags.size()) {
@@ -524,10 +911,14 @@ soft3d::BspEntity* Scene::CreateGameEntity(soft3d::BspEntityRecord* record, void
     if (record == nullptr || context == nullptr) {
         return nullptr;
     }
+    auto* scene = static_cast<Scene*>(context);
+    if (record->type == 10 || record->type == 11 || record->type == 102) {
+        scene->unitManager->HandleMapEntity(*record, *scene->bsp);
+        return nullptr;
+    }
     if (record->type != -1 && record->type != 0) {
         return nullptr;
     }
-    auto* scene = static_cast<Scene*>(context);
     auto entity = std::make_unique<soft3d::BspEntity>();
     if (record->modelIndex >= 0 &&
         static_cast<std::size_t>(record->modelIndex) < scene->bsp->GetModels().size()) {

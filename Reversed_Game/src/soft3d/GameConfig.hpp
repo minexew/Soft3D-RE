@@ -41,13 +41,18 @@ public:
     int GetOrientation() const;
     uint32_t GetBinding(int action) const;
     void SetBinding(int action, uint32_t key);
+    void SetEnabled(bool enabled);
+    void SetActionEnabled(int action, bool enabled);
+    bool IsEnabled() const;
     bool ActionClick(const Input& input, int action, bool primaryOnly = true) const;
     bool ActionDown(const Input& input, int action, bool primaryOnly = true) const;
 
 private:
     GameConfiguration& configuration;
     std::array<uint32_t, 8> primaryBindings{};
+    std::array<bool, 8> actionEnabled{};
     int orientation = 1;
+    bool enabled = true;
 };
 
 } // namespace soft3d

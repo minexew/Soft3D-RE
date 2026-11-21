@@ -49,6 +49,13 @@ public:
     void SetMaterialLighting(Fixed directionalScale, Fixed ambient,
                              Fixed objectIntensity = 0, Fixed animatedIntensity = 0,
                              Fixed minimumIntensity = 0);
+    void SetGlobalLightDirection(const Vec3& direction);
+    void SetAmbientIntensity(Fixed intensity);
+    Fixed GetAmbientIntensity() const;
+    const Vec3& GetGlobalLightDirection() const;
+    void SetFogEnabled(bool enabled);
+    void SetFog(Fixed start, Fixed end, uint16_t color);
+    BasicShader* GetActiveShader() const;
 
     void DrawSequential(const SojVertices& vertices, uint32_t primitiveType,
                         uint32_t firstVertex, uint32_t primitiveCount);
@@ -119,6 +126,7 @@ private:
     Fixed animatedIntensity = 0;
     Fixed minimumIntensity = 0;
     Vec3 lightDirection = {0, 0, fixedOne};
+    Vec3 globalLightDirection = {0, 0, fixedOne};
     Raster raster;
     Texture frameTexture;
 

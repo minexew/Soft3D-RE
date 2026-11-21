@@ -89,11 +89,13 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 add_library(seven_days_game STATIC
+    src/game/CameraController.cpp
     src/game/GameData.cpp
     src/game/GameSI.cpp
     src/game/MyGameUnitMgr.cpp
     src/game/ResourceNames.cpp
     src/game/Scene.cpp
+    src/game/Triggers.cpp
 )
 target_include_directories(seven_days_game PUBLIC src)
 target_compile_features(seven_days_game PUBLIC cxx_std_17)
@@ -308,6 +310,13 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_audio_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_audio COMMAND soft3d_audio_tests)
+
+    add_executable(game_camera_tests tests/test_game_camera.cpp)
+    target_link_libraries(game_camera_tests PRIVATE seven_days_game)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(game_camera_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME game_camera COMMAND game_camera_tests)
 
     add_executable(game_data_tests tests/test_game_data.cpp)
     target_link_libraries(game_data_tests PRIVATE seven_days_game)

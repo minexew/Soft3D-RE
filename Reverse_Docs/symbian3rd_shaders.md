@@ -25,7 +25,7 @@ otherwise:    h - 1 - y + h * x
 
 The loop order remains source-row-major: outer `y`, inner `x`, with a destination stride of `-h` or `+h`. Ink is the exception because it ignores orientation and works on linear interior neighborhoods. Blind uses the same index formula in **16-bit units**, not 32-bit units.
 
-`Scene_Ctor` (`0x0002a0f4`) owns the effects at Scene offsets `+0x914` Ink, `+0x918` Fade, `+0x91c` Gray, `+0x920` MotionBlur, `+0x924` Blind, and `+0x928` Twist. The effect selector at `0x000672e4` chooses Gray for value 1, MotionBlur for 2, Blind for 7, and Twist for 8. MotionBlur selection is followed by `MotionBlurShader_ResetHistory`.
+`Scene_Ctor` (`0x0002a0f4`) owns the effects at Scene offsets `+0x914` Ink, `+0x918` Fade, `+0x91c` Gray, `+0x920` MotionBlur, `+0x924` Blind, and `+0x928` Twist. The effect selector `GameSI_SelectPresentationShader` at `0x000672e4` first completes any active fade, then chooses Gray for value 1, MotionBlur for 2, Blind for 7, Twist for 8, and no custom shader otherwise. MotionBlur selection is followed by `MotionBlurShader_ResetHistory`. `GameSI_FadeOut`/`GameSI_FadeIn` (`0x000656dc`/`0x00065820`) start mode-0 fades while idle and return false until completion, then complete and return true once. Ink is selected by the game-over scene path rather than by command 103. All six owners and command paths are implemented and tested in stage 3; see `symbian3rd_camera.md`.
 
 ## MotionBlurShader
 

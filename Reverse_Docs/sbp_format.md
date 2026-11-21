@@ -6,7 +6,7 @@ SBP is the Soft3D map format. It derives from Quake 2 BSP ideas but has its own 
 
 Use `Reversed_Game/src/resources/res.spk` or the intact extraction under `Tools/outdir/` as reference data. `Tools/outdir/common/menu.sbp` is 75,548 bytes and begins with the expected signature. The copy at `Extractor/extracted_spkres/common/menu.sbp` has a different first byte and must not be treated as canonical.
 
-`Reversed_Game/src/soft3d/Bsp.*` implements the container, all active chunk readers, incremental loading, map models, entity-factory ownership, link resolution, cleanup, rendering/PVS, collision, and lightstyle playback. `game::Scene` supplies the stage-2 application factory path. `Tools/sbp.py` and BspViewer use the corrected chunk names below.
+`Reversed_Game/src/soft3d/Bsp.*` implements the container, all active chunk readers, incremental loading, map models, entity-factory ownership, link resolution, cleanup, rendering/PVS, collision, and lightstyle playback. `game::Scene` supplies the stage-2/3 application factory and camera/light-trigger consumer path. `Tools/sbp.py` and BspViewer use the corrected chunk names below.
 
 ## Header and directory
 
@@ -137,7 +137,7 @@ If a target array is absent, the ARM reader clears the corresponding runtime lin
 
 The native runtime `SbpEntityRecord` is 0x1c bytes: type at 0, link count at 6, resolved links at 8, pairs at 12, brush at 16, model at 20, and pair count at 24. `Bsp_CreateGameEntity` (`0x000528ec`, relocation cell `0x0002bd68`) creates/loads a 0x68-byte `BspUnit` for types -1 and 0; other types dispatch to `MyGameUnitMgr` virtual slot 5. That game factory handles camera triggers (10), light triggers (11), six fog/header words (102), and lensflares (202) without returning a renderable entity.
 
-A null factory result is valid for these game-owned/non-renderable records, not an out-of-memory error. The portable loader therefore retains null slots and skips them during visibility marking/submission. A missing factory for a nonempty map and malformed references remain errors. Stage 2 binds this dispatch in the concrete scene; complete `BspUnit` and special-unit construction remains stage 5.
+A null factory result is valid for these game-owned/non-renderable records, not an out-of-memory error. The portable loader therefore retains null slots and skips them during visibility marking/submission. A missing factory for a nonempty map and malformed references remain errors. Stage 3 implements the type-10 camera and type-11 light consumers and stores the six type-102 fixed-point words; complete `BspUnit`, lensflare, and other special-unit construction remains stage 5. Type-10 uses eight 32-byte fields (`mode,position,direction,time,snap,SPL,path speed,target mode`), while type-11 uses three (`player-direction flag,position,light direction`). Across the 152 day maps there are 802 camera triggers, 29 light triggers, 124 type-102 records, and four lensflares. The type-102 words have no proven higher-level semantic name and are not assigned a fog plane or AABB by this consumer. See `symbian3rd_camera.md`.
 
 The lamp pair records duplicate model/animation names, axes, position, and a second position-like vector. That second vector is the animated model's world-bounds center, not another render position. For model 0 it is `(-59.7589,-18.0604,14.5371)`, matching the corrected transform's bounds. It must not be used to shift the lamp geometry.
 
@@ -241,7 +241,7 @@ The four serialized model vectors map to position, Z axis, X axis, and Y axis re
 
 The default CTest suite passes. Running `Tools/sbp.py` on the real map exports the same 421 vertices and 316 polygons used by the portable checks.
 
-`Reversed_Game/tests/test_game_scene.cpp` adds the game-stage-2 path: real `day1/2008.sbp` through the concrete scene and factory, null non-renderable records, real `day2`→`day1` fallback for map 1001, finalization, repeated unload/reload, and dummy/SDL frame-loop integration. The scene test also passes under ASan+UBSan.
+`Reversed_Game/tests/test_game_scene.cpp` adds the game-stage-2/3 path: real `day1/2008.sbp` through the concrete scene and factory, nine camera triggers and two light triggers, the six type-102 words, null non-renderable records, real `day2`→`day1` fallback for map 1001, finalization, repeated unload/reload, and dummy/SDL frame-loop integration. The scene test also passes under ASan+UBSan after restoring native `ClearBucket(..., true)` destruction before `ResetBuckets`.
 
 `Reversed_Game/tests/test_bsprender.cpp` adds engine-stage-2 coverage:
 

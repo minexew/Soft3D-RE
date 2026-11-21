@@ -85,6 +85,7 @@ result DeserializeGameConfiguration(const void* data, size_t size,
 ControlMap::ControlMap(GameConfiguration& value)
     : configuration(value)
 {
+    actionEnabled.fill(true);
     SetOrientation(1);
 }
 
@@ -120,9 +121,26 @@ void ControlMap::SetBinding(int action, uint32_t key)
     }
 }
 
+void ControlMap::SetEnabled(bool value)
+{
+    enabled = value;
+}
+
+void ControlMap::SetActionEnabled(int action, bool value)
+{
+    if (ValidAction(action)) {
+        actionEnabled[action] = value;
+    }
+}
+
+bool ControlMap::IsEnabled() const
+{
+    return enabled;
+}
+
 bool ControlMap::ActionClick(const Input& input, int action, bool primaryOnly) const
 {
-    if (!ValidAction(action)) {
+    if (!enabled || !ValidAction(action) || !actionEnabled[action]) {
         return false;
     }
     const Key primary = static_cast<Key>(primaryBindings[action]);
@@ -135,7 +153,7 @@ bool ControlMap::ActionClick(const Input& input, int action, bool primaryOnly) c
 
 bool ControlMap::ActionDown(const Input& input, int action, bool primaryOnly) const
 {
-    if (!ValidAction(action)) {
+    if (!enabled || !ValidAction(action) || !actionEnabled[action]) {
         return false;
     }
     const Key primary = static_cast<Key>(primaryBindings[action]);

@@ -54,6 +54,11 @@ void Camera::SetLookAt(const Vec3& newPosition, const Vec3& newTarget, const Vec
     }
 }
 
+void Camera::UpdateRoll()
+{
+    SetLookAt(position, target, up);
+}
+
 void Camera::SetProjection(int16_t newAngle, Fixed newAspectRatio, Fixed newNearDistance,
                            Fixed newFarDistance)
 {

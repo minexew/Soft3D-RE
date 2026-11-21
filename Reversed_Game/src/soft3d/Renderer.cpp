@@ -370,6 +370,41 @@ void Renderer::SetMaterialLighting(Fixed directional, Fixed ambient, Fixed objec
     minimumIntensity = minimum;
 }
 
+void Renderer::SetGlobalLightDirection(const Vec3& direction)
+{
+    globalLightDirection = direction;
+}
+
+void Renderer::SetAmbientIntensity(Fixed intensity)
+{
+    ambientIntensity = intensity;
+}
+
+Fixed Renderer::GetAmbientIntensity() const
+{
+    return ambientIntensity;
+}
+
+const Vec3& Renderer::GetGlobalLightDirection() const
+{
+    return globalLightDirection;
+}
+
+void Renderer::SetFogEnabled(bool enabled)
+{
+    raster.SetFogEnabled(enabled);
+}
+
+void Renderer::SetFog(Fixed start, Fixed end, uint16_t color)
+{
+    raster.GetFogShader().SetFog(start, end, color);
+}
+
+BasicShader* Renderer::GetActiveShader() const
+{
+    return raster.GetActiveShader();
+}
+
 void Renderer::PrepareDrawState(uint32_t vertexFormat)
 {
     modelViewMatrix = Multiply(modelMatrix, viewProjectionMatrix);
@@ -378,7 +413,7 @@ void Renderer::PrepareDrawState(uint32_t vertexFormat)
             lightDirection = {0, 0, -fixedOne};
         } else {
             const Matrix4 normalMatrix = InverseNormalMatrix(modelMatrix);
-            lightDirection = Normalize(Transform(normalMatrix, {0, 0, fixedOne}));
+            lightDirection = Normalize(Transform(normalMatrix, globalLightDirection));
         }
         raster.SetShadingEnabled(true);
     } else {
