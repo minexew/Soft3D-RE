@@ -100,20 +100,13 @@ soft3d::result Scene::Initialize()
         return status;
     }
 
-    player = std::make_unique<soft3d::Creature>(&engine.GetResourceManager(), 2,
-                                                 &engine.GetRenderer(), &engine.GetAudioManager(),
-                                                 bsp.get());
-    player->SetUnitType(9);
+    player = std::make_unique<Player>(&engine.GetResourceManager(), &engine.GetRenderer(),
+                                      bsp.get(), this, &engine.GetAudioManager());
     player->SetUnitManager(unitManager.get());
-    status = player->LoadObjects(u"r_ken_a", nullptr, 1);
+    status = player->Initialize(unitManager->GetData());
     if (status != soft3d::S3D_OK) {
         return status;
     }
-    status = player->LoadAlternateObject(u"r_ken_shadow_a");
-    if (status != soft3d::S3D_OK) {
-        return status;
-    }
-    player->EnableShadow(true);
     player->SetDirection(spawnDirection);
     playerSpot.SetUnit(player.get());
     playerSpot.SetForward(spawnDirection);
@@ -166,10 +159,10 @@ void Scene::StartNewGame(const soft3d::NewGameOptions& options)
     gameOverStage = 0;
     specialDoorIndex = -1;
     eventFlags.fill(0);
+    player->ResetAll(unitManager->GetData());
     player->SetPosition({});
     player->SetDirection({0, 0, soft3d::fixedOne});
     playerSpot.SetForward({0, 0, soft3d::fixedOne});
-    player->SetVelocity({});
     player->SetVisible(true);
     cameraController.Bind(&playerSpot, true);
     cameraController.Reset();
@@ -230,20 +223,22 @@ soft3d::result Scene::LoadDay(int value)
     soft3d::WideSprintf(path, engine.GetLanguage() == 2 ? u".\\uien\\day%d.sbn"
                                                         : u".\\ui\\day%d.sbn", day);
     font->LoadSbnFont(path, engine.GetResourceManager().GetFilePak());
-    soft3d::result status = player->LoadObjects(u"r_ken_a", nullptr, 1);
+    player->Reset(unitManager->GetData());
+    soft3d::result status = unitManager->LoadDayContent(day, engine);
     if (status != soft3d::S3D_OK) {
         return status;
     }
-    status = player->LoadAlternateObject(u"r_ken_shadow_a");
-    if (status != soft3d::S3D_OK) {
-        return status;
+    const bool extraWeapon = engine.GetConfiguration().unlocks.extraWeapon1 != 0;
+    if (day == 2) player->PrepareWeapon(unitManager->GetData(), extraWeapon ? 4 : 1);
+    if (day == 3) player->PrepareWeapon(unitManager->GetData(), extraWeapon ? 4 : 2);
+    if (day == 5) {
+        player->PrepareWeapon(unitManager->GetData(), extraWeapon ? 4 : 3);
+        player->PrepareWeapon(unitManager->GetData(), 1);
     }
-    status = unitManager->LoadDayContent(day, engine);
-    if (status != soft3d::S3D_OK) {
-        return status;
-    }
+    if (day == 7) player->PrepareWeapon(unitManager->GetData(), 3);
     engine.GetScriptEngine().ClearSharedVariables();
     dayStartSnapshot = eventFlags;
+    player->SnapshotDayState();
     if (fadeShader.IsCompleted()) {
         fadeShader.StartFade(0, PackRgb565(0, 0, 0), 8, 1);
     }
@@ -344,8 +339,9 @@ void Scene::BeginMapLoad()
 
 void Scene::FinishMapLoad()
 {
-    player->SnapToGround();
+    player->ResetForMap();
     player->SetVisible(true);
+    player->EnterFPS();
     cameraController.Bind(&playerSpot, true);
     cameraController.Reset();
     cameraController.SetInstant(true);
@@ -700,6 +696,7 @@ void Scene::RestartAfterGameOver()
     engine.GetScriptEngine().Reset();
     cameraController.Reset();
     unitManager->Reset();
+    player->RestoreDayState();
     restoreSavedState = 0;
     eventFlags = dayStartSnapshot;
     RequireStatus(LoadDay(day), "Scene_RestartAfterGameOver");
@@ -719,6 +716,9 @@ void Scene::PostUpdate()
         return;
     }
     player->PostUpdate();
+    if (player->IsDeathComplete() && gameOverStage == 0) {
+        gameOverStage = 2;
+    }
     if (gameOverStage == 3) {
         if (engine.GetInput().IsKeyClick(soft3d::Key::Number7) ||
             engine.GetInput().IsKeyClick(soft3d::Key::Accept)) {
@@ -903,6 +903,33 @@ bool Scene::GetEventFlag(int32_t index) const
         throw std::out_of_range("Scene event flag index " + std::to_string(index));
     }
     return eventFlags[static_cast<std::size_t>(index)] != 0;
+}
+
+void Scene::ShowQte(int32_t key, int32_t time, int32_t mode)
+{
+    qteUiKey = key - 1;
+    qteUiTime = time;
+    qteUiMode = mode;
+    qteUiFailure = 0;
+}
+
+void Scene::FailQte()
+{
+    qteUiTime = 0;
+    qteUiMode = 0;
+    qteUiFailure = 1;
+}
+
+void Scene::SetHideMask(int32_t index, bool active)
+{
+    hideMaskIndex = index;
+    hideMaskActive = active ? 1 : 0;
+}
+
+void Scene::ShowTutorial(int32_t id, int32_t frames)
+{
+    tutorialId = id;
+    tutorialFrames = frames;
 }
 
 soft3d::BspEntity* Scene::CreateGameEntity(soft3d::BspEntityRecord* record, void* context,

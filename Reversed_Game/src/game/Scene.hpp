@@ -2,6 +2,7 @@
 
 #include "game/CameraController.hpp"
 #include "game/MyGameUnitMgr.hpp"
+#include "game/Player.hpp"
 #include "soft3d/BezierCurve3.hpp"
 #include "soft3d/Bsp.hpp"
 #include "soft3d/GameEngine.hpp"
@@ -75,7 +76,7 @@ public:
     soft3d::GameEngine& GetEngine() { return engine; }
     soft3d::Bsp* GetBsp() { return bsp.get(); }
     MyGameUnitMgr* GetUnitManager() { return unitManager.get(); }
-    soft3d::Creature* GetPlayer() { return player.get(); }
+    Player* GetPlayer() { return player.get(); }
     CameraController* GetCameraController() { return &cameraController; }
     soft3d::GameUIDlg* GetGameUi() { return engine.GetGameUi(); }
     soft3d::AudioManager* GetAudio() { return &engine.GetAudioManager(); }
@@ -115,6 +116,15 @@ public:
     int GetInkTimer() const { return inkTimer; }
     int GetSpecialDoorIndex() const { return specialDoorIndex; }
     bool UsesCameraListener() const { return useCameraListener != 0; }
+    const soft3d::NewGameOptions& GetNewGameOptions() const { return newGameOptions; }
+    int32_t GetQteUiKey() const { return qteUiKey; }
+    int32_t GetQteUiTime() const { return qteUiTime; }
+    int32_t GetQteUiMode() const { return qteUiMode; }
+    int32_t GetQteUiFailure() const { return qteUiFailure; }
+    int32_t GetHideMask() const { return hideMaskIndex; }
+    bool IsHideMaskActive() const { return hideMaskActive != 0; }
+    int32_t GetTutorialId() const { return tutorialId; }
+    int32_t GetTutorialFrames() const { return tutorialFrames; }
 
     bool AddEnvironmentSound(int channel, const char16_t* name, int32_t baseDelay,
                              int32_t randomDelay);
@@ -126,6 +136,11 @@ public:
     void SetPlayerDirection(const soft3d::Vec3& direction);
     void SetGameOverStage(int stage) { gameOverStage = stage; }
     void SetUseCameraListener(bool enabled) { useCameraListener = enabled ? 1 : 0; }
+    void ShowQte(int32_t key, int32_t time, int32_t mode);
+    void SetQteMode(int32_t mode) { qteUiMode = mode; }
+    void FailQte();
+    void SetHideMask(int32_t index, bool active);
+    void ShowTutorial(int32_t id, int32_t frames);
 
     static soft3d::BspEntity* CreateGameEntity(soft3d::BspEntityRecord* record, void* context,
                                                 soft3d::BspEntityRecord* recordBase);
@@ -144,7 +159,7 @@ private:
     std::unique_ptr<soft3d::Bsp> bsp;
     std::unique_ptr<soft3d::CameraPathCollection> cameraPaths;
     CameraController cameraController;
-    std::unique_ptr<soft3d::Creature> player;
+    std::unique_ptr<Player> player;
     SceneCameraSpot playerSpot;
     soft3d::DummySpot enemySpot;
     std::unique_ptr<MyGameUnitMgr> unitManager;
@@ -185,6 +200,14 @@ private:
     int32_t gameOverStage = 0;
     int32_t inkTimer = 0;
     int32_t specialDoorIndex = -1;
+    int32_t qteUiKey = 0;
+    int32_t qteUiTime = 0;
+    int32_t qteUiMode = 0;
+    int32_t qteUiFailure = 0;
+    int32_t hideMaskIndex = -1;
+    int32_t hideMaskActive = 0;
+    int32_t tutorialId = 0;
+    int32_t tutorialFrames = 0;
     bool initialized = false;
 };
 

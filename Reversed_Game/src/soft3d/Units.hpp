@@ -68,6 +68,7 @@ public:
 
     int32_t GetUnitType() const;
     int32_t GetUnitId() const;
+    GameUnit* GetNextUnit() const { return nextUnit; }
     const Vec3& GetPosition() const;
     const ObjectBounds& GetLocalBounds() const;
     const ObjectBounds& GetCollisionBounds() const;
@@ -203,6 +204,7 @@ public:
     void SetBsp(Bsp* value);
     uint32_t GetPhysicsFlags() const;
     const Vec3& GetVelocity() const;
+    uint16_t GetYawVelocity() const { return yawVelocity; }
     const BspTraceResult& GetGroundTrace() const;
     const UnitQueryResult& GetUnitQueryResult() const;
     bool HasUnitCollision() const;
@@ -283,6 +285,7 @@ public:
     Fixed GetNavigationSpeed() const;
     const Vec3& GetNavigationTarget() const;
     bool IsNavigationEnabled() const;
+    void ResetNavigationPath();
 
 private:
     void SetNavigationVelocity(const Vec3& target);

@@ -42,7 +42,7 @@ The pointer graph exposes literal pools, switch/jump tables, callback tables, RT
 - 22 additional functions were recovered from other relocation-backed function pointers and retain neutral `FUN_*` names pending behavioral analysis;
 - all 240 entries begin with valid ARM function prologues and were not contained in an existing function.
 
-Twenty previously missing single-inheritance RTTI classes and vtables were recovered for `PlayerStateSet` states. All derive from `State<Player>`, have five virtual slots, and are listed in `symbian3rd_rtti.md`. Their addresses range from `0x0013d328` through `0x0013d588` in `0x20`-byte vtable strides. Their 80 state-specific implementations were named `<State>_vfunc_<slot>`, and the shared fourth-slot implementation was named `State_Player_vfunc_04`. This also proves a vptr for the otherwise layout-unknown `State<Player>` base.
+Twenty previously missing single-inheritance RTTI classes and vtables were recovered for `PlayerStateSet` states. All derive from `State<Player>`, have five virtual slots, and are listed in `symbian3rd_rtti.md`. Their addresses range from `0x0013d328` through `0x0013d588` in `0x20`-byte vtable strides. Their 80 state-specific implementations initially used `<State>_vfunc_<slot>` placeholders; stage 4 has replaced them with explicit `Enter`/`Exit`/`Update`/`Register` names, while the shared state helper retains its generic name. This also proves a vptr for the otherwise layout-unknown `State<Player>` base.
 
 Two superficially vtable-shaped runs at `0x00139c68` and `0x00140cb4` were rejected because their supposed type-info records did not contain valid type-name pointers. Relocation membership alone does not prove a vtable; the type-info and function-entry evidence must agree.
 

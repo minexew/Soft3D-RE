@@ -113,7 +113,7 @@ Use existing `SetSceneHost`, `SetScriptInterface`, `StartNewGame`, `LoadSaveSlot
 - Verify return to menu and repeated scene creation/destruction without stale pointers or cache corruption.
 - Add `test_game_scene.cpp` and application smoke coverage; all prior menu tests must remain unchanged.
 
-**Status: complete.** `game::Scene` and `game::GameSI` are installed by the real application. The scene implements the day intro, day/SBN/content setup, episode selection, incremental SBP loading and day-1 fallback, load finalization, update/render ordering, and menu teardown. `GameSI` preserves all 218 ARM addresses/context pointers, implements IDs 53–59 plus the ARM-confirmed empty/shared-word callbacks, and throws `GameSIError` for later-stage handlers. The player currently uses the generic `Creature` base and the camera/game entity behaviors remain stages 3–5; these are not represented as complete gameplay.
+**Status: complete.** `game::Scene` and `game::GameSI` are installed by the real application. The scene implements the day intro, day/SBN/content setup, episode selection, incremental SBP loading and day-1 fallback, load finalization, update/render ordering, and menu teardown. `GameSI` preserves all 218 ARM addresses/context pointers, implements IDs 53–59 plus the ARM-confirmed empty/shared-word callbacks, and throws `GameSIError` for later-stage handlers. At stage-2 completion the player used the generic `Creature` base; stage 4 has since replaced it with the concrete `Player`. Camera behavior was completed in stage 3, while the remaining game entity behaviors stay assigned to stages 5–7.
 
 The real `day1/ep0` path reaches map 2008/progress 100 in 26 SBP calls, including through the SDL `--new-game` application test. Tests also cover the 100→103→-1 finalization, day-2 map-1001 fallback, real null entity records, repeated menu/new-game teardown, scene commands, and the explicit error at later-stage ID 121. Stage 3 subsequently advances the same real script to ID 221; the current counts and sanitizer results are recorded there. Earlier unrelated existing UBSan findings remain documented rather than hidden.
 
@@ -160,6 +160,10 @@ Reuse `PhysicUnit` movement/collision, `VisUnit` animation/audio, generic state 
 - Directed transition tests for every state and every virtual slot, attack timing/hit windows, QTE input/results, pushing/hiding/FPS, and death.
 - Real player SOJ/SAI/audio resources and exact dummy frames for representative stand/run/attack/hurt/QTE states.
 - Exercise player-controlled movement and combat through engine input, not only direct method calls.
+
+**Status: complete.** `game::Player` replaces the generic scene creature, and `PlayerStateSet` implements all 20 states and all 80 enter/exit/update/registration virtual bodies. `Sword`, player-owned `GunFire`, melee/gun target selection, damage and hurt/death variants, pushing, QTE, hide/FPS, inventory snapshots, and player save fields are implemented. All player commands in IDs 117–148 and 255–257 are bound to their own recovered handlers. `test_game_player.cpp` covers every state, attack chains and hit windows, QTE results, real resources, save round trips, and real map-2008 movement/combat through engine input; exact stand/run/attack/hurt/QTE frame hashes are recorded in `symbian3rd_player.md`.
+
+All 32 default tests and all 25 core, logging, math, WAR, and ASan-UBSan tests pass. Ghidra contains 187 recovered function renames, typed `Player` (0xf44) and `Sword` (0x27c) layouts, typed signatures, field names, comments, `stage4` tags, and a saved completion property. The concrete enemy and pushable implementations, final UI rendering, and full scene persistence remain with their assigned later stages; the real startup script still stops explicitly at command 221.
 
 ## Stage 5 — Things and map-unit implementations
 

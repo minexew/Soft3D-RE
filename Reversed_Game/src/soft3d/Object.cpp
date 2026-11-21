@@ -322,6 +322,27 @@ void Object::SetBoneTransform(int32_t track, const Matrix4& transform)
     boneTransform = transform;
 }
 
+Vec3 Object::SampleMorph(uint32_t target) const
+{
+    return animation != nullptr ? Transform(modelMatrix, animation->SampleMorph(target, animationTime))
+                                : Vec3{};
+}
+
+result Object::LoadTextureOverride(uint32_t material, const char16_t* name, int level)
+{
+    if (resourceManager == nullptr || material >= textures.size()) {
+        return S3D_PARAM;
+    }
+    auto* resource = dynamic_cast<TextureRes*>(resourceManager->GetResource(
+        ResourceTexture, level, name));
+    if (resource == nullptr) {
+        return S3D_FILE;
+    }
+    textureResources[material] = resource;
+    textures[material] = resource->GetTexture();
+    return S3D_OK;
+}
+
 void Object::SetLightingEnabled(bool enabled) { lightingEnabled = enabled; }
 void Object::SetAmbientLightOnly(bool enabled) { ambientLightOnly = enabled; }
 void Object::SetCullingDisabled(bool disabled) { cullingDisabled = disabled; }

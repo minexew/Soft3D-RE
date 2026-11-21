@@ -102,6 +102,7 @@ public:
     int GetWidth() const;
     int GetHeight() const;
     int GetLanguage() const;
+    bool IsInGame() const { return inGame; }
 
 private:
     std::u16string PersistencePath(const char16_t* name) const;

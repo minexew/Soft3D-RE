@@ -10,12 +10,12 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-Stages 1–3 are implemented in `seven_days_game`:
+Stages 1–4 are implemented in `seven_days_game`:
 
 - `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
 - Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL new-game smoke test proves that this path reaches progress 100 and executes the stage-3 camera/audio commands.
-- `Scene` owns the BSP, manager, player base, game `CameraController`, camera-path resources, six presentation shaders, transition state, event/snapshot arrays, and two environment-channel states. The current player remains the generic `Creature` base with a `SceneCameraSpot` adapter; concrete player behavior remains stage 4.
-- `GameSI` contains all 218 ARM handler addresses and zero adjustments. Stage-2 scene commands, stage-3 camera/audio/presentation commands, and the confirmed empty/shared-word callbacks are implemented. Every later-stage command throws `GameSIError` with its ID and ARM address, so scripts cannot silently advance through missing behavior. The real `ep0` test confirms the map handshake and then stops at later-stage command 221.
+- `Scene` owns the BSP, manager, concrete `Player`, game `CameraController`, camera-path resources, six presentation shaders, transition state, event/snapshot arrays, and two environment-channel states. Stage 4 adds the complete 20-state player, sword/gunfire, combat, inventory, and hide/FPS lifecycle; `symbian3rd_player.md` is the detailed reference.
+- `GameSI` contains all 218 ARM handler addresses and zero adjustments. Stage-2 scene commands, stage-3 camera/audio/presentation commands, stage-4 player commands, and the confirmed empty/shared-word callbacks are implemented. Every remaining later-stage command throws `GameSIError` with its ID and ARM address, so scripts cannot silently advance through missing behavior. The real `ep0` test confirms the map handshake and then stops at later-stage command 221.
 - The SBP factory creates generic renderable entities for types -1/0 and real camera/light triggers for types 10/11, stores type-102 words, and returns null for game-owned non-renderable records. The generic loader accepts and skips those null entries, as the ARM loader does; complete `BspUnit` and remaining special-unit construction remains stage 5.
 - `GameUIDlg` HUD/map/about-model/item operations remain stage-8 hooks, including the high-`0x10000` special-door presentation. Full save loading remains stage 13 and reports an explicit error rather than treating the 44-byte header as a scene load. License gating remains stage 14.
 
@@ -138,14 +138,14 @@ IDs 229–257 form a further thing/item/player command family with distinct hand
 
 The primary vtable's slots 28–34 implement the `CameraSpot` getters/setters: `Player_GetPosition`, `Player_GetRight`, `Player_GetUp`, `Player_GetForward`, `Player_SetRight`, `Player_SetUp`, and `Player_SetForward` (`0x000380bc`–`0x000381f8`). `Player_SaveState` and `Player_LoadState` are `0x0003d4f4` and `0x0003d278`.
 
-`PlayerStateSet` contains all 20 concrete states and 80 state-specific virtual implementations, already named `<State>_vfunc_<slot>` in Ghidra:
+`PlayerStateSet` contains all 20 concrete states and 80 state-specific virtual implementations:
 
 - `CStand`, `CRun`;
 - `CAttackA1/A2/A3`, `CAttackB1/B2/B3`, `CAttackC1/C2/C3`;
 - `CHurt`, `CHurt2`, `CHurt3`, `CHurt4`, `CDie`;
 - `CPush`, `CQTE`, `CHide`, `CFPS`.
 
-`PlayerStateSet_InitializeStates` (`0x00032c50`) registers all of them. The concrete enter/exit/update chains, transitions, animation/attack windows, movement, hiding, QTE, pushing, death, and first-person behavior remain unimplemented in the portable build. `Sword` (`GameUnit` plus `Renderable` at 0x54) and the player-owned `GunFire` must be wired to those states.
+`PlayerStateSet_InitializeStates` (`0x00032c50`) registers them in slots 0–19. Stage 4 implements every enter/exit/update/registration body and its chain transitions. The concrete `Player` owns `Sword` and `GunFire`, uses the real control map and camera, and connects death to scene game-over. Player commands 117–148 and 255–257 are implemented. Native layouts, animation actions, combat tables, QTE/hide rules, save order, and exact frame tests are in `symbian3rd_player.md`. Concrete enemy and pushable descendants remain in their assigned stages behind the documented narrow interfaces.
 
 ## Unit manager, things, and map entities
 
@@ -249,6 +249,8 @@ A portable implementation needs a platform interface for license state, device i
 
 Confirmed scene, player, manager, trigger, data-loader, spawn, item-operation, resource-table, and `GameSI` names have been applied and saved. Stage 1 added typed `SdtItemRecord`, `SdtGameTextRecord`, `GameItemSpawnRecord`, `EnemyWaypoint`, `SdtEnemySpawnRecord`, `EnemySpawnRecord`, `GameItemGroup`, `EnemyInfoGroup`, and `GameItemRuntime` structures, loader locals, prototypes, plate comments, and `game,data,stage1` tags. The callback table has a typed `GameSI_Callback` first record, a full-table bookmark, and a `game_completion_research` property; existing pointer labels remain preserved.
 
-Stage 2 adds saved, explicitly padded native `Scene` (0x6b68) and `GameSI` (0x738) layouts, `SbpEntityRecord` (0x1c), and the 0x26018-byte manager type. The scene layout includes the engine services, transition state, shaders, environment state, event/snapshot arrays, and authorization words; unrecovered camera/player-state areas stay opaque. Function prototypes, plate comments, and `game,scene/script/map,stage2` tags cover the startup and load paths. The corrected `Player_Ctor` and manager-constructor argument orders are applied. `GameSI_LoadNextDay`, `GameSI_SetLoadMapParams`, `GameSI_LoadNextLevel`, `GameSI_LoadMap`, `GameSI_IsMapLoaded`, event callbacks, `SimpleScript_StartTasks`, and the three confirmed empty callbacks are named. Remaining unnamed methods belong to their later implementation stages.
+Stage 2 adds saved, explicitly padded native `Scene` (0x6b68) and `GameSI` (0x738) layouts, `SbpEntityRecord` (0x1c), and the 0x26018-byte manager type. The scene layout includes the engine services, transition state, shaders, environment state, event/snapshot arrays, and authorization words; Scene-local areas not consumed by that stage stayed opaque; the separate native player/state layouts have since been recovered in stage 4. Function prototypes, plate comments, and `game,scene/script/map,stage2` tags cover the startup and load paths. The corrected `Player_Ctor` and manager-constructor argument orders are applied. `GameSI_LoadNextDay`, `GameSI_SetLoadMapParams`, `GameSI_LoadNextLevel`, `GameSI_LoadMap`, `GameSI_IsMapLoaded`, event callbacks, `SimpleScript_StartTasks`, and the three confirmed empty callbacks are named. Remaining unnamed methods belong to their later implementation stages.
 
 Stage 3 adds saved `GameCameraController` (0x208), `CameraTriggerLayout` (0x90), `LightTriggerLayout` (0x68), and `EnvironmentAudioChannel` (0x4c) structures, 96 recovered function names, 100 typed signatures, local/parameter names, plate comments, and `game,camera/trigger/scene/script/audio,stage3` tags. All eight update callbacks, trigger stack methods, environment handlers, scene presentation commands, and both basic player positioning commands are included. Two stage-3 bookmarks and the corrected `7nd_a` ending-title rule are saved. The 110-function stage-3 tag set was verified after splitting the bulk-tag operation, and the program was saved afterward.
+
+Stage 4 adds saved `Player` (0xf44) and `Sword` (0x27c) structures with recovered field names, 187 function renames covering player/sword/states/commands, typed state/player/sword/GameSI signatures, plate comments, `game,player/states/sword/script,stage4` tags, a player-constructor bookmark, and a completion property. The former `<State>_vfunc_<slot>` names are now explicit `Enter`/`Exit`/`Update`/`Register` names. The program was saved after verifying typed player construction, attack, QTE, and sword decompilation.

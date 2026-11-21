@@ -67,6 +67,7 @@ public:
     void SetSubmitEnabled(bool enabled);
     void SetPrepareEnabled(bool enabled);
     bool IsRunning() const;
+    bool IsPreUpdateEnabled() const { return preUpdateEnabled; }
 
 protected:
     void UpdateFrame();

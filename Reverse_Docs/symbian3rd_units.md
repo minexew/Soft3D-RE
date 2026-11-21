@@ -126,7 +126,7 @@ The path-pair selection preserves the original cumulative `nodes[1]` comparison 
 
 `PlayerStateSet` has 256 registration pointers (1024 bytes) followed by 20 embedded 12-byte states, giving `4 + 0x400 + 20 * 12 = 0x4f4` bytes. Registration does not transfer ownership.
 
-The portable templates reproduce these rules without implementing any concrete player state.
+The portable templates reproduce these rules and also expose direct enter-chain/current-state operations used by recovered player commands. Stage 4 implements all concrete states in `src/game/PlayerStates.cpp`; their behavior and native layouts are in `symbian3rd_player.md`. `Input::IsAnyKeyClick` was separately corrected to scan the key array for QTE use.
 
 ## BSP collision and path queries
 

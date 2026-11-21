@@ -36,6 +36,8 @@ void MyGameUnitMgr::Reset()
     ResetBuckets();
     mapReady = false;
     paused = false;
+    healthPackCount = 0;
+    pushTarget = nullptr;
 }
 
 void MyGameUnitMgr::FinishMapLoad(bool restoreSavedState)

@@ -107,7 +107,40 @@ GameSI::GameSI()
     callbacks[100 - gameSIFirstCommand].handler = &GameSI::SetFog;
     callbacks[103 - gameSIFirstCommand].handler = &GameSI::SelectPresentationShader;
     callbacks[117 - gameSIFirstCommand].handler = &GameSI::SetPlayerDirection;
+    callbacks[118 - gameSIFirstCommand].handler = &GameSI::SetPlayerClipping;
+    callbacks[119 - gameSIFirstCommand].handler = &GameSI::SetPlayerAnimation;
+    callbacks[120 - gameSIFirstCommand].handler = &GameSI::IsPlayerAnimationFinished;
     callbacks[121 - gameSIFirstCommand].handler = &GameSI::TeleportPlayer;
+    callbacks[122 - gameSIFirstCommand].handler = &GameSI::NavigatePlayer;
+    callbacks[123 - gameSIFirstCommand].handler = &GameSI::PlayerHearSound;
+    callbacks[124 - gameSIFirstCommand].handler = &GameSI::PlayerPointInside;
+    callbacks[125 - gameSIFirstCommand].handler = &GameSI::PlayerPointOutside;
+    callbacks[126 - gameSIFirstCommand].handler = &GameSI::PlayerHearEnemy;
+    callbacks[127 - gameSIFirstCommand].handler = &GameSI::PlayerHearThing;
+    callbacks[128 - gameSIFirstCommand].handler = &GameSI::PlayerAttack;
+    callbacks[129 - gameSIFirstCommand].handler = &GameSI::IsPlayerDead;
+    callbacks[130 - gameSIFirstCommand].handler = &GameSI::GetPlayerHealth;
+    callbacks[131 - gameSIFirstCommand].handler = &GameSI::SetPlayerHealth;
+    callbacks[132 - gameSIFirstCommand].handler = &GameSI::AddPlayerHealth;
+    callbacks[133 - gameSIFirstCommand].handler = &GameSI::DamagePlayer;
+    callbacks[134 - gameSIFirstCommand].handler = &GameSI::SetPlayerWeapon;
+    callbacks[135 - gameSIFirstCommand].handler = &GameSI::GetPlayerWeapon;
+    callbacks[136 - gameSIFirstCommand].handler = &GameSI::IsPlayerAttacking;
+    callbacks[137 - gameSIFirstCommand].handler = &GameSI::IsPlayerHidden;
+    callbacks[138 - gameSIFirstCommand].handler = &GameSI::StartPlayerQTE;
+    callbacks[139 - gameSIFirstCommand].handler = &GameSI::GetPlayerQTEResult;
+    callbacks[140 - gameSIFirstCommand].handler = &GameSI::GetPlayerUsedItem;
+    callbacks[141 - gameSIFirstCommand].handler = &GameSI::ClearPlayerUsedItem;
+    callbacks[142 - gameSIFirstCommand].handler = &GameSI::EnterPlayerFPS;
+    callbacks[143 - gameSIFirstCommand].handler = &GameSI::HasAttackingEnemy;
+    callbacks[144 - gameSIFirstCommand].handler = &GameSI::SetPlayerSpeed;
+    callbacks[145 - gameSIFirstCommand].handler = &GameSI::IsPlayerPushing;
+    callbacks[146 - gameSIFirstCommand].handler = &GameSI::SetPlayerYoung;
+    callbacks[147 - gameSIFirstCommand].handler = &GameSI::IsPlayerYoung;
+    callbacks[148 - gameSIFirstCommand].handler = &GameSI::ExitPlayerHide;
+    callbacks[255 - gameSIFirstCommand].handler = &GameSI::AddPlayerItem;
+    callbacks[256 - gameSIFirstCommand].handler = &GameSI::HasPlayerItem;
+    callbacks[257 - gameSIFirstCommand].handler = &GameSI::RemovePlayerItem;
     callbacks[258 - gameSIFirstCommand].handler = &GameSI::NullCallback;
     callbacks[259 - gameSIFirstCommand].handler = &GameSI::SetSharedWord255;
     callbacks[260 - gameSIFirstCommand].handler = &GameSI::NullCallback;
@@ -422,6 +455,219 @@ void GameSI::TeleportPlayer(soft3d::ScriptCommand& command)
     context.player->SetCollisionBounds({
         soft3d::Add(context.player->GetLocalBounds().minimum, context.player->GetPosition()),
         soft3d::Add(context.player->GetLocalBounds().maximum, context.player->GetPosition())});
+}
+
+void GameSI::SetPlayerClipping(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (context.player->GetObject(0) != nullptr) {
+        context.player->GetObject(0)->SetRenderMode(command.GetArgument(0).GetBool()
+            ? soft3d::ObjectRenderMode::Normal : soft3d::ObjectRenderMode::SecondaryStreams);
+    }
+}
+
+void GameSI::SetPlayerAnimation(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    const auto* animation = dynamic_cast<const soft3d::Animation*>(context.resources->GetResource(
+        soft3d::ResourceAnimation, 3, command.GetArgument(0).GetString().c_str(), u".\\common\\"));
+    context.player->SetCustomAnimation(animation, command.GetArgument(1).GetBool());
+}
+
+void GameSI::IsPlayerAnimationFinished(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.player->IsAnimationFinished());
+    }
+}
+
+void GameSI::NavigatePlayer(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    const bool reached = context.player->NavigateTo({command.GetArgument(0).GetFixed(),
+        command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed()}, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(reached);
+}
+
+void GameSI::PlayerHearSound(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    const bool heard = context.player->HearSound({command.GetArgument(0).GetFixed(),
+        command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed()},
+        command.GetArgument(3).GetFixed(), -1);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(heard);
+}
+
+void GameSI::PlayerPointInside(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 6);
+    const soft3d::ObjectBounds bounds{{command.GetArgument(0).GetFixed(),
+        command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed()},
+        {command.GetArgument(3).GetFixed(), command.GetArgument(4).GetFixed(),
+         command.GetArgument(5).GetFixed()}};
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.player->IsPointInside(bounds.minimum));
+    }
+}
+
+void GameSI::PlayerPointOutside(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 6);
+    const soft3d::ObjectBounds bounds{{command.GetArgument(0).GetFixed(),
+        command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed()},
+        {command.GetArgument(3).GetFixed(), command.GetArgument(4).GetFixed(),
+         command.GetArgument(5).GetFixed()}};
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(!context.player->IsPointInside(bounds.minimum));
+    }
+}
+
+void GameSI::PlayerHearEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    soft3d::GameUnit* unit = context.unitManager->FindUnit(0, command.GetArgument(0).GetShort());
+    const bool heard = unit != nullptr && context.player->HearSound(unit->GetPosition(),
+        command.GetArgument(1).GetFixed(), -1);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(heard);
+}
+
+void GameSI::PlayerHearThing(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    const int32_t id = command.GetArgument(0).GetShort();
+    soft3d::GameUnit* unit = context.unitManager->FindUnit(2, id);
+    const bool heard = unit != nullptr && context.player->HearSound(unit->GetPosition(),
+        command.GetArgument(1).GetFixed(), id);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(heard);
+}
+
+void GameSI::PlayerAttack(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->StartAttack(command.GetArgument(0).GetInt() != 0);
+}
+void GameSI::IsPlayerDead(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(context.player->IsDead());
+}
+void GameSI::GetPlayerHealth(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetInt(context.player->GetHealth());
+}
+void GameSI::SetPlayerHealth(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->SetHealth(command.GetArgument(0).GetShort());
+}
+void GameSI::AddPlayerHealth(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->AddHealth(command.GetArgument(0).GetShort());
+}
+void GameSI::DamagePlayer(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->Damage(command.GetArgument(0).GetShort());
+}
+void GameSI::SetPlayerWeapon(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->SetWeapon(command.GetArgument(0).GetInt());
+}
+void GameSI::GetPlayerWeapon(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetInt(context.player->GetWeapon());
+}
+void GameSI::IsPlayerAttacking(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(context.player->IsAttacking());
+}
+void GameSI::IsPlayerHidden(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(context.player->IsHiddenOrFPS());
+}
+void GameSI::StartPlayerQTE(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    context.player->BeginQTE(command.GetArgument(0).GetShort(), command.GetArgument(1).GetShort(),
+                             command.GetArgument(2).GetShort());
+}
+void GameSI::GetPlayerQTEResult(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetInt(context.player->GetQteResult());
+}
+void GameSI::GetPlayerUsedItem(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetInt(context.player->GetUsedItem());
+}
+void GameSI::ClearPlayerUsedItem(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.player->ClearUsedItem();
+}
+void GameSI::EnterPlayerFPS(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.player->EnterFPS();
+}
+void GameSI::HasAttackingEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.player->HasAttackingEnemy());
+    }
+}
+void GameSI::SetPlayerSpeed(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->SetNavigationSpeed(command.GetArgument(0).GetFixed());
+}
+void GameSI::IsPlayerPushing(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.player->IsPushingUnit(command.GetArgument(0).GetShort()));
+    }
+}
+void GameSI::SetPlayerYoung(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->SetYoung(command.GetArgument(0).GetBool());
+}
+void GameSI::IsPlayerYoung(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(context.player->IsYoung());
+}
+void GameSI::ExitPlayerHide(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.player->ExitHide();
+}
+void GameSI::AddPlayerItem(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->AddItem(command.GetArgument(0).GetShort(), true);
+}
+void GameSI::HasPlayerItem(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.player->HasItem(command.GetArgument(0).GetShort()));
+    }
+}
+void GameSI::RemovePlayerItem(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->RemoveItem(command.GetArgument(0).GetShort());
 }
 
 void GameSI::LoadNextDay(soft3d::ScriptCommand& command)

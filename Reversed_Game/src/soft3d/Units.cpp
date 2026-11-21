@@ -1262,6 +1262,12 @@ void Creature::SetNavigationSpeed(Fixed value) { navigationSpeed = value; }
 Fixed Creature::GetNavigationSpeed() const { return navigationSpeed; }
 const Vec3& Creature::GetNavigationTarget() const { return navigationTarget; }
 bool Creature::IsNavigationEnabled() const { return navigationEnabled; }
+void Creature::ResetNavigationPath()
+{
+    previousPathNode = nullptr;
+    currentPathNode = nullptr;
+    reachedCurrentPathNode = false;
+}
 
 GameUnitManager::GameUnitManager(const UnitManagerContext& managerContext) : context(managerContext) {}
 

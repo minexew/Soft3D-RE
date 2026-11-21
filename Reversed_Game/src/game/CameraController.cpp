@@ -308,6 +308,17 @@ void CameraController::SetMode(int32_t newMode, const Vec3& newPosition, const V
     }
 }
 
+void CameraController::SetFirstPerson(const Vec3& newDirection, bool snap, bool lock,
+                                      Fixed horizontalLimit, Fixed verticalLimit)
+{
+    SetMode(FirstPerson, {}, newDirection, 0, nullptr, 0, snap, 0);
+    bound = snap;
+    firstPersonLock = lock;
+    previousDirection = previousDesiredTarget;
+    freeHorizontalLimit = horizontalLimit;
+    freeVerticalLimit = verticalLimit;
+}
+
 void CameraController::LookAt(const Vec3& newPosition, const Vec3& newTarget)
 {
     if (camera != nullptr) {

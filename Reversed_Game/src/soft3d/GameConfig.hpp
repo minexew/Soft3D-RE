@@ -40,6 +40,7 @@ public:
     void SetOrientation(int value);
     int GetOrientation() const;
     uint32_t GetBinding(int action) const;
+    uint32_t GetPrimaryBinding(int action) const;
     void SetBinding(int action, uint32_t key);
     void SetEnabled(bool enabled);
     void SetActionEnabled(int action, bool enabled);

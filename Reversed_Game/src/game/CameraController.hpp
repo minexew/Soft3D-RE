@@ -53,10 +53,13 @@ public:
     void ConfigureOrbit(int32_t frames, const soft3d::Vec3* center,
                         const soft3d::Vec3* target, bool vertical, bool clockwise);
     void SetOrbitRotationEnabled(bool enabled) { orbitRotationEnabled = enabled; }
+    void SetFirstPerson(const soft3d::Vec3& direction, bool snap, bool lock,
+                        soft3d::Fixed horizontalLimit, soft3d::Fixed verticalLimit);
 
     int32_t GetMode() const { return mode; }
     const soft3d::Vec3& GetPosition() const { return position; }
     const soft3d::Vec3& GetTarget() const { return target; }
+    const soft3d::Vec3& GetRight() const { return right; }
     const soft3d::Vec3& GetDesiredPosition() const { return desiredPosition; }
     const soft3d::Vec3& GetDesiredTarget() const { return desiredTarget; }
     soft3d::Camera* GetCamera() const { return camera; }

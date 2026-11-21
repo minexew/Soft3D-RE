@@ -26,6 +26,10 @@ public:
     bool IsMapReady() const { return mapReady; }
     int32_t GetDay() const { return day; }
     int32_t GetMapId() const { return mapId; }
+    int32_t GetHealthPackCount() const { return healthPackCount; }
+    void SetHealthPackCount(int32_t value) { healthPackCount = value; }
+    soft3d::GameUnit* GetPushTarget() const { return pushTarget; }
+    void SetPushTarget(soft3d::GameUnit* value) { pushTarget = value; }
 
     void ConfigureScene(CameraController* cameraController, soft3d::Creature* player);
     void HandleMapEntity(const soft3d::BspEntityRecord& record, const soft3d::Bsp& bsp);
@@ -45,6 +49,8 @@ private:
     uint32_t randomState = 0;
     int32_t day = 0;
     int32_t mapId = 0;
+    int32_t healthPackCount = 0;
+    soft3d::GameUnit* pushTarget = nullptr;
     bool mapReady = false;
     bool paused = false;
 };

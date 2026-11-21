@@ -44,6 +44,7 @@ public:
     bool IsStarted() const;
     const VideoBufferInfo& GetBufferInfo() const;
     const char* GetBackendName() const;
+    VideoBackend* GetBackend() const { return backend.get(); }
 
 private:
     bool started = false;

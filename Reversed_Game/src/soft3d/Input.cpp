@@ -155,7 +155,12 @@ bool Input::IsKeyDownOrClick(Key key) const
 
 bool Input::IsAnyKeyClick() const
 {
-    return anyKeyDown;
+    for (std::size_t key = 1; key < keySlotCount; ++key) {
+        if ((keyStates[key] & keyClick) != 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 uint8_t Input::GetKeyState(Key key) const

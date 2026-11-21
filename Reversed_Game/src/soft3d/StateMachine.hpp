@@ -104,6 +104,15 @@ public:
         pendingState.reset();
     }
 
+    void EnterState(State<T>* state, T* owner)
+    {
+        if (state != nullptr) {
+            EnterChain(state, owner);
+        }
+    }
+
+    bool IsCurrentState(const State<T>* state) const { return current == state; }
+
     void SetPendingState(std::unique_ptr<State<T>> state)
     {
         pendingState = std::move(state);

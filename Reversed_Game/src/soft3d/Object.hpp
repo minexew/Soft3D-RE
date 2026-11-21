@@ -56,6 +56,8 @@ public:
     void SetAnimationSpeed(int32_t speed);
     void SetAnimationPaused(bool paused);
     void SetBoneTransform(int32_t track, const Matrix4& transform);
+    Vec3 SampleMorph(uint32_t target) const;
+    result LoadTextureOverride(uint32_t material, const char16_t* name, int cacheLevel);
 
     void SetLightingEnabled(bool enabled);
     void SetAmbientLightOnly(bool enabled);
@@ -83,6 +85,7 @@ public:
     const ObjectBounds& GetSecondaryBounds() const;
     const ObjectBounds& GetWorldBounds() const;
     const std::vector<Matrix4>& GetMatrixPalette() const;
+    const Matrix4& GetSecondaryTransform() const { return secondaryTransform; }
     const ObjectRes* GetModel() const;
     const Animation* GetAnimation() const;
     int32_t GetAnimationTime() const;

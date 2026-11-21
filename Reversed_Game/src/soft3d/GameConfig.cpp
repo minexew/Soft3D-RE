@@ -114,6 +114,11 @@ uint32_t ControlMap::GetBinding(int action) const
     return ValidAction(action) ? configuration.controlBindings[action] : 0;
 }
 
+uint32_t ControlMap::GetPrimaryBinding(int action) const
+{
+    return ValidAction(action) ? primaryBindings[action] : 0;
+}
+
 void ControlMap::SetBinding(int action, uint32_t key)
 {
     if (ValidAction(action)) {
