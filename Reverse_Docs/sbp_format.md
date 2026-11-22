@@ -225,6 +225,12 @@ The palette **byte** offset is `texel * 64 + ((intensity & 0xff00) >> 7)`, used 
 
 `Bsp_BuildLightmapMapping` (`0x00104b08`) rotates the texinfo axes, computes reciprocal-screen-scale terms, and derives lightmap UV bases from the camera position and face minima. `Bsp_RasterizeLightmappedSpans` (`0x00104e14`) clamps UV to face dimensions, masks V by the rounded-width shift, and writes RGB565 in the low 16 bits with reciprocal depth in the high 16 bits.
 
+### Enemy blood splats
+
+Stage 9 recovers the native lightmap mutation used by common enemy damage. `Bsp_SetLightmapSplatTexture` (`0x00054684`) stores texture and U/V flip state, and `Bsp_BlendLightmapSplat` (`0x00054640`) calls the recursive `Bsp_TraverseLightmapSplat` (`0x00105f5c`). The traversal follows the near child, tests node-owned faces at a crossing, then follows the far child. Projected texinfo coordinates select the splat center; clipping uses the power-of-two lightmap width and actual face height.
+
+Each nontransparent source index selects extended-palette intensity 15, at byte offset `(index * 32 + 15) * 2`. Destination and source are averaged with `((dst & 0xf7de) >> 1) + ((src & 0xf7de) >> 1)`, not rounded per-channel arithmetic. Axis-plane crossing writes `Y=-distance`; general-plane crossing interpolates only Y. These native quirks are preserved in `BspEffects.cpp` and covered by exact directed pixels in `test_bsprender.cpp`. The enemy-side resources, random choices, and trajectory are in `symbian3rd_enemy.md`.
+
 ## Map-model transforms
 
 The four serialized model vectors map to position, Z axis, X axis, and Y axis respectively. This order follows the ARM call `Matrix4_BuildFromAxes(Object + 0x144, Object + 0x30, Object + 0x3c, Object + 0x24)`: the runtime Object stores axes as Z/X/Y at those offsets. `Object::SetTransformVectors` performs the corresponding Z/X/Y assignment and calls `Object_UpdateTransform`. Before ARM's transpose, the builder writes elements 0–2 as `X.x,Y.x,Z.x`, 4–6 as `X.y,Y.y,Z.y`, and 8–10 as `X.z,Y.z,Z.z`. After the transpose, the matrix has direct axis columns: 0–2 are `X.x,X.y,X.z`, 4–6 are `Y.x,Y.y,Y.z`, and 8–10 are `Z.x,Z.y,Z.z`; vector 0 supplies translation elements 12–14. The portable builder writes this final layout directly, so an additional portable transpose is incorrect. Mode 0 disables lighting and mode 3 selects ambient-only lighting. Visible map entities submit their non-owning model pointers through the normal Object/Renderer path and advance animation once per submission. The five real lamps retain their serialized non-uniform scales and different yaws; the fifth is two world units lower.
@@ -252,6 +258,7 @@ The default CTest suite passes. Running `Tools/sbp.py` on the real map exports t
 - exact map-model checks cover every axis-matrix element and translation for all five lamps, including the non-axis-aligned orientations and serialized position/Z/X/Y order;
 - the real S3DSTY resource verifies allocation sizes, exact sequences, disabled styles, and a complete 20-frame wrap;
 - the real menu uses camera `(-66,-22,-43)` in cluster 18, decompresses PVS bytes `{1, 248, 47, 254, 31}`, selects 68 visible faces, and submits three queue-3 map models in that view; its exact raw framebuffer and dummy-presented hashes are `0x7d7b433c` and `0x98a24acd`;
-- the exact hashes above are confirmed in the normal build, and ASan reports no BSP memory errors. A current combined ASan+UBSan run stops `test_bsprender` at the existing negative left shift in `Bsp::TraverseVisibleNode`, so it does not establish a fresh sanitizer hash-parity result.
+- stage-9 blood-splat fixtures verify exact palette/blend pixels, transparency, U/V flips, edge clipping, and the native axis-plane Y behavior;
+- the exact hashes above are confirmed in the normal build. The current combined ASan+UBSan configuration passes `test_bsprender` and all 29 SDL-independent tests.
 
-The older generic SOJ `Renderer`/`Raster` path still emits signed-overflow warnings under UBSan. The BSP traversal shift warning is separately visible at `BspRender.cpp:482`; these pre-existing undefined-behavior findings are outside the game-stage-2 change and remain documented rather than silently excluded.
+Earlier notes recorded signed-overflow warnings in the older generic SOJ `Renderer`/`Raster` path and a negative left shift in BSP traversal. Those historical findings are not evidence of a current test failure; the stage-9 sanitizer run completes successfully.

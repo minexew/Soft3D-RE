@@ -41,7 +41,7 @@ Suggested responsibilities, split further when a file becomes unwieldy:
 | `src/game/Player.*`, `PlayerStates.*`, `Sword.*` | Player, 20 states, combat, QTE, sword/gunfire bindings. |
 | `src/game/Things.*`, `MapUnits.*` | Thing descendants, `BspUnit`, `ElectricSaw`, map entity factory behavior. |
 | `src/game/Triggers.*` | Interaction/camera/light triggers, `StayBox`, and `Trap`. |
-| `src/game/Enemy.*`, `Enemies/` | Common enemy AI and the 17 concrete variants. |
+| `src/game/Enemy.*`, `Enemies/` | Common enemy AI, 17 ordinary pool variants, and the separately constructed `Boss`. |
 | `src/game/GameUiController.*` | Concrete HUD/map/about/item operations behind existing `GameUIDlg`/`AboutDlg` hooks. |
 | `src/game/SaveGame.*` | Full slot and sidecar schemas, typed unit reconstruction, validation. |
 | `src/game/License.*` | Portable license state machine and message/domain consumers. |
@@ -59,7 +59,7 @@ The remaining surface includes:
 - `MyGameUnitMgr`, `BspUnit`, `ElectricSaw`, `StayBox`, and `Trap`;
 - `Breakable`, `Pushable`, and `Pickable`;
 - nine trigger classes: `EventTrigger`, `PickTrigger`, `DoorTrigger`, `ActTrigger`, `HideTrigger`, `ItemTrigger`, `TalkTrigger`, `CameraTrigger`, and `LightTrigger`;
-- `Enemy` and all 17 concrete enemies: `Bully`, `BullyDay3`, `BullyDay5`, `Boss`, `DarkKen`, `FatMaid`, `Ghost`, `Kate`, `Lamper`, `Lord`, `Maid`, `Maid2`, `Maid3`, `Prisoner`, `Sam`, `Victor`, `Weed`, and `Worm`;
+- `Enemy`, 17 ordinary pool classes, and the separate `Boss`: `Bully`, `BullyDay3`, `BullyDay5`, `Boss`, `DarkKen`, `FatMaid`, `Ghost`, `Kate`, `Lamper`, `Lord`, `Maid`, `Maid2`, `Maid3`, `Prisoner`, `Sam`, `Victor`, `Weed`, and `Worm`;
 - complete GameUI/HUD/map/dialog/QTE/inventory/about-model behavior, resource tables, statistics, and unlock progression;
 - `itemdata.sdt`, seven `gameitem` files, five `einfo` files, and license `message.sdt`/`domain.sdt` consumers;
 - full `slot%d.sav` and `spt\\slot%d.sav` state, including every typed unit record;
@@ -184,7 +184,7 @@ Connect the real `BspEntityFactory` to `MyGameUnitMgr_EntityFactory` (`0x00043ed
 - Real SBP entity creation, model animation/transparency queues, light/fog entities, and repeated map unload/reload.
 - Synthetic collision/push/pickup fixtures plus real map models.
 
-**Status: complete.** `src/game/MapUnits.*` implements all three `Things` descendants, `BspUnit`, `ElectricSaw`, `Trap`, and `StayBox`; the manager constructs every AddThing variant, traps, and up to 16 queue-6 lensflares. `GameSI` implements IDs 219–254 from their individual ARM bodies. The shared `Things` persistence extension now preserves alternate resources, destruction state, and the native `0x67c` word separately from the transient leaf pointer. Concrete StayBox enemy-pool operations remain behind `StayBoxHost` until stage 9, and table-driven pickup-trigger creation remains with stage 6 rather than installing a generic substitute.
+**Status: complete.** `src/game/MapUnits.*` implements all three `Things` descendants, `BspUnit`, `ElectricSaw`, `Trap`, and `StayBox`; the manager constructs every AddThing variant, traps, and up to 16 queue-6 lensflares. `GameSI` implements IDs 219–254 from their individual ARM bodies. The shared `Things` persistence extension now preserves alternate resources, destruction state, and the native `0x67c` word separately from the transient leaf pointer. Stage 9 supplies the concrete StayBox enemy-pool host; table-driven pickup-trigger creation belongs to stage 6 rather than a generic substitute.
 
 `test_game_mapunits.cpp` covers every command, all AddThing variants, break/push/pickup behavior, movement/rotation/orientation, destruction, trap and StayBox updates, persistence, and real maps 2008/2009. Map 2008 creates 15 concrete map-model units; map 2009 submits its real lensflare. The real `day1/ep0` path now reaches stage-6 command 159. All 33 default tests pass, and core/logging/math/WAR/ASan-UBSan variants each pass 26 tests. Native layouts, 53 class/helper prototypes, all 36 command prototypes, comments, 90 stage-5 tags, and a completion property are saved in Ghidra. Detailed semantics are in `symbian3rd_mapunits.md`.
 
@@ -255,18 +255,22 @@ Extend the existing `GameUIDlg`, `AboutDlg`, and `HelpDlg` through their current
 
 - Recover `Enemy` slots 28–49: resource setup, spawn/reset, perception, state updates, attack selection/hit tests, damage, death, and save/load.
 - Implement shared idle/alert/chase/attack/hurt/death behavior, hearing/sight, navigation/stay boxes/waypoints, player notification, and statistics.
-- Implement `MyGameUnitMgr` enemy pools, day resource preparation, type/ID lookup, pause/remove/update/submit behavior, and pooled save reconstruction.
+- Implement `MyGameUnitMgr` enemy pools, day resource preparation, type/ID lookup, pause/remove/update/submit behavior, and common enemy state serialization.
 - Implement all enemy `GameSI` commands: add/configure/animate/HP/ATK/direction/move/follow/attack/remove/pause/stop/stay-box/waypoint/alert operations.
 
 **Integration**
 
-Use `Creature` navigation/hearing and the real player/BSP. All concrete enemies must share only ARM-shared behavior; no generic substitution for variant methods.
+Use `Creature` navigation/hearing and the real player/BSP. All concrete enemies must share only ARM-shared behavior; no generic substitution for variant methods. The stage-9 pool adapter supplies common defaults/resources only and must be replaced by the real variant classes in stages 10–12.
 
 **Verification**
 
 - Directed tests for every common virtual slot and state transition, sight/hearing/path cases, damage/death, and pooled reuse.
-- Every enemy command with valid/invalid IDs and types, plus save type `0x26` reconstruction.
-- Real enemy resources and player interaction through the scene frame loop.
+- Every enemy command with valid/invalid IDs and types, plus common state round trips. Verify from the native loader that `0x26` reconstructs StayBox, not enemy; full scene loading remains stage 13.
+- Real enemy resources, exact blood-splat lightmap pixels, and player interaction through the scene frame loop.
+
+**Status: complete for common behavior.** `src/game/Enemy.*` implements slots 28–49, common helpers, AI states, combat, waypoints, StayBox return behavior, blood splats, and the four-word save extension. `MyGameUnitMgr` implements 17 pool rows, singleton selection, collision search, nondeleting reuse, day preparation, map spawning/snapshotting, and collision-unit commands. `GameSI` implements IDs 180–204 and 208–218. Concrete variant overrides remain stages 10–12.
+
+`test_game_enemy.cpp` covers common AI/persistence, every new command, pools, real `einfo2` data, StayBox integration, and real map-2008 combat. `test_bsprender.cpp` verifies exact blood-splat palette/blend pixels, transparency, flips, clipping, and the axis-plane quirk. All 36 default, logging, math, and WAR tests pass serially; core and ASan/UBSan each pass 29. The 0x83c `Enemy` and 0x24 `EnemyWaypointNode` layouts, typed common signatures, native names/comments, and stage-9 tags are saved in Ghidra. See `symbian3rd_enemy.md`.
 
 ## Stage 10 — Maid and Bully families
 
@@ -315,7 +319,7 @@ Implement the six remaining named enemies and `Boss`, including unique construct
 
 - Implement the complete `slot%d.sav` writer and `Scene_LoadSave` reader after the 44-byte header: day/map, music, environment channels, both 0x2800 progression blocks, GameUI, player, manager/content, and typed units.
 - Implement every unit extension and reconstruction switch type: 0, 4, `0x1b`–`0x1f`, `0x21`–`0x23`, `0x25`–`0x28`.
-- Implement pooled enemy restoration, PickTrigger’s linked-thing ID, map-entity reconstruction, and `spt\\slot%d.sav` script archive integration.
+- Implement PickTrigger’s linked-thing ID, map-entity reconstruction, enemy spawn-table restoration, and `spt\\slot%d.sav` script archive integration. Do not invent a pooled-enemy case for record `0x26`, which reconstructs StayBox.
 - Preserve stream endianness, wide strings, EOF handling, cache lifetimes, and original state-reset order. Add malformed-input checks without changing valid bytes.
 
 **Integration**

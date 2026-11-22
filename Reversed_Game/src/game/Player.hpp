@@ -245,6 +245,9 @@ public:
     void SetAnimationSpeed(int32_t speed);
     int32_t GetAnimationTime() const;
     int32_t GetAttackPhase() const { return attackPhase; }
+    soft3d::Fixed GetAttackBlend() const { return attackBlend; }
+    bool IsUsedItemHealing() const { return usedItemHealing != 0; }
+    void NotifyEnemyKilled(int32_t gunExperience);
     int32_t GetAttackDamage(soft3d::GameUnit* target);
     bool HasAttackingEnemy() const;
     bool HasAnyEnemy() const;

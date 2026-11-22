@@ -2,7 +2,7 @@
 
 This directory is a self-contained C++17/CMake reconstruction of the Soft3D engine and an SDL3 application shell for **7 Days: Salvation**. It is based on reverse engineering of the original binaries and preserves recovered behavior, including fixed-point arithmetic, lookup tables, rendering quirks, and known original bugs where they affect observable behavior.
 
-The reusable engine reconstruction is substantially complete. The application supports startup and handedness selection, logos and sound setup, the animated 3D main-menu background, menu/dialog navigation, UI audio, and configuration persistence. Stages 1–8 install concrete game data, `Scene`, `GameSI`, the eight-mode game camera, map camera/light triggers, door transitions, environment audio, scene presentation, the concrete player with all 20 states, Things/map-unit/trap/StayBox implementations, all nine interaction trigger classes, and the concrete GameUI/HUD/map/inventory/dialog/QTE/extras consumers with their script commands. A new game loads day 1, selects `day1/ep0`, incrementally loads its initial map through the real engine loop, spawns real map items, and advances past these trigger commands. **This is not yet a complete playable recreation.** Concrete enemies, full scene persistence, and license services remain staged work; unimplemented script commands fail explicitly rather than advancing silently.
+The reusable engine reconstruction is substantially complete. The application supports startup and handedness selection, logos and sound setup, the animated 3D main-menu background, menu/dialog navigation, UI audio, and configuration persistence. Stages 1–9 install concrete game data, `Scene`, `GameSI`, the eight-mode game camera, map camera/light triggers, door transitions, environment audio, scene presentation, the concrete player with all 20 states, Things/map-unit/trap/StayBox implementations, all nine interaction trigger classes, concrete GameUI/HUD/map/inventory/dialog/QTE/extras consumers, and common enemy AI/pooling with their script commands. A new game loads day 1, selects `day1/ep0`, incrementally loads its initial map through the real engine loop, spawns real map items, and advances past these trigger commands. **This is not yet a complete playable recreation.** Concrete enemy variant overrides, full scene persistence, and license services remain staged work; unimplemented script commands fail explicitly rather than advancing silently.
 
 No parent repository, analysis tools, Ghidra installation, or external format documentation is required to build or use this directory.
 
@@ -13,12 +13,12 @@ No parent repository, analysis tools, Ghidra installation, or external format do
   - SPK archives, resource caching, and file/stream IO;
   - STX textures, TGA image loading, SBN fonts and strings, and SDT UI data;
   - SOJ/SAI models and animation;
-  - SBP maps, BSP rendering/collision/path queries, S3DSTY light styles, and SPL camera paths;
+  - SBP maps, BSP rendering/collision/path queries, enemy blood-splat lightmap blending, S3DSTY light styles, and SPL camera paths;
   - software rasterization, render queues, objects, visual effects, and presentation shaders;
   - input, timing, dialogs, menu flow, configuration, and save-slot support;
   - SAU/WAR decoding, a 16-voice software mixer, fades, and positional sound;
   - the generic SST script loader, VM, task lifecycle, and host interface.
-- `src/game/` — the `seven_days_game` library: checked `itemdata`/`gameitem`/`einfo` parsing, fixed animation/sound/door resource tables, `MyGameUnitMgr`, the eight-mode `CameraController`, map camera/light and all seven script-created interaction triggers, concrete `Scene` loading/lifecycle/transitions/presentation, `Player`/`Sword` and all 20 player states, `MapUnits` (`Breakable`/`Pushable`/`Pickable`/`BspUnit`/`ElectricSaw`/`Trap`/`StayBox`), the 218-slot `GameSI` dispatch/context, and `GameUiController` with the recovered map tables for concrete HUD/dialog/QTE/inventory/map/extras behavior. Concrete enemies, full save loading, and license behavior remain staged work.
+- `src/game/` — the `seven_days_game` library: checked `itemdata`/`gameitem`/`einfo` parsing, fixed animation/sound/door resource tables, `MyGameUnitMgr`, the eight-mode `CameraController`, map camera/light and all seven script-created interaction triggers, concrete `Scene` loading/lifecycle/transitions/presentation, `Player`/`Sword` and all 20 player states, `MapUnits` (`Breakable`/`Pushable`/`Pickable`/`BspUnit`/`ElectricSaw`/`Trap`/`StayBox`), common `Enemy` AI/pooling/waypoints/combat/state serialization, the 218-slot `GameSI` dispatch/context, and `GameUiController` with the recovered map tables for concrete HUD/dialog/QTE/inventory/map/extras behavior. Concrete enemy variant overrides, full save loading, and license behavior remain staged work.
 - `src/platform/linux/` — Linux file, clock, logging, and memory support.
 - `src/platform/sdl/` — SDL3 video, audio, input, and clock backends.
 - `src/platform/dummy/` — deterministic video/audio backends used by tests and other headless hosts.
@@ -133,7 +133,9 @@ After a default build:
 ctest --test-dir build --output-on-failure
 ```
 
-The default suite has 35 tests, including SDL application smoke tests and a real new-game/map-load run. A `SOFT3D_BUILD_APP=OFF` build has 28 tests. Coverage includes:
+Run tests serially within each build directory; some tests use fixed temporary filenames and can overwrite one another's files when run in parallel.
+
+The default suite has 36 tests, including SDL application smoke tests and a real new-game/map-load run. A `SOFT3D_BUILD_APP=OFF` build has 29 tests. Coverage includes:
 
 - resource/archive parsing and cache lifecycle;
 - all shipped item/day data tables, fixed resource names, malformed data, missing files, and engine integration;
@@ -143,6 +145,8 @@ The default suite has 35 tests, including SDL application smoke tests and a real
 - every AddThing variant and thing command, break/push/pickup/trap/StayBox behavior, derived persistence records, real `BspUnit` models, and a real lensflare entity;
 - every interaction-trigger command, finite/infinite events, pickup accept/cancel/full-inventory flows, locked/tracked/special doors, act choices and camera warmup restoration, hide confirmation/masks, eight-item use zones, multi-line Talk timing and both completion modes, second-save bytes, and real map-2008 item spawning/use through the engine frame loop;
 - stage-8 GameSI commands, dialog/result state, item use/combination and unlock progression, map calibration/markers, and exact HUD/dialog/QTE/inventory/map/extras frames through `test_game_ui.cpp`;
+- all 17 enemy constructor configurations field-by-field, common states/perception/waypoints/combat/death, four-word state round trips, pool exhaustion/reuse, every enemy/collision command, real `einfo2` spawning, StayBox return behavior, and real map-2008 combat through `test_game_enemy.cpp`;
+- exact blood-splat palette/blend pixels, transparency, U/V flips, clipping, axis-plane behavior, and native normalized-reciprocal crossing through `test_bsprender.cpp`;
 - door transition frames, randomized environment channels, listener selection, ending-specific day titles, and game-over/Ink/restart behavior;
 - stream and file behavior;
 - real font, UI, map, model, animation, camera-path, and audio resources;

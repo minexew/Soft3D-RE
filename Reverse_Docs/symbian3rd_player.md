@@ -4,7 +4,7 @@
 
 This document records the stage-4 recovery of `Player`, `Sword`, and `PlayerStateSet`. The authority is the ARMv5 Symbian 3rd binary, not the leaked early script sources. The loaded Ghidra memory block begins at `0x8000`; all addresses below are loaded addresses and already include that bias. Do not add `0x8000` a second time.
 
-The portable implementation is in `Reversed_Game/src/game/Player.*`, `PlayerStates.cpp`, and `Sword.*`. It uses generic `Creature`, `StateMachine`, `CameraSpot`, `Object`, `GunFire`, physics, render queues, and resource managers. Concrete enemy AI, concrete `Pushable`, and final HUD/QTE drawing remain stages 5, 8, and 9; narrow `CombatTarget` and `PushableTarget` interfaces carry the recovered calls without inventing those implementations.
+The portable implementation is in `Reversed_Game/src/game/Player.*`, `PlayerStates.cpp`, and `Sword.*`. It uses generic `Creature`, `StateMachine`, `CameraSpot`, `Object`, `GunFire`, physics, render queues, and resource managers. Stage 9 supplies common enemy AI behind `CombatTarget`; concrete variant overrides remain stages 10–12. `Pushable` and the concrete HUD/QTE drawing were completed in stages 5 and 8.
 
 ## Native object layout
 
@@ -151,13 +151,13 @@ Gun phase 2 maintains two targets. Damage uses target distance against threshold
 
 Special type 4 phase 2 instead returns 125 after its range and BSP checks. The original virtual selection and unusual radius arithmetic are preserved in the portable combat interface rather than replaced by generic hitscan behavior.
 
-`Player_AddGunExperience` (`0x0003dd1c`) skips progression when the extra-weapon unlock disables it. At 50 and 100 it plays sound 142 and presents tutorial IDs 41 and 42 for 64 frames. Two upgrades can be observed through the same entry point; the second check follows the first immediately.
+`Player_AddGunExperience` (`0x0003dd1c`) skips progression when the extra-weapon unlock disables it. At 50 and 100 it plays sound 142 and presents tutorial IDs 41 and 42 for 64 frames. Two upgrades can be observed through the same entry point; the second check follows the first immediately. Stage 9's common `Enemy_Die` increments `killCount` and adds the enemy's gun-experience reward through the portable `NotifyEnemyKilled` helper. `Player::DamageFrom` respects the healing state of the used item, so healing use suppresses the incoming damage path tested by enemy perception/combat.
 
 ## Sword and gunfire
 
-`Sword_SetAnimation` (`0x000288c0`) indexes `(type * 16 + action)` in the 80-entry table, applies direction/loop/time to model and shadow, copies primary bounds, and clears completion. `Sword_Update` updates the primary transform, copies its matrix to the shadow, and rebuilds hit bounds. `Sword_PostUpdate` advances both animations and records primary completion.
+`Sword_Ctor` (`0x00027420`) initializes hit bounds to inverted/empty extrema, not a zero box. This prevents spurious hits while no attack is active; the stage-9 map-unit regression tests were corrected to prepare a real weapon and use computed bounds. `Sword_SetAnimation` (`0x000288c0`) indexes `(type * 16 + action)` in the 80-entry table, applies direction/loop/time to model and shadow, copies primary bounds, and clears completion. `Sword_Update` updates the primary transform, copies its matrix to the shadow, and rebuilds hit bounds. `Sword_PostUpdate` advances both animations and records primary completion.
 
-Hit reconstruction (`0x000289c8`) samples morph targets 0 and 1 in model space and transforms them by the model matrix. On a changed first point it computes normalized `(first - previousFirst) * 10`, expands current bounds by both points and the indexed history pair, advances the signed history index, clamps it to 3, shifts history, and stores the new pair. Inactive hits decrement the index and clamp at -1.
+Hit reconstruction (`0x000289c8`) samples morph targets 0 and 1 in model space and transforms them by the model matrix. On a changed first point it computes normalized `(first - previousFirst) * 10`, expands current bounds by both points and the indexed history pair, advances the signed history index, clamps it to 3, shifts history, and stores the new pair. An unchanged first point leaves the reset bounds empty for that update. Inactive hits decrement the index and clamp at -1.
 
 Player submission suppresses the model in FPS/hide, suppresses sword animation/submission during push and hurt 2/4, copies object intensity and shadow transform, and submits gunfire in queue 5 when frames remain. The muzzle position is sword morph target 0. `C2` sets one remaining frame.
 
@@ -258,4 +258,4 @@ hurt   0xe926f91d
 QTE    0x77c59b7d
 ```
 
-At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. Stage 8 has 35 default tests, 28 core/ASan-UBSan tests, and 35 logging/math/WAR tests, all passing serially. The frame hashes above include the stage-8 HUD. The real `day1/ep0` application path now reaches later-stage input command 47; real map-2008 engine frames also exercise ItemTrigger registration and `Player_UseItem`. No later-stage command was made a silent no-op.
+At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. After stage 9, all 36 default, logging, host-math, and WAR tests and all 29 core and ASan/UBSan tests pass serially. The frame hashes above include the stage-8 HUD and remain unchanged. The real `day1/ep0` application path reaches later-stage input command 47; real map-2008 engine frames also exercise ItemTrigger registration, `Player_UseItem`, and common enemy combat. No later-stage command was made a silent no-op.

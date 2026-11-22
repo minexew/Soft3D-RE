@@ -467,6 +467,7 @@ void CopyName(char16_t* destination, const char16_t* source)
 
 GameData::GameData()
 {
+    enemyInfoGroups.reserve(enemyInfoGroupCapacity);
     for (std::size_t index = 0; index < animationResourceNameCount; ++index) {
         CopyName(animationNames.data() + index * resourceNameCapacity, animationResourceNames[index]);
     }

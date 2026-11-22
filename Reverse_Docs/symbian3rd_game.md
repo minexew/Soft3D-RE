@@ -162,21 +162,21 @@ The primary vtable's slots 28–34 implement the `CameraSpot` getters/setters: `
 
 The SBP factory handles camera triggers (type 10), light triggers (type 11), six fog/header words (type 102), and lensflare entities (type 202), alongside the ordinary map-model path. `BspUnit_LoadEntity` (`0x000fd5c0`) and `BspUnit_Submit` (`0x000fd790`) implement concrete map-model entity configuration, animation, transparency selection, and queue submission. The portable scene now uses these methods through `game::BspUnit`, not the former generic `BspEntity` submission path.
 
-Stages 5–7 implement `Breakable`, `Pushable`, `Pickable`, `ElectricSaw`, `StayBox`, `Trap`, and all seven script-created interaction triggers, including state records and commands. `Sword`, `CameraTrigger`, and `LightTrigger` were completed in stages 3–4; stage 7 adds Light persistence without replacing the working map-trigger/controller logic. `symbian3rd_mapunits.md` and `symbian3rd_triggers.md` record native layouts and exact behavior. Concrete enemy-pool operations used by StayBox remain behind its host interface until stage 9.
+Stages 5–7 implement `Breakable`, `Pushable`, `Pickable`, `ElectricSaw`, `StayBox`, `Trap`, and all seven script-created interaction triggers, including state records and commands. `Sword`, `CameraTrigger`, and `LightTrigger` were completed in stages 3–4; stage 7 adds Light persistence without replacing the working map-trigger/controller logic. `symbian3rd_mapunits.md` and `symbian3rd_triggers.md` record native layouts and exact behavior. Stage 9 supplies the concrete StayBox enemy-pool host.
 
 The trigger unit-type words confirmed by constructors are Event `0x1b`, Camera `0x20`, Act `0x21`, Door `0x22`, Hide `0x23`, Light `0x24`, Pick `0x25`, Item `0x27`, and Talk `0x28`. `Breakable`, `Pushable`, and `Pickable` use `0x1c`, `0x1d`, and `0x1e`; `Trap` uses `0x1f`.
 
 ## Enemy hierarchy
 
-`Enemy` extends `Creature` with 22 additional virtual slots (28–49). They cover model/animation setup, spawn/reset, perception, idle/alert/chase/attack updates, attack selection and hit tests, damage, death, and save/load. `Enemy_vfunc_32` (`0x0007561c`) is shared by many classes and performs the common death transition, statistics update, sound/animation, and player notification. Enemy save adds four 32-bit state words to `VisUnit`.
+`Enemy` extends `Creature` with 22 additional virtual slots (28–49). They cover model/animation setup, spawn/reset, perception, idle/alert/chase/attack updates, attack selection and hit tests, damage, death, and save/load. `Enemy_Die` (`0x0007561c`) is shared by many classes and performs the common death transition, statistics update, sound/animation, and player notification. Enemy save adds four big-endian 32-bit state words to `VisUnit`: type, navigation-enabled, health, and state. Stage 9 implements this common layer; see `symbian3rd_enemy.md` for the layout, states, commands, and tests.
 
-All **17 concrete enemy classes** remain:
+The hierarchy has **18 named concrete classes**: 17 ordinary pool classes plus `Boss`. The pool variants are:
 
-`Bully`, `BullyDay3`, `BullyDay5`, `Boss`, `DarkKen`, `FatMaid`, `Ghost`, `Kate`, `Lamper`, `Lord`, `Maid`, `Maid2`, `Maid3`, `Prisoner`, `Sam`, `Victor`, `Weed`, and `Worm`.
+`Bully`, `BullyDay3`, `BullyDay5`, `DarkKen`, `FatMaid`, `Ghost`, `Kate`, `Lamper`, `Lord`, `Maid`, `Maid2`, `Maid3`, `Prisoner`, `Sam`, `Victor`, `Weed`, and `Worm`.
 
-`MyGameUnitMgr_InitializeEnemyPools` creates one instance of singleton types and eight instances of pooled types, assigns the player and manager, and initializes their shadows. `MyGameUnitMgr_PrepareDayEnemies` selects resources and outfit variants by day. `Boss` has separate construction/behavior from the ordinary pool and must not be omitted merely because it is not in that pool's constructor loop.
+`MyGameUnitMgr_InitializeEnemyPools` constructs only slot 0 for singleton types and all eight slots for non-singleton types, assigns the player and manager, and initializes their shadows. `MyGameUnitMgr_PrepareDayEnemies` selects resources and outfit variants by day. `Boss` has separate construction/behavior from the ordinary pool and must not be omitted merely because it is not in that pool's constructor loop.
 
-Implementation should first recover the common `Enemy` state machine, then share code only where ARM shows it. Special perception, movement, attacks, projectiles, transformations, death, and boss scripting cannot be approximated by one generic enemy.
+The current common pool adapter is only a stage-9 boundary, not a completed concrete-enemy implementation. Stages 10–12 must supply every native override. Special perception, movement, attacks, projectiles, transformations, death, linked actors, and boss scripting cannot be approximated by one generic enemy.
 
 ## Full save format and unit reconstruction
 
@@ -190,7 +190,7 @@ Implementation should first recover the common `Enemy` state machine, then share
 6. manager content and a sequence of typed unit records;
 7. script state from `spt\\slot%d.sav`.
 
-`MyGameUnitMgr_LoadUnitState` handles unit type words 0, 4, `0x1b`, `0x1c`, `0x1d`, `0x1e`, `0x1f`, `0x21`, `0x22`, `0x23`, `0x25`, `0x26`, `0x27`, and `0x28`. These represent base collision units, Things, Event/Breakable/Pushable/Pickable/Trap/Act/Door/Hide/Pick/Enemy/Item/Talk records. Enemy records reuse a pooled instance instead of allocating a new class. PickTrigger stores an additional linked-thing ID. Map-driven camera/light entities are rebuilt from map data rather than emitted by this switch.
+`MyGameUnitMgr_LoadUnitState` handles unit type words 0, 4, `0x1b`, `0x1c`, `0x1d`, `0x1e`, `0x1f`, `0x21`, `0x22`, `0x23`, `0x25`, `0x26`, `0x27`, and `0x28`. These represent base collision units, Things, Event/Breakable/Pushable/Pickable/Trap/Act/Door/Hide/Pick/StayBox/Item/Talk records. In particular, `0x26` consumes the next embedded 0x6c-byte StayBox at manager `+0xa28`; it does not reconstruct a pooled enemy, and this switch has no enemy case. PickTrigger stores an additional linked-thing ID. Map-driven camera/light entities are rebuilt from map data rather than emitted by this switch.
 
 The save writer, exact field order, per-class extensions, EOF rules, script archive consistency, and second-save byte determinism are all still required. Reading only the header cannot produce a valid load.
 
@@ -255,3 +255,5 @@ Stage 6 adds `EventTriggerLayout` (0x64), `PickTriggerLayout` (0x74), `DoorTrigg
 Stage 7 adds `HideTriggerLayout` (0x90), `ItemTriggerLayout` (0x7c), `TalkTriggerLayout` (0xb8), camera/line records and native vector layouts, 61 typed class/manager/GameSI signatures, behavioral plates, 67 verified `stage7` tags, a completion property, and a bookmark at `TalkTrigger_Update`. Typed review proved that Hide saves prompt/dialog/mask rather than angular limits, and that Act/Talk reset camera warmup rather than listener selection. StayBox constructor defaults and its three commands were corrected and saved. The program was saved after verifying the typed decompilation.
 
 Stage 8 adds `GameUIDlgLayout` (0x524) and `GameUIMapMarkerRecord` (0x0c), 59 function renames, typed UI/command signatures, corrected kill-count fields, comments, `stage8` tags, bookmarks, and a completion property. The native marker area has eight records. `GameUI_CloseDialog` preserves its result, dialog string slot 4 aliases the secondary label, and ID 81 is direct-map opening rather than `ClearRank`. Details are in `symbian3rd_gameui.md`.
+
+Stage 9 adds the saved 0x83c `Enemy` layout and distinct 0x24 `EnemyWaypointNode`, typed common `Enemy` signatures, common AI/helper names, pool constructors, all 36 enemy/collision command names, BSP blood-splat and normalized-reciprocal functions, behavioral plates, and 140 verified `game,enemy,stage9` function-tag assignments. Comments correct the `0x26` StayBox meaning, native missing-enemy command behavior, Ghost's empty model input, Kate's sound mapping, constructor defaults/rewards, and the sword constructor's inverted empty hit bounds. The program was saved after checking the layouts and typed decompilation. See `symbian3rd_enemy.md`.

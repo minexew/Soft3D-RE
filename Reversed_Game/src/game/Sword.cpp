@@ -37,6 +37,7 @@ Sword::Sword(soft3d::s3dResManager* resourceManager, soft3d::Renderer* objectRen
 {
     unitType = 7;
     SetType(0);
+    ResetBounds(hitBounds);
 }
 
 soft3d::result Sword::LoadModel(int typeValue, const char16_t* name)

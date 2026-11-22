@@ -185,6 +185,6 @@ map/other hand 96792195     About model    a415e615
 
 The event baseline intentionally equals HUD for the selected real-resource sequence; the shipped `juqing_01` backdrop is a solid black strip, and this check is retained as a regression baseline rather than presented as proof of a visually distinct portrait frame.
 
-All 35 default tests pass serially. STDIO logging and host-math variants each pass 35; core and combined ASan/UBSan builds pass 28; the WAR-nibble variant passes 35. These builds use separate directories and serial CTest execution.
+At stage-8 completion, all 35 default tests passed serially. STDIO logging and host-math variants each passed 35; core and combined ASan/UBSan builds passed 28; the WAR-nibble variant passed 35. After stage 9, the corresponding current counts are 36 for default/logging/math/WAR and 29 for core/ASan-UBSan. These builds use separate directories and serial CTest execution.
 
 Ghidra contains 59 recovered function renames, the typed 0x524-byte GameUI layout and marker record, corrected player statistics fields, typed GameUI/GameSI signatures, behavioral comments, `stage8` tags, two bookmarks, and a completion property. The program was saved after verifying typed decompilation.

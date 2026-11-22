@@ -262,6 +262,8 @@ public:
                                            const BspPathNode* excluded = nullptr) const;
     const BspPathNode* GetPathNode(uint16_t index) const;
     Fixed GetLightIntensity(const Vec3& position) const;
+    void BlendLightmapSplat(const Texture* texture, const Vec3& start, const Vec3& end,
+                            bool flipU, bool flipV);
 
     bool IsLoaded() const;
     int32_t GetCurrentCluster() const;

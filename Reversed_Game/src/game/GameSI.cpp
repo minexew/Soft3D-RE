@@ -166,9 +166,45 @@ GameSI::GameSI()
     callbacks[177 - gameSIFirstCommand].handler = &GameSI::IsTalkTriggerCompleted;
     callbacks[178 - gameSIFirstCommand].handler = &GameSI::EnableTalkTrigger;
     callbacks[179 - gameSIFirstCommand].handler = &GameSI::RemoveInteractionTrigger;
+    callbacks[180 - gameSIFirstCommand].handler = &GameSI::AddEnemy;
+    callbacks[181 - gameSIFirstCommand].handler = &GameSI::PersistEnemy;
+    callbacks[182 - gameSIFirstCommand].handler = &GameSI::SetEnemyNormalRendering;
+    callbacks[183 - gameSIFirstCommand].handler = &GameSI::SetEnemyAnimation;
+    callbacks[184 - gameSIFirstCommand].handler = &GameSI::IsEnemyAnimationFinished;
+    callbacks[185 - gameSIFirstCommand].handler = &GameSI::IsEnemyRemoved;
+    callbacks[186 - gameSIFirstCommand].handler = &GameSI::GetEnemyHealth;
+    callbacks[187 - gameSIFirstCommand].handler = &GameSI::SetEnemyHealth;
+    callbacks[188 - gameSIFirstCommand].handler = &GameSI::GetEnemyAttackPower;
+    callbacks[189 - gameSIFirstCommand].handler = &GameSI::SetEnemyAttackPower;
+    callbacks[190 - gameSIFirstCommand].handler = &GameSI::SetEnemyDirection;
+    callbacks[191 - gameSIFirstCommand].handler = &GameSI::TeleportEnemy;
+    callbacks[192 - gameSIFirstCommand].handler = &GameSI::MoveEnemyTo;
+    callbacks[193 - gameSIFirstCommand].handler = &GameSI::EnemyHearSound;
+    callbacks[194 - gameSIFirstCommand].handler = &GameSI::EnemyBoundsInside;
+    callbacks[195 - gameSIFirstCommand].handler = &GameSI::FollowEnemy;
+    callbacks[196 - gameSIFirstCommand].handler = &GameSI::AttackEnemy;
+    callbacks[197 - gameSIFirstCommand].handler = &GameSI::RemoveEnemy;
+    callbacks[198 - gameSIFirstCommand].handler = &GameSI::RemoveEnemiesByType;
+    callbacks[199 - gameSIFirstCommand].handler = &GameSI::RemoveAllEnemies;
+    callbacks[200 - gameSIFirstCommand].handler = &GameSI::PauseEnemy;
+    callbacks[201 - gameSIFirstCommand].handler = &GameSI::PauseEnemiesByType;
+    callbacks[202 - gameSIFirstCommand].handler = &GameSI::PauseAllEnemies;
+    callbacks[203 - gameSIFirstCommand].handler = &GameSI::StopEnemy;
+    callbacks[204 - gameSIFirstCommand].handler = &GameSI::AddStayBox;
     callbacks[205 - gameSIFirstCommand].handler = &GameSI::AddStayBoxDeniedRegion;
     callbacks[206 - gameSIFirstCommand].handler = &GameSI::AddStayBoxAllowedRegion;
     callbacks[207 - gameSIFirstCommand].handler = &GameSI::AddStayBoxEnemy;
+    callbacks[208 - gameSIFirstCommand].handler = &GameSI::SetStayBoxReturnPosition;
+    callbacks[209 - gameSIFirstCommand].handler = &GameSI::AddEnemyWaypoint;
+    callbacks[210 - gameSIFirstCommand].handler = &GameSI::SetEnemyWaypointLoop;
+    callbacks[211 - gameSIFirstCommand].handler = &GameSI::ClearEnemyWaypoints;
+    callbacks[212 - gameSIFirstCommand].handler = &GameSI::SetEnemyPerceptionRange;
+    callbacks[213 - gameSIFirstCommand].handler = &GameSI::IsEnemyAlerted;
+    callbacks[214 - gameSIFirstCommand].handler = &GameSI::SetEnemyAnimationResource;
+    callbacks[215 - gameSIFirstCommand].handler = &GameSI::SetEnemySoundResource;
+    callbacks[216 - gameSIFirstCommand].handler = &GameSI::SetEnemyAlertSpeed;
+    callbacks[217 - gameSIFirstCommand].handler = &GameSI::AddCollisionUnit;
+    callbacks[218 - gameSIFirstCommand].handler = &GameSI::RemoveCollisionUnit;
     callbacks[219 - gameSIFirstCommand].handler = &GameSI::AddTrap;
     callbacks[220 - gameSIFirstCommand].handler = &GameSI::RemoveTrap;
     callbacks[221 - gameSIFirstCommand].handler = &GameSI::AddThing;
@@ -886,6 +922,314 @@ void GameSI::RemoveInteractionTrigger(soft3d::ScriptCommand& command)
 {
     RequireArguments(command, 1);
     context.unitManager->RemoveUnitById(command.GetArgument(0).GetShort(), 4, true);
+}
+
+Enemy* GameSI::FindEnemy(soft3d::ScriptCommand& command)
+{
+    return context.unitManager->FindEnemy(command.GetArgument(0).GetShort());
+}
+
+void GameSI::AddEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 9);
+    soft3d::Vec3 position{command.GetArgument(3).GetFixed(), command.GetArgument(4).GetFixed(),
+                          command.GetArgument(5).GetFixed()};
+    const soft3d::Vec3 direction{command.GetArgument(6).GetFixed(),
+                                 command.GetArgument(7).GetFixed(),
+                                 command.GetArgument(8).GetFixed()};
+    context.unitManager->AddEnemy(command.GetArgument(0).GetShort(), command.GetArgument(1).GetInt(),
+                                  command.GetArgument(2).GetShort(), position, direction, false);
+}
+
+void GameSI::PersistEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (Enemy* enemy = FindEnemy(command)) enemy->EnsureSpawnRecord();
+}
+
+void GameSI::SetEnemyNormalRendering(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    Enemy* enemy = FindEnemy(command);
+    if (enemy != nullptr && enemy->GetObject(0) != nullptr) {
+        enemy->GetObject(0)->SetRenderMode(command.GetArgument(1).GetBool()
+            ? soft3d::ObjectRenderMode::Normal : soft3d::ObjectRenderMode::SecondaryStreams);
+    }
+}
+
+void GameSI::SetEnemyAnimation(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    if (Enemy* enemy = FindEnemy(command)) {
+        const auto* animation = dynamic_cast<const soft3d::Animation*>(context.resources->GetResource(
+            soft3d::ResourceAnimation, 3, command.GetArgument(1).GetString().c_str(),
+            u".\\common\\"));
+        enemy->SetAnimation(animation, 1, command.GetArgument(2).GetBool());
+    }
+}
+
+void GameSI::IsEnemyAnimationFinished(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    Enemy* enemy = FindEnemy(command);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(enemy != nullptr && enemy->IsAnimationFinished());
+    }
+}
+
+void GameSI::IsEnemyRemoved(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    Enemy* enemy = FindEnemy(command);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(enemy == nullptr || enemy->IsRemoved());
+    }
+}
+
+void GameSI::GetEnemyHealth(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    Enemy* enemy = FindEnemy(command);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetInt(enemy != nullptr ? enemy->GetHealth() : 0);
+    }
+}
+
+void GameSI::SetEnemyHealth(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    if (Enemy* enemy = FindEnemy(command)) enemy->SetHealth(command.GetArgument(1).GetShort());
+}
+
+void GameSI::GetEnemyAttackPower(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    Enemy* enemy = FindEnemy(command);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetInt(enemy != nullptr ? enemy->GetAttackPower() : 0);
+    }
+}
+
+void GameSI::SetEnemyAttackPower(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    if (Enemy* enemy = FindEnemy(command)) enemy->SetAttackPower(command.GetArgument(1).GetInt());
+}
+
+void GameSI::SetEnemyDirection(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    if (Enemy* enemy = FindEnemy(command)) {
+        enemy->SetDirection({command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+                             command.GetArgument(3).GetFixed()});
+    }
+}
+
+void GameSI::TeleportEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    if (Enemy* enemy = FindEnemy(command)) {
+        enemy->SetPosition({command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+                            command.GetArgument(3).GetFixed()});
+    }
+}
+
+void GameSI::MoveEnemyTo(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    Enemy* enemy = FindEnemy(command);
+    const bool reached = enemy != nullptr && enemy->MoveTo({
+        command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+        command.GetArgument(3).GetFixed()});
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(reached);
+}
+
+void GameSI::EnemyHearSound(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    Enemy* enemy = FindEnemy(command);
+    const bool heard = enemy != nullptr && enemy->HearSound({
+        command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+        command.GetArgument(3).GetFixed()}, 0x50000, -1);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetBool(heard);
+}
+
+void GameSI::EnemyBoundsInside(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 7);
+    Enemy* enemy = FindEnemy(command);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()},
+        {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+         command.GetArgument(6).GetFixed()}};
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(enemy != nullptr && enemy->IsBoundsInside(bounds));
+    }
+}
+
+void GameSI::FollowEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (Enemy* enemy = FindEnemy(command)) enemy->FollowPlayer();
+}
+
+void GameSI::AttackEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (Enemy* enemy = FindEnemy(command)) enemy->RequestAttack();
+}
+
+void GameSI::RemoveEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.unitManager->RemoveEnemy(FindEnemy(command));
+}
+
+void GameSI::RemoveEnemiesByType(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.unitManager->RemoveEnemiesByType(command.GetArgument(0).GetShort());
+}
+
+void GameSI::RemoveAllEnemies(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.unitManager->RemoveAllEnemies();
+}
+
+void GameSI::PauseEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    if (Enemy* enemy = FindEnemy(command)) enemy->SetNavigationEnabled(command.GetArgument(1).GetBool());
+}
+
+void GameSI::PauseEnemiesByType(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    const int32_t type = command.GetArgument(0).GetShort();
+    const bool value = command.GetArgument(1).GetBool();
+    for (soft3d::GameUnit* unit = context.unitManager->GetFirstUnit(0); unit != nullptr;
+         unit = unit->GetNextUnit()) {
+        auto* enemy = dynamic_cast<Enemy*>(unit);
+        if (enemy != nullptr && enemy->GetEnemyType() == type) enemy->SetNavigationEnabled(value);
+    }
+}
+
+void GameSI::PauseAllEnemies(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    const bool value = command.GetArgument(0).GetBool();
+    for (soft3d::GameUnit* unit = context.unitManager->GetFirstUnit(0); unit != nullptr;
+         unit = unit->GetNextUnit()) {
+        auto* enemy = dynamic_cast<Enemy*>(unit);
+        if (enemy != nullptr) enemy->SetNavigationEnabled(value);
+    }
+}
+
+void GameSI::StopEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    if (Enemy* enemy = FindEnemy(command)) enemy->SetStopped(command.GetArgument(1).GetBool());
+}
+
+void GameSI::AddStayBox(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 7);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()},
+        {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+         command.GetArgument(6).GetFixed()}};
+    context.unitManager->AddStayBox(command.GetArgument(0).GetShort(), bounds);
+}
+
+void GameSI::SetStayBoxReturnPosition(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    if (Enemy* enemy = FindEnemy(command)) {
+        enemy->SetStayBoxReturnPosition({command.GetArgument(1).GetFixed(),
+            command.GetArgument(2).GetFixed(), command.GetArgument(3).GetFixed()});
+    }
+}
+
+void GameSI::AddEnemyWaypoint(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 8);
+    if (Enemy* enemy = FindEnemy(command)) {
+        enemy->AddWaypoint({command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+                            command.GetArgument(3).GetFixed()}, command.GetArgument(4).GetShort(),
+            {command.GetArgument(5).GetFixed(), command.GetArgument(6).GetFixed(),
+             command.GetArgument(7).GetFixed()});
+    }
+}
+
+void GameSI::SetEnemyWaypointLoop(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    if (Enemy* enemy = FindEnemy(command)) enemy->SetWaypointLoop(command.GetArgument(1).GetBool());
+}
+
+void GameSI::ClearEnemyWaypoints(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (Enemy* enemy = FindEnemy(command)) enemy->ClearWaypoints();
+}
+
+void GameSI::SetEnemyPerceptionRange(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    if (Enemy* enemy = FindEnemy(command)) enemy->SetPerceptionRange(command.GetArgument(1).GetFixed());
+}
+
+void GameSI::IsEnemyAlerted(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    Enemy* enemy = FindEnemy(command);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(enemy != nullptr && enemy->IsAttacking());
+    }
+}
+
+void GameSI::SetEnemyAnimationResource(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    if (Enemy* enemy = FindEnemy(command)) {
+        enemy->SetAnimationResource(command.GetArgument(1).GetShort(),
+                                    command.GetArgument(2).GetString().c_str());
+    }
+}
+
+void GameSI::SetEnemySoundResource(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    if (Enemy* enemy = FindEnemy(command)) {
+        enemy->SetSoundResource(command.GetArgument(1).GetShort(),
+                                command.GetArgument(2).GetString().c_str());
+    }
+}
+
+void GameSI::SetEnemyAlertSpeed(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    if (Enemy* enemy = FindEnemy(command)) enemy->SetAlertSpeed(command.GetArgument(1).GetFixed());
+}
+
+void GameSI::AddCollisionUnit(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 7);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()},
+        {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+         command.GetArgument(6).GetFixed()}};
+    context.unitManager->AddCollisionUnit(command.GetArgument(0).GetShort(), bounds);
+}
+
+void GameSI::RemoveCollisionUnit(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.unitManager->RemoveUnitById(command.GetArgument(0).GetShort(), 1, true);
 }
 
 void GameSI::AddStayBoxRegion(soft3d::ScriptCommand& command, bool allowed)

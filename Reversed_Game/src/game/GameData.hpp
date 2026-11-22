@@ -81,7 +81,9 @@ public:
     const DoorResourceRecord& GetDoorResource(std::size_t index) const;
     GameItemGroup* FindGameItemGroup(int32_t mapId);
     const GameItemGroup* FindGameItemGroup(int32_t mapId) const;
+    EnemyInfoGroup* FindEnemyInfoGroup(int32_t mapId);
     const EnemyInfoGroup* FindEnemyInfoGroup(int32_t mapId) const;
+    EnemySpawnRecord* AddEnemySpawnRecord(int32_t mapId, int32_t enemyType, int32_t unitId);
     const std::vector<GameItemGroup>& GetGameItemGroups() const;
     const std::vector<EnemyInfoGroup>& GetEnemyInfoGroups() const;
 

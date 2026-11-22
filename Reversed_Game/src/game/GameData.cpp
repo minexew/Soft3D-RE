@@ -216,7 +216,7 @@ soft3d::result GameData::ParseEnemyInfoData(const void* data, std::size_t size,
     }
 
     std::vector<EnemyInfoGroup> parsed;
-    parsed.reserve(static_cast<std::size_t>(groupCount));
+    parsed.reserve(enemyInfoGroupCapacity);
     for (int32_t groupIndex = 0; groupIndex < groupCount; ++groupIndex) {
         int32_t mapId;
         int32_t recordCount;
@@ -226,6 +226,7 @@ soft3d::result GameData::ParseEnemyInfoData(const void* data, std::size_t size,
         }
         EnemyInfoGroup group;
         group.mapId = static_cast<int16_t>(mapId);
+        group.records.reserve(enemySpawnCapacity);
         group.records.resize(static_cast<std::size_t>(recordCount));
         for (EnemySpawnRecord& record : group.records) {
             int32_t enemyType;
@@ -307,6 +308,15 @@ const GameItemGroup* GameData::FindGameItemGroup(int32_t mapId) const
     return found == gameItemGroups.end() ? nullptr : &*found;
 }
 
+EnemyInfoGroup* GameData::FindEnemyInfoGroup(int32_t mapId)
+{
+    const auto found = std::find_if(enemyInfoGroups.begin(), enemyInfoGroups.end(),
+                                    [mapId](const EnemyInfoGroup& group) {
+                                        return group.mapId == mapId;
+                                    });
+    return found == enemyInfoGroups.end() ? nullptr : &*found;
+}
+
 const EnemyInfoGroup* GameData::FindEnemyInfoGroup(int32_t mapId) const
 {
     const auto found = std::find_if(enemyInfoGroups.begin(), enemyInfoGroups.end(),
@@ -314,6 +324,29 @@ const EnemyInfoGroup* GameData::FindEnemyInfoGroup(int32_t mapId) const
                                         return group.mapId == mapId;
                                     });
     return found == enemyInfoGroups.end() ? nullptr : &*found;
+}
+
+EnemySpawnRecord* GameData::AddEnemySpawnRecord(int32_t mapId, int32_t enemyType, int32_t unitId)
+{
+    EnemyInfoGroup* group = FindEnemyInfoGroup(mapId);
+    if (group == nullptr) {
+        if (enemyInfoGroups.size() >= enemyInfoGroupCapacity) {
+            return nullptr;
+        }
+        enemyInfoGroups.emplace_back();
+        group = &enemyInfoGroups.back();
+        group->mapId = static_cast<int16_t>(mapId);
+        group->records.reserve(enemySpawnCapacity);
+    }
+    if (group->records.size() >= enemySpawnCapacity) {
+        return nullptr;
+    }
+    group->records.emplace_back();
+    EnemySpawnRecord& record = group->records.back();
+    record.enemyType = static_cast<int16_t>(enemyType);
+    record.unitId = static_cast<int16_t>(unitId);
+    record.waypoints.clear();
+    return &record;
 }
 
 const std::vector<GameItemGroup>& GameData::GetGameItemGroups() const

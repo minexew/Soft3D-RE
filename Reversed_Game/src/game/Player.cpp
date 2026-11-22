@@ -757,9 +757,15 @@ void Player::SetWeapon(int type)
 
 void Player::StartAttack(bool heavy) { EnterState(heavy ? PlayerAttackC1 : PlayerAttackA1); }
 
+void Player::NotifyEnemyKilled(int32_t gunExperience)
+{
+    ++killCount;
+    AddGunExperience(gunExperience);
+}
+
 void Player::DamageFrom(soft3d::GameUnit* source)
 {
-    if (young != 0) {
+    if (young != 0 || usedItemHealing != 0) {
         return;
     }
     attacker = source;

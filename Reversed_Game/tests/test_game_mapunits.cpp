@@ -292,8 +292,11 @@ void TestBreakPushAndOrientation()
     auto* manager = fixture.scene->GetUnitManager();
     fixture.Execute(221, AddArguments(10, 1, -1));
     auto& breakable = dynamic_cast<game::Breakable&>(*manager->FindUnit(2, 10));
-    breakable.SetCollisionBounds({{-0x10000, -0x10000, -0x10000}, {0x10000, 0x10000, 0x10000}});
+    fixture.scene->GetPlayer()->PrepareWeapon(manager->GetData(), 1);
+    fixture.scene->GetPlayer()->SetWeapon(1);
     fixture.scene->GetPlayer()->EnterState(game::PlayerAttackA2);
+    fixture.scene->GetPlayer()->GetSword()->Update();
+    breakable.SetCollisionBounds(fixture.scene->GetPlayer()->GetSword()->GetHitBounds());
     breakable.Update();
     CHECK(fixture.Execute(248, {Argument::Short(10)}, true) == 1);
     CHECK(fixture.Execute(248, {Argument::Short(10)}, true) == 0);
@@ -303,8 +306,10 @@ void TestBreakPushAndOrientation()
 
     fixture.Execute(221, AddArguments(11, 1, 0));
     auto& destructible = dynamic_cast<game::Breakable&>(*manager->FindUnit(2, 11));
-    destructible.SetCollisionBounds({{-0x10000, -0x10000, -0x10000}, {0x10000, 0x10000, 0x10000}});
     fixture.scene->GetPlayer()->EnterState(game::PlayerAttackA2);
+    fixture.scene->GetPlayer()->GetSword()->PostUpdate();
+    fixture.scene->GetPlayer()->GetSword()->Update();
+    destructible.SetCollisionBounds(fixture.scene->GetPlayer()->GetSword()->GetHitBounds());
     destructible.Update();
     CHECK(destructible.IsDestroying() && destructible.GetDestructionDuration() == 32);
 

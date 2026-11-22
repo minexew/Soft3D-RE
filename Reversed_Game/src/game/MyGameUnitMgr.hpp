@@ -1,11 +1,17 @@
 #pragma once
 
+#include "game/Enemy.hpp"
 #include "game/GameData.hpp"
 #include "game/MapUnits.hpp"
 #include "game/Triggers.hpp"
 #include "soft3d/Bsp.hpp"
 #include "soft3d/Effects.hpp"
 #include "soft3d/Units.hpp"
+
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <memory>
 
 namespace soft3d {
 class GameEngine;
@@ -15,7 +21,7 @@ namespace game {
 
 class CameraController;
 
-class MyGameUnitMgr : public soft3d::GameUnitManager {
+class MyGameUnitMgr : public soft3d::GameUnitManager, public StayBoxHost {
 public:
     explicit MyGameUnitMgr(const soft3d::UnitManagerContext& context = {});
 
@@ -23,7 +29,7 @@ public:
     soft3d::result LoadDayContent(int day, soft3d::GameEngine& engine);
     void Reset();
     void FinishMapLoad(bool restoreSavedState);
-    void SetMapId(int32_t value) { mapId = value; }
+    void SetMapId(int32_t value);
     void SetPaused(bool value) { paused = value; }
     bool IsPaused() const { return paused; }
     bool IsMapReady() const { return mapReady; }
@@ -60,10 +66,42 @@ public:
                                 const soft3d::ObjectBounds& bounds);
     TalkTrigger* AddTalkTrigger(int32_t unitId, const soft3d::ObjectBounds& bounds,
                                 bool fadeAtEnd);
+
+    bool AddEnemy(int32_t unitId, int32_t enemyType, int32_t spawnState,
+                  soft3d::Vec3& position, const soft3d::Vec3& direction,
+                  bool fromEnemyInfo = false);
+    Enemy* FindEnemy(int32_t unitId) const;
+    Enemy* GetPooledEnemy(int32_t enemyType, std::size_t slot) const;
+    void RemoveEnemy(Enemy* enemy);
+    void RemoveEnemiesByType(int32_t enemyType);
+    void RemoveAllEnemies();
+    void PrepareDayEnemies(int32_t day);
+    void SpawnMapEnemies();
+    void UpdateEnemySpawnRecords();
+    EnemySpawnRecord* CreateEnemySpawnRecord(Enemy* enemy);
+
+    StayBox* AddStayBox(int32_t unitId, const soft3d::ObjectBounds& bounds);
     StayBox* RestoreStayBox();
     StayBox* FindStayBox(int32_t unitId);
     void SetStayBoxHost(StayBoxHost* value) { stayBoxHost = value; }
     void AttachStayBoxEnemy(soft3d::GameUnit& enemy, StayBox& box);
+    soft3d::GameUnit* AddCollisionUnit(int32_t unitId, const soft3d::ObjectBounds& bounds);
+
+    int SpawnStayBoxEnemy(uint8_t unitId, uint8_t type, uint8_t active,
+                          const soft3d::Vec3& position, const soft3d::Vec3& direction) override;
+    soft3d::GameUnit* FindStayBoxEnemy(uint8_t unitId) override;
+    const soft3d::Vec3& GetStayBoxEnemySpawnPosition(
+        const soft3d::GameUnit* enemy) const override;
+    int GetStayBoxEnemyState(const soft3d::GameUnit* enemy) const override;
+    uint8_t GetStayBoxEnemyType(const soft3d::GameUnit* enemy) const override;
+    uint8_t GetStayBoxEnemyActive(const soft3d::GameUnit* enemy) const override;
+    uint8_t GetStayBoxEnemySpawnState(const soft3d::GameUnit* enemy) const override;
+    void SetStayBoxEnemySpawnState(soft3d::GameUnit* enemy, uint8_t value) override;
+    void BindStayBoxEnemy(soft3d::GameUnit* enemy, StayBox* stayBox,
+                          const soft3d::Vec3& returnPosition) override;
+    void AttachStayBoxEnemy(soft3d::GameUnit* enemy, StayBox* stayBox) override;
+    void RemoveStayBoxEnemy(soft3d::GameUnit* enemy) override;
+
     void SpawnMapItems();
     InteractionState& GetInteractionState() { return interactionState; }
     const InteractionState& GetInteractionState() const { return interactionState; }
@@ -84,14 +122,18 @@ public:
     const GameData& GetData() const;
 
 private:
+    static constexpr std::size_t enemyTypeCount = 17;
+    static constexpr std::size_t enemyPoolStride = 8;
+
     GameData data;
     InteractionState interactionState;
     TriggerUiHost* interactionUi = &interactionState;
     CameraController* cameraController = nullptr;
     soft3d::Creature* player = nullptr;
-    StayBoxHost* stayBoxHost = nullptr;
+    StayBoxHost* stayBoxHost = this;
     std::array<soft3d::Fixed, 6> mapHeaderValues{};
     std::array<int32_t, 1024> doorStates{};
+    std::array<std::array<std::unique_ptr<Enemy>, enemyPoolStride>, enemyTypeCount> enemyPools{};
     uint32_t randomState = 0;
     int32_t day = 0;
     int32_t mapId = 0;

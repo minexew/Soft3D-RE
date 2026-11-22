@@ -180,6 +180,21 @@ std::vector<uint8_t> MakeStx()
     return bytes;
 }
 
+std::unique_ptr<soft3d::Texture> MakeBloodTexture()
+{
+    std::vector<uint8_t> bytes;
+    Append32(bytes, 0x00004002);
+    Append32(bytes, 2);
+    Append32(bytes, 2);
+    bytes.resize(bytes.size() + 128, 0);
+    const uint16_t white = 0xffff;
+    std::memcpy(bytes.data() + 12 + (32 + 15) * 2, &white, sizeof(white));
+    bytes.insert(bytes.end(), {0, 1, 1, 1});
+    auto texture = std::make_unique<soft3d::Texture>();
+    CHECK(texture->ParseStx(bytes.data()) == soft3d::S3D_OK);
+    return texture;
+}
+
 Chunks OneFaceChunks()
 {
     Chunks chunks;
@@ -294,6 +309,65 @@ soft3d::BspRenderState RenderState(int width, int height)
     state.inverseScreenScaleY = static_cast<soft3d::Fixed>(
         (static_cast<int64_t>(1) << 32) / state.screenScaleY);
     return state;
+}
+
+void TestBloodSplat()
+{
+    const auto blend = [](soft3d::Fixed x, soft3d::Fixed y, bool flipU, bool flipV,
+                          int32_t planeType = 3, const soft3d::Vec3* customStart = nullptr,
+                          const soft3d::Vec3* customEnd = nullptr) {
+        Chunks chunks = OneFaceChunks();
+        Write32(chunks[soft3d::SbpPlanes], 16, static_cast<uint32_t>(planeType));
+        TempArchive archive({
+            {".\\common\\test.sbp", MakeSbp(chunks)},
+            {".\\common\\tex.stx", MakeStx()},
+        });
+        soft3d::s3dResManager manager;
+        CHECK(soft3d::OpenGameResourceArchive(&manager, archive.path.u16string().c_str()) ==
+              soft3d::S3D_OK);
+        soft3d::Renderer renderer(8, 8);
+        soft3d::Bsp bsp(&renderer, &manager);
+        CHECK(soft3d::LoadSbpMapChunks(&bsp, u".\\common\\", u"test.sbp", nullptr) ==
+              soft3d::S3D_OK);
+        bsp.PrepareRender(RenderState(8, 8));
+        auto texture = MakeBloodTexture();
+        const soft3d::Vec3 start = customStart != nullptr ? *customStart
+                                                          : soft3d::Vec3{x, y, 0x18000};
+        const soft3d::Vec3 end = customEnd != nullptr ? *customEnd
+                                                      : soft3d::Vec3{x, y, 0x28000};
+        bsp.BlendLightmapSplat(texture.get(), start, end, flipU, flipV);
+        return bsp.GetFaces()[0].lightmapPixels;
+    };
+
+    auto pixels = blend(0x80000, 0x80000, false, false);
+    CHECK(pixels[7 * 16 + 7] == 0x001f);
+    CHECK(pixels[7 * 16 + 8] == 0x7bfe);
+    CHECK(pixels[8 * 16 + 7] == 0x7bfe);
+    CHECK(pixels[8 * 16 + 8] == 0x7bfe);
+    CHECK(pixels[0] == 0x001f);
+
+    pixels = blend(0x80000, 0x80000, true, false);
+    CHECK(pixels[7 * 16 + 7] == 0x7bfe);
+    CHECK(pixels[7 * 16 + 8] == 0x001f);
+    pixels = blend(0x80000, 0x80000, false, true);
+    CHECK(pixels[7 * 16 + 7] == 0x7bfe);
+    CHECK(pixels[8 * 16 + 7] == 0x001f);
+    pixels = blend(0x80000, 0x80000, true, true);
+    CHECK(pixels[8 * 16 + 8] == 0x001f);
+
+    pixels = blend(0, 0, false, false);
+    CHECK(pixels[0] == 0x7bfe);
+    CHECK(std::all_of(pixels.begin() + 1, pixels.end(),
+                      [](uint16_t color) { return color == 0x001f; }));
+    pixels = blend(0x80000, 0x80000, false, false, 2);
+    CHECK(std::all_of(pixels.begin(), pixels.end(),
+                      [](uint16_t color) { return color == 0x001f; }));
+
+    const soft3d::Vec3 reciprocalStart{0, 0, 0x2000};
+    const soft3d::Vec3 reciprocalEnd{0, 0x1088a, 0x30000};
+    pixels = blend(0, 0, false, false, 3, &reciprocalStart, &reciprocalEnd);
+    CHECK(pixels[0] == 0x7bfe);
+    CHECK(pixels[1] == 0x001f && pixels[16] == 0x001f);
 }
 
 void TestLightmapAndPVS()
@@ -534,6 +608,7 @@ void TestRealMenuRender()
 int main()
 {
     try {
+        TestBloodSplat();
         TestLightmapAndPVS();
         TestReciprocalDepthOcclusion();
         TestFaceVisibility();

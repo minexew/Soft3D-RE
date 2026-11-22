@@ -24,6 +24,7 @@ add_library(soft3d
     src/soft3d/BezierCurve3.cpp
     src/soft3d/Bsp.cpp
     src/soft3d/BspCollision.cpp
+    src/soft3d/BspEffects.cpp
     src/soft3d/BspRender.cpp
     src/soft3d/Camera.cpp
     src/soft3d/CameraSpot.cpp
@@ -90,6 +91,7 @@ endif()
 
 add_library(seven_days_game STATIC
     src/game/CameraController.cpp
+    src/game/Enemy.cpp
     src/game/GameData.cpp
     src/game/GameSI.cpp
     src/game/GameUiController.cpp
@@ -372,6 +374,16 @@ if(BUILD_TESTING)
         target_compile_options(game_player_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME game_player COMMAND game_player_tests)
+
+    add_executable(game_enemy_tests tests/test_game_enemy.cpp)
+    target_link_libraries(game_enemy_tests PRIVATE seven_days_game)
+    target_compile_definitions(game_enemy_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(game_enemy_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME game_enemy COMMAND game_enemy_tests)
 
     add_executable(game_ui_tests tests/test_game_ui.cpp)
     target_link_libraries(game_ui_tests PRIVATE seven_days_game)

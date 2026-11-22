@@ -20,7 +20,7 @@ MsgReceiverInterface
 
 Ghidra now has function names, prototypes, comments, stage tags, and native structure layouts for this subsystem. Confirmed sizes are `GameUnit` `0x54`, `VisUnit` `0x90`, `PhysicUnit` `0x668`, `Things` `0x684`, `Creature` `0x6f0`, `GameUnitManager` `0x194`, and `PlayerStateSet` `0x4f4`. The public BSP trace result is 48 bytes. Two ordinary alternate `GameUnitManager` constructors were recovered at `0x000ef53c` and `0x000ef6d0`; the latter had been missed by function analysis.
 
-The concrete game layer remains separate: `MyGameUnitMgr`, `Player`, 20 player states, `Enemy` plus 17 enemy classes, and the trigger/thing/map classes. Player, Sword, all nine trigger classes, the three `Things` descendants, `BspUnit`, `ElectricSaw`, `StayBox`, and `Trap` are implemented; concrete enemies retain their staged boundaries. Class/method inventories, save type codes, and integration points are documented in `symbian3rd_game.md`, `symbian3rd_mapunits.md`, `symbian3rd_triggers.md`, and `game_completion_plan.md`.
+The concrete game layer remains separate: `MyGameUnitMgr`, `Player`, 20 player states, `Enemy` plus 18 named enemy classes (17 ordinary pool classes and `Boss`), and the trigger/thing/map classes. Player, Sword, all nine trigger classes, the three `Things` descendants, `BspUnit`, `ElectricSaw`, `StayBox`, `Trap`, and the common enemy layer are implemented; concrete enemy overrides retain their stage 10–12 boundaries. Class/method inventories, save type codes, and integration points are documented in `symbian3rd_game.md`, `symbian3rd_enemy.md`, `symbian3rd_mapunits.md`, `symbian3rd_triggers.md`, and `game_completion_plan.md`.
 
 ## Messages
 
@@ -118,7 +118,7 @@ Stage 5 adds `Things_SaveState`/`LoadState` (`0x0003261c`/`0x0003276c`) after th
 
 The path-pair selection preserves the original cumulative `nodes[1]` comparison against `targetNode.index`; it is not replaced with an invented A* search.
 
-`HearSound` (`0x00076aec`) distinguishes position-based and id-based events and clears stale state outside range. `SetNavigationEnabled` clears destination state and velocity when enabled. `SnapToGround` traces down `0xa0000` and updates previous position.
+`HearSound` (`0x00076aec`) distinguishes position-based and id-based events and clears stale state outside range. `SetNavigationEnabled` clears destination state and velocity when enabled. `SnapToGround` traces down `0xa0000` and updates previous position. The portable `RestoreNavigationEnabled` accessor restores the raw flag without those pause side effects; stage-9 `Enemy_LoadState` uses it after reading the serialized word.
 
 ## State templates
 
@@ -164,4 +164,4 @@ The unit suite uses synthetic message receivers, manager units, state chains, a 
 
 Real-resource tests load `menu.sbp` without an episode and exercise leaf/point/swept queries, and load `cg_bully_tuomao_a` twice through `VisUnit`, materials, transforms, direction, shadow creation, and submission.
 
-The earlier engine-stage run had 26 normal CTest tests and 20 SDL-independent ASan/UBSan tests; all six standalone SOJ converter tests also passed. Stage 12 added exact `GameUnit` and real `VisUnit` serialization coverage in `test_stream.cpp`. After stage 8, all 35 default, logging/math, and WAR tests pass; core and ASan/UBSan each pass 28. `test_game_mapunits.cpp` adds the derived-class and real-map coverage described in `symbian3rd_mapunits.md`, while `test_game_triggers.cpp` covers all seven script-created interaction-trigger state records. Ghidra has been saved with the corrected layouts and typed decompilation.
+The earlier engine-stage run had 26 normal CTest tests and 20 SDL-independent ASan/UBSan tests; all six standalone SOJ converter tests also passed. Stage 12 added exact `GameUnit` and real `VisUnit` serialization coverage in `test_stream.cpp`. After stage 9, all 36 default, logging/math, and WAR tests pass; core and ASan/UBSan each pass 29. `test_game_mapunits.cpp` adds the derived-class and real-map coverage described in `symbian3rd_mapunits.md`, `test_game_triggers.cpp` covers all seven script-created interaction-trigger state records, and `test_game_enemy.cpp` covers the common enemy extension and manager integration. Ghidra has been saved with the corrected layouts and typed decompilation.

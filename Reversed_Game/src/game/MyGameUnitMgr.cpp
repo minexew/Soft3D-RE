@@ -79,7 +79,19 @@ MyGameUnitMgr::MyGameUnitMgr(const soft3d::UnitManagerContext& context)
 soft3d::result MyGameUnitMgr::Initialize(soft3d::GameEngine& engine)
 {
     engine.GetAudioManager().SetSoundNameTable(data.GetSoundNameTable());
-    return data.LoadItemData(*engine.GetResourceManager().GetFilePak(), engine.GetContent());
+    const soft3d::result status = data.LoadItemData(*engine.GetResourceManager().GetFilePak(),
+                                                     engine.GetContent());
+    if (status != soft3d::S3D_OK) {
+        return status;
+    }
+    for (int32_t type = 0; type < static_cast<int32_t>(enemyTypeCount); ++type) {
+        const std::size_t count = IsSingletonEnemyType(type) ? 1 : enemyPoolStride;
+        for (std::size_t slot = 0; slot < count; ++slot) {
+            enemyPools[static_cast<std::size_t>(type)][slot] =
+                CreateCommonPoolEnemy(GetContext(), data, type);
+        }
+    }
+    return soft3d::S3D_OK;
 }
 
 soft3d::result MyGameUnitMgr::LoadDayContent(int value, soft3d::GameEngine& engine)
@@ -90,6 +102,19 @@ soft3d::result MyGameUnitMgr::LoadDayContent(int value, soft3d::GameEngine& engi
         day = value;
     }
     return status;
+}
+
+void MyGameUnitMgr::SetMapId(int32_t value)
+{
+    UpdateEnemySpawnRecords();
+    mapId = value;
+    for (auto& pool : enemyPools) {
+        for (auto& enemy : pool) {
+            if (enemy != nullptr) {
+                enemy->Reset();
+            }
+        }
+    }
 }
 
 void MyGameUnitMgr::Reset()
@@ -110,6 +135,7 @@ void MyGameUnitMgr::FinishMapLoad(bool restoreSavedState)
 {
     if (!restoreSavedState) {
         SpawnMapItems();
+        SpawnMapEnemies();
     }
     stayBoxCount = 0;
     mapReady = true;
@@ -121,6 +147,220 @@ void MyGameUnitMgr::ConfigureScene(CameraController* newCameraController,
 {
     cameraController = newCameraController;
     player = newPlayer;
+    for (auto& pool : enemyPools) {
+        for (auto& enemy : pool) {
+            if (enemy != nullptr) {
+                enemy->SetPlayer(dynamic_cast<Player*>(player));
+                enemy->SetManager(this);
+            }
+        }
+    }
+}
+
+Enemy* MyGameUnitMgr::GetPooledEnemy(int32_t enemyType, std::size_t slot) const
+{
+    if (enemyType < 0 || static_cast<std::size_t>(enemyType) >= enemyTypeCount ||
+        slot >= enemyPoolStride) {
+        return nullptr;
+    }
+    return enemyPools[static_cast<std::size_t>(enemyType)][slot].get();
+}
+
+Enemy* MyGameUnitMgr::FindEnemy(int32_t unitId) const
+{
+    return dynamic_cast<Enemy*>(FindUnit(0, unitId));
+}
+
+bool MyGameUnitMgr::AddEnemy(int32_t unitId, int32_t enemyType, int32_t spawnState,
+                             soft3d::Vec3& requestedPosition, const soft3d::Vec3& direction,
+                             bool fromEnemyInfo)
+{
+    if (spawnState == 0 || enemyType < 0 ||
+        static_cast<std::size_t>(enemyType) >= enemyTypeCount) {
+        return false;
+    }
+    if (!fromEnemyInfo) {
+        const EnemyInfoGroup* group = data.FindEnemyInfoGroup(mapId);
+        if (group != nullptr) {
+            for (const EnemySpawnRecord& record : group->records) {
+                if (record.unitId == unitId) {
+                    return false;
+                }
+            }
+        }
+    }
+    Enemy* enemy = nullptr;
+    for (std::size_t slot = 0; slot < enemyPoolStride; ++slot) {
+        Enemy* candidate = GetPooledEnemy(enemyType, slot);
+        if (candidate != nullptr && candidate->GetState() == EnemyRemoved) {
+            enemy = candidate;
+            break;
+        }
+    }
+    if (enemy == nullptr) {
+        return false;
+    }
+
+    enemy->SetPosition(requestedPosition);
+    enemy->CheckGroundForSpawn();
+    soft3d::ObjectBounds bounds = enemy->GetLocalBounds();
+    bounds.minimum = soft3d::Add(bounds.minimum, enemy->GetPosition());
+    bounds.maximum = soft3d::Add(bounds.maximum, enemy->GetPosition());
+    enemy->SetCollisionBounds(bounds);
+    enemy->QueryUnitCollision();
+    bool valid = !enemy->HasUnitCollision();
+    if (!valid) {
+        for (soft3d::Fixed x = -0x40000; x < 0x40000 && !valid; x += 0x20000) {
+            for (soft3d::Fixed z = -0x40000; z < 0x40000; z += 0x20000) {
+                if (x == 0 && z == 0) {
+                    continue;
+                }
+                soft3d::Vec3 candidate = requestedPosition;
+                candidate.x = soft3d::AddFixed(candidate.x, x);
+                candidate.z = soft3d::AddFixed(candidate.z, z);
+                enemy->SetPosition(candidate);
+                enemy->CheckGroundForSpawn();
+                bounds = enemy->GetLocalBounds();
+                bounds.minimum = soft3d::Add(bounds.minimum, candidate);
+                bounds.maximum = soft3d::Add(bounds.maximum, candidate);
+                enemy->SetCollisionBounds(bounds);
+                enemy->QueryUnitCollision();
+                const bool solid = GetContext().bsp != nullptr &&
+                    GetContext().bsp->Trace(candidate, candidate, enemy->GetLocalBounds()).startSolid;
+                if (!enemy->HasUnitCollision() && !solid) {
+                    requestedPosition = candidate;
+                    valid = true;
+                    break;
+                }
+            }
+        }
+    }
+    if (!valid) {
+        return false;
+    }
+
+    enemy->SetUnitId(unitId);
+    enemy->SetPlayer(dynamic_cast<Player*>(player));
+    enemy->SetManager(this);
+    enemy->Spawn(requestedPosition);
+    enemy->CheckGroundForSpawn();
+    enemy->SetHealth(spawnState < 0 ? enemy->GetMaxHealth() : spawnState);
+    AddUnit(enemy, 0);
+    enemy->SetNavigationEnabled(paused);
+    if (direction.x != 0 || direction.y != 0 || direction.z != 0) {
+        enemy->SetDirection(direction);
+    }
+    return true;
+}
+
+void MyGameUnitMgr::RemoveEnemy(Enemy* enemy)
+{
+    if (enemy == nullptr) {
+        return;
+    }
+    enemy->Reset();
+    RemoveUnit(enemy, 0, false);
+}
+
+void MyGameUnitMgr::RemoveEnemiesByType(int32_t enemyType)
+{
+    soft3d::GameUnit* unit = GetFirstUnit(0);
+    while (unit != nullptr) {
+        soft3d::GameUnit* next = unit->GetNextUnit();
+        auto* enemy = dynamic_cast<Enemy*>(unit);
+        if (enemy != nullptr && enemy->GetEnemyType() == enemyType) {
+            RemoveEnemy(enemy);
+        }
+        unit = next;
+    }
+}
+
+void MyGameUnitMgr::RemoveAllEnemies()
+{
+    soft3d::GameUnit* unit = GetFirstUnit(0);
+    while (unit != nullptr) {
+        soft3d::GameUnit* next = unit->GetNextUnit();
+        RemoveEnemy(dynamic_cast<Enemy*>(unit));
+        unit = next;
+    }
+}
+
+void MyGameUnitMgr::PrepareDayEnemies(int32_t value)
+{
+    auto prepare = [this](int32_t type, const char16_t* model) {
+        const std::size_t count = IsSingletonEnemyType(type) ? 1 : enemyPoolStride;
+        for (std::size_t slot = 0; slot < count; ++slot) {
+            Enemy* enemy = GetPooledEnemy(type, slot);
+            if (enemy != nullptr) {
+                enemy->LoadResources(model, nullptr, nullptr);
+            }
+        }
+    };
+    auto* concretePlayer = dynamic_cast<Player*>(player);
+    auto* engine = static_cast<soft3d::GameEngine*>(GetContext().gameContext);
+    const bool extraWeapon = engine != nullptr &&
+        engine->GetConfiguration().unlocks.extraWeapon1 != 0;
+    auto prepareWeapon = [&](int32_t type) {
+        if (concretePlayer != nullptr) {
+            concretePlayer->PrepareWeapon(data, type);
+        }
+    };
+    switch (value) {
+    case 2:
+        prepare(1, u"r_bully_a");
+        prepare(0, u"r_nvyong_a");
+        prepare(5, u"r_weed_a");
+        prepareWeapon(extraWeapon ? 4 : 1);
+        break;
+    case 3:
+        prepare(3, u"");
+        prepare(0, u"r_nvyong_a");
+        prepare(4, u"r_lamper_a");
+        for (std::size_t slot = 0; slot < enemyPoolStride; ++slot) {
+            Enemy* enemy = GetPooledEnemy(4, slot);
+            if (enemy != nullptr) {
+                enemy->EnableShadow(false);
+            }
+        }
+        prepare(5, u"r_weed_a");
+        prepareWeapon(extraWeapon ? 4 : 2);
+        break;
+    case 4:
+        prepare(0, u"r_nvyong_a");
+        prepare(5, u"r_weed_a");
+        prepare(6, u"r_pangnvyong_a");
+        prepare(7, u"r_nvyong_b");
+        break;
+    case 5:
+        prepare(12, u"r_victor_a");
+        prepare(15, u"r_sam_b");
+        prepare(9, u"r_bingnvyong_a");
+        prepare(10, u"r_bug_a");
+        prepare(11, u"r_qiutu_a");
+        prepareWeapon(extraWeapon ? 4 : 3);
+        prepareWeapon(1);
+        break;
+    case 6:
+        prepare(1, u"r_bully_a");
+        prepare(16, u"r_kate_a");
+        break;
+    case 7:
+        if (concretePlayer != nullptr) {
+            concretePlayer->RemoveItem(1);
+        }
+        prepare(0, u"r_nvyong_a");
+        prepare(3, u"");
+        prepareWeapon(3);
+        break;
+    default:
+        break;
+    }
+}
+
+EnemySpawnRecord* MyGameUnitMgr::CreateEnemySpawnRecord(Enemy* enemy)
+{
+    return enemy != nullptr
+        ? data.AddEnemySpawnRecord(mapId, enemy->GetEnemyType(), enemy->GetUnitId()) : nullptr;
 }
 
 void MyGameUnitMgr::HandleMapEntity(const soft3d::BspEntityRecord& record,
@@ -359,6 +599,16 @@ TalkTrigger* MyGameUnitMgr::AddTalkTrigger(int32_t unitId, const soft3d::ObjectB
     return result;
 }
 
+StayBox* MyGameUnitMgr::AddStayBox(int32_t unitId, const soft3d::ObjectBounds& bounds)
+{
+    StayBox* box = RestoreStayBox();
+    if (box != nullptr) {
+        box->SetUnitId(unitId);
+        box->SetLocalBounds(bounds);
+    }
+    return box;
+}
+
 StayBox* MyGameUnitMgr::RestoreStayBox()
 {
     if (stayBoxCount >= static_cast<int32_t>(stayBoxes.size())) {
@@ -369,11 +619,97 @@ StayBox* MyGameUnitMgr::RestoreStayBox()
     return &box;
 }
 
+int MyGameUnitMgr::SpawnStayBoxEnemy(uint8_t unitId, uint8_t type, uint8_t active,
+                                     const soft3d::Vec3& position, const soft3d::Vec3& direction)
+{
+    soft3d::Vec3 spawnPosition = position;
+    return AddEnemy(unitId, type, active, spawnPosition, direction, false) ? 1 : 0;
+}
+
+soft3d::GameUnit* MyGameUnitMgr::FindStayBoxEnemy(uint8_t unitId)
+{
+    return FindEnemy(unitId);
+}
+
+const soft3d::Vec3& MyGameUnitMgr::GetStayBoxEnemySpawnPosition(
+    const soft3d::GameUnit* enemy) const
+{
+    static constexpr soft3d::Vec3 zero{};
+    const auto* concrete = dynamic_cast<const Enemy*>(enemy);
+    return concrete != nullptr ? concrete->GetStayBoxReturnPosition() : zero;
+}
+
+int MyGameUnitMgr::GetStayBoxEnemyState(const soft3d::GameUnit* enemy) const
+{
+    const auto* concrete = dynamic_cast<const Enemy*>(enemy);
+    return concrete != nullptr ? concrete->GetState() : EnemyRemoved;
+}
+
+uint8_t MyGameUnitMgr::GetStayBoxEnemyType(const soft3d::GameUnit* enemy) const
+{
+    const auto* concrete = dynamic_cast<const Enemy*>(enemy);
+    return concrete != nullptr ? static_cast<uint8_t>(concrete->GetEnemyType()) : 0;
+}
+
+uint8_t MyGameUnitMgr::GetStayBoxEnemyActive(const soft3d::GameUnit* enemy) const
+{
+    const auto* concrete = dynamic_cast<const Enemy*>(enemy);
+    return concrete != nullptr ? static_cast<uint8_t>(concrete->GetHealth()) : 0;
+}
+
+uint8_t MyGameUnitMgr::GetStayBoxEnemySpawnState(const soft3d::GameUnit* enemy) const
+{
+    const auto* concrete = dynamic_cast<const Enemy*>(enemy);
+    return concrete != nullptr ? static_cast<uint8_t>(concrete->GetSpawnState()) : 0;
+}
+
+void MyGameUnitMgr::SetStayBoxEnemySpawnState(soft3d::GameUnit* enemy, uint8_t value)
+{
+    auto* concrete = dynamic_cast<Enemy*>(enemy);
+    if (concrete != nullptr) {
+        concrete->SetSpawnState(value);
+    }
+}
+
+void MyGameUnitMgr::BindStayBoxEnemy(soft3d::GameUnit* enemy, StayBox* stayBox,
+                                     const soft3d::Vec3& returnPosition)
+{
+    auto* concrete = dynamic_cast<Enemy*>(enemy);
+    if (concrete != nullptr) {
+        concrete->AttachStayBox(stayBox);
+        concrete->SetStayBoxReturnPosition(returnPosition);
+    }
+}
+
+void MyGameUnitMgr::AttachStayBoxEnemy(soft3d::GameUnit* enemy, StayBox* stayBox)
+{
+    auto* concrete = dynamic_cast<Enemy*>(enemy);
+    if (concrete != nullptr) {
+        concrete->AttachStayBox(stayBox);
+    }
+}
+
 void MyGameUnitMgr::AttachStayBoxEnemy(soft3d::GameUnit& enemy, StayBox& box)
 {
     if (stayBoxHost != nullptr) {
         stayBoxHost->AttachStayBoxEnemy(&enemy, &box);
     }
+}
+
+void MyGameUnitMgr::RemoveStayBoxEnemy(soft3d::GameUnit* enemy)
+{
+    RemoveEnemy(dynamic_cast<Enemy*>(enemy));
+}
+
+soft3d::GameUnit* MyGameUnitMgr::AddCollisionUnit(int32_t unitId,
+                                                  const soft3d::ObjectBounds& bounds)
+{
+    auto unit = std::make_unique<soft3d::GameUnit>();
+    unit->SetUnitId(unitId);
+    unit->SetCollisionBounds(bounds);
+    soft3d::GameUnit* result = unit.get();
+    AddUnit(unit.release(), 1);
+    return result;
 }
 
 StayBox* MyGameUnitMgr::FindStayBox(int32_t unitId)
@@ -410,6 +746,60 @@ void MyGameUnitMgr::SpawnMapItems()
         pickable->SetItemId(record.itemId);
         AddPickTrigger(nextUnitId, nextUnitId, record.pickupTextId, record.pickupBounds);
         --nextUnitId;
+    }
+}
+
+void MyGameUnitMgr::SpawnMapEnemies()
+{
+    EnemyInfoGroup* group = data.FindEnemyInfoGroup(mapId);
+    if (group == nullptr) {
+        return;
+    }
+    int32_t nextUnitId = 9999;
+    for (EnemySpawnRecord& record : group->records) {
+        if (record.active == 0) {
+            continue;
+        }
+        if (record.unitId != -1) {
+            nextUnitId = record.unitId;
+        }
+        soft3d::Vec3 position = record.position;
+        if (AddEnemy(nextUnitId, record.enemyType, record.active, position,
+                     record.direction, true)) {
+            Enemy* enemy = FindEnemy(nextUnitId);
+            if (enemy != nullptr) {
+                for (const EnemyWaypoint& waypoint : record.waypoints) {
+                    enemy->AddWaypoint(waypoint.position, waypoint.waitTime, waypoint.direction);
+                }
+                enemy->SetSpawnRecord(&record);
+                if (record.direction.x != 0 || record.direction.y != 0 || record.direction.z != 0) {
+                    enemy->SetDirection(record.direction);
+                }
+                --nextUnitId;
+            }
+        }
+    }
+}
+
+void MyGameUnitMgr::UpdateEnemySpawnRecords()
+{
+    if (mapId == -1) {
+        return;
+    }
+    for (soft3d::GameUnit* unit = GetFirstUnit(0); unit != nullptr; unit = unit->GetNextUnit()) {
+        auto* enemy = dynamic_cast<Enemy*>(unit);
+        if (enemy == nullptr || enemy->GetSpawnRecord() == nullptr) {
+            continue;
+        }
+        EnemySpawnRecord& record = *enemy->GetSpawnRecord();
+        record.active = static_cast<int16_t>(enemy->GetHealth());
+        if (record.active < 0) {
+            record.active = 0;
+        }
+        record.position = enemy->GetPosition();
+        record.direction = enemy->GetObject(0) != nullptr ? enemy->GetObject(0)->GetAxisZ()
+                                                          : soft3d::Vec3{};
+        record.unitId = static_cast<int16_t>(enemy->GetUnitId());
     }
 }
 

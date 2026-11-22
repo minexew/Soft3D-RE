@@ -139,6 +139,8 @@ Each runtime spawn is 0x24 bytes: position and direction, four signed 16-bit wor
 
 `MyGameUnitMgr_SpawnMapEnemies` (`0x00047470`) selects the current map's group, skips records whose `active` word is zero, chooses a stored unit ID when it is not `-1`, and otherwise allocates IDs downward from 9999. `MyGameUnitMgr_AddEnemy` (`0x000454a4`) obtains a pooled enemy and resolves spawn collisions. Every waypoint is appended through `Enemy_AddWaypoint` (`0x0007324c`) with its wait time and facing direction. A nonzero direction vector is applied to the enemy. `MyGameUnitMgr_UpdateEnemySpawnRecords` (`0x00047984`) synchronizes live state back to the table before changing maps.
 
+Stage 9 connects these consumers to the common pools. `GameData` reserves the native capacities of 100 groups and 32 records per group and checks dynamic record allocation so `EnemySpawnRecord*` links remain stable. `SetMapId` snapshots the old map before resetting every pool slot, and map finalization spawns items before enemies. The common enemy extension and the corrected StayBox `0x26` reconstruction are distinct; see `symbian3rd_enemy.md`. `test_game_enemy.cpp` exercises all real `einfo2` groups, waypoints, descending/stored IDs, health snapshots, and pool reuse.
+
 Shipped values:
 
 | File | Bytes | Groups | Spawn records | Notes |

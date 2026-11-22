@@ -236,22 +236,15 @@ soft3d::result Scene::LoadDay(int value)
                                                         : u".\\ui\\day%d.sbn", day);
     font->LoadSbnFont(path, engine.GetResourceManager().GetFilePak());
     player->Reset(unitManager->GetData());
+    player->SnapshotDayState();
+    unitManager->PrepareDayEnemies(day);
     engine.GetGameUi()->LoadDayResources(day);
     soft3d::result status = unitManager->LoadDayContent(day, engine);
     if (status != soft3d::S3D_OK) {
         return status;
     }
-    const bool extraWeapon = engine.GetConfiguration().unlocks.extraWeapon1 != 0;
-    if (day == 2) player->PrepareWeapon(unitManager->GetData(), extraWeapon ? 4 : 1);
-    if (day == 3) player->PrepareWeapon(unitManager->GetData(), extraWeapon ? 4 : 2);
-    if (day == 5) {
-        player->PrepareWeapon(unitManager->GetData(), extraWeapon ? 4 : 3);
-        player->PrepareWeapon(unitManager->GetData(), 1);
-    }
-    if (day == 7) player->PrepareWeapon(unitManager->GetData(), 3);
     engine.GetScriptEngine().ClearSharedVariables();
     dayStartSnapshot = eventFlags;
-    player->SnapshotDayState();
     if (fadeShader.IsCompleted()) {
         fadeShader.StartFade(0, PackRgb565(0, 0, 0), 8, 1);
     }
