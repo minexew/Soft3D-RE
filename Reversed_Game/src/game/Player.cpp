@@ -176,6 +176,7 @@ void Player::ResetAll(const GameData& data)
     healthPackDayStart = 0;
     scene->GetUnitManager()->SetHealthPackCount(0);
     itemUseCount = 0;
+    itemTriggerCount = 0;
     playerCounter710 = 0;
     savedItemUseCount = 0;
     savedPlayerCounter710 = 0;
@@ -510,6 +511,7 @@ void Player::Update()
             UpdateShadow();
         }
         pushing = 0;
+        itemTriggerCount = 0;
         return;
     }
 
@@ -529,6 +531,7 @@ void Player::Update()
     sword->SetUp(GetUp());
     sword->SetForward(GetForward());
     sword->Update();
+    itemTriggerCount = 0;
     UpdateGunTargets();
 }
 
@@ -1021,8 +1024,8 @@ int32_t Player::UseItem(int32_t slot)
         }
         return 1;
     }
-    for (const auto& group : itemUseGroups) {
-        if (std::find(group.begin(), group.end(), itemId) != group.end()) {
+    for (int32_t index = 0; index < itemTriggerCount; ++index) {
+        if (itemTriggers[static_cast<std::size_t>(index)]->AcceptsItem(itemId)) {
             usedItem = itemId;
             CompactInventory();
             return 2;
@@ -1062,9 +1065,11 @@ void Player::CompactInventory()
     }
 }
 
-void Player::AddItemUseGroup(const std::array<int32_t, 8>& items)
+void Player::RegisterItemTrigger(ItemTrigger* trigger)
 {
-    itemUseGroups.push_back(items);
+    if (trigger != nullptr && itemTriggerCount < static_cast<int32_t>(itemTriggers.size())) {
+        itemTriggers[static_cast<std::size_t>(itemTriggerCount++)] = trigger;
+    }
 }
 
 int32_t Player::GetInventoryItem(std::size_t slot) const { return inventory.at(slot); }

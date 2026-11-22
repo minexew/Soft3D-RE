@@ -135,6 +135,7 @@ public:
     virtual void SetStayBoxEnemySpawnState(soft3d::GameUnit* enemy, uint8_t value) = 0;
     virtual void BindStayBoxEnemy(soft3d::GameUnit* enemy, StayBox* stayBox,
                                   const soft3d::Vec3& returnPosition) = 0;
+    virtual void AttachStayBoxEnemy(soft3d::GameUnit* enemy, StayBox* stayBox) = 0;
     virtual void RemoveStayBoxEnemy(soft3d::GameUnit* enemy) = 0;
 };
 

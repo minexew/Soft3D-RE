@@ -123,6 +123,23 @@ GameSI::GameSI()
     callbacks[163 - gameSIFirstCommand].handler = &GameSI::ClearActTriggerSelection;
     callbacks[164 - gameSIFirstCommand].handler = &GameSI::SetActTriggerCamera;
     callbacks[165 - gameSIFirstCommand].handler = &GameSI::EnableActTrigger;
+    callbacks[166 - gameSIFirstCommand].handler = &GameSI::AddHideTrigger;
+    callbacks[167 - gameSIFirstCommand].handler = &GameSI::SetHideTriggerLimits;
+    callbacks[168 - gameSIFirstCommand].handler = &GameSI::EnableHideTrigger;
+    callbacks[169 - gameSIFirstCommand].handler = &GameSI::AddItemTrigger;
+    callbacks[170 - gameSIFirstCommand].handler = &GameSI::AddItemTriggerItem;
+    callbacks[171 - gameSIFirstCommand].handler = &GameSI::EnableItemTrigger;
+    callbacks[172 - gameSIFirstCommand].handler = &GameSI::AddTalkTrigger;
+    callbacks[173 - gameSIFirstCommand].handler = &GameSI::SetTalkTriggerCameraPosition;
+    callbacks[174 - gameSIFirstCommand].handler = &GameSI::AddTalkTriggerCamera;
+    callbacks[175 - gameSIFirstCommand].handler = &GameSI::AddTalkTriggerLine;
+    callbacks[176 - gameSIFirstCommand].handler = &GameSI::IsTalkTriggerActive;
+    callbacks[177 - gameSIFirstCommand].handler = &GameSI::IsTalkTriggerCompleted;
+    callbacks[178 - gameSIFirstCommand].handler = &GameSI::EnableTalkTrigger;
+    callbacks[179 - gameSIFirstCommand].handler = &GameSI::RemoveInteractionTrigger;
+    callbacks[205 - gameSIFirstCommand].handler = &GameSI::AddStayBoxDeniedRegion;
+    callbacks[206 - gameSIFirstCommand].handler = &GameSI::AddStayBoxAllowedRegion;
+    callbacks[207 - gameSIFirstCommand].handler = &GameSI::AddStayBoxEnemy;
     callbacks[219 - gameSIFirstCommand].handler = &GameSI::AddTrap;
     callbacks[220 - gameSIFirstCommand].handler = &GameSI::RemoveTrap;
     callbacks[221 - gameSIFirstCommand].handler = &GameSI::AddThing;
@@ -533,6 +550,39 @@ ActTrigger& GameSI::RequireActTrigger(soft3d::ScriptCommand& command)
     return *trigger;
 }
 
+HideTrigger& GameSI::RequireHideTrigger(soft3d::ScriptCommand& command)
+{
+    const int32_t id = command.GetArgument(0).GetShort();
+    auto* trigger = dynamic_cast<HideTrigger*>(context.unitManager->FindUnit(4, id));
+    if (trigger == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "hide trigger ID " + std::to_string(id) + " does not exist");
+    }
+    return *trigger;
+}
+
+ItemTrigger& GameSI::RequireItemTrigger(soft3d::ScriptCommand& command)
+{
+    const int32_t id = command.GetArgument(0).GetShort();
+    auto* trigger = dynamic_cast<ItemTrigger*>(context.unitManager->FindUnit(4, id));
+    if (trigger == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "item trigger ID " + std::to_string(id) + " does not exist");
+    }
+    return *trigger;
+}
+
+TalkTrigger& GameSI::RequireTalkTrigger(soft3d::ScriptCommand& command)
+{
+    const int32_t id = command.GetArgument(0).GetShort();
+    auto* trigger = dynamic_cast<TalkTrigger*>(context.unitManager->FindUnit(4, id));
+    if (trigger == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "talk trigger ID " + std::to_string(id) + " does not exist");
+    }
+    return *trigger;
+}
+
 void GameSI::AddEventTrigger(soft3d::ScriptCommand& command)
 {
     RequireArguments(command, 9);
@@ -685,6 +735,168 @@ void GameSI::EnableActTrigger(soft3d::ScriptCommand& command)
 {
     RequireArguments(command, 2);
     RequireActTrigger(command).SetEnabled(command.GetArgument(1).GetBool());
+}
+
+void GameSI::AddHideTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 14);
+    const soft3d::Vec3 hidePosition{command.GetArgument(2).GetFixed(),
+        command.GetArgument(3).GetFixed(), command.GetArgument(4).GetFixed()};
+    const soft3d::Vec3 cameraDirection{command.GetArgument(5).GetFixed(),
+        command.GetArgument(6).GetFixed(), command.GetArgument(7).GetFixed()};
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(8).GetFixed(), command.GetArgument(9).GetFixed(),
+         command.GetArgument(10).GetFixed()},
+        {command.GetArgument(11).GetFixed(), command.GetArgument(12).GetFixed(),
+         command.GetArgument(13).GetFixed()}};
+    context.unitManager->AddHideTrigger(command.GetArgument(0).GetShort(),
+        command.GetArgument(1).GetShort(), hidePosition, cameraDirection, bounds);
+}
+
+void GameSI::SetHideTriggerLimits(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    RequireHideTrigger(command).SetLimits(command.GetArgument(1).GetFixed(),
+                                          command.GetArgument(2).GetFixed());
+}
+
+void GameSI::EnableHideTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireHideTrigger(command).SetEnabled(command.GetArgument(1).GetBool());
+}
+
+void GameSI::AddItemTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 8);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(2).GetFixed(), command.GetArgument(3).GetFixed(),
+         command.GetArgument(4).GetFixed()},
+        {command.GetArgument(5).GetFixed(), command.GetArgument(6).GetFixed(),
+         command.GetArgument(7).GetFixed()}};
+    context.unitManager->AddItemTrigger(command.GetArgument(0).GetShort(),
+                                        command.GetArgument(1).GetShort(), bounds);
+}
+
+void GameSI::AddItemTriggerItem(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireItemTrigger(command).AddItem(command.GetArgument(1).GetShort());
+}
+
+void GameSI::EnableItemTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireItemTrigger(command).SetEnabled(command.GetArgument(1).GetBool());
+}
+
+void GameSI::AddTalkTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 8);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()},
+        {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+         command.GetArgument(6).GetFixed()}};
+    context.unitManager->AddTalkTrigger(command.GetArgument(0).GetShort(), bounds,
+                                        command.GetArgument(7).GetBool());
+}
+
+void GameSI::SetTalkTriggerCameraPosition(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    RequireTalkTrigger(command).SetCameraPosition({command.GetArgument(1).GetFixed(),
+        command.GetArgument(2).GetFixed(), command.GetArgument(3).GetFixed()});
+}
+
+void GameSI::AddTalkTriggerCamera(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 8);
+    RequireTalkTrigger(command).AddCamera(command.GetArgument(1).GetShort(),
+        {command.GetArgument(2).GetFixed(), command.GetArgument(3).GetFixed(),
+         command.GetArgument(4).GetFixed()},
+        {command.GetArgument(5).GetFixed(), command.GetArgument(6).GetFixed(),
+         command.GetArgument(7).GetFixed()});
+}
+
+void GameSI::AddTalkTriggerLine(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    RequireTalkTrigger(command).AddLine(command.GetArgument(1).GetShort(),
+        static_cast<uint8_t>(command.GetArgument(2).GetShort()),
+        static_cast<int8_t>(command.GetArgument(3).GetShort()));
+}
+
+void GameSI::IsTalkTriggerActive(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    auto* trigger = dynamic_cast<TalkTrigger*>(context.unitManager->FindUnit(
+        4, command.GetArgument(0).GetShort()));
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(trigger != nullptr && trigger->IsActive());
+    }
+}
+
+void GameSI::IsTalkTriggerCompleted(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    auto* trigger = dynamic_cast<TalkTrigger*>(context.unitManager->FindUnit(
+        4, command.GetArgument(0).GetShort()));
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(trigger != nullptr && trigger->IsCompleted());
+    }
+}
+
+void GameSI::EnableTalkTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireTalkTrigger(command).SetEnabled(command.GetArgument(1).GetBool());
+}
+
+void GameSI::RemoveInteractionTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.unitManager->RemoveUnitById(command.GetArgument(0).GetShort(), 4, true);
+}
+
+void GameSI::AddStayBoxRegion(soft3d::ScriptCommand& command, bool allowed)
+{
+    RequireArguments(command, 7);
+    StayBox* box = context.unitManager->FindStayBox(command.GetArgument(0).GetShort());
+    if (box == nullptr) {
+        return;
+    }
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()},
+        {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+         command.GetArgument(6).GetFixed()}};
+    if (allowed) {
+        box->AddAllowedRegion(bounds);
+    } else {
+        box->AddDeniedRegion(bounds);
+    }
+}
+
+void GameSI::AddStayBoxDeniedRegion(soft3d::ScriptCommand& command)
+{
+    AddStayBoxRegion(command, false);
+}
+
+void GameSI::AddStayBoxAllowedRegion(soft3d::ScriptCommand& command)
+{
+    AddStayBoxRegion(command, true);
+}
+
+void GameSI::AddStayBoxEnemy(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    soft3d::GameUnit* enemy = context.unitManager->FindUnit(0, command.GetArgument(0).GetShort());
+    StayBox* box = context.unitManager->FindStayBox(command.GetArgument(1).GetShort());
+    if (enemy != nullptr && box != nullptr) {
+        context.unitManager->AttachStayBoxEnemy(*enemy, *box);
+        box->AddSpawnRecord(*enemy);
+    }
 }
 
 soft3d::Things& GameSI::RequireThing(soft3d::ScriptCommand& command)

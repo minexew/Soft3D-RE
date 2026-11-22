@@ -313,6 +313,80 @@ ActTrigger* MyGameUnitMgr::AddActTrigger(int32_t unitId, const soft3d::ObjectBou
     return result;
 }
 
+HideTrigger* MyGameUnitMgr::AddHideTrigger(int32_t unitId, int32_t maskIndex,
+        const soft3d::Vec3& hidePosition, const soft3d::Vec3& cameraDirection,
+        const soft3d::ObjectBounds& bounds)
+{
+    auto* engine = static_cast<soft3d::GameEngine*>(GetContext().gameContext);
+    auto trigger = std::make_unique<HideTrigger>(dynamic_cast<Player*>(player),
+        engine != nullptr ? &engine->GetControlMap() : nullptr, interactionUi);
+    trigger->SetUnitId(unitId);
+    trigger->SetMaskIndex(maskIndex - 1);
+    trigger->SetHidePosition(hidePosition);
+    trigger->SetCameraDirection(cameraDirection);
+    trigger->SetCollisionBounds(bounds);
+    HideTrigger* result = trigger.get();
+    AddUnit(trigger.release(), 4);
+    return result;
+}
+
+ItemTrigger* MyGameUnitMgr::AddItemTrigger(int32_t unitId, int32_t itemId,
+                                           const soft3d::ObjectBounds& bounds)
+{
+    auto trigger = std::make_unique<ItemTrigger>(dynamic_cast<Player*>(player));
+    trigger->SetUnitId(unitId);
+    trigger->SetCollisionBounds(bounds);
+    trigger->AddItem(itemId);
+    ItemTrigger* result = trigger.get();
+    AddUnit(trigger.release(), 4);
+    return result;
+}
+
+TalkTrigger* MyGameUnitMgr::AddTalkTrigger(int32_t unitId, const soft3d::ObjectBounds& bounds,
+                                           bool fadeAtEnd)
+{
+    auto* engine = static_cast<soft3d::GameEngine*>(GetContext().gameContext);
+    auto* scene = static_cast<Scene*>(GetContext().sceneContext);
+    auto trigger = std::make_unique<TalkTrigger>(scene, this, dynamic_cast<Player*>(player),
+        engine != nullptr ? &engine->GetControlMap() : nullptr, interactionUi);
+    trigger->SetUnitId(unitId);
+    trigger->SetCollisionBounds(bounds);
+    trigger->SetCameraPosition(cameraController != nullptr ? cameraController->GetPosition()
+                                                           : soft3d::Vec3{});
+    trigger->SetFadeAtEnd(fadeAtEnd);
+    TalkTrigger* result = trigger.get();
+    AddUnit(trigger.release(), 4);
+    return result;
+}
+
+StayBox* MyGameUnitMgr::RestoreStayBox()
+{
+    if (stayBoxCount >= static_cast<int32_t>(stayBoxes.size())) {
+        return nullptr;
+    }
+    StayBox& box = stayBoxes[static_cast<std::size_t>(stayBoxCount++)];
+    box.Configure(player, stayBoxHost);
+    return &box;
+}
+
+void MyGameUnitMgr::AttachStayBoxEnemy(soft3d::GameUnit& enemy, StayBox& box)
+{
+    if (stayBoxHost != nullptr) {
+        stayBoxHost->AttachStayBoxEnemy(&enemy, &box);
+    }
+}
+
+StayBox* MyGameUnitMgr::FindStayBox(int32_t unitId)
+{
+    for (int32_t index = 0; index < stayBoxCount; ++index) {
+        StayBox& box = stayBoxes[static_cast<std::size_t>(index)];
+        if (box.GetUnitId() == unitId) {
+            return &box;
+        }
+    }
+    return nullptr;
+}
+
 void MyGameUnitMgr::SpawnMapItems()
 {
     GameItemGroup* group = data.FindGameItemGroup(mapId);
@@ -353,14 +427,24 @@ void MyGameUnitMgr::SetDoorState(int32_t doorId, int32_t value)
 
 void MyGameUnitMgr::Update()
 {
-    for (int32_t index = 0; index < stayBoxCount; ++index) {
-        stayBoxes[static_cast<std::size_t>(index)].Update();
+    for (soft3d::GameUnit* unit = GetFirstUnit(4); unit != nullptr; unit = unit->GetNextUnit()) {
+        if (unit->GetUnitType() == 0x28) {
+            unit->Update();
+        }
     }
     if (!paused) {
+        for (int32_t index = 0; index < stayBoxCount; ++index) {
+            stayBoxes[static_cast<std::size_t>(index)].Update();
+        }
         UpdateUnits();
     } else {
         for (soft3d::GameUnit* unit = GetFirstUnit(1); unit != nullptr; unit = unit->GetNextUnit()) {
             unit->Update();
+        }
+        for (soft3d::GameUnit* unit = GetFirstUnit(4); unit != nullptr; unit = unit->GetNextUnit()) {
+            if (unit->GetUnitType() == 0x27) {
+                unit->Update();
+            }
         }
     }
 }

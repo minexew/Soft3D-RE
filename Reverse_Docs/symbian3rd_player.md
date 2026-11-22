@@ -179,7 +179,7 @@ The exact animation-table consumers are preserved. For example, sword type 1 act
 
 Nine ordinary slots hold IDs below 1001; 128 note slots hold larger IDs. Item 1 is special: it occupies slot zero, increments the manager's health-pack count, and recursively reinserts displaced slot-zero content. Other items use the first empty slot. Pickup sound is index 141. Adding items updates model/document/photo unlocks through the existing configuration owner.
 
-`Player_UseItem` (`0x0003c76c`) uses a health pack only below max HP, adds `maxHP >> 1` with clamping, decrements the pack count, and removes/compacts the slot when no packs remain. Other item-use groups return result 2 and set `usedItem`; ordinary health-pack success returns 1. Directional combination consumes both inputs and adds the result. Compaction preserves slot zero and reinserts occupied later slots without sound/selection side effects.
+`Player_UseItem` (`0x0003c76c`) uses a health pack only below max HP, adds `maxHP >> 1` with clamping, decrements the pack count, and removes/compacts the slot when no packs remain. Other items return result 2 and set `usedItem` only when an overlapping enabled `ItemTrigger` accepts the ID. The player clears its transient trigger-registration list in both `Player_Update` branches; this list at native `0xa1c`/`0xa20` is distinct from the persistent item-use statistic at `0x70c`. Ordinary health-pack success returns 1. Directional combination consumes both inputs and adds the result. Compaction preserves slot zero and reinserts occupied later slots without sound/selection side effects.
 
 Day snapshots copy current and initial inventory, both note arrays, health-pack count, and the two statistic counters. Game-over restart restores these before reloading the day.
 
@@ -258,4 +258,4 @@ hurt   0xff7f3005
 QTE    0x3f72c8dd
 ```
 
-At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. Stage 6 now has 34 default tests, 27 core/WAR/ASan-UBSan tests, and 34 logging/math tests. The real `day1/ep0` application path passes thing and stage-6 trigger setup before stopping at later-stage command 102. No later-stage command was made a silent no-op.
+At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. Stage 7 has 34 default tests, 27 core/WAR/ASan-UBSan tests, and 34 logging/math tests. The real `day1/ep0` application path passes thing and stage-6 trigger setup before stopping at later-stage command 102; real map-2008 engine frames also exercise ItemTrigger registration and `Player_UseItem`. No later-stage command was made a silent no-op.

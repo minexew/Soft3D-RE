@@ -118,7 +118,7 @@ A type-11 record contains:
 use-player-direction flag, position, fixed light direction
 ```
 
-`LightTrigger_Update` (`0x00052d04`) applies fixed direction when the flag is zero, otherwise normalized `playerPosition - triggerPosition`, while the player overlaps. It preserves ambient intensity and does not restore the old direction on exit. Type-102 brush values are stored as six 16.16 words at manager offsets `0x24ff4`–`0x25008`. Their higher-level meaning is not established by this consumer alone; they must not be renamed as proven fog planes or an AABB. The six floats in the SBP header also remain intentionally unnamed in `sbp_format.md`.
+`LightTrigger_Update` (`0x00052d04`) applies fixed direction when the flag is zero, otherwise normalized `playerPosition - triggerPosition`, while the player overlaps. It preserves ambient intensity and does not restore the old direction on exit. `LightTrigger_SaveState`/`LoadState` (`0x00052fb0`/`0x00053000`) append the 32-bit direction-mode word and light-direction vector to `GameUnit` state; position and bounds already come from the base record. Type-102 brush values are stored as six 16.16 words at manager offsets `0x24ff4`–`0x25008`. Their higher-level meaning is not established by this consumer alone; they must not be renamed as proven fog planes or an AABB. The six floats in the SBP header also remain intentionally unnamed in `sbp_format.md`.
 
 ## Scene transitions and presentation
 

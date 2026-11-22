@@ -52,6 +52,18 @@ public:
                                 const soft3d::Vec3& spawnDirection,
                                 const soft3d::ObjectBounds& bounds);
     ActTrigger* AddActTrigger(int32_t unitId, const soft3d::ObjectBounds& bounds);
+    HideTrigger* AddHideTrigger(int32_t unitId, int32_t maskIndex,
+                                const soft3d::Vec3& hidePosition,
+                                const soft3d::Vec3& cameraDirection,
+                                const soft3d::ObjectBounds& bounds);
+    ItemTrigger* AddItemTrigger(int32_t unitId, int32_t itemId,
+                                const soft3d::ObjectBounds& bounds);
+    TalkTrigger* AddTalkTrigger(int32_t unitId, const soft3d::ObjectBounds& bounds,
+                                bool fadeAtEnd);
+    StayBox* RestoreStayBox();
+    StayBox* FindStayBox(int32_t unitId);
+    void SetStayBoxHost(StayBoxHost* value) { stayBoxHost = value; }
+    void AttachStayBoxEnemy(soft3d::GameUnit& enemy, StayBox& box);
     void SpawnMapItems();
     InteractionState& GetInteractionState() { return interactionState; }
     const InteractionState& GetInteractionState() const { return interactionState; }
@@ -76,6 +88,7 @@ private:
     TriggerUiHost* interactionUi = &interactionState;
     CameraController* cameraController = nullptr;
     soft3d::Creature* player = nullptr;
+    StayBoxHost* stayBoxHost = nullptr;
     std::array<soft3d::Fixed, 6> mapHeaderValues{};
     std::array<int32_t, 1024> doorStates{};
     uint32_t randomState = 0;

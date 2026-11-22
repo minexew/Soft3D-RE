@@ -289,6 +289,8 @@ void Trap::LoadState(soft3d::InputStream& stream)
 }
 
 StayBox::StayBox()
+    : enemyOutside(0)
+    , spawned(1)
 {
     unitType = 0x26;
 }

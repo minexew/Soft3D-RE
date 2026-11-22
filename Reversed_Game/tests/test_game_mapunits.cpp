@@ -416,6 +416,7 @@ public:
     {
         bound = box;
     }
+    void AttachStayBoxEnemy(soft3d::GameUnit*, game::StayBox* box) override { bound = box; }
     void RemoveStayBoxEnemy(soft3d::GameUnit*) override { present = false; ++removeCalls; }
 
     soft3d::GameUnit unit;
@@ -437,8 +438,20 @@ void TestStayBox()
     enemy.SetCollisionBounds({{1, 1, 1}, {2, 2, 2}});
     TestStayBoxHost host;
     game::StayBox box;
+    CHECK(!box.IsEnemyOutside() && box.HasSpawnedEnemies());
     box.Configure(&enemy, &host);
     box.SetLocalBounds({{10, 10, 10}, {20, 20, 20}});
+    soft3d::OutputDataStream initialState;
+    box.SaveState(initialState);
+    std::vector<uint8_t> initialBytes(initialState.GetData(),
+        initialState.GetData() + initialState.GetSize());
+    initialBytes[initialBytes.size() - 1] = 0;
+    soft3d::InputDataStream initialInput;
+    initialInput.SetData(initialBytes.data(), initialBytes.size());
+    int32_t initialType = 0;
+    initialInput.ReadInt32(initialType);
+    box.LoadState(initialInput);
+    CHECK(!box.HasSpawnedEnemies());
     box.AddAllowedRegion({{0, 0, 0}, {3, 3, 3}});
     game::StayBox::SpawnRecord record;
     record.position = {4, 5, 6};
@@ -470,6 +483,48 @@ void TestStayBox()
     input.ReadInt32(savedType);
     restored.LoadState(input);
     CHECK(restored.IsEnemyOutside() && !restored.HasSpawnedEnemies());
+}
+
+void TestStayBoxCommands()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    TestStayBoxHost host;
+    manager->SetStayBoxHost(&host);
+    game::StayBox* box = manager->RestoreStayBox();
+    CHECK(box != nullptr && manager->FindStayBox(70) == nullptr);
+    box->SetUnitId(70);
+    box->SetLocalBounds({{-0x10000, -0x10000, -0x10000},
+                         {0x10000, 0x10000, 0x10000}});
+    CHECK(manager->FindStayBox(70) == box && !box->IsEnemyOutside() && box->HasSpawnedEnemies());
+    soft3d::GameUnit enemy;
+    enemy.SetUnitId(44);
+    manager->AddUnit(&enemy, 0);
+    fixture.Execute(207, {Argument::Short(44), Argument::Short(70)});
+    CHECK(host.bound == box && box->GetSpawnRecords().size() == 1);
+    CHECK(box->GetSpawnRecords()[0].unitId == 44);
+    host.unit.SetUnitId(44);
+    fixture.Execute(205, {Argument::Short(999), Argument::Fixed(0), Argument::Fixed(0),
+        Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0)});
+    fixture.Execute(207, {Argument::Short(999), Argument::Short(70)});
+    CHECK(box->GetSpawnRecords().size() == 1);
+    const std::vector<Argument> denied = {Argument::Short(70), Argument::Fixed(10),
+        Argument::Fixed(10), Argument::Fixed(10), Argument::Fixed(11), Argument::Fixed(11),
+        Argument::Fixed(11)};
+    const std::vector<Argument> allowed = {Argument::Short(70), Argument::Fixed(0),
+        Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(1), Argument::Fixed(1),
+        Argument::Fixed(1)};
+    fixture.Execute(205, denied);
+    fixture.Execute(206, allowed);
+    fixture.scene->GetPlayer()->SetCollisionBounds({{10, 10, 10}, {10, 10, 10}});
+    manager->Update();
+    CHECK(!box->HasSpawnedEnemies() && host.removeCalls == 1);
+    fixture.scene->GetPlayer()->SetCollisionBounds({{0, 0, 0}, {0, 0, 0}});
+    manager->Update();
+    CHECK(box->HasSpawnedEnemies());
+    manager->RemoveUnit(&enemy, 0, false);
+    manager->FinishMapLoad(false);
+    CHECK(manager->FindStayBox(70) == nullptr);
 }
 
 void LoadRealMap(GameFixture& fixture, int mapId)
@@ -531,6 +586,7 @@ int main()
         TestBreakPushAndOrientation();
         TestPersistenceAndElectricSaw();
         TestStayBox();
+        TestStayBoxCommands();
         TestRealMapEntities();
         std::cout << "game map-unit tests passed\n";
         return 0;

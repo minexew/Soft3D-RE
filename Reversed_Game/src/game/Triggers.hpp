@@ -6,6 +6,7 @@
 #include <array>
 #include <cstdint>
 #include <memory>
+#include <vector>
 
 namespace game {
 
@@ -22,6 +23,8 @@ public:
     virtual void SetChoiceString(int32_t index, int32_t textId) = 0;
     virtual void ShowChoice(int32_t titleId, int32_t optionCount, bool portrait) = 0;
     virtual int32_t GetDialogResult() const = 0;
+    virtual bool IsDialogActive() const = 0;
+    virtual void CloseDialog() = 0;
 };
 
 class InteractionState final : public TriggerUiHost {
@@ -37,6 +40,8 @@ public:
     void SetChoiceString(int32_t index, int32_t textId) override;
     void ShowChoice(int32_t titleId, int32_t optionCount, bool portrait) override;
     int32_t GetDialogResult() const override { return dialogResult; }
+    bool IsDialogActive() const override { return dialogKind >= 0; }
+    void CloseDialog() override;
 
     int32_t GetPrompt() const { return prompt; }
     int32_t GetDialogKind() const { return dialogKind; }
@@ -216,6 +221,135 @@ private:
     soft3d::Vec3 cameraTarget;
 };
 
+class HideTrigger final : public soft3d::GameUnit {
+public:
+    HideTrigger(Player* player = nullptr, soft3d::ControlMap* controls = nullptr,
+                TriggerUiHost* ui = nullptr);
+
+    void Configure(Player* player, soft3d::ControlMap* controls, TriggerUiHost* ui);
+    void SetEnabled(bool enabled);
+    void Update() override;
+    void SaveState(soft3d::OutputStream& stream) const override;
+    void LoadState(soft3d::InputStream& stream) override;
+
+    void SetHidePosition(const soft3d::Vec3& value) { hidePosition = value; }
+    void SetCameraDirection(const soft3d::Vec3& value) { cameraDirection = value; }
+    void SetMaskIndex(int32_t value) { maskIndex = value; }
+    void SetLimits(soft3d::Fixed horizontal, soft3d::Fixed vertical);
+    const soft3d::Vec3& GetHidePosition() const { return hidePosition; }
+    const soft3d::Vec3& GetCameraDirection() const { return cameraDirection; }
+    int32_t GetMaskIndex() const { return maskIndex; }
+    soft3d::Fixed GetHorizontalLimit() const { return horizontalLimit; }
+    soft3d::Fixed GetVerticalLimit() const { return verticalLimit; }
+    bool IsEnabled() const { return enabled != 0; }
+    bool IsPromptActive() const { return promptActive != 0; }
+    bool IsDialogActive() const { return dialogActive != 0; }
+
+private:
+    void EnterHide();
+
+    Player* player;
+    soft3d::ControlMap* controls;
+    TriggerUiHost* ui;
+    int32_t enabled = 1;
+    soft3d::Vec3 hidePosition;
+    soft3d::Vec3 cameraDirection;
+    int32_t promptActive = 0;
+    int32_t dialogActive = 0;
+    int32_t maskIndex = 0;
+    soft3d::Fixed horizontalLimit = 0x9999;
+    soft3d::Fixed verticalLimit = 0xcccc;
+};
+
+class ItemTrigger final : public soft3d::GameUnit {
+public:
+    explicit ItemTrigger(Player* player = nullptr);
+
+    void Configure(Player* value) { player = value; }
+    void SetEnabled(bool enabled) { this->enabled = enabled ? 1 : 0; }
+    void AddItem(int32_t itemId);
+    bool AcceptsItem(int32_t itemId) const;
+    void Update() override;
+    void SaveState(soft3d::OutputStream& stream) const override;
+    void LoadState(soft3d::InputStream& stream) override;
+
+    bool IsEnabled() const { return enabled != 0; }
+    const std::array<int32_t, 8>& GetItemIds() const { return itemIds; }
+
+private:
+    Player* player;
+    int32_t enabled = 1;
+    std::array<int32_t, 8> itemIds{};
+};
+
+class TalkTrigger final : public soft3d::GameUnit {
+public:
+    struct Camera {
+        int32_t actorId = 0;
+        soft3d::Vec3 target;
+        soft3d::Vec3 axisX;
+    };
+
+    struct Line {
+        int16_t textId = 0;
+        uint8_t duration = 0;
+        int8_t cameraIndex = 0;
+    };
+
+    TalkTrigger(Scene* scene = nullptr, MyGameUnitMgr* manager = nullptr,
+                Player* player = nullptr, soft3d::ControlMap* controls = nullptr,
+                TriggerUiHost* ui = nullptr);
+
+    void Configure(Scene* scene, MyGameUnitMgr* manager, Player* player,
+                   soft3d::ControlMap* controls, TriggerUiHost* ui);
+    void SetEnabled(bool enabled);
+    void SetFadeAtEnd(bool value) { fadeAtEnd = value ? 1 : 0; }
+    void SetCameraPosition(const soft3d::Vec3& value) { cameraPosition = value; }
+    void AddCamera(int32_t actorId, const soft3d::Vec3& target, const soft3d::Vec3& axisX);
+    void AddLine(int16_t textId, uint8_t duration, int8_t cameraIndex);
+    void Update() override;
+    void SaveState(soft3d::OutputStream& stream) const override;
+    void LoadState(soft3d::InputStream& stream) override;
+
+    bool IsEnabled() const { return enabled != 0; }
+    bool IsActive() const { return active != 0; }
+    bool IsCompleted() const { return completed != 0; }
+    bool IsPromptActive() const { return promptActive != 0; }
+    int32_t GetPhase() const { return phase; }
+    int32_t GetTimer() const { return timer; }
+    int32_t GetLineIndex() const { return lineIndex; }
+    bool GetFadeAtEnd() const { return fadeAtEnd != 0; }
+    const soft3d::Vec3& GetCameraPosition() const { return cameraPosition; }
+    const std::vector<Camera>& GetCameras() const { return cameras; }
+    const std::vector<Line>& GetLines() const { return lines; }
+
+private:
+    void BeginDialogue();
+    void StartDialogue();
+    bool AdvanceDialogue();
+    void FinishDialogue();
+    void SetLineCamera(int32_t cameraIndex);
+    void SetDialogueControls(bool enabled);
+
+    Scene* scene;
+    MyGameUnitMgr* manager;
+    Player* player;
+    soft3d::ControlMap* controls;
+    TriggerUiHost* ui;
+    int32_t enabled = 1;
+    int32_t fadeAtEnd = 0;
+    int32_t timer = 0;
+    soft3d::Vec3 cameraPosition;
+    std::vector<Camera> cameras;
+    std::vector<Line> lines;
+    int32_t promptActive = 0;
+    int32_t running = 0;
+    int32_t active = 0;
+    int32_t phase = 0;
+    int32_t completed = 0;
+    int32_t lineIndex = 0;
+};
+
 class CameraTrigger final : public soft3d::GameUnit {
 public:
     CameraTrigger(CameraController* controller = nullptr, soft3d::Creature* player = nullptr);
@@ -262,7 +396,11 @@ public:
 
     soft3d::result LoadEntity(const soft3d::BspEntityRecord& record, const soft3d::Bsp& bsp);
     void Update() override;
+    void SaveState(soft3d::OutputStream& stream) const override;
+    void LoadState(soft3d::InputStream& stream) override;
 
+    void SetUsePlayerDirection(bool value) { usePlayerDirection = value; }
+    void SetLightDirection(const soft3d::Vec3& value) { lightDirection = value; }
     bool UsesPlayerDirection() const { return usePlayerDirection; }
     const soft3d::Vec3& GetLightDirection() const { return lightDirection; }
 

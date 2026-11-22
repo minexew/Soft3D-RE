@@ -4,7 +4,7 @@
 
 Stage 5 recovers the game-specific `Things` descendants and map-unit consumers. `Reversed_Game/src/game/MapUnits.*` implements `Breakable`, `Pushable`, `Pickable`, `BspUnit`, `ElectricSaw`, `Trap`, and `StayBox`; `MyGameUnitMgr` owns construction, lensflares, and update/submission integration. `GameSI` implements commands 219–254 from their individual ARM bodies.
 
-The reusable `Things` base in `src/soft3d/Units.*` now implements the shared save/load extension used by all three descendants. The concrete interaction triggers are still stages 6–7, and StayBox enemy-pool operations use `StayBoxHost` until the concrete enemy implementation in stage 9; no generic enemy substitute is installed. Full scene reconstruction of these records remains stage 13.
+The reusable `Things` base in `src/soft3d/Units.*` now implements the shared save/load extension used by all three descendants. All concrete interaction triggers are implemented in stages 6–7, and StayBox enemy-pool operations use `StayBoxHost` until the concrete enemy implementation in stage 9; no generic enemy substitute is installed. Full scene reconstruction of these records remains stage 13.
 
 ## Native layouts
 
@@ -15,7 +15,7 @@ The reusable `Things` base in `src/soft3d/Units.*` now implements the shared sav
 | `Pickable` | `0x690` | `0x684` pickup-sound `AudioData*`; `0x688` item ID, initially -1; `0x68c` pointer to the originating gameitem record. |
 | `BspUnit` | `0x68` | `0x54` entity state initialized to zero; `0x58` model `Object*`; `0x5c` map `Animation*`; `0x60` secondary vertex-light buffer. |
 | `Trap` | `0x64` | `0x54` player; `0x58` fixed XYZ impulse. |
-| `StayBox` | `0x6c` | `0x54` enemy; `0x58` enemy-outside flag, initially 1; `0x5c` spawned flag; `0x60` allowed-region list; `0x64` denied-region list; `0x68` spawn-record list. |
+| `StayBox` | `0x6c` | `0x54` enemy; `0x58` enemy-outside flag, initially 0; `0x5c` spawned flag, initially 1; `0x60` allowed-region list; `0x64` denied-region list; `0x68` spawn-record list. |
 
 `Breakable`, `Pushable`, and `Pickable` use unit types `0x1c`, `0x1d`, and `0x1e`; `Trap` uses `0x1f`. `BspUnit` sets type 3, while `StayBox` sets `0x26` as a manager-internal record. `ElectricSaw` retains the `VisUnit` type and has no recovered extension behavior beyond its update method.
 
@@ -88,12 +88,17 @@ Type 202 creates at most 16 manager-owned `Lensflare` objects. Each loads `guang
 
 `StayBox_SpawnEnemies` (`0x00029784`) processes only records whose active byte is nonzero. It requests enemy construction with ID/type/active and a zero direction, restores spawn state, and binds the StayBox plus return position. `StayBox_DespawnEnemies` (`0x000298c8`) snapshots spawn position, type, active state, and spawn state before removal. A missing unit or enemy state above 14 instead clears the record's active byte. Save/load includes only the outside and spawned words after `GameUnit`; lists are reconstructed by commands and map setup.
 
+The manager owns 100 embedded StayBoxes and resets the active count to zero after map loading. Type-`0x26` records consume successive slots during save restoration and bind the scene player as the proximity actor. `MyGameUnitMgr_FindStayBox` (`0x000450f4`) searches only active slots. Concrete enemy attachment and pool operations remain behind `StayBoxHost` until stage 9; the stage-7 command path is fully wired through that interface.
+
 ## Script commands
 
 All handlers have the standard `(arguments, argumentCount, output)` script dispatch signature. Portable calls validate the bucket-2 class where ARM would otherwise dereference an invalid pointer.
 
 | ID | ARM handler | Arguments and behavior |
 |---:|---:|---|
+| 205 | `0x6b4c0` `GameSI_AddStayBoxDeniedRegion` | StayBox ID and six fixed bounds values; missing boxes are ignored. |
+| 206 | `0x6b5e8` `GameSI_AddStayBoxAllowedRegion` | StayBox ID and six fixed bounds values; missing boxes are ignored. |
+| 207 | `0x6b710` `GameSI_AddStayBoxEnemy` | Bucket-0 enemy ID and StayBox ID; attaches the enemy and prepends a spawn record when both exist. |
 | 219 | `0x6becc` `GameSI_AddTrap` | Short ID, six fixed bounds values, fixed impulse XYZ; calls `MyGameUnitMgr_AddTrap`. |
 | 220 | `0x6c03c` `GameSI_RemoveTrap` | Short ID; deleting removal from bucket 5. |
 | 221 | `0x6c08c` `GameSI_AddThing` | Short ID, signed-byte type/variant, model, position/three fixed axes, normal-render boolean. Calls `AddThing` with collision enabled, then selects render mode 0 (normal) when true or 1 (secondary streams) when false. |
@@ -133,8 +138,8 @@ All handlers have the standard `(arguments, argumentCount, output)` script dispa
 
 ## Verification
 
-`Reversed_Game/tests/test_game_mapunits.cpp` covers every command above, all four AddThing variants, break hit latching and weapon gates, push velocity and threshold behavior, pickup and spawn-record clearing, trap entry/exit/removal, destruction/removal, animation state, rotations and all magic-cube orientations, movement/bounds asymmetry, lighting/depth/texture state, ElectricSaw expansion, StayBox spawn/despawn, and persistence second-save equality.
+`Reversed_Game/tests/test_game_mapunits.cpp` covers every command above, all four AddThing variants, break hit latching and weapon gates, push velocity and threshold behavior, pickup and spawn-record clearing, trap entry/exit/removal, destruction/removal, animation state, rotations and all magic-cube orientations, movement/bounds asymmetry, lighting/depth/texture state, ElectricSaw expansion, StayBox defaults/restoration, allowed/denied regions, enemy attachment, spawn/despawn, and persistence second-save equality.
 
 Real map 2008 creates 15 `BspUnit` instances and exercises opaque/transparent submission. Real map 2009 creates and submits its shipped lensflare. Both paths run through incremental loading and the real engine frame loop, followed by teardown. At stage-5 completion, the real `day1/ep0` startup advanced to stage-6 command 159 (`GameSI_AddActTrigger`, `0x0006934c`); after stage 6 it passes that command and stops at later-stage command 102 (`0x000671ac`).
 
-All 33 default tests pass sequentially. Core, STDIO logging, host-math, WAR-nibble, and ASan/UBSan builds each pass all 26 SDL-independent tests in separate directories. Ghidra contains the recovered names, typed signatures, native layouts, comments, 90 `stage5` function tags, a completion property, and a saved bookmark.
+At stage-5 completion, all 33 default tests passed sequentially, and core, STDIO logging, host-math, WAR-nibble, and ASan/UBSan builds each passed all 26 SDL-independent tests in separate directories. Stage 7 passes all 34 default, logging, and math tests, and 27 core, WAR, and ASan/UBSan tests. Ghidra contains the recovered names, typed signatures, native layouts, comments, 90 `stage5` function tags, the corrected StayBox constructor plate, stage-7 command tags, completion properties, and saved bookmarks.

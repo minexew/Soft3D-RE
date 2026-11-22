@@ -471,7 +471,9 @@ void TestInventoryAndPersistence()
     CHECK(player->CombineItems(0, 1));
     CHECK(player->HasItem(19));
     player->RemoveItem(19);
-    player->AddItemUseGroup({5, 0, 0, 0, 0, 0, 0, 0});
+    game::ItemTrigger itemTrigger;
+    itemTrigger.AddItem(5);
+    player->RegisterItemTrigger(&itemTrigger);
     player->AddItem(5, false);
     CHECK(player->UseItem(0) == 2);
     CHECK(player->GetUsedItem() == 5);

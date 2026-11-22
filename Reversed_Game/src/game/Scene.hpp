@@ -136,6 +136,8 @@ public:
     void SetPlayerDirection(const soft3d::Vec3& direction);
     void SetGameOverStage(int stage) { gameOverStage = stage; }
     void SetUseCameraListener(bool enabled) { useCameraListener = enabled ? 1 : 0; }
+    void ResetCameraWarmup() { cameraWarmupCounter = 0; }
+    int32_t GetCameraWarmupCounter() const { return cameraWarmupCounter; }
     void ShowQte(int32_t key, int32_t time, int32_t mode);
     void SetQteMode(int32_t mode) { qteUiMode = mode; }
     void FailQte();

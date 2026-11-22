@@ -489,6 +489,237 @@ void TestActTrigger()
     CHECK(restored.GetOptionId(3) == -1 && !restored.IsPromptActive());
 }
 
+void TestHideTrigger()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    std::vector<Argument> arguments = {Argument::Short(50), Argument::Short(3),
+        Argument::Fixed(0x20000), Argument::Fixed(0x30000), Argument::Fixed(0x40000),
+        Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0x10000)};
+    const auto bounds = BoundsArguments(8);
+    arguments.insert(arguments.end(), bounds.begin(), bounds.end());
+    fixture.Execute(166, arguments);
+    auto* trigger = dynamic_cast<game::HideTrigger*>(manager->FindUnit(4, 50));
+    CHECK(trigger != nullptr && trigger->GetUnitType() == 0x23 && trigger->GetMaskIndex() == 2);
+    CHECK(trigger->GetHidePosition().y == 0x30000 && trigger->GetCameraDirection().z == 0x10000);
+    CHECK(trigger->GetHorizontalLimit() == 0x9999 && trigger->GetVerticalLimit() == 0xcccc);
+    fixture.Execute(167, {Argument::Short(50), Argument::Fixed(0x1111), Argument::Fixed(0x2222)});
+    CHECK(trigger->GetHorizontalLimit() == 0x1111 && trigger->GetVerticalLimit() == 0x2222);
+    manager->Update();
+    CHECK(trigger->IsPromptActive() && fixture.Ui().GetPrompt() == 4);
+    CHECK(fixture.scene->GetPlayer()->AreAttacksDisabled());
+    fixture.Click();
+    manager->Update();
+    CHECK(trigger->IsDialogActive() && fixture.Ui().GetDialogText() == 0x18);
+    CHECK(fixture.Ui().GetDialogOption(0) == 3 && fixture.Ui().GetDialogOption(1) == 4);
+    fixture.Ui().SetDialogResult(1);
+    manager->Update();
+    CHECK(!trigger->IsDialogActive() && !fixture.scene->GetPlayer()->IsHiddenOrFPS());
+    fixture.Click();
+    manager->Update();
+    fixture.Ui().SetDialogResult(0);
+    manager->Update();
+    CHECK(fixture.scene->GetPlayer()->IsHiddenOrFPS());
+    CHECK(fixture.scene->GetPlayer()->GetCurrentStateId() == game::PlayerHide);
+    CHECK(fixture.scene->GetPlayer()->GetPosition().x == 0x20000);
+    CHECK(fixture.scene->GetHideMask() == 2 && fixture.scene->IsHideMaskActive());
+    CHECK(!trigger->IsPromptActive() && fixture.Ui().GetPrompt() == -1);
+    fixture.scene->GetPlayer()->ExitHide();
+    CHECK(!fixture.scene->GetPlayer()->IsHiddenOrFPS() && !fixture.scene->IsHideMaskActive());
+
+    game::HideTrigger restored;
+    CheckSecondSave(*trigger, restored);
+    CHECK(restored.GetMaskIndex() == 2 && restored.GetHidePosition().z == 0x40000);
+    CHECK(restored.GetHorizontalLimit() == 0x9999 && restored.GetVerticalLimit() == 0xcccc);
+    CHECK(!restored.IsPromptActive() && restored.IsDialogActive());
+    fixture.Execute(168, {Argument::Short(50), Argument::Bool(false)});
+    CHECK(!trigger->IsEnabled());
+
+    arguments[0] = Argument::Short(51);
+    arguments[1] = Argument::Short(0);
+    fixture.Execute(166, arguments);
+    auto* immediate = dynamic_cast<game::HideTrigger*>(manager->FindUnit(4, 51));
+    fixture.Click();
+    manager->Update();
+    CHECK(immediate != nullptr && fixture.scene->GetPlayer()->IsHiddenOrFPS());
+    CHECK(!immediate->IsDialogActive());
+}
+
+void TestItemTrigger()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto arguments = std::vector<Argument>{Argument::Short(60), Argument::Short(5)};
+    const auto bounds = BoundsArguments(2);
+    arguments.insert(arguments.end(), bounds.begin(), bounds.end());
+    fixture.Execute(169, arguments);
+    auto* trigger = dynamic_cast<game::ItemTrigger*>(manager->FindUnit(4, 60));
+    CHECK(trigger != nullptr && trigger->GetUnitType() == 0x27 && trigger->AcceptsItem(5));
+    for (int item = 6; item <= 13; ++item) {
+        fixture.Execute(170, {Argument::Short(60), Argument::Short(static_cast<int16_t>(item))});
+    }
+    CHECK(trigger->GetItemIds()[7] == 12 && !trigger->AcceptsItem(13));
+    manager->Update();
+    CHECK(fixture.scene->GetPlayer()->GetItemTriggerCount() == 1);
+    fixture.scene->GetPlayer()->AddItem(5, false);
+    CHECK(fixture.scene->GetPlayer()->UseItem(0) == 2);
+    CHECK(fixture.scene->GetPlayer()->GetUsedItem() == 5);
+    CHECK(fixture.scene->GetPlayer()->HasItem(5));
+    fixture.scene->GetPlayer()->Update();
+    CHECK(fixture.scene->GetPlayer()->GetItemTriggerCount() == 0);
+    fixture.scene->GetPlayer()->ClearUsedItem();
+    CHECK(fixture.scene->GetPlayer()->UseItem(0) == 0);
+    manager->SetPaused(true);
+    manager->Update();
+    CHECK(fixture.scene->GetPlayer()->GetItemTriggerCount() == 1);
+    CHECK(fixture.scene->GetPlayer()->UseItem(0) == 2);
+    fixture.scene->GetPlayer()->Update();
+    fixture.scene->GetPlayer()->ClearUsedItem();
+    fixture.Execute(171, {Argument::Short(60), Argument::Bool(false)});
+    manager->Update();
+    CHECK(!trigger->IsEnabled() && fixture.scene->GetPlayer()->GetItemTriggerCount() == 0);
+    CHECK(fixture.scene->GetPlayer()->UseItem(0) == 0);
+
+    fixture.Execute(171, {Argument::Short(60), Argument::Bool(true)});
+    game::ItemTrigger restored;
+    CheckSecondSave(*trigger, restored);
+    CHECK(restored.IsEnabled() && restored.GetItemIds()[0] == 5 && restored.GetItemIds()[7] == 12);
+    fixture.Execute(179, {Argument::Short(60)});
+    CHECK(manager->FindUnit(4, 60) == nullptr);
+}
+
+void TestTalkTrigger()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto arguments = std::vector<Argument>{Argument::Short(70)};
+    const auto bounds = BoundsArguments(1);
+    arguments.insert(arguments.end(), bounds.begin(), bounds.end());
+    arguments.push_back(Argument::Bool(false));
+    fixture.Execute(172, arguments);
+    auto* trigger = dynamic_cast<game::TalkTrigger*>(manager->FindUnit(4, 70));
+    CHECK(trigger != nullptr && trigger->GetUnitType() == 0x28 && !trigger->GetFadeAtEnd());
+    CHECK(fixture.Execute(176, {Argument::Short(70)}, true) == 0);
+    CHECK(fixture.Execute(177, {Argument::Short(70)}, true) == 0);
+    CHECK(fixture.Execute(176, {Argument::Short(999)}, true) == 0);
+    CHECK(fixture.Execute(177, {Argument::Short(999)}, true) == 0);
+    fixture.Execute(173, {Argument::Short(70), Argument::Fixed(0x30000),
+        Argument::Fixed(0x40000), Argument::Fixed(0x50000)});
+    fixture.Execute(174, {Argument::Short(70), Argument::Short(-1),
+        Argument::Fixed(9), Argument::Fixed(9), Argument::Fixed(9),
+        Argument::Fixed(0), Argument::Fixed(0x10000), Argument::Fixed(0)});
+    fixture.Execute(175, {Argument::Short(70), Argument::Short(301), Argument::Short(7),
+        Argument::Short(0)});
+    fixture.Execute(175, {Argument::Short(70), Argument::Short(302), Argument::Short(0),
+        Argument::Short(0)});
+    CHECK(trigger->GetCameraPosition().z == 0x50000 && trigger->GetCameras().size() == 1);
+    CHECK(trigger->GetLines()[0].textId == 301 && trigger->GetLines()[0].duration == 7);
+
+    manager->Update();
+    CHECK(trigger->IsPromptActive() && fixture.Ui().GetPrompt() == 5);
+    fixture.scene->GetPlayer()->SetNavigationEnabled(true);
+    fixture.Click();
+    manager->Update();
+    CHECK(trigger->GetTimer() == 0 && !trigger->IsActive());
+    fixture.scene->GetPlayer()->SetNavigationEnabled(false);
+    fixture.Click();
+    manager->Update();
+    CHECK(trigger->GetTimer() == 5 && !trigger->IsActive());
+    manager->Update();
+    manager->Update();
+    manager->Update();
+    CHECK(trigger->IsActive() && trigger->GetTimer() == 6 && manager->IsPaused());
+    CHECK(fixture.Ui().GetDialogText() == 301 && fixture.Execute(176, {Argument::Short(70)}, true) == 1);
+    CHECK(fixture.scene->GetCameraController()->IsFrozen());
+    CHECK(fixture.scene->GetCameraController()->GetPosition().x == 0x30000);
+    CHECK(trigger->GetCameras()[0].target.x == fixture.scene->GetPlayer()->GetPosition().x);
+    CHECK(trigger->GetCameras()[0].target.x != 9);
+    CHECK(trigger->GetLines()[0].duration == 12);
+    CHECK(fixture.scene->GetPlayer()->GetObject(0)->GetAxisX().y == 0x10000);
+    for (int update = 0; update < 6; ++update) manager->Update();
+    CHECK(trigger->GetTimer() == 0 && fixture.Ui().IsDialogActive());
+    fixture.Ui().CloseDialog();
+    manager->Update();
+    CHECK(trigger->GetLineIndex() == 1 && fixture.Ui().GetDialogText() == 302);
+    CHECK(!trigger->IsCompleted());
+    fixture.Ui().CloseDialog();
+    manager->Update();
+    CHECK(trigger->GetPhase() == 1 && trigger->GetTimer() == 4);
+    manager->Update();
+    manager->Update();
+    CHECK(trigger->GetPhase() == 1 && trigger->GetTimer() == 0);
+    manager->Update();
+    CHECK(!trigger->IsActive() && trigger->IsCompleted() && trigger->GetPhase() == 0);
+    CHECK(fixture.Execute(177, {Argument::Short(70)}, true) == 1);
+    CHECK(!fixture.scene->GetCameraController()->IsFrozen());
+    CHECK(fixture.scene->GetCameraController()->IsInstant());
+    CHECK(!manager->IsPaused());
+
+    game::TalkTrigger restored;
+    CheckSecondSave(*trigger, restored);
+    CHECK(restored.GetLines().size() == 2 && restored.GetLines()[0].duration == 12);
+    CHECK(restored.GetLines()[1].textId == 302 && restored.GetCameras()[0].actorId == -1);
+    CHECK(!restored.IsActive() && !restored.IsCompleted() && !restored.IsPromptActive());
+    fixture.Execute(178, {Argument::Short(70), Argument::Bool(false)});
+    CHECK(!trigger->IsEnabled() && trigger->GetLineIndex() == 0 && trigger->GetTimer() == 0);
+    fixture.Execute(178, {Argument::Short(70), Argument::Bool(true)});
+    fixture.Execute(179, {Argument::Short(70)});
+    CHECK(manager->FindUnit(4, 70) == nullptr);
+}
+
+void TestTalkTriggerFadeAtEnd()
+{
+    GameFixture fixture;
+    auto arguments = std::vector<Argument>{Argument::Short(71)};
+    const auto bounds = BoundsArguments(1);
+    arguments.insert(arguments.end(), bounds.begin(), bounds.end());
+    arguments.push_back(Argument::Bool(true));
+    fixture.Execute(172, arguments);
+    auto* trigger = dynamic_cast<game::TalkTrigger*>(fixture.scene->GetUnitManager()->FindUnit(4, 71));
+    fixture.Execute(174, {Argument::Short(71), Argument::Short(-1),
+        Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0),
+        Argument::Fixed(0x10000), Argument::Fixed(0), Argument::Fixed(0)});
+    fixture.Execute(175, {Argument::Short(71), Argument::Short(303), Argument::Short(0),
+        Argument::Short(0)});
+    trigger->Update();
+    fixture.Click();
+    trigger->Update();
+    for (int update = 0; update < 7; ++update) trigger->Update();
+    CHECK(trigger->IsActive() && fixture.Ui().GetDialogText() == 303);
+    for (int update = 0; update < 6; ++update) trigger->Update();
+    fixture.Ui().CloseDialog();
+    trigger->Update();
+    CHECK(trigger->GetPhase() == 1 && trigger->GetTimer() == 5);
+    for (int update = 0; update < 6; ++update) trigger->Update();
+    CHECK(trigger->GetPhase() == 2 && trigger->GetTimer() == 6 && trigger->IsActive());
+    CHECK(!trigger->IsCompleted() && !fixture.scene->GetCameraController()->IsFrozen());
+    for (int update = 0; update < 7; ++update) trigger->Update();
+    CHECK(!trigger->IsActive() && trigger->IsCompleted() && trigger->GetPhase() == 0);
+    fixture.Execute(179, {Argument::Short(71)});
+}
+
+void TestCameraAndLightPersistence()
+{
+    game::CameraTrigger camera;
+    camera.SetUnitId(81);
+    camera.SetMode(3, {1, 2, 3}, {4, 5, 6}, 7, nullptr, 8, true, 4);
+    game::CameraTrigger restoredCamera;
+    CheckSecondSave(camera, restoredCamera);
+    CHECK(restoredCamera.GetMode() == 3 && restoredCamera.GetPosition().z == 3);
+    CHECK(restoredCamera.GetDirection().y == 5 && restoredCamera.GetTime() == 7);
+    CHECK(restoredCamera.GetPathSpeed() == 8 && restoredCamera.GetSnap());
+    CHECK(restoredCamera.GetTargetMode() == 4 && restoredCamera.IsOutside());
+
+    game::LightTrigger light;
+    light.SetUnitId(82);
+    light.SetUsePlayerDirection(true);
+    light.SetLightDirection({11, 12, 13});
+    game::LightTrigger restoredLight;
+    CheckSecondSave(light, restoredLight);
+    CHECK(restoredLight.UsesPlayerDirection() && restoredLight.GetLightDirection().x == 11);
+    CHECK(restoredLight.GetLightDirection().z == 13);
+}
+
 void LoadRealMap(GameFixture& fixture, int mapId)
 {
     fixture.engine.StartNewGame();
@@ -532,6 +763,23 @@ void TestRealMapItems()
     }
 }
 
+void TestStage7EngineIntegration()
+{
+    GameFixture fixture;
+    LoadRealMap(fixture, 2008);
+    fixture.SetInside(true);
+    auto arguments = std::vector<Argument>{Argument::Short(90), Argument::Short(5),
+        Argument::Fixed(-0x1000000), Argument::Fixed(-0x1000000), Argument::Fixed(-0x1000000),
+        Argument::Fixed(0x1000000), Argument::Fixed(0x1000000), Argument::Fixed(0x1000000)};
+    fixture.Execute(169, arguments);
+    fixture.scene->GetPlayer()->AddItem(5, false);
+    CHECK(fixture.scene->GetUnitManager()->FindUnit(4, 90) != nullptr);
+    fixture.RunFrames(3);
+    CHECK(fixture.scene->GetPlayer()->GetItemTriggerCount() >= 1);
+    CHECK(fixture.scene->GetPlayer()->UseItem(0) == 2);
+    CHECK(fixture.scene->GetPlayer()->GetUsedItem() == 5);
+}
+
 void TestRealStartupBoundary()
 {
     GameFixture fixture;
@@ -563,7 +811,13 @@ int main()
         TestPickTrigger();
         TestDoorTrigger();
         TestActTrigger();
+        TestHideTrigger();
+        TestItemTrigger();
+        TestTalkTrigger();
+        TestTalkTriggerFadeAtEnd();
+        TestCameraAndLightPersistence();
         TestRealMapItems();
+        TestStage7EngineIntegration();
         TestRealStartupBoundary();
         std::cout << "game trigger tests passed\n";
         return 0;

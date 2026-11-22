@@ -220,6 +220,10 @@ Connect the real `BspEntityFactory` to `MyGameUnitMgr_EntityFactory` (`0x00043ed
 - Preserve the stage-3 tests for every camera mode and SPL completion/freeze path; add only new command/persistence cases. Verify light region/style state.
 - Save-field fixtures are prepared here but only end-to-end verified after stage 13.
 
+**Status: complete.** `src/game/Triggers.*` implements Hide, Item, and Talk, including confirmation/combat gates, eight-item use zones, timed multi-line dialogue, actor/camera setup, both completion paths, and native persistence. `GameSI` implements IDs 166–179 and StayBox IDs 205–207; Trap commands 219–220 were already complete. Light save/load is implemented, while CameraTrigger retains its stage-3 controller and adds regression persistence coverage.
+
+The manager preserves Talk's pre-pass/double-update behavior and paused Item registration. Typed Ghidra review corrected Hide's serialized fields and identified Act/Talk camera restoration as a camera-warmup reset, not listener selection. StayBox constructors now use `enemyOutside=0` and `spawned=1`. Tests cover every new command, interaction transitions, item capacity/use, both Talk completion modes, second-save bytes, and real map-2008 item use through `GameEngine::RunFrame`. All 34 default tests pass serially; core, WAR, and ASan/UBSan each pass 27, while STDIO logging and host-math each pass 34. Detailed semantics are in `symbian3rd_triggers.md` and `symbian3rd_mapunits.md`.
+
 ## Stage 8 — GameUI, HUD, dialogs, QTE, inventory, maps, and extras
 
 **Scope**

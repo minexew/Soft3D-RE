@@ -11,6 +11,7 @@
 
 namespace game {
 
+class ItemTrigger;
 class Scene;
 class Player;
 
@@ -133,6 +134,7 @@ public:
            Scene* scene, soft3d::AudioManager* audio);
 
     soft3d::result Initialize(const GameData& data);
+    Scene* GetScene() const { return scene; }
     void ResetAll(const GameData& data);
     void Reset(const GameData& data);
     void ResetForMap();
@@ -172,6 +174,7 @@ public:
     int32_t GetGunExperience() const { return gunExperience; }
     int32_t GetGunLevel() const { return gunLevel; }
     int32_t GetUsedItem() const { return usedItem; }
+    int32_t GetItemTriggerCount() const { return itemTriggerCount; }
     int32_t GetQteResult() const { return qteResult; }
     int32_t GetQteKey() const { return qteKey; }
     int32_t GetPlayTime() const { return playTime; }
@@ -218,7 +221,7 @@ public:
     int32_t UseItem(int32_t slot);
     bool CombineItems(int32_t firstSlot, int32_t secondSlot);
     void CompactInventory();
-    void AddItemUseGroup(const std::array<int32_t, 8>& items);
+    void RegisterItemTrigger(ItemTrigger* trigger);
     int32_t GetInventoryItem(std::size_t slot) const;
     int32_t GetNote(std::size_t slot) const;
     void SnapshotDayState();
@@ -301,7 +304,8 @@ private:
     soft3d::Vec3 gunPosition;
     soft3d::ObjectBounds pushLocalBounds;
     soft3d::ObjectBounds pushCombinedBounds;
-    std::vector<std::array<int32_t, 8>> itemUseGroups;
+    std::array<ItemTrigger*, 50> itemTriggers{};
+    int32_t itemTriggerCount = 0;
     std::array<int32_t, 9> inventory{};
     std::array<int32_t, 9> inventoryDayStart{};
     std::array<int32_t, 128> notes{};

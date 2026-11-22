@@ -109,6 +109,15 @@ void InteractionState::SetDialogResult(int32_t result)
     }
 }
 
+void InteractionState::CloseDialog()
+{
+    dialogKind = -1;
+    dialogResult = -1;
+    if (manager != nullptr) {
+        manager->SetPaused(false);
+    }
+}
+
 void InteractionState::ShowMessage(int32_t textId, int32_t kind)
 {
     dialogKind = kind;
@@ -590,7 +599,7 @@ void ActTrigger::Update()
             if (result != -1) {
                 if (HasCameraOverride() && camera != nullptr) {
                     camera->SetFrozen(false);
-                    scene->SetUseCameraListener(false);
+                    scene->ResetCameraWarmup();
                     camera->SetInstant(true);
                     if (!player->IsFpsActive()) {
                         player->SetVisible(true);
@@ -646,6 +655,455 @@ void ActTrigger::LoadState(soft3d::InputStream& stream)
         stream.ReadInt32(optionId);
     }
     stream.ReadInt32(titleId);
+}
+
+HideTrigger::HideTrigger(Player* newPlayer, soft3d::ControlMap* newControls, TriggerUiHost* newUi)
+    : player(newPlayer)
+    , controls(newControls)
+    , ui(newUi)
+{
+    unitType = 0x23;
+}
+
+void HideTrigger::Configure(Player* newPlayer, soft3d::ControlMap* newControls, TriggerUiHost* newUi)
+{
+    player = newPlayer;
+    controls = newControls;
+    ui = newUi;
+}
+
+void HideTrigger::SetEnabled(bool value)
+{
+    if (!value && promptActive != 0 && ui != nullptr) {
+        ui->SetPrompt(-1);
+    }
+    enabled = value ? 1 : 0;
+}
+
+void HideTrigger::SetLimits(soft3d::Fixed horizontal, soft3d::Fixed vertical)
+{
+    horizontalLimit = horizontal;
+    verticalLimit = vertical;
+}
+
+void HideTrigger::EnterHide()
+{
+    if (enabled == 0 || promptActive == 0 || player == nullptr) {
+        return;
+    }
+    player->BeginHide(hidePosition, cameraDirection, maskIndex, horizontalLimit, verticalLimit);
+    if (ui != nullptr) {
+        ui->SetPrompt(-1);
+    }
+    promptActive = 0;
+}
+
+void HideTrigger::Update()
+{
+    if (enabled == 0 || player == nullptr || player->IsHiddenOrFPS() || player->IsDead()) {
+        if (promptActive != 0) {
+            ClearPrompt(player, ui);
+            promptActive = 0;
+        }
+        return;
+    }
+
+    if (PlayerInside(*this, player)) {
+        promptActive = 1;
+        player->SetAttacksDisabled(true);
+        if (ui != nullptr) {
+            ui->SetPrompt(4);
+        }
+    } else {
+        if (promptActive != 0) {
+            ClearPrompt(player, ui);
+        }
+        promptActive = 0;
+    }
+
+    Scene* scene = player != nullptr ? player->GetScene() : nullptr;
+    if (promptActive != 0 && dialogActive == 0 && scene != nullptr &&
+        InteractionClick(controls, scene->GetEngine())) {
+        if (maskIndex == -1) {
+            if (!player->HasAttackingEnemy()) {
+                EnterHide();
+            }
+        } else if (!player->HasAttackingEnemy()) {
+            if (ui != nullptr) {
+                ui->SetChoiceString(0, 3);
+                ui->SetChoiceString(1, 4);
+                ui->ShowChoice(0x18, 2, true);
+            }
+            dialogActive = 2;
+        } else if (ui != nullptr) {
+            ui->ShowMessage(0x19, 3);
+        }
+    }
+
+    if (dialogActive != 0 && ui != nullptr) {
+        const int32_t result = ui->GetDialogResult();
+        if (result == 0) {
+            EnterHide();
+        } else if (result == 1) {
+            dialogActive = 0;
+        }
+    }
+}
+
+void HideTrigger::SaveState(soft3d::OutputStream& stream) const
+{
+    GameUnit::SaveState(stream);
+    stream.WriteInt32(enabled);
+    soft3d::WriteVec3(stream, hidePosition);
+    soft3d::WriteVec3(stream, cameraDirection);
+    stream.WriteInt32(promptActive);
+    stream.WriteInt32(dialogActive);
+    stream.WriteInt32(maskIndex);
+}
+
+void HideTrigger::LoadState(soft3d::InputStream& stream)
+{
+    GameUnit::LoadState(stream);
+    stream.ReadInt32(enabled);
+    soft3d::ReadVec3(stream, hidePosition);
+    soft3d::ReadVec3(stream, cameraDirection);
+    stream.ReadInt32(promptActive);
+    stream.ReadInt32(dialogActive);
+    stream.ReadInt32(maskIndex);
+}
+
+ItemTrigger::ItemTrigger(Player* newPlayer) : player(newPlayer)
+{
+    unitType = 0x27;
+    itemIds.fill(-1);
+}
+
+void ItemTrigger::AddItem(int32_t itemId)
+{
+    for (int32_t& slot : itemIds) {
+        if (slot < 0) {
+            slot = itemId;
+            return;
+        }
+    }
+}
+
+bool ItemTrigger::AcceptsItem(int32_t itemId) const
+{
+    for (const int32_t slot : itemIds) {
+        if (slot == itemId) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void ItemTrigger::Update()
+{
+    if (enabled != 0 && player != nullptr && PlayerInside(*this, player)) {
+        player->RegisterItemTrigger(this);
+    }
+}
+
+void ItemTrigger::SaveState(soft3d::OutputStream& stream) const
+{
+    GameUnit::SaveState(stream);
+    stream.WriteInt32(enabled);
+    for (const int32_t itemId : itemIds) {
+        stream.WriteInt32(itemId);
+    }
+}
+
+void ItemTrigger::LoadState(soft3d::InputStream& stream)
+{
+    GameUnit::LoadState(stream);
+    stream.ReadInt32(enabled);
+    for (int32_t& itemId : itemIds) {
+        stream.ReadInt32(itemId);
+    }
+}
+
+TalkTrigger::TalkTrigger(Scene* newScene, MyGameUnitMgr* newManager, Player* newPlayer,
+                         soft3d::ControlMap* newControls, TriggerUiHost* newUi)
+    : scene(newScene)
+    , manager(newManager)
+    , player(newPlayer)
+    , controls(newControls)
+    , ui(newUi)
+{
+    unitType = 0x28;
+}
+
+void TalkTrigger::Configure(Scene* newScene, MyGameUnitMgr* newManager, Player* newPlayer,
+                            soft3d::ControlMap* newControls, TriggerUiHost* newUi)
+{
+    scene = newScene;
+    manager = newManager;
+    player = newPlayer;
+    controls = newControls;
+    ui = newUi;
+}
+
+void TalkTrigger::SetEnabled(bool value)
+{
+    if (!value && promptActive != 0 && ui != nullptr) {
+        ui->SetPrompt(-1);
+    }
+    enabled = value ? 1 : 0;
+    lineIndex = 0;
+    timer = 0;
+}
+
+void TalkTrigger::AddCamera(int32_t actorId, const soft3d::Vec3& target,
+                            const soft3d::Vec3& axisX)
+{
+    cameras.push_back({actorId, target, axisX});
+}
+
+void TalkTrigger::AddLine(int16_t textId, uint8_t duration, int8_t cameraIndex)
+{
+    lines.push_back({textId, duration, cameraIndex});
+}
+
+void TalkTrigger::SetDialogueControls(bool value)
+{
+    if (controls == nullptr) {
+        return;
+    }
+    for (const int action : {6, 7, 1, 2, 3, 4}) {
+        controls->SetActionEnabled(action, value);
+    }
+}
+
+void TalkTrigger::SetLineCamera(int32_t cameraIndex)
+{
+    if (cameraIndex < 0 || scene == nullptr) {
+        return;
+    }
+    if (static_cast<std::size_t>(cameraIndex) >= cameras.size()) {
+        cameras.resize(static_cast<std::size_t>(cameraIndex) + 1);
+    }
+    const soft3d::Vec3 target = cameras[static_cast<std::size_t>(cameraIndex)].target;
+    const soft3d::Vec3 lookTarget{target.x, soft3d::AddFixed(target.y, 0x10000), target.z};
+    CameraController* camera = scene->GetCameraController();
+    camera->SetMode(CameraController::FixedMode, cameraPosition,
+                    soft3d::Subtract(lookTarget, cameraPosition), 0, nullptr, 0, false, 0);
+    camera->Update(nullptr, false);
+}
+
+void TalkTrigger::StartDialogue()
+{
+    active = 1;
+    lineIndex = 0;
+    phase = 0;
+    completed = 0;
+    for (Camera& camera : cameras) {
+        soft3d::VisUnit* actor = nullptr;
+        if (camera.actorId == -1) {
+            actor = player;
+        } else if (manager != nullptr) {
+            actor = dynamic_cast<soft3d::VisUnit*>(manager->FindUnit(2, camera.actorId));
+        }
+        if (actor != nullptr) {
+            camera.target = actor->GetPosition();
+            actor->SetAxisX(camera.axisX);
+            actor->Update();
+        }
+    }
+    if (lines.empty()) {
+        lines.resize(1);
+    }
+    if (scene != nullptr) {
+        scene->GetCameraController()->SetFrozen(true);
+    }
+    SetLineCamera(lines[0].cameraIndex);
+    if (ui != nullptr) {
+        ui->CloseDialog();
+        ui->ShowMessage(lines[0].textId, 3);
+    }
+    if (scene != nullptr) {
+        scene->GetEngine().GetInput().ClearKey();
+    }
+    timer = 6;
+    if (scene != nullptr) {
+        scene->GetFadeShader()->StartFade(0, 0, 5, 1);
+    }
+    if (lines[0].duration != 0) {
+        lines[0].duration = static_cast<uint8_t>(lines[0].duration + 5);
+    }
+}
+
+bool TalkTrigger::AdvanceDialogue()
+{
+    ++lineIndex;
+    if (lineIndex >= static_cast<int32_t>(lines.size())) {
+        return true;
+    }
+    const Line& line = lines[static_cast<std::size_t>(lineIndex)];
+    SetLineCamera(line.cameraIndex);
+    if (ui != nullptr) {
+        ui->CloseDialog();
+        ui->ShowMessage(line.textId, 3);
+    }
+    return false;
+}
+
+void TalkTrigger::FinishDialogue()
+{
+    if (scene != nullptr) {
+        CameraController* camera = scene->GetCameraController();
+        camera->SetFrozen(false);
+        scene->ResetCameraWarmup();
+        camera->SetInstant(true);
+        camera->Update(nullptr, false);
+    }
+    if (ui != nullptr) {
+        ui->CloseDialog();
+    }
+    if (scene != nullptr) {
+        scene->GetEngine().GetInput().ClearKey();
+    }
+    phase = 2;
+    if (fadeAtEnd == 0) {
+        SetDialogueControls(false);
+        running = 0;
+        active = 0;
+        phase = 0;
+        completed = 1;
+    } else {
+        timer = 6;
+        if (scene != nullptr) {
+            scene->GetFadeShader()->StartFade(0, 0, 5, 1);
+        }
+    }
+}
+
+void TalkTrigger::Update()
+{
+    if (enabled == 0 || player == nullptr || player->IsDead()) {
+        if (promptActive != 0) {
+            ClearPrompt(player, ui);
+            promptActive = 0;
+        }
+        return;
+    }
+
+    if (PlayerInside(*this, player) && !player->HasAttackingEnemy()) {
+        promptActive = 1;
+        player->SetAttacksDisabled(true);
+        if (ui != nullptr) {
+            ui->SetPrompt(5);
+        }
+    } else {
+        if (promptActive != 0) {
+            ClearPrompt(player, ui);
+        }
+        promptActive = 0;
+    }
+
+    const bool click = scene != nullptr && InteractionClick(controls, scene->GetEngine());
+    if (promptActive != 0 && running == 0 && active == 0 && phase == 0 && click &&
+        !player->IsNavigationEnabled()) {
+        SetDialogueControls(true);
+        running = 1;
+        timer = 6;
+        scene->GetFadeShader()->StartFade(1, 0, 5, 1);
+        return;
+    }
+
+    if (running != 0 && active == 0) {
+        if (timer > 0) {
+            --timer;
+        } else if (timer == 0) {
+            StartDialogue();
+        }
+        return;
+    }
+
+    if (active != 0 && phase == 0) {
+        if (timer > 0) {
+            --timer;
+        } else if (timer == 0 && ui != nullptr && !ui->IsDialogActive() && AdvanceDialogue()) {
+            phase = 1;
+            timer = 6;
+            if (scene != nullptr) {
+                scene->GetFadeShader()->StartFade(1, 0, 5, 1);
+            }
+            --timer;
+        }
+        return;
+    }
+
+    if (phase == 1) {
+        if (timer > 0) {
+            --timer;
+        } else if (timer == 0) {
+            FinishDialogue();
+        }
+    } else if (phase == 2) {
+        if (timer > 0) {
+            --timer;
+        } else if (timer == 0) {
+            SetDialogueControls(false);
+            running = 0;
+            active = 0;
+            phase = 0;
+            completed = 1;
+        }
+    }
+}
+
+void TalkTrigger::SaveState(soft3d::OutputStream& stream) const
+{
+    GameUnit::SaveState(stream);
+    stream.WriteInt32(enabled);
+    stream.WriteInt32(fadeAtEnd);
+    soft3d::WriteVec3(stream, cameraPosition);
+    stream.WriteInt32(static_cast<int32_t>(cameras.size()));
+    for (const Camera& camera : cameras) {
+        stream.WriteInt32(camera.actorId);
+        soft3d::WriteVec3(stream, camera.target);
+        soft3d::WriteVec3(stream, camera.axisX);
+    }
+    stream.WriteInt32(static_cast<int32_t>(lines.size()));
+    for (const Line& line : lines) {
+        stream.WriteInt32(line.duration);
+        stream.WriteInt32(line.textId);
+        stream.WriteInt32(line.cameraIndex);
+    }
+}
+
+void TalkTrigger::LoadState(soft3d::InputStream& stream)
+{
+    GameUnit::LoadState(stream);
+    stream.ReadInt32(enabled);
+    stream.ReadInt32(fadeAtEnd);
+    soft3d::ReadVec3(stream, cameraPosition);
+    int32_t count = 0;
+    stream.ReadInt32(count);
+    if (count < 0) {
+        throw std::runtime_error("Negative TalkTrigger camera count");
+    }
+    cameras.resize(static_cast<std::size_t>(count));
+    for (Camera& camera : cameras) {
+        stream.ReadInt32(camera.actorId);
+        soft3d::ReadVec3(stream, camera.target);
+        soft3d::ReadVec3(stream, camera.axisX);
+    }
+    stream.ReadInt32(count);
+    if (count < 0) {
+        throw std::runtime_error("Negative TalkTrigger line count");
+    }
+    lines.resize(static_cast<std::size_t>(count));
+    for (Line& line : lines) {
+        int32_t value = 0;
+        stream.ReadInt32(value);
+        line.duration = static_cast<uint8_t>(value);
+        stream.ReadInt32(value);
+        line.textId = static_cast<int16_t>(value);
+        stream.ReadInt32(value);
+        line.cameraIndex = static_cast<int8_t>(value);
+    }
 }
 
 CameraTrigger::CameraTrigger(CameraController* newController, soft3d::Creature* newPlayer)
@@ -796,6 +1254,22 @@ void LightTrigger::Update()
     renderer->SetGlobalLightDirection(usePlayerDirection
         ? soft3d::Normalize(soft3d::Subtract(player->GetPosition(), position))
         : lightDirection);
+}
+
+void LightTrigger::SaveState(soft3d::OutputStream& stream) const
+{
+    GameUnit::SaveState(stream);
+    stream.WriteInt32(usePlayerDirection ? 1 : 0);
+    soft3d::WriteVec3(stream, lightDirection);
+}
+
+void LightTrigger::LoadState(soft3d::InputStream& stream)
+{
+    GameUnit::LoadState(stream);
+    int32_t value = 0;
+    stream.ReadInt32(value);
+    usePlayerDirection = value != 0;
+    soft3d::ReadVec3(stream, lightDirection);
 }
 
 } // namespace game
