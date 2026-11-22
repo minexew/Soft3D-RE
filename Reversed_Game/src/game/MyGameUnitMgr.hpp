@@ -2,6 +2,7 @@
 
 #include "game/GameData.hpp"
 #include "game/MapUnits.hpp"
+#include "game/Triggers.hpp"
 #include "soft3d/Bsp.hpp"
 #include "soft3d/Effects.hpp"
 #include "soft3d/Units.hpp"
@@ -41,6 +42,22 @@ public:
                      const soft3d::Vec3& axisZ);
     Trap* AddTrap(int32_t unitId, const soft3d::ObjectBounds& bounds,
                   const soft3d::Vec3& impulse);
+    EventTrigger* AddEventTrigger(int32_t unitId, int16_t count, int32_t textId,
+                                  const soft3d::ObjectBounds& bounds);
+    PickTrigger* AddPickTrigger(int32_t unitId, int32_t thingId, int32_t textId,
+                                const soft3d::ObjectBounds& bounds);
+    DoorTrigger* AddDoorTrigger(int32_t unitId, int32_t requiredItem, int32_t lockedText,
+                                int32_t doorResourceIndex, int32_t nextMap, int32_t nextEpisode,
+                                const soft3d::Vec3& spawnPosition,
+                                const soft3d::Vec3& spawnDirection,
+                                const soft3d::ObjectBounds& bounds);
+    ActTrigger* AddActTrigger(int32_t unitId, const soft3d::ObjectBounds& bounds);
+    void SpawnMapItems();
+    InteractionState& GetInteractionState() { return interactionState; }
+    const InteractionState& GetInteractionState() const { return interactionState; }
+    void SetInteractionUi(TriggerUiHost* value) { interactionUi = value; }
+    int32_t GetDoorState(int32_t doorId) const;
+    void SetDoorState(int32_t doorId, int32_t value);
     void Update();
     void SubmitRenderables(soft3d::RenderQueues& queues);
     std::size_t GetLensflareCount() const { return lensflareCount; }
@@ -55,9 +72,12 @@ public:
 
 private:
     GameData data;
+    InteractionState interactionState;
+    TriggerUiHost* interactionUi = &interactionState;
     CameraController* cameraController = nullptr;
     soft3d::Creature* player = nullptr;
     std::array<soft3d::Fixed, 6> mapHeaderValues{};
+    std::array<int32_t, 1024> doorStates{};
     uint32_t randomState = 0;
     int32_t day = 0;
     int32_t mapId = 0;

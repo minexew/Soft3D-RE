@@ -256,6 +256,15 @@ void Player::SetVisible(bool value)
     presentationVisible = value ? 1 : 0;
 }
 
+soft3d::ObjectBounds Player::GetInteractionBounds() const
+{
+    if (pushing == 0) {
+        return collisionBounds;
+    }
+    return {soft3d::Add(pushLocalBounds.minimum, position),
+            soft3d::Add(pushLocalBounds.maximum, position)};
+}
+
 bool Player::NavigateTo(const soft3d::Vec3& target, soft3d::Fixed radius)
 {
     if (navigating == 0) {
@@ -893,6 +902,16 @@ void Player::AddGunExperience(int32_t amount)
 int32_t Player::GetHealthPackCount() const
 {
     return scene->GetUnitManager()->GetHealthPackCount();
+}
+
+bool Player::IsInventoryFull(int32_t itemId) const
+{
+    for (const int32_t item : inventory) {
+        if (item == 0 || (item == itemId && itemId == 1)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 void Player::AddItem(int32_t itemId, bool playSound)

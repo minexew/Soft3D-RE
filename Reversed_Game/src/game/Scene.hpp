@@ -141,6 +141,10 @@ public:
     void FailQte();
     void SetHideMask(int32_t index, bool active);
     void ShowTutorial(int32_t id, int32_t frames);
+    int32_t GetDoorAuthorizationStatus() const { return -1; }
+    void BeginAuthorization() { authorizationStage = 1; authorizationTimer = 1; }
+    int32_t GetAuthorizationStage() const { return authorizationStage; }
+    int32_t GetAuthorizationTimer() const { return authorizationTimer; }
 
     static soft3d::BspEntity* CreateGameEntity(soft3d::BspEntityRecord* record, void* context,
                                                 soft3d::BspEntityRecord* recordBase);
@@ -208,6 +212,8 @@ private:
     int32_t hideMaskActive = 0;
     int32_t tutorialId = 0;
     int32_t tutorialFrames = 0;
+    int32_t authorizationStage = 0;
+    int32_t authorizationTimer = 0;
     bool initialized = false;
 };
 

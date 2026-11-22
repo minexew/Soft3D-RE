@@ -185,8 +185,7 @@ soft3d::result GameData::ParseGameItemData(const void* data, std::size_t size,
         group.records.resize(static_cast<std::size_t>(recordCount));
         for (GameItemSpawnRecord& record : group.records) {
             if (!reader.Read32(record.itemId) || record.itemId < 0 || record.itemId >= 2100 ||
-                !reader.Read32(record.pickupSoundIndex) || record.pickupSoundIndex < 0 ||
-                record.pickupSoundIndex >= static_cast<int32_t>(soundResourceNameCount) ||
+                !reader.Read32(record.pickupTextId) || record.pickupTextId < 0 ||
                 !reader.ReadBytes(record.packedModelName.data(), record.packedModelName.size()) ||
                 !ReadVec3(reader, record.position) || !ReadVec3(reader, record.axisX) ||
                 !ReadVec3(reader, record.axisY) || !ReadVec3(reader, record.axisZ) ||
@@ -288,6 +287,15 @@ soft3d::result GameData::LoadDayContent(int day, soft3d::s3dFilePak& filePak)
         return status;
     }
     return ParseGameItemData(data.data(), data.size(), gameItemGroups);
+}
+
+GameItemGroup* GameData::FindGameItemGroup(int32_t mapId)
+{
+    const auto found = std::find_if(gameItemGroups.begin(), gameItemGroups.end(),
+                                    [mapId](const GameItemGroup& group) {
+                                        return group.mapId == mapId;
+                                    });
+    return found == gameItemGroups.end() ? nullptr : &*found;
 }
 
 const GameItemGroup* GameData::FindGameItemGroup(int32_t mapId) const

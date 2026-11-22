@@ -4,6 +4,7 @@
 #include "game/Scene.hpp"
 #include "game/Triggers.hpp"
 #include "soft3d/GameEngine.hpp"
+#include "soft3d/ObjectRes.hpp"
 
 #include <cctype>
 #include <cstdlib>
@@ -66,6 +67,7 @@ soft3d::Vec3 ParseVector(const std::string& text)
 
 MyGameUnitMgr::MyGameUnitMgr(const soft3d::UnitManagerContext& context)
     : GameUnitManager(context)
+    , interactionState(this)
 {
     auto* engine = static_cast<soft3d::GameEngine*>(context.gameContext);
     for (auto& lensflare : lensflares) {
@@ -83,6 +85,7 @@ soft3d::result MyGameUnitMgr::Initialize(soft3d::GameEngine& engine)
 soft3d::result MyGameUnitMgr::LoadDayContent(int value, soft3d::GameEngine& engine)
 {
     const soft3d::result status = data.LoadDayContent(value, *engine.GetResourceManager().GetFilePak());
+    doorStates.fill(0);
     if (status == soft3d::S3D_OK) {
         day = value;
     }
@@ -100,11 +103,14 @@ void MyGameUnitMgr::Reset()
     paused = false;
     healthPackCount = 0;
     pushTarget = nullptr;
+    interactionState.Reset();
 }
 
 void MyGameUnitMgr::FinishMapLoad(bool restoreSavedState)
 {
-    (void)restoreSavedState;
+    if (!restoreSavedState) {
+        SpawnMapItems();
+    }
     stayBoxCount = 0;
     mapReady = true;
     paused = false;
@@ -239,6 +245,110 @@ Trap* MyGameUnitMgr::AddTrap(int32_t unitId, const soft3d::ObjectBounds& bounds,
     Trap* result = trap.get();
     AddUnit(trap.release(), 5);
     return result;
+}
+
+EventTrigger* MyGameUnitMgr::AddEventTrigger(int32_t unitId, int16_t count, int32_t textId,
+                                             const soft3d::ObjectBounds& bounds)
+{
+    auto trigger = std::make_unique<EventTrigger>(dynamic_cast<Player*>(player), interactionUi);
+    trigger->SetUnitId(unitId);
+    trigger->SetRemainingCount(count);
+    trigger->SetTextId(textId);
+    trigger->SetCollisionBounds(bounds);
+    EventTrigger* result = trigger.get();
+    AddUnit(trigger.release(), 4);
+    return result;
+}
+
+PickTrigger* MyGameUnitMgr::AddPickTrigger(int32_t unitId, int32_t thingId, int32_t textId,
+                                           const soft3d::ObjectBounds& bounds)
+{
+    auto* engine = static_cast<soft3d::GameEngine*>(GetContext().gameContext);
+    auto* pickable = dynamic_cast<Pickable*>(FindUnit(2, thingId));
+    auto trigger = std::make_unique<PickTrigger>(this, dynamic_cast<Player*>(player),
+        engine != nullptr ? &engine->GetControlMap() : nullptr, interactionUi);
+    trigger->Configure(pickable, this, dynamic_cast<Player*>(player),
+        engine != nullptr ? &engine->GetControlMap() : nullptr, interactionUi);
+    trigger->SetUnitId(unitId);
+    trigger->SetDialogTitleId(textId);
+    trigger->SetCollisionBounds(bounds);
+    PickTrigger* result = trigger.get();
+    AddUnit(trigger.release(), 4);
+    return result;
+}
+
+DoorTrigger* MyGameUnitMgr::AddDoorTrigger(int32_t unitId, int32_t requiredItem,
+        int32_t lockedText, int32_t doorResourceIndex, int32_t nextMap, int32_t nextEpisode,
+        const soft3d::Vec3& spawnPosition, const soft3d::Vec3& spawnDirection,
+        const soft3d::ObjectBounds& bounds)
+{
+    auto* engine = static_cast<soft3d::GameEngine*>(GetContext().gameContext);
+    auto trigger = std::make_unique<DoorTrigger>(static_cast<Scene*>(GetContext().sceneContext),
+        this, dynamic_cast<Player*>(player), engine != nullptr ? &engine->GetControlMap() : nullptr,
+        interactionUi);
+    trigger->SetUnitId(unitId);
+    trigger->SetRequiredItem(requiredItem);
+    trigger->SetLockedText(lockedText);
+    trigger->SetDoorResourceIndex(doorResourceIndex);
+    trigger->SetNextMap(nextMap);
+    trigger->SetNextEpisode(nextEpisode);
+    trigger->SetSpawnPosition(spawnPosition);
+    trigger->SetSpawnDirection(spawnDirection);
+    trigger->SetCollisionBounds(bounds);
+    DoorTrigger* result = trigger.get();
+    AddUnit(trigger.release(), 4);
+    return result;
+}
+
+ActTrigger* MyGameUnitMgr::AddActTrigger(int32_t unitId, const soft3d::ObjectBounds& bounds)
+{
+    auto* engine = static_cast<soft3d::GameEngine*>(GetContext().gameContext);
+    auto trigger = std::make_unique<ActTrigger>(cameraController,
+        static_cast<Scene*>(GetContext().sceneContext), dynamic_cast<Player*>(player),
+        engine != nullptr ? &engine->GetControlMap() : nullptr, interactionUi);
+    trigger->SetUnitId(unitId);
+    trigger->SetCollisionBounds(bounds);
+    ActTrigger* result = trigger.get();
+    AddUnit(trigger.release(), 4);
+    return result;
+}
+
+void MyGameUnitMgr::SpawnMapItems()
+{
+    GameItemGroup* group = data.FindGameItemGroup(mapId);
+    if (group == nullptr) {
+        return;
+    }
+    int32_t nextUnitId = 9999;
+    for (GameItemSpawnRecord& record : group->records) {
+        if (record.itemId == 0) {
+            continue;
+        }
+        std::array<int32_t, 4> packedName{};
+        std::memcpy(packedName.data(), record.packedModelName.data(), record.packedModelName.size());
+        const std::u16string modelName = soft3d::DecodeSojTextureName(packedName);
+        auto* pickable = dynamic_cast<Pickable*>(AddThing(nextUnitId, 3, -1, false,
+            modelName.c_str(), record.position, record.axisX, record.axisY, record.axisZ));
+        if (pickable == nullptr) {
+            throw std::runtime_error("Map item did not create a Pickable");
+        }
+        pickable->SetSpawnRecord(&record.itemId);
+        pickable->SetItemId(record.itemId);
+        AddPickTrigger(nextUnitId, nextUnitId, record.pickupTextId, record.pickupBounds);
+        --nextUnitId;
+    }
+}
+
+int32_t MyGameUnitMgr::GetDoorState(int32_t doorId) const
+{
+    return doorId >= 10000 && doorId < 11024 ? doorStates[static_cast<std::size_t>(doorId - 10000)] : 0;
+}
+
+void MyGameUnitMgr::SetDoorState(int32_t doorId, int32_t value)
+{
+    if (doorId >= 10000 && doorId < 11024) {
+        doorStates[static_cast<std::size_t>(doorId - 10000)] = value;
+    }
 }
 
 void MyGameUnitMgr::Update()

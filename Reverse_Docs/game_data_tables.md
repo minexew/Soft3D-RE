@@ -80,7 +80,7 @@ The group header is **eight bytes, not a packed four-byte `{int16 id, int16 coun
 ```c
 struct GameItemSpawn {              // 0x60 bytes
     int32_t itemId;                 // +0x00; zero suppresses spawning
-    int32_t pickupSoundIndex;       // +0x04
+    int32_t pickupTextId;           // +0x04; pickup choice dialog title
     uint8_t packedModelName[16];    // +0x08; packed 5-bit name
     Vec3 position;                  // +0x18
     Vec3 axisX;                     // +0x24
@@ -92,7 +92,7 @@ struct GameItemSpawn {              // 0x60 bytes
 
 The runtime group is eight bytes: `int16 mapId`, `int16 recordCount`, and a pointer to the owned record array. `ClearGameItemGroups` (`0x000465fc`) destroys every record array and the group array before reload/destruction.
 
-`MyGameUnitMgr_SpawnMapItems` (`0x00047198`) selects the **first** group matching the current map. For every nonzero item ID it decodes the model name, creates a `Pickable` through `MyGameUnitMgr_AddThing` (`0x00044b74`), sets its item ID with `Pickable_SetItemId` (`0x0003f79c`), stores the originating record pointer at Pickable `0x68c`, and creates the linked `PickTrigger` with the serialized sound and bounds. `Pickable_PickUp` zeroes that record's item ID to prevent table-driven respawn. Unit IDs descend from 9999. Duplicate map groups are valid: day 4 contains map 3009 twice, and the first occurrence wins. Portable Pickable behavior is implemented in stage 5; concrete PickTrigger creation is stage 6.
+`MyGameUnitMgr_SpawnMapItems` (`0x00047198`) selects the **first** group matching the current map. For every nonzero item ID it decodes the model name, creates a `Pickable` through `MyGameUnitMgr_AddThing` (`0x00044b74`), sets its item ID with `Pickable_SetItemId` (`0x0003f79c`), stores the originating record pointer at Pickable `0x68c`, and creates the linked `PickTrigger` with the serialized title text ID and bounds. Stage-6 consumer analysis corrected the former “pickup sound” label: this word becomes the pickup choice dialog title, while `Player_AddItem` independently plays sound 141. `Pickable_PickUp` zeroes that record's item ID to prevent table-driven respawn. Unit IDs descend from 9999. Duplicate map groups are valid: day 4 contains map 3009 twice, and the first occurrence wins. Portable Pickable behavior is implemented in stage 5; concrete PickTrigger creation and real spawning are implemented in stage 6.
 
 Shipped values:
 

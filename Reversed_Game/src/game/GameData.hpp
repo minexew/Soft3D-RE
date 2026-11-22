@@ -21,7 +21,7 @@ inline constexpr std::size_t enemySpawnCapacity = 32;
 
 struct GameItemSpawnRecord {
     int32_t itemId = 0;
-    int32_t pickupSoundIndex = 0;
+    int32_t pickupTextId = 0;
     std::array<uint8_t, 16> packedModelName{};
     soft3d::Vec3 position;
     soft3d::Vec3 axisX;
@@ -79,6 +79,7 @@ public:
     const char16_t* GetAnimationName(std::size_t index) const;
     const char16_t* GetSoundName(std::size_t index) const;
     const DoorResourceRecord& GetDoorResource(std::size_t index) const;
+    GameItemGroup* FindGameItemGroup(int32_t mapId);
     const GameItemGroup* FindGameItemGroup(int32_t mapId) const;
     const EnemyInfoGroup* FindEnemyInfoGroup(int32_t mapId) const;
     const std::vector<GameItemGroup>& GetGameItemGroups() const;

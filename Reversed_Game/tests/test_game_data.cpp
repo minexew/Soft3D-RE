@@ -277,7 +277,7 @@ void TestRealGameItemData(TestArchive& archive)
     CHECK(groups[0].records.size() == 1);
     const auto& record = groups[0].records[0];
     CHECK(record.itemId == 1038);
-    CHECK(record.pickupSoundIndex == 26);
+    CHECK(record.pickupTextId == 26);
     CHECK(record.position.x == 1568250);
     CHECK(record.position.y == -1886696);
     CHECK(record.position.z == 14811136);
@@ -311,6 +311,9 @@ void TestRealGameItemData(TestArchive& archive)
           soft3d::S3D_FORMAT);
     Write32(malformed, 12, 1038);
     Write32(malformed, 16, 143);
+    CHECK(game::GameData::ParseGameItemData(malformed.data(), malformed.size(), groups) ==
+          soft3d::S3D_OK);
+    Write32(malformed, 16, -1);
     CHECK(game::GameData::ParseGameItemData(malformed.data(), malformed.size(), groups) ==
           soft3d::S3D_FORMAT);
     CHECK(game::GameData::ParseGameItemData(day1.data(), day1.size() - 1, groups) ==

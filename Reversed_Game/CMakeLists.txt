@@ -352,6 +352,16 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME game_mapunits COMMAND game_mapunit_tests)
 
+    add_executable(game_trigger_tests tests/test_game_triggers.cpp)
+    target_link_libraries(game_trigger_tests PRIVATE seven_days_game)
+    target_compile_definitions(game_trigger_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(game_trigger_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME game_triggers COMMAND game_trigger_tests)
+
     add_executable(game_player_tests tests/test_game_player.cpp)
     target_link_libraries(game_player_tests PRIVATE seven_days_game)
     target_compile_definitions(game_player_tests PRIVATE

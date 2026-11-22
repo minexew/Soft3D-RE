@@ -202,6 +202,10 @@ Connect the real `BspEntityFactory` to `MyGameUnitMgr_EntityFactory` (`0x00043ed
 - Door item present/missing/locked cases, next map/episode/spawn/direction, and special door state transitions.
 - ARM-confirmed IDs such as AddEvent 149, AddPick 153, AddDoor 155, and AddAct 159, with synthetic tests for unused related commands.
 
+**Status: complete.** `src/game/Triggers.*` implements all four classes and their persistence; `MyGameUnitMgr` implements their Add helpers, the 1024-entry door-state block, and new-map gameitem spawning; `GameSI` implements IDs 149–165. `TriggerUiHost`/`InteractionState` preserves prompt, dialog, pause, and selection state without inventing stage-8 rendering. The recovered pick argument is a dialog title text ID, not a sound. Act has three option strings, a separate title at `0x6c`, and a command/persistence-only word at `0x5c`.
+
+`test_game_triggers.cpp` covers every command, entry/exit and finite-event latching, pickup accept/cancel/full/disable flows, door requirements/tracked states/eight-frame unlock/authorization request, act simple/choice/combat/camera behavior, and second-save bytes. Real map 2008 creates its item-1005 pair with title 26 and clears the spawn record on pickup; restored saves skip spawning. The real `day1/ep0` now passes all stage-6 commands and stops at later-stage command 102 (`0x000671ac`). All 34 default tests pass; core/WAR/ASan-UBSan pass 27, and logging/math pass 34. Four corrected native layouts, typed signatures, comments, 69 `stage6` tags, a completion property, and a bookmark are saved in Ghidra. Details are in `symbian3rd_triggers.md`.
+
 ## Stage 7 — Hide, item, talk, camera, and light triggers
 
 **Scope**

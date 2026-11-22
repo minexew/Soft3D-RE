@@ -158,6 +158,9 @@ public:
     int GetCurrentStateId() const;
     bool IsAttacking() const;
     bool IsHiddenOrFPS() const { return hidden != 0 || fpsActive != 0; }
+    bool IsFpsActive() const { return fpsActive != 0; }
+    bool AreAttacksDisabled() const { return attacksDisabled != 0; }
+    soft3d::ObjectBounds GetInteractionBounds() const;
     bool IsDead() const { return deathState != 0; }
     bool IsDeathComplete() const { return deathState == 2; }
     bool IsYoung() const { return young != 0; }
@@ -209,6 +212,7 @@ public:
     void AddGunExperience(int32_t amount);
 
     void AddItem(int32_t itemId, bool playSound);
+    bool IsInventoryFull(int32_t itemId) const;
     bool HasItem(int32_t itemId) const;
     void RemoveItem(int32_t itemId);
     int32_t UseItem(int32_t slot);

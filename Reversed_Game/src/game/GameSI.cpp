@@ -106,6 +106,23 @@ GameSI::GameSI()
     callbacks[99 - gameSIFirstCommand].handler = &GameSI::GetLightStyle;
     callbacks[100 - gameSIFirstCommand].handler = &GameSI::SetFog;
     callbacks[103 - gameSIFirstCommand].handler = &GameSI::SelectPresentationShader;
+    callbacks[149 - gameSIFirstCommand].handler = &GameSI::AddEventTrigger;
+    callbacks[150 - gameSIFirstCommand].handler = &GameSI::SetEventTriggerCount;
+    callbacks[151 - gameSIFirstCommand].handler = &GameSI::SetEventTriggerText;
+    callbacks[152 - gameSIFirstCommand].handler = &GameSI::IsEventTriggerActive;
+    callbacks[153 - gameSIFirstCommand].handler = &GameSI::AddPickTrigger;
+    callbacks[154 - gameSIFirstCommand].handler = &GameSI::EnablePickTrigger;
+    callbacks[155 - gameSIFirstCommand].handler = &GameSI::AddDoorTrigger;
+    callbacks[156 - gameSIFirstCommand].handler = &GameSI::SetDoorTriggerItem;
+    callbacks[157 - gameSIFirstCommand].handler = &GameSI::SetDoorTriggerLockedText;
+    callbacks[158 - gameSIFirstCommand].handler = &GameSI::EnableDoorTrigger;
+    callbacks[159 - gameSIFirstCommand].handler = &GameSI::AddActTrigger;
+    callbacks[160 - gameSIFirstCommand].handler = &GameSI::SetActTriggerOptionCount;
+    callbacks[161 - gameSIFirstCommand].handler = &GameSI::SetActTriggerString;
+    callbacks[162 - gameSIFirstCommand].handler = &GameSI::GetActTriggerSelection;
+    callbacks[163 - gameSIFirstCommand].handler = &GameSI::ClearActTriggerSelection;
+    callbacks[164 - gameSIFirstCommand].handler = &GameSI::SetActTriggerCamera;
+    callbacks[165 - gameSIFirstCommand].handler = &GameSI::EnableActTrigger;
     callbacks[219 - gameSIFirstCommand].handler = &GameSI::AddTrap;
     callbacks[220 - gameSIFirstCommand].handler = &GameSI::RemoveTrap;
     callbacks[221 - gameSIFirstCommand].handler = &GameSI::AddThing;
@@ -470,6 +487,204 @@ void GameSI::SelectPresentationShader(soft3d::ScriptCommand& command)
 {
     RequireArguments(command, 1);
     context.scene->SelectPresentationShader(command.GetArgument(0).GetInt());
+}
+
+EventTrigger& GameSI::RequireEventTrigger(soft3d::ScriptCommand& command)
+{
+    const int32_t id = command.GetArgument(0).GetShort();
+    auto* trigger = dynamic_cast<EventTrigger*>(context.unitManager->FindUnit(4, id));
+    if (trigger == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "event trigger ID " + std::to_string(id) + " does not exist");
+    }
+    return *trigger;
+}
+
+PickTrigger& GameSI::RequirePickTrigger(soft3d::ScriptCommand& command)
+{
+    const int32_t id = command.GetArgument(0).GetShort();
+    auto* trigger = dynamic_cast<PickTrigger*>(context.unitManager->FindUnit(4, id));
+    if (trigger == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "pick trigger ID " + std::to_string(id) + " does not exist");
+    }
+    return *trigger;
+}
+
+DoorTrigger& GameSI::RequireDoorTrigger(soft3d::ScriptCommand& command)
+{
+    const int32_t id = command.GetArgument(0).GetShort();
+    auto* trigger = dynamic_cast<DoorTrigger*>(context.unitManager->FindUnit(4, id));
+    if (trigger == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "door trigger ID " + std::to_string(id) + " does not exist");
+    }
+    return *trigger;
+}
+
+ActTrigger& GameSI::RequireActTrigger(soft3d::ScriptCommand& command)
+{
+    const int32_t id = command.GetArgument(0).GetShort();
+    auto* trigger = dynamic_cast<ActTrigger*>(context.unitManager->FindUnit(4, id));
+    if (trigger == nullptr) {
+        throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
+                          "act trigger ID " + std::to_string(id) + " does not exist");
+    }
+    return *trigger;
+}
+
+void GameSI::AddEventTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 9);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(3).GetFixed(), command.GetArgument(4).GetFixed(),
+         command.GetArgument(5).GetFixed()},
+        {command.GetArgument(6).GetFixed(), command.GetArgument(7).GetFixed(),
+         command.GetArgument(8).GetFixed()}};
+    context.unitManager->AddEventTrigger(command.GetArgument(0).GetShort(),
+        static_cast<int16_t>(command.GetArgument(1).GetInt()), command.GetArgument(2).GetShort(), bounds);
+}
+
+void GameSI::SetEventTriggerCount(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireEventTrigger(command).SetRemainingCount(static_cast<int16_t>(command.GetArgument(1).GetInt()));
+}
+
+void GameSI::SetEventTriggerText(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireEventTrigger(command).SetTextId(command.GetArgument(1).GetShort());
+}
+
+void GameSI::IsEventTriggerActive(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(RequireEventTrigger(command).IsInside());
+    }
+}
+
+void GameSI::AddPickTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 9);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(3).GetFixed(), command.GetArgument(4).GetFixed(),
+         command.GetArgument(5).GetFixed()},
+        {command.GetArgument(6).GetFixed(), command.GetArgument(7).GetFixed(),
+         command.GetArgument(8).GetFixed()}};
+    context.unitManager->AddPickTrigger(command.GetArgument(0).GetShort(),
+        command.GetArgument(1).GetShort(), command.GetArgument(2).GetShort(), bounds);
+}
+
+void GameSI::EnablePickTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequirePickTrigger(command).SetEnabled(command.GetArgument(1).GetBool());
+}
+
+void GameSI::AddDoorTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 18);
+    const soft3d::Vec3 position{command.GetArgument(6).GetFixed(),
+        command.GetArgument(7).GetFixed(), command.GetArgument(8).GetFixed()};
+    const soft3d::Vec3 direction{command.GetArgument(9).GetFixed(),
+        command.GetArgument(10).GetFixed(), command.GetArgument(11).GetFixed()};
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(12).GetFixed(), command.GetArgument(13).GetFixed(),
+         command.GetArgument(14).GetFixed()},
+        {command.GetArgument(15).GetFixed(), command.GetArgument(16).GetFixed(),
+         command.GetArgument(17).GetFixed()}};
+    context.unitManager->AddDoorTrigger(command.GetArgument(0).GetShort(),
+        command.GetArgument(1).GetShort(), command.GetArgument(2).GetShort(),
+        command.GetArgument(3).GetShort(), command.GetArgument(4).GetShort(),
+        command.GetArgument(5).GetShort(), position, direction, bounds);
+}
+
+void GameSI::SetDoorTriggerItem(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireDoorTrigger(command).SetRequiredItem(command.GetArgument(1).GetShort());
+}
+
+void GameSI::SetDoorTriggerLockedText(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireDoorTrigger(command).SetLockedText(command.GetArgument(1).GetShort());
+}
+
+void GameSI::EnableDoorTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    auto* trigger = dynamic_cast<DoorTrigger*>(context.unitManager->FindUnit(
+        4, command.GetArgument(0).GetShort()));
+    if (trigger != nullptr) {
+        trigger->SetEnabled(command.GetArgument(1).GetBool());
+    }
+}
+
+void GameSI::AddActTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 7);
+    const soft3d::ObjectBounds bounds{
+        {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+         command.GetArgument(3).GetFixed()},
+        {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+         command.GetArgument(6).GetFixed()}};
+    context.unitManager->AddActTrigger(command.GetArgument(0).GetShort(), bounds);
+}
+
+void GameSI::SetActTriggerOptionCount(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireActTrigger(command).SetOptionCount(command.GetArgument(1).GetInt());
+}
+
+void GameSI::SetActTriggerString(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    RequireActTrigger(command).SetString(command.GetArgument(1).GetInt(),
+                                        command.GetArgument(2).GetShort());
+}
+
+void GameSI::GetActTriggerSelection(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    auto* trigger = dynamic_cast<ActTrigger*>(context.unitManager->FindUnit(
+        4, command.GetArgument(0).GetShort()));
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetInt(trigger != nullptr ? trigger->GetSelection() : 0);
+    }
+}
+
+void GameSI::ClearActTriggerSelection(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    auto* trigger = dynamic_cast<ActTrigger*>(context.unitManager->FindUnit(
+        4, command.GetArgument(0).GetShort()));
+    if (trigger != nullptr) {
+        trigger->ClearSelection();
+    }
+}
+
+void GameSI::SetActTriggerCamera(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 7);
+    auto* trigger = dynamic_cast<ActTrigger*>(context.unitManager->FindUnit(
+        4, command.GetArgument(0).GetShort()));
+    if (trigger != nullptr) {
+        trigger->SetCameraVectors(
+            {command.GetArgument(1).GetFixed(), command.GetArgument(2).GetFixed(),
+             command.GetArgument(3).GetFixed()},
+            {command.GetArgument(4).GetFixed(), command.GetArgument(5).GetFixed(),
+             command.GetArgument(6).GetFixed()});
+    }
+}
+
+void GameSI::EnableActTrigger(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    RequireActTrigger(command).SetEnabled(command.GetArgument(1).GetBool());
 }
 
 soft3d::Things& GameSI::RequireThing(soft3d::ScriptCommand& command)
