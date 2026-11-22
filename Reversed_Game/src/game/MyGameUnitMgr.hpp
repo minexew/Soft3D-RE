@@ -70,6 +70,7 @@ public:
     void SetInteractionUi(TriggerUiHost* value) { interactionUi = value; }
     int32_t GetDoorState(int32_t doorId) const;
     void SetDoorState(int32_t doorId, int32_t value);
+    const std::array<int32_t, 1024>& GetDoorStates() const { return doorStates; }
     void Update();
     void SubmitRenderables(soft3d::RenderQueues& queues);
     std::size_t GetLensflareCount() const { return lensflareCount; }

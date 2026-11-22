@@ -10,14 +10,14 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-Stages 1–7 are implemented in `seven_days_game`:
+Stages 1–8 are implemented in `seven_days_game`:
 
 - `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
 - Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL new-game smoke test proves that this path reaches progress 100 and executes the stage-3 camera/audio commands.
 - `Scene` owns the BSP, manager, concrete `Player`, game `CameraController`, camera-path resources, six presentation shaders, transition state, event/snapshot arrays, and two environment-channel states. Stage 4 adds the complete 20-state player, sword/gunfire, combat, inventory, and hide/FPS lifecycle; `symbian3rd_player.md` is the detailed reference.
-- `GameSI` contains all 218 ARM handler addresses and zero adjustments. Stage-2 scene commands, stage-3 camera/audio/presentation commands, stage-4 player commands, stage-5 thing/map/trap commands 219–254, stage-6 interaction commands 149–165, stage-7 Hide/Item/Talk commands 166–179, and StayBox commands 205–207 are implemented alongside the confirmed empty/shared-word callbacks. Every remaining later-stage command throws `GameSIError` with its ID and ARM address. The real `ep0` test confirms the map handshake, executes thing and stage-6 trigger setup, and then stops at later-stage command 102.
+- `GameSI` contains all 218 ARM handler addresses and zero adjustments. Stage-2 scene commands, stage-3 camera/audio/presentation commands, stage-4 player commands, stage-5 thing/map/trap commands 219–254, stage-6 interaction commands 149–165, stage-7 Hide/Item/Talk commands 166–179, StayBox commands 205–207, and stage-8 UI/progression commands are implemented alongside the confirmed empty/shared-word callbacks. Every remaining later-stage command throws `GameSIError` with its ID and ARM address. The real `ep0` test confirms the map handshake and reaches later-stage input command 47 (`0x00065560`).
 - The SBP factory creates concrete `BspUnit` renderable entities for types -1/0, real camera/light triggers for types 10/11, type-102 header state, and manager-owned type-202 lensflares. Other game-owned non-renderable records return null and are skipped by the generic loader, as in ARM. See `symbian3rd_mapunits.md` for the completed stage-5 classes and command matrix.
-- `GameUIDlg` HUD/map/about-model/item operations remain stage-8 hooks, including the high-`0x10000` special-door presentation. Full save loading remains stage 13 and reports an explicit error rather than treating the 44-byte header as a scene load. License gating remains stage 14.
+- `game::GameUiController` completes the GameUI HUD/map/about-model/item operations, including high-`0x10000` special-door subtitles, dialogs, inventory/files, progression, and statistics; see `symbian3rd_gameui.md`. Full scene save/load remains stage 13 and reports an explicit error rather than treating the 44-byte header as a scene load. License gating remains stage 14.
 
 These boundaries leave substantial gameplay work, but the application no longer uses an empty scene or an unbound script host.
 
@@ -214,7 +214,7 @@ These are not UI string hierarchies. `GameEngine_Init` reads 512 bytes from `mes
 
 ### Resource-name and statistics tables
 
-`InitializeAnimationResourceNames` (`0x00089238`) fills 260 names. `InitializeSoundResourceNames` (`0x00088594`, formerly `InitializeUiResourceNames`) fills 142 named slots following a reserved empty index 0, producing a 143-slot indexed table now present in `src/game/ResourceNames.cpp`. `Scene_InitializeDoorResources` (`0x0002b554`) has 22 model records and two 22-entry sound-index arrays; animation entries 238–259 mirror the door models. HUD/inventory/map/QTE/story behavior, item effects, statistics counters, save headers, and runtime unlock updates remain later-stage consumers.
+`InitializeAnimationResourceNames` (`0x00089238`) fills 260 names. `InitializeSoundResourceNames` (`0x00088594`, formerly `InitializeUiResourceNames`) fills 142 named slots following a reserved empty index 0, producing a 143-slot indexed table now present in `src/game/ResourceNames.cpp`. `Scene_InitializeDoorResources` (`0x0002b554`) has 22 model records and two 22-entry sound-index arrays; animation entries 238–259 mirror the door models. Stage 8 implements the HUD/inventory/map/QTE/story, item-effect, statistics, and runtime-unlock consumers; `symbian3rd_gameui.md` records them. Full scene save records remain stage 13.
 
 ## Game UI and progression
 
@@ -228,7 +228,7 @@ These are not UI string hierarchies. `GameEngine_Init` reads 512 bytes from `mes
 - map/floors/markers and files/documents;
 - game-over, options, controls, and return/exit flows.
 
-`GameUI` resource pointers connect it to the player, scene, unit manager, content records, and map state. `ClearRank` and the statistics counters have real state behavior; `CalcRank` remains the original no-op noted above. Unlock arrays in `config.sdt` must be updated by actual model/document/photo/item progression rather than only round-tripped.
+`GameUI` resource pointers connect it to the player, scene, unit manager, content records, and map state. Stage 8 implements these consumers in `game::GameUiController` and `GameUIDlg`, including the native statistics and unlock updates. The former `ClearRank` label was incorrect: ID 81 opens the map, `CalcRank` remains the original no-op, and ID 83 is another confirmed empty callback. Full layouts, map tables, dialog quirks, command IDs, and verification are in `symbian3rd_gameui.md`.
 
 ## License and platform services
 
@@ -253,3 +253,5 @@ Stage 5 adds native layouts for all seven recovered map/thing classes plus StayB
 Stage 6 adds `EventTriggerLayout` (0x64), `PickTriggerLayout` (0x74), `DoorTriggerLayout` (0xa4), and `ActTriggerLayout` (0xa0), typed class/manager/GameSI signatures, behavioral plate comments, 69 verified `stage6` tags, a completion property, and a bookmark at `ActTrigger_Update`. Typed decompilation corrected the initial consumer assumptions: gameitem `+0x04` and PickTrigger `+0x58` are dialog title text IDs, while Act has three option strings, a separate title at `0x6c`, and a command/persistence-only word at `0x5c`. The corrected structures, prototypes, and persistence rules were verified again after applying them. Details are in `symbian3rd_triggers.md`.
 
 Stage 7 adds `HideTriggerLayout` (0x90), `ItemTriggerLayout` (0x7c), `TalkTriggerLayout` (0xb8), camera/line records and native vector layouts, 61 typed class/manager/GameSI signatures, behavioral plates, 67 verified `stage7` tags, a completion property, and a bookmark at `TalkTrigger_Update`. Typed review proved that Hide saves prompt/dialog/mask rather than angular limits, and that Act/Talk reset camera warmup rather than listener selection. StayBox constructor defaults and its three commands were corrected and saved. The program was saved after verifying the typed decompilation.
+
+Stage 8 adds `GameUIDlgLayout` (0x524) and `GameUIMapMarkerRecord` (0x0c), 59 function renames, typed UI/command signatures, corrected kill-count fields, comments, `stage8` tags, bookmarks, and a completion property. The native marker area has eight records. `GameUI_CloseDialog` preserves its result, dialog string slot 4 aliases the secondary label, and ID 81 is direct-map opening rather than `ClearRank`. Details are in `symbian3rd_gameui.md`.

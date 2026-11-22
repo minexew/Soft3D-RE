@@ -347,8 +347,8 @@ void TestRealNewGameHandshake()
         try {
             CHECK(fixture.engine.RunFrame());
         } catch (const game::GameSIError& error) {
-            CHECK(error.GetCommandId() == 102);
-            CHECK(error.GetArmAddress() == 0x000671ac);
+            CHECK(error.GetCommandId() == 47);
+            CHECK(error.GetArmAddress() == 0x00065560);
             unsupported = true;
         }
     }

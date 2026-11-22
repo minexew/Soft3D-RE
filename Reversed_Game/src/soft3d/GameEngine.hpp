@@ -36,6 +36,12 @@ struct GameplayHooks {
     std::function<void()> renderGameHud;
     std::function<int(int, int)> useItem;
     std::function<bool(int, int)> combineItems;
+    std::function<void()> synchronizeContent;
+    std::function<void(bool)> setGamePaused;
+    std::function<bool()> canOpenGameMenu;
+    std::function<void(int, int)> prepareGameModels;
+    std::function<bool(int)> saveGame;
+    std::function<void()> finishGame;
 };
 
 class SceneHost {

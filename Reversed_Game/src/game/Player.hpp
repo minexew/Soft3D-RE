@@ -177,9 +177,16 @@ public:
     int32_t GetItemTriggerCount() const { return itemTriggerCount; }
     int32_t GetQteResult() const { return qteResult; }
     int32_t GetQteKey() const { return qteKey; }
+    int32_t GetQteDuration() const { return qteDuration; }
+    int32_t GetStateCounter() const { return stateCounter; }
     int32_t GetPlayTime() const { return playTime; }
     int32_t GetSelectedItemSlot() const { return selectedItem; }
     int32_t GetSelectedNoteSlot() const { return selectedNote; }
+    void ClearSelectedItem() { selectedItem = -1; }
+    void ClearSelectedNote() { selectedNote = -1; }
+    int32_t GetItemUseCount() const { return itemUseCount; }
+    int32_t GetKillCount() const { return killCount; }
+    int32_t GetDeathCount() const { return deathCount; }
     int32_t GetHealthPackCount() const;
     Sword* GetSword() const { return sword.get(); }
     soft3d::GunFire& GetGunFire() { return gunFire; }
@@ -312,9 +319,9 @@ private:
     std::array<int32_t, 128> notesDayStart{};
     int32_t healthPackDayStart = 0;
     int32_t itemUseCount = 0;
-    int32_t playerCounter710 = 0;
+    int32_t killCount = 0;
     int32_t savedItemUseCount = 0;
-    int32_t savedPlayerCounter710 = 0;
+    int32_t savedKillCount = 0;
     int32_t playTime = 0;
     int32_t deathCount = 0;
     int32_t frameCounter = 0;

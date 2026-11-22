@@ -204,7 +204,7 @@ Connect the real `BspEntityFactory` to `MyGameUnitMgr_EntityFactory` (`0x00043ed
 
 **Status: complete.** `src/game/Triggers.*` implements all four classes and their persistence; `MyGameUnitMgr` implements their Add helpers, the 1024-entry door-state block, and new-map gameitem spawning; `GameSI` implements IDs 149–165. `TriggerUiHost`/`InteractionState` preserves prompt, dialog, pause, and selection state without inventing stage-8 rendering. The recovered pick argument is a dialog title text ID, not a sound. Act has three option strings, a separate title at `0x6c`, and a command/persistence-only word at `0x5c`.
 
-`test_game_triggers.cpp` covers every command, entry/exit and finite-event latching, pickup accept/cancel/full/disable flows, door requirements/tracked states/eight-frame unlock/authorization request, act simple/choice/combat/camera behavior, and second-save bytes. Real map 2008 creates its item-1005 pair with title 26 and clears the spawn record on pickup; restored saves skip spawning. The real `day1/ep0` now passes all stage-6 commands and stops at later-stage command 102 (`0x000671ac`). All 34 default tests pass; core/WAR/ASan-UBSan pass 27, and logging/math pass 34. Four corrected native layouts, typed signatures, comments, 69 `stage6` tags, a completion property, and a bookmark are saved in Ghidra. Details are in `symbian3rd_triggers.md`.
+`test_game_triggers.cpp` covers every command, entry/exit and finite-event latching, pickup accept/cancel/full/disable flows, door requirements/tracked states/eight-frame unlock/authorization request, act simple/choice/combat/camera behavior, and second-save bytes. Real map 2008 creates its item-1005 pair with title 26 and clears the spawn record on pickup; restored saves skip spawning. The real `day1/ep0` passes all stage-6 commands; after stages 7–8 it reaches later-stage input command 47 (`0x00065560`). All 34 default tests pass; core/WAR/ASan-UBSan pass 27, and logging/math pass 34. Four corrected native layouts, typed signatures, comments, 69 `stage6` tags, a completion property, and a bookmark are saved in Ghidra. Details are in `symbian3rd_triggers.md`.
 
 ## Stage 7 — Hide, item, talk, camera, and light triggers
 
@@ -232,7 +232,7 @@ The manager preserves Talk's pre-pass/double-update behavior and paused Item reg
 - Implement normal HUD/status, interaction/tutorial/subtitle/story/door displays, portrait/simple/choice dialogs, selection results, QTE rendering/input/results, and game-over UI.
 - Implement item acquisition/use/combination/descriptions/effects, nine-slot inventory, notes/documents, map floors/markers, and item-driven unlocks.
 - Implement about-model rendering and model/document/photo unlock progression.
-- Recover statistics counters and `ClearRank`; preserve `CalcRank` as the original no-op.
+- Recover statistics counters and direct-map opening; preserve `CalcRank` as the original no-op.
 - Complete fixed resource-name and sound-index consumers from stage 1.
 
 **Integration**
@@ -244,6 +244,10 @@ Extend the existing `GameUIDlg`, `AboutDlg`, and `HelpDlg` through their current
 - Exact dummy pixels for each HUD/dialog/QTE/map/inventory/extras mode and orientation.
 - Every item use/combine result, empty/invalid slot, close/reopen behavior, unlock persistence, and map marker.
 - End-to-end item pickup → inventory → use/combine → player/world effect → save/unlock update.
+
+**Status: complete.** `game::GameUiController` connects the existing `GameUIDlg`, `AboutDlg`, and `HelpDlg` to the concrete player, manager, scene, and content. HUD/prompt/QTE/hide/subtitle/dialog rendering, nine-slot inventory and files, item use/combination, maps/markers, model previews, statistics, and completion unlocks are implemented. The stage-8 save menu calls the real slot operation, whose full scene writer remains explicitly assigned to stage 13.
+
+`test_game_ui.cpp` covers all recovered commands, item flows, real map pickup, progression, map arithmetic, and exact dummy-presented frames. The real startup now reaches later-stage input command 47. All 35 default, logging, math, and WAR tests pass serially; core and ASan/UBSan each pass 28. The native `GameUIDlgLayout` (0x524), eight-record custom-marker layout, map tables, function names, prototypes, comments, statistics fields, tags, bookmarks, and completion property are saved in Ghidra. Detailed behavior and corrections are in `symbian3rd_gameui.md`.
 
 ## Stage 9 — Common enemy AI, pooling, and enemy script commands
 

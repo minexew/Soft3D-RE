@@ -1,7 +1,9 @@
 #include "game/GameSI.hpp"
+#include "game/GameUiController.hpp"
 #include "game/Scene.hpp"
 #include "game/Triggers.hpp"
 #include "platform/dummy/DummyVideoBackend.hpp"
+#include "soft3d/GameUIDlg.hpp"
 
 #include <array>
 #include <cstdint>
@@ -107,6 +109,7 @@ struct GameFixture {
         hooks.loadGame = [this](int slot) { return scene->LoadSaveSlot(slot); };
         hooks.returnToMenu = [this] { scene->ReturnToMainMenu(); };
         engine.SetGameplayHooks(std::move(hooks));
+        scene->GetUiController()->InstallHooks();
         engine.Start();
         engine.GetControlMap().SetBinding(5, static_cast<uint32_t>(soft3d::Key::Accept));
         SetInside(true);
@@ -157,7 +160,7 @@ struct GameFixture {
         engine.GetInput().KeyUp(soft3d::Key::Accept);
     }
 
-    game::InteractionState& Ui() { return scene->GetUnitManager()->GetInteractionState(); }
+    soft3d::GameUIDlg& Ui() { return *scene->GetGameUi(); }
 
     soft3d::GameEngine engine;
     game::Scene* scene = nullptr;
@@ -222,16 +225,16 @@ void TestEventTrigger()
     fixture.scene->GetUnitManager()->Update();
     CHECK(trigger->GetRemainingCount() == 0 && trigger->IsInside());
     CHECK(fixture.Execute(152, {Argument::Short(1)}, true) == 1);
-    CHECK(fixture.Ui().GetDialogKind() == 0 && fixture.Ui().GetDialogText() == 78);
+    CHECK(fixture.Ui().GetDialogKind() == 0 && fixture.Ui().GetDialogTextId() == 78);
     CHECK(fixture.scene->GetUnitManager()->IsPaused());
-    fixture.Ui().SetDialogResult(0);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
     fixture.SetInside(false);
     fixture.scene->GetUnitManager()->Update();
     CHECK(trigger->IsInside());
     CHECK(fixture.Execute(152, {Argument::Short(1)}, true) == 1);
     fixture.SetInside(true);
     fixture.scene->GetUnitManager()->Update();
-    CHECK(fixture.Ui().GetDialogText() == 78 && !fixture.scene->GetUnitManager()->IsPaused());
+    CHECK(fixture.Ui().GetDialogTextId() == 78 && !fixture.scene->GetUnitManager()->IsPaused());
 
     fixture.SetInside(false);
     fixture.Execute(150, {Argument::Short(1), Argument::Int(-1)});
@@ -240,13 +243,13 @@ void TestEventTrigger()
     fixture.SetInside(true);
     fixture.scene->GetUnitManager()->Update();
     CHECK(trigger->GetRemainingCount() == -1 && fixture.scene->GetUnitManager()->IsPaused());
-    fixture.Ui().SetDialogResult(0);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
     fixture.SetInside(false);
     fixture.scene->GetUnitManager()->Update();
     fixture.SetInside(true);
     fixture.scene->GetUnitManager()->Update();
     CHECK(trigger->GetRemainingCount() == -1 && fixture.scene->GetUnitManager()->IsPaused());
-    fixture.Ui().SetDialogResult(0);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
 
     trigger->SetRemainingCount(-3);
     trigger->SetTextId(1234);
@@ -272,17 +275,16 @@ void TestPickTrigger()
     CHECK(trigger->GetDialogTitleId() == 7 && trigger->IsAvailable());
 
     manager->Update();
-    CHECK(trigger->IsPromptActive() && fixture.Ui().GetPrompt() == 0);
+    CHECK(trigger->IsPromptActive() && fixture.Ui().GetInteractionPrompt() == 0);
     CHECK(fixture.scene->GetPlayer()->AreAttacksDisabled());
     fixture.Click();
     manager->Update();
     CHECK(trigger->IsDialogActive() && manager->IsPaused());
-    CHECK(fixture.Ui().GetDialogKind() == 1 && fixture.Ui().GetDialogText() == 7);
+    CHECK(fixture.Ui().GetDialogKind() == 1 && fixture.Ui().GetDialogTextId() == 7);
     CHECK(fixture.Ui().GetDialogOptionCount() == 2);
     CHECK(fixture.Ui().GetDialogOption(0) == 3 && fixture.Ui().GetDialogOption(1) == 4);
-    CHECK(fixture.Ui().GetDialogOption(4) ==
-          static_cast<int32_t>(fixture.engine.GetContent().items[2].nameString));
-    fixture.Ui().SetDialogResult(1);
+    CHECK(fixture.Ui().GetDialogOption(4) == -1);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(1);
     manager->Update();
     CHECK(!trigger->IsDialogActive() && manager->FindUnit(2, 10) == pickable);
 
@@ -298,7 +300,7 @@ void TestPickTrigger()
     input.ReadInt32(linkedId);
     CHECK(type == 0x25 && linkedId == 10 && restored.GetDialogTitleId() == 7);
     restored.Configure(pickable, manager, fixture.scene->GetPlayer(), fixture.scene->GetControlMap(),
-                       &fixture.Ui());
+                       fixture.scene->GetUiController());
     soft3d::OutputDataStream second;
     restored.SaveState(second);
     CHECK(second.GetSize() == saved.GetSize());
@@ -307,7 +309,7 @@ void TestPickTrigger()
     fixture.Click();
     manager->Update();
     CHECK(trigger->IsDialogActive());
-    fixture.Ui().SetDialogResult(0);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
     manager->Update();
     CHECK(manager->FindUnit(2, 10) == nullptr && trigger->GetPickable() == nullptr);
     CHECK(fixture.scene->GetPlayer()->HasItem(2) && !trigger->IsPromptActive());
@@ -322,11 +324,11 @@ void TestPickTrigger()
     fixture.Click();
     manager->Update();
     CHECK(fullTrigger != nullptr && !fullTrigger->IsDialogActive());
-    CHECK(fixture.Ui().GetDialogKind() == 3 && fixture.Ui().GetDialogText() == 5);
+    CHECK(fixture.Ui().GetDialogKind() == 3 && fixture.Ui().GetDialogTextId() == 5);
     CHECK(manager->FindUnit(2, 11) != nullptr && !fixture.scene->GetPlayer()->HasItem(3));
-    fixture.Ui().SetDialogResult(0);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
     fixture.Execute(154, {Argument::Short(21), Argument::Bool(false)});
-    CHECK(!fullTrigger->IsEnabled() && fixture.Ui().GetPrompt() == -1);
+    CHECK(!fullTrigger->IsEnabled() && fixture.Ui().GetInteractionPrompt() == -1);
     manager->Update();
     CHECK(!fullTrigger->IsPromptActive() && !fixture.scene->GetPlayer()->AreAttacksDisabled());
 }
@@ -342,9 +344,9 @@ void TestDoorTrigger()
     fixture.Execute(157, {Argument::Short(30), Argument::Short(100)});
     fixture.Click();
     manager->Update();
-    CHECK(door->IsDialogActive() && fixture.Ui().GetDialogText() == 100);
+    CHECK(door->IsDialogActive() && fixture.Ui().GetDialogTextId() == 100);
     CHECK(!fixture.scene->IsNextLevelPending() && !door->IsUnlocking());
-    fixture.Ui().SetDialogResult(0);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
     manager->Update();
     CHECK(!door->IsDialogActive());
 
@@ -366,13 +368,13 @@ void TestDoorTrigger()
     fixture.Click();
     manager->Update();
     CHECK(tracked != nullptr && manager->GetDoorState(10001) == 3);
-    fixture.Ui().SetDialogResult(0);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
     manager->Update();
     fixture.Execute(156, {Argument::Short(10001), Argument::Short(14)});
     fixture.Click();
     manager->Update();
     CHECK(manager->GetDoorState(10001) == 2);
-    fixture.Ui().SetDialogResult(0);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
     manager->Update();
     fixture.scene->GetPlayer()->AddItem(14, false);
     fixture.Click();
@@ -430,14 +432,14 @@ void TestActTrigger()
     fixture.Execute(164, {Argument::Short(40), Argument::Fixed(0), Argument::Fixed(0),
         Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0x10000)});
     manager->Update();
-    CHECK(trigger->IsPromptActive() && fixture.Ui().GetPrompt() == 3);
+    CHECK(trigger->IsPromptActive() && fixture.Ui().GetInteractionPrompt() == 3);
     fixture.Click();
     manager->Update();
-    CHECK(trigger->IsDialogActive() && fixture.Ui().GetDialogText() == 200);
+    CHECK(trigger->IsDialogActive() && fixture.Ui().GetDialogTextId() == 200);
     CHECK(fixture.Ui().GetDialogOptionCount() == 2 && fixture.Ui().GetDialogOption(0) == 299);
     CHECK(fixture.Ui().GetDialogOption(1) == 202);
     CHECK(fixture.scene->GetCameraController()->IsFrozen() && !fixture.scene->GetPlayer()->IsVisible());
-    fixture.Ui().SetDialogResult(1);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(1);
     manager->Update();
     CHECK(!trigger->IsDialogActive() && fixture.Execute(162, {Argument::Short(40)}, true) == 2);
     CHECK(!fixture.scene->GetCameraController()->IsFrozen());
@@ -459,7 +461,7 @@ void TestActTrigger()
     AttackingEnemy enemy;
     manager->AddUnit(&enemy, 0);
     manager->Update();
-    CHECK(!simple->IsPromptActive() && fixture.Ui().GetPrompt() == -1);
+    CHECK(!simple->IsPromptActive() && fixture.Ui().GetInteractionPrompt() == -1);
     fixture.Execute(160, {Argument::Short(41), Argument::Int(1)});
     manager->Update();
     CHECK(simple->IsPromptActive());
@@ -471,8 +473,8 @@ void TestActTrigger()
     fixture.Click();
     manager->Update();
     CHECK(simple->IsDialogActive() && fixture.Ui().GetDialogKind() == 3);
-    CHECK(fixture.Ui().GetDialogText() == 300);
-    fixture.Ui().SetDialogResult(0);
+    CHECK(fixture.Ui().GetDialogTextId() == 300);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
     manager->Update();
     CHECK(simple->GetSelection() == 1);
 
@@ -506,24 +508,24 @@ void TestHideTrigger()
     fixture.Execute(167, {Argument::Short(50), Argument::Fixed(0x1111), Argument::Fixed(0x2222)});
     CHECK(trigger->GetHorizontalLimit() == 0x1111 && trigger->GetVerticalLimit() == 0x2222);
     manager->Update();
-    CHECK(trigger->IsPromptActive() && fixture.Ui().GetPrompt() == 4);
+    CHECK(trigger->IsPromptActive() && fixture.Ui().GetInteractionPrompt() == 4);
     CHECK(fixture.scene->GetPlayer()->AreAttacksDisabled());
     fixture.Click();
     manager->Update();
-    CHECK(trigger->IsDialogActive() && fixture.Ui().GetDialogText() == 0x18);
+    CHECK(trigger->IsDialogActive() && fixture.Ui().GetDialogTextId() == 0x18);
     CHECK(fixture.Ui().GetDialogOption(0) == 3 && fixture.Ui().GetDialogOption(1) == 4);
-    fixture.Ui().SetDialogResult(1);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(1);
     manager->Update();
     CHECK(!trigger->IsDialogActive() && !fixture.scene->GetPlayer()->IsHiddenOrFPS());
     fixture.Click();
     manager->Update();
-    fixture.Ui().SetDialogResult(0);
+    fixture.Ui().CloseDialog(); fixture.Ui().SetDialogResult(0);
     manager->Update();
     CHECK(fixture.scene->GetPlayer()->IsHiddenOrFPS());
     CHECK(fixture.scene->GetPlayer()->GetCurrentStateId() == game::PlayerHide);
     CHECK(fixture.scene->GetPlayer()->GetPosition().x == 0x20000);
     CHECK(fixture.scene->GetHideMask() == 2 && fixture.scene->IsHideMaskActive());
-    CHECK(!trigger->IsPromptActive() && fixture.Ui().GetPrompt() == -1);
+    CHECK(!trigger->IsPromptActive() && fixture.Ui().GetInteractionPrompt() == -1);
     fixture.scene->GetPlayer()->ExitHide();
     CHECK(!fixture.scene->GetPlayer()->IsHiddenOrFPS() && !fixture.scene->IsHideMaskActive());
 
@@ -616,7 +618,7 @@ void TestTalkTrigger()
     CHECK(trigger->GetLines()[0].textId == 301 && trigger->GetLines()[0].duration == 7);
 
     manager->Update();
-    CHECK(trigger->IsPromptActive() && fixture.Ui().GetPrompt() == 5);
+    CHECK(trigger->IsPromptActive() && fixture.Ui().GetInteractionPrompt() == 5);
     fixture.scene->GetPlayer()->SetNavigationEnabled(true);
     fixture.Click();
     manager->Update();
@@ -629,7 +631,7 @@ void TestTalkTrigger()
     manager->Update();
     manager->Update();
     CHECK(trigger->IsActive() && trigger->GetTimer() == 6 && manager->IsPaused());
-    CHECK(fixture.Ui().GetDialogText() == 301 && fixture.Execute(176, {Argument::Short(70)}, true) == 1);
+    CHECK(fixture.Ui().GetDialogTextId() == 301 && fixture.Execute(176, {Argument::Short(70)}, true) == 1);
     CHECK(fixture.scene->GetCameraController()->IsFrozen());
     CHECK(fixture.scene->GetCameraController()->GetPosition().x == 0x30000);
     CHECK(trigger->GetCameras()[0].target.x == fixture.scene->GetPlayer()->GetPosition().x);
@@ -640,7 +642,7 @@ void TestTalkTrigger()
     CHECK(trigger->GetTimer() == 0 && fixture.Ui().IsDialogActive());
     fixture.Ui().CloseDialog();
     manager->Update();
-    CHECK(trigger->GetLineIndex() == 1 && fixture.Ui().GetDialogText() == 302);
+    CHECK(trigger->GetLineIndex() == 1 && fixture.Ui().GetDialogTextId() == 302);
     CHECK(!trigger->IsCompleted());
     fixture.Ui().CloseDialog();
     manager->Update();
@@ -685,7 +687,7 @@ void TestTalkTriggerFadeAtEnd()
     fixture.Click();
     trigger->Update();
     for (int update = 0; update < 7; ++update) trigger->Update();
-    CHECK(trigger->IsActive() && fixture.Ui().GetDialogText() == 303);
+    CHECK(trigger->IsActive() && fixture.Ui().GetDialogTextId() == 303);
     for (int update = 0; update < 6; ++update) trigger->Update();
     fixture.Ui().CloseDialog();
     trigger->Update();
@@ -794,8 +796,8 @@ void TestRealStartupBoundary()
         try {
             fixture.RunFrames(1);
         } catch (const game::GameSIError& error) {
-            CHECK(error.GetCommandId() == 102);
-            CHECK(error.GetArmAddress() == 0x000671ac);
+            CHECK(error.GetCommandId() == 47);
+            CHECK(error.GetArmAddress() == 0x00065560);
             unsupported = true;
         }
     }

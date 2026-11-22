@@ -1,5 +1,7 @@
 #include "soft3d/Fixed.hpp"
 
+#include <algorithm>
+
 #ifdef SOFT3D_TRIG_USE_MATH
 #include <cmath>
 #include <limits>
@@ -89,6 +91,25 @@ uint16_t FixedArcTangent(Fixed value)
         return static_cast<uint16_t>(-0x800 - FixedArcTangentUnit(FixedDivide(fixedOne, value)));
     }
     return FixedArcTangentUnit(value);
+}
+
+uint16_t FixedArcCosine(Fixed input)
+{
+    Fixed value = std::clamp(input, -fixedOne, fixedOne);
+    const Fixed squared = FixedMultiply(value, value);
+    Fixed power = FixedMultiply(value, squared);
+    Fixed result = value;
+    constexpr Fixed coefficients[] = {
+        0x2aaa, 0x1333, 0x0b6d, 0x07c7, 0x05ba, 0x0471, 0x0393, 0x02f5, 0x027f,
+    };
+    for (Fixed coefficient : coefficients) {
+        result = AddFixed(result, FixedMultiply(power, coefficient));
+        power = FixedMultiply(power, squared);
+    }
+    const uint16_t angle = static_cast<uint16_t>(static_cast<uint32_t>(
+        FixedMultiply(result, 0x0517cc18)) >> 16) & 0x1fff;
+    const uint16_t signedAngle = input < 0 ? static_cast<uint16_t>(angle - 0x2000) : angle;
+    return static_cast<uint16_t>(0x800 - signedAngle);
 }
 
 Vec3 RotateX(const Vec3& value, uint16_t angle)

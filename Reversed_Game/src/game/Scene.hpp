@@ -15,6 +15,8 @@
 
 namespace game {
 
+class GameUiController;
+
 class SceneCameraSpot final : public soft3d::CameraSpot {
 public:
     explicit SceneCameraSpot(soft3d::Creature* unit = nullptr) : unit(unit) {}
@@ -53,6 +55,7 @@ public:
     soft3d::result Initialize();
     void StartNewGame(const soft3d::NewGameOptions& options);
     bool LoadSaveSlot(int slot);
+    bool SaveSaveSlot(int slot);
     void ReturnToMainMenu();
 
     soft3d::result LoadDay(int day);
@@ -79,6 +82,7 @@ public:
     Player* GetPlayer() { return player.get(); }
     CameraController* GetCameraController() { return &cameraController; }
     soft3d::GameUIDlg* GetGameUi() { return engine.GetGameUi(); }
+    GameUiController* GetUiController() { return uiController.get(); }
     soft3d::AudioManager* GetAudio() { return &engine.GetAudioManager(); }
     soft3d::s3dResManager* GetResources() { return &engine.GetResourceManager(); }
     soft3d::ControlMap* GetControlMap() { return &engine.GetControlMap(); }
@@ -140,6 +144,8 @@ public:
     int32_t GetCameraWarmupCounter() const { return cameraWarmupCounter; }
     void ShowQte(int32_t key, int32_t time, int32_t mode);
     void SetQteMode(int32_t mode) { qteUiMode = mode; }
+    void AdvanceQteUi();
+    void ClearQteFailure() { qteUiFailure = 0; }
     void FailQte();
     void SetHideMask(int32_t index, bool active);
     void ShowTutorial(int32_t id, int32_t frames);
@@ -169,6 +175,7 @@ private:
     SceneCameraSpot playerSpot;
     soft3d::DummySpot enemySpot;
     std::unique_ptr<MyGameUnitMgr> unitManager;
+    std::unique_ptr<GameUiController> uiController;
     std::unique_ptr<soft3d::VisUnit> doorModel;
     soft3d::InkShader inkShader;
     soft3d::FadeShader fadeShader;

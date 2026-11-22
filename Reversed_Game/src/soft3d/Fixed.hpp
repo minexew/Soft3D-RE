@@ -212,6 +212,7 @@ Fixed FixedSin(uint16_t angle);
 Fixed FixedCos(int16_t angle);
 Fixed FixedTan(uint16_t angle);
 uint16_t FixedArcTangent(Fixed value);
+uint16_t FixedArcCosine(Fixed value);
 Vec3 RotateX(const Vec3& value, uint16_t angle);
 Vec3 RotateY(const Vec3& value, uint16_t angle);
 Vec3 RotateZ(const Vec3& value, uint16_t angle);

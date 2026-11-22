@@ -242,7 +242,7 @@ All handlers use the standard `(arguments, argumentCount, output)` convention. I
 - `Object` exposes model-space morph sampling transformed by the model matrix, plus named texture override loading used by adult outfit variants.
 - `StateMachine` exposes direct enter-chain and current-state comparison needed by player commands.
 - `CameraController` exposes its recovered right vector and direct first-person setup, including lock and angular limits.
-- `Scene` owns concrete `Player`, loads day weapon resources, snapshots inventory, enters FPS at map finalization, and connects completed death to the existing Ink/restart flow. QTE/hide/tutorial state is held for the stage-8 UI consumer rather than rendered by a duplicate UI system.
+- `Scene` owns concrete `Player`, loads day weapon resources, snapshots inventory, enters FPS at map finalization, and connects completed death to the existing Ink/restart flow. Stage 8 consumes QTE/hide/tutorial state through the existing GameUI without adding a duplicate state machine. `killCount` is the recovered name for native `0x710`; gun upgrades check scene event 1002, and tutorials 41/42 are timed GameUI messages.
 
 ## Verification
 
@@ -251,11 +251,11 @@ All handlers use the standard `(arguments, argumentCount, output)` convention. I
 Exact default dummy-presented FNV-1a hashes over 320×240 XRGB pixels are:
 
 ```text
-stand  0x9da9ea25
-run    0x6d5c862d
-attack 0x4ac44b45
-hurt   0xff7f3005
-QTE    0x3f72c8dd
+stand  0xe308b835
+run    0x28ee5e85
+attack 0xc503d75d
+hurt   0xe926f91d
+QTE    0x77c59b7d
 ```
 
-At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. Stage 7 has 34 default tests, 27 core/WAR/ASan-UBSan tests, and 34 logging/math tests. The real `day1/ep0` application path passes thing and stage-6 trigger setup before stopping at later-stage command 102; real map-2008 engine frames also exercise ItemTrigger registration and `Player_UseItem`. No later-stage command was made a silent no-op.
+At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. Stage 8 has 35 default tests, 28 core/ASan-UBSan tests, and 35 logging/math/WAR tests, all passing serially. The frame hashes above include the stage-8 HUD. The real `day1/ep0` application path now reaches later-stage input command 47; real map-2008 engine frames also exercise ItemTrigger registration and `Player_UseItem`. No later-stage command was made a silent no-op.

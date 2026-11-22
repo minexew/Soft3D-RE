@@ -177,9 +177,9 @@ void Player::ResetAll(const GameData& data)
     scene->GetUnitManager()->SetHealthPackCount(0);
     itemUseCount = 0;
     itemTriggerCount = 0;
-    playerCounter710 = 0;
+    killCount = 0;
     savedItemUseCount = 0;
-    savedPlayerCounter710 = 0;
+    savedKillCount = 0;
     playTime = 0;
     deathCount = 0;
     selectedNote = 0;
@@ -883,7 +883,7 @@ void Player::ExitHide()
 
 void Player::AddGunExperience(int32_t amount)
 {
-    if (scene->GetEngine().GetConfiguration().unlocks.extraWeapon1 != 0) {
+    if (scene->GetEventFlag(1002)) {
         return;
     }
     gunExperience += amount;
@@ -1081,7 +1081,7 @@ void Player::SnapshotDayState()
     notesDayStart = notes;
     healthPackDayStart = GetHealthPackCount();
     savedItemUseCount = itemUseCount;
-    savedPlayerCounter710 = playerCounter710;
+    savedKillCount = killCount;
 }
 
 void Player::RestoreDayState()
@@ -1090,7 +1090,7 @@ void Player::RestoreDayState()
     notes = notesDayStart;
     scene->GetUnitManager()->SetHealthPackCount(healthPackDayStart);
     itemUseCount = savedItemUseCount;
-    playerCounter710 = savedPlayerCounter710;
+    killCount = savedKillCount;
 }
 
 void Player::SetAnimationPaused(bool paused)

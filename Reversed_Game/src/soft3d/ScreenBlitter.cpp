@@ -217,6 +217,21 @@ void ScreenBlitter::Clear(uint8_t red, uint8_t green, uint8_t blue)
     }
 }
 
+void ScreenBlitter::FillRect(uint16_t color, ScreenRect rectangle)
+{
+    if (target == nullptr || target->GetPixels() == nullptr) return;
+    const int32_t left = std::max(0, rectangle.left);
+    const int32_t top = std::max(0, rectangle.top);
+    const int32_t right = std::min(static_cast<int32_t>(target->GetWidth()), rectangle.right);
+    const int32_t bottom = std::min(static_cast<int32_t>(target->GetHeight()), rectangle.bottom);
+    uint32_t* pixels = reinterpret_cast<uint32_t*>(target->GetPixels());
+    for (int32_t y = top; y < bottom; ++y) {
+        for (int32_t x = left; x < right; ++x) {
+            pixels[y * target->GetWidth() + x] = PixelHigh | color;
+        }
+    }
+}
+
 void ScreenBlitter::Blit(const Texture* source, ScreenRect destination, ScreenRect sourceRect,
                          uint32_t mode, const Texture* secondary)
 {

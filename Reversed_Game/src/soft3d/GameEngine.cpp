@@ -163,6 +163,7 @@ void GameEngine::PrepareRender()
 {
     if (inGame) {
         scene->PrepareRender();
+        if (gameUi != nullptr) gameUi->PrepareModels();
     } else if (menuActive) {
         menuBackdrop->PrepareRender();
     }

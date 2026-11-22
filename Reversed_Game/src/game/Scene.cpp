@@ -1,5 +1,6 @@
 #include "game/Scene.hpp"
 
+#include "game/GameUiController.hpp"
 #include "game/MapUnits.hpp"
 #include "game/Triggers.hpp"
 #include "soft3d/AudioData.hpp"
@@ -112,6 +113,9 @@ soft3d::result Scene::Initialize()
     playerSpot.SetUnit(player.get());
     playerSpot.SetForward(spawnDirection);
     unitManager->ConfigureScene(&cameraController, player.get());
+    uiController = std::make_unique<GameUiController>(*this);
+    unitManager->SetInteractionUi(uiController.get());
+    uiController->InstallHooks();
     cameraController.SetServices(&engine.GetCamera(), bsp.get(), &engine.GetControlMap(),
                                  &engine.GetInput(), unitManager->GetRandomState());
     cameraController.Bind(&playerSpot, true);
@@ -143,6 +147,7 @@ void Scene::StartNewGame(const soft3d::NewGameOptions& options)
     if (!initialized) {
         throw std::runtime_error("Scene is not initialized");
     }
+    uiController->InstallHooks();
     newGameOptions = options;
     engine.GetScriptEngine().Reset();
     unitManager->Reset();
@@ -174,6 +179,12 @@ void Scene::StartNewGame(const soft3d::NewGameOptions& options)
 bool Scene::LoadSaveSlot(int slot)
 {
     throw std::runtime_error("Scene_LoadSave requires the full stage-13 reader; slot " +
+                             std::to_string(slot));
+}
+
+bool Scene::SaveSaveSlot(int slot)
+{
+    throw std::runtime_error("Scene_SaveSave requires the full stage-13 writer; slot " +
                              std::to_string(slot));
 }
 
@@ -225,6 +236,7 @@ soft3d::result Scene::LoadDay(int value)
                                                         : u".\\ui\\day%d.sbn", day);
     font->LoadSbnFont(path, engine.GetResourceManager().GetFilePak());
     player->Reset(unitManager->GetData());
+    engine.GetGameUi()->LoadDayResources(day);
     soft3d::result status = unitManager->LoadDayContent(day, engine);
     if (status != soft3d::S3D_OK) {
         return status;
@@ -333,6 +345,7 @@ void Scene::BeginMapLoad()
     engine.GetAudioManager().SetMusicVolume(255);
     if ((static_cast<uint32_t>(doorResourceIndex) & 0xffff0000U) == 0x10000U) {
         specialDoorIndex = doorResourceIndex & 0xffff;
+        engine.GetGameUi()->SetSubtitle(true, specialDoorIndex);
     } else {
         specialDoorIndex = -1;
     }
@@ -595,6 +608,7 @@ void Scene::UpdateTransition()
                 player->SetCollisionBounds(TranslateBounds(player->GetLocalBounds(), spawnPosition));
             }
             specialDoorIndex = -1;
+            engine.GetGameUi()->SetSubtitle(false, -1);
             fadeShader.StartFade(1, transitionColor, 4, 1);
             transitionStage = 3;
         }
@@ -914,6 +928,11 @@ void Scene::ShowQte(int32_t key, int32_t time, int32_t mode)
     qteUiFailure = 0;
 }
 
+void Scene::AdvanceQteUi()
+{
+    if (qteUiTime > 0) --qteUiTime;
+}
+
 void Scene::FailQte()
 {
     qteUiTime = 0;
@@ -925,12 +944,14 @@ void Scene::SetHideMask(int32_t index, bool active)
 {
     hideMaskIndex = index;
     hideMaskActive = active ? 1 : 0;
+    engine.GetGameUi()->SetHideMask(index, active);
 }
 
 void Scene::ShowTutorial(int32_t id, int32_t frames)
 {
     tutorialId = id;
     tutorialFrames = frames;
+    engine.GetGameUi()->ShowTimedMessage(id, frames);
 }
 
 soft3d::BspEntity* Scene::CreateGameEntity(soft3d::BspEntityRecord* record, void* context,

@@ -1,6 +1,8 @@
 #include "game/GameSI.hpp"
 
+#include "game/GameUiController.hpp"
 #include "soft3d/AudioData.hpp"
+#include "soft3d/GameUIDlg.hpp"
 
 #include <sstream>
 
@@ -84,6 +86,33 @@ GameSI::GameSI()
     callbacks[57 - gameSIFirstCommand].handler = &GameSI::IsMapLoaded;
     callbacks[58 - gameSIFirstCommand].handler = &GameSI::SetEventFlag;
     callbacks[59 - gameSIFirstCommand].handler = &GameSI::GetEventFlag;
+    callbacks[60 - gameSIFirstCommand].handler = &GameSI::CompleteGame;
+    callbacks[61 - gameSIFirstCommand].handler = &GameSI::OpenSaveMenu;
+    callbacks[62 - gameSIFirstCommand].handler = &GameSI::SetPaused;
+    callbacks[73 - gameSIFirstCommand].handler = &GameSI::ShowEventMessage;
+    callbacks[74 - gameSIFirstCommand].handler = &GameSI::SetDialogString;
+    callbacks[75 - gameSIFirstCommand].handler = &GameSI::ShowChoiceDialog;
+    callbacks[76 - gameSIFirstCommand].handler = &GameSI::ShowSimpleMessage;
+    callbacks[77 - gameSIFirstCommand].handler = &GameSI::ShowTimedMessage;
+    callbacks[78 - gameSIFirstCommand].handler = &GameSI::GetDialogResult;
+    callbacks[79 - gameSIFirstCommand].handler = &GameSI::CloseDialog;
+    callbacks[80 - gameSIFirstCommand].handler = &GameSI::IsDialogFinished;
+    callbacks[81 - gameSIFirstCommand].handler = &GameSI::ShowMap;
+    callbacks[82 - gameSIFirstCommand].handler = &GameSI::NullCallback;
+    callbacks[83 - gameSIFirstCommand].handler = &GameSI::NullCallback;
+    callbacks[96 - gameSIFirstCommand].handler = &GameSI::ShowTimedResultMessage;
+    callbacks[97 - gameSIFirstCommand].handler = &GameSI::CloseDialog;
+    callbacks[101 - gameSIFirstCommand].handler = &GameSI::SetSubtitle;
+    callbacks[102 - gameSIFirstCommand].handler = &GameSI::SetActionMask;
+    callbacks[104 - gameSIFirstCommand].handler = &GameSI::SetMapMarker;
+    callbacks[105 - gameSIFirstCommand].handler = &GameSI::ClearMapMarker;
+    callbacks[106 - gameSIFirstCommand].handler = &GameSI::SetGunHudEnabled;
+    callbacks[107 - gameSIFirstCommand].handler = &GameSI::GetItemUseCount;
+    callbacks[108 - gameSIFirstCommand].handler = &GameSI::GetKillCount;
+    callbacks[109 - gameSIFirstCommand].handler = &GameSI::GetPlayTime;
+    callbacks[110 - gameSIFirstCommand].handler = &GameSI::GetDeathCount;
+    callbacks[111 - gameSIFirstCommand].handler = &GameSI::GetNoteCount;
+    callbacks[112 - gameSIFirstCommand].handler = &GameSI::GetSecretCount;
     callbacks[63 - gameSIFirstCommand].handler = &GameSI::SetCameraFrozen;
     callbacks[64 - gameSIFirstCommand].handler = &GameSI::CameraLookAt;
     callbacks[65 - gameSIFirstCommand].handler = &GameSI::MoveCamera;
@@ -1524,6 +1553,171 @@ void GameSI::GetEventFlag(soft3d::ScriptCommand& command)
     RequireArguments(command, 1);
     if (command.GetOutput() != nullptr) {
         command.GetOutput()->SetBool(context.scene->GetEventFlag(command.GetArgument(0).GetShort()));
+    }
+}
+
+void GameSI::CompleteGame(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.gameUi->CompleteGame();
+}
+
+void GameSI::OpenSaveMenu(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.gameUi->OpenSaveMenu();
+}
+
+void GameSI::SetPaused(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.unitManager->SetPaused(command.GetArgument(0).GetBool());
+}
+
+void GameSI::ShowEventMessage(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.gameUi->ShowEventMessage(command.GetArgument(0).GetShort());
+}
+
+void GameSI::SetDialogString(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    context.gameUi->SetDialogString(command.GetArgument(0).GetByte(),
+                                    command.GetArgument(1).GetShort());
+}
+
+void GameSI::ShowChoiceDialog(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 3);
+    context.gameUi->ShowChoiceDialog(command.GetArgument(0).GetShort(),
+                                     command.GetArgument(1).GetByte(),
+                                     command.GetArgument(2).GetBool());
+    context.gameUi->ClearDialogResult();
+}
+
+void GameSI::ShowSimpleMessage(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.gameUi->ShowSimpleMessage(command.GetArgument(0).GetInt());
+}
+
+void GameSI::ShowTimedMessage(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    context.gameUi->ShowTimedMessage(command.GetArgument(0).GetInt(),
+                                     command.GetArgument(1).GetInt());
+}
+
+void GameSI::GetDialogResult(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetInt(context.gameUi->GetDialogResult());
+    }
+}
+
+void GameSI::CloseDialog(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.gameUi->CloseDialog();
+}
+
+void GameSI::IsDialogFinished(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(!context.gameUi->IsDialogActive());
+    }
+}
+
+void GameSI::ShowMap(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    context.gameUi->OpenMap();
+}
+
+void GameSI::ShowTimedResultMessage(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    context.gameUi->ShowTimedResultMessage(command.GetArgument(0).GetInt(),
+                                           command.GetArgument(1).GetInt());
+}
+
+void GameSI::SetSubtitle(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 2);
+    context.gameUi->SetSubtitle(command.GetArgument(0).GetBool(), command.GetArgument(1).GetShort());
+}
+
+void GameSI::SetActionMask(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    context.controlMap->SetActionEnabled(5, command.GetArgument(0).GetBool());
+    context.controlMap->SetActionEnabled(6, command.GetArgument(1).GetBool());
+    context.controlMap->SetActionEnabled(7, command.GetArgument(2).GetBool());
+    for (int action = 1; action <= 4; ++action) {
+        context.controlMap->SetActionEnabled(action, command.GetArgument(3).GetBool());
+    }
+}
+
+void GameSI::SetMapMarker(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 4);
+    context.gameUi->SetMapMarker(command.GetArgument(0).GetByte(),
+                                 command.GetArgument(1).GetByte() - 1,
+                                 command.GetArgument(2).GetInt(), command.GetArgument(3).GetInt());
+}
+
+void GameSI::ClearMapMarker(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.gameUi->ClearMapMarker(command.GetArgument(0).GetByte());
+}
+
+void GameSI::SetGunHudEnabled(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.gameUi->SetGunHudEnabled(command.GetArgument(0).GetInt());
+}
+
+void GameSI::GetItemUseCount(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetInt(context.player->GetItemUseCount());
+}
+
+void GameSI::GetKillCount(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetInt(context.player->GetKillCount());
+}
+
+void GameSI::GetPlayTime(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetInt(context.player->GetPlayTime());
+}
+
+void GameSI::GetDeathCount(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) command.GetOutput()->SetInt(context.player->GetDeathCount());
+}
+
+void GameSI::GetNoteCount(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetInt(context.scene->GetUiController()->CountNotes());
+    }
+}
+
+void GameSI::GetSecretCount(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetInt(context.scene->GetUiController()->CountSecrets());
     }
 }
 

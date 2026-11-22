@@ -44,8 +44,8 @@ struct NewGameOptions {
 struct GameContent {
     GameContent()
     {
-        inventory.fill(-1);
-        noteIds.fill(-1);
+        inventory.fill(0);
+        noteIds.fill(0);
     }
 
     std::array<AboutModelRecord, 100> models;
@@ -55,6 +55,7 @@ struct GameContent {
     std::array<int32_t, 9> inventory;
     std::array<int32_t, 128> noteIds;
     HelpStatistics statistics;
+    int32_t healthPackCount = 0;
     int32_t mapId = 0;
 };
 
