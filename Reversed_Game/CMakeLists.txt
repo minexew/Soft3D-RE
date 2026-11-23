@@ -102,6 +102,7 @@ add_library(seven_days_game STATIC
     src/game/PlayerStates.cpp
     src/game/ResourceNames.cpp
     src/game/Scene.cpp
+    src/game/SpecialEnemies.cpp
     src/game/Sword.cpp
     src/game/Triggers.cpp
 )

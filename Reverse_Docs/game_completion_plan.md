@@ -268,7 +268,7 @@ Use `Creature` navigation/hearing and the real player/BSP. All concrete enemies 
 - Every enemy command with valid/invalid IDs and types, plus common state round trips. Verify from the native loader that `0x26` reconstructs StayBox, not enemy; full scene loading remains stage 13.
 - Real enemy resources, exact blood-splat lightmap pixels, and player interaction through the scene frame loop.
 
-**Status: complete for common behavior.** `src/game/Enemy.*` implements slots 28–49, common helpers, AI states, combat, waypoints, StayBox return behavior, blood splats, and the four-word save extension. `MyGameUnitMgr` implements 17 pool rows, singleton selection, collision search, nondeleting reuse, day preparation, map spawning/snapshotting, and collision-unit commands. `GameSI` implements IDs 180–204 and 208–218. Stage 10 has since completed all Maid/Bully overrides; the remaining concrete variant overrides belong to stages 11–12.
+**Status: complete for common behavior.** `src/game/Enemy.*` implements slots 28–49, common helpers, AI states, combat, waypoints, StayBox return behavior, blood splats, and the four-word save extension. `MyGameUnitMgr` implements 17 pool rows, singleton selection, collision search, nondeleting reuse, day preparation, map spawning/snapshotting, and collision-unit commands. `GameSI` implements IDs 180–204 and 208–218. Stages 10–11 have since completed all Maid/Bully and Worm/Ghost/Lamper/Weed overrides; the remaining concrete variant overrides belong to stage 12.
 
 `test_game_enemy.cpp` covers common AI/persistence, every new command, pools, real `einfo2` data, StayBox integration, and real map-2008 combat. `test_bsprender.cpp` verifies exact blood-splat palette/blend pixels, transparency, flips, clipping, and the axis-plane quirk. All 36 default, logging, math, and WAR tests pass serially; core and ASan/UBSan each pass 29. The 0x83c `Enemy` and 0x24 `EnemyWaypointNode` layouts, typed common signatures, native names/comments, and stage-9 tags are saved in Ghidra. See `symbian3rd_enemy.md`.
 
@@ -304,6 +304,10 @@ Implement the four special creature classes, including their nonstandard movemen
 - Per-class special-state and boundary tests with real assets and collision/path geometry.
 - Verify `Worm`/`Weed` overrides such as slots 30/31/33/36 and `Ghost`/`Lamper` movement/state behavior from ARM rather than forcing the maid/bully model.
 - Exercise their real episode encounters through SST and scene updates.
+
+**Status: complete.** `src/game/SpecialEnemies.*` implements all four concrete classes and their native overrides. Worm has per-spawn random colour/scale/speed, attack-path checks, jump/landing combat, sinking death, and the corrected 1-point gun reward; Ghost has no rendering, player-attack immunity, Twist/proximity-audio behavior, and its separate index-50 sound; Lamper has custom spawn/perception, point hits, and unconditional death on any successful player attack; Weed has latched range perception and its modulus-1000, blood-free hit path. The common adapter is now used only by stage-12 variants.
+
+`test_game_enemy.cpp` adds seven groups covering types/resources, colour thresholds, special states and boundaries, damage/death, real `einfo` encounters, shipped SST `AddEnemy` commands, and all four classes through the real engine frame loop. Native map 1053 runs the three Worm spawns from `day5/ep1053`; Ghost's shipped `day3/ep1020` command runs on known-good map 2008. Day-1 map 1002 stalls at progress 56 and day-3 map 1020 fails with `S3D_ACCESS` in the existing BSP loader; these unrelated limitations are documented rather than hidden. All 36 default and 29 host-math tests pass serially, and all 29 ASan/UBSan tests pass. Four class layouts, the blood-life-aware layout, 45 typed/commented functions, stage-11 tags, and completion properties are saved in Ghidra. Details are in `symbian3rd_specialenemies.md`.
 
 ## Stage 12 — Victor, Sam, Prisoner, Lord, Kate, DarkKen, and Boss
 

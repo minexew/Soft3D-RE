@@ -304,6 +304,7 @@ public:
 
 protected:
     void RestoreNavigationEnabled(bool enabled) { navigationEnabled = enabled; }
+    void ResetNavigationPathNodes();
 
 private:
     void SetNavigationVelocity(const Vec3& target);

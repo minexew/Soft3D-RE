@@ -82,6 +82,8 @@ public:
     using BasicShader::BasicShader;
 
     void Render(const void* source, uint32_t* destination) override;
+    void SetAmplitude(int value) { amplitude = value; }
+    int GetAmplitude() const { return amplitude; }
 
 private:
     int amplitude = 2;

@@ -104,6 +104,17 @@ void Object::SetTransformVectors(const std::array<Vec3, 4>& transform)
     UpdateTransform();
 }
 
+void Object::ResetTransform()
+{
+    position = {};
+    axisX = {fixedOne, 0, 0};
+    axisY = {0, fixedOne, 0};
+    axisZ = {0, 0, fixedOne};
+    axisLengthX = fixedOne;
+    axisLengthY = fixedOne;
+    axisLengthZ = fixedOne;
+}
+
 void Object::RestoreAxes(const Vec3& newAxisZ, const Vec3& newAxisX, const Vec3& newAxisY)
 {
     axisZ = newAxisZ;

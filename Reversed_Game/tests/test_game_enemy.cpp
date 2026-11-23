@@ -2,6 +2,7 @@
 #include "game/GameSI.hpp"
 #include "game/MaidBully.hpp"
 #include "game/Scene.hpp"
+#include "game/SpecialEnemies.hpp"
 #include "platform/dummy/DummyVideoBackend.hpp"
 #include "soft3d/Animation.hpp"
 
@@ -234,6 +235,17 @@ public:
     void ForceThrowPhase(int32_t value) { throwPhase = value; }
 };
 
+class WormProbe final : public VariantProbe<game::Worm> {
+public:
+    using VariantProbe<game::Worm>::VariantProbe;
+    void ForcePlayerCollision()
+    {
+        unitQueryResult.count = 1;
+        unitQueryResult.units[0] = player;
+    }
+    void ForceVerticalVelocity(soft3d::Fixed value) { velocity.y = value; }
+};
+
 template <typename T>
 void PrepareVariant(GameFixture& fixture, T& enemy, const char16_t* model = nullptr)
 {
@@ -275,7 +287,7 @@ void TestConstructorDefaults()
         {17, 50, 15, 0x78000, 0x70000, 16, 3, 6, 16, 80, 0x3333, 0x9999, 100, 0xb333, 0xa0000, 0, true},
         {18, 240, 0, 0xb0000, 0xa0000, 8, 14, 16, 0, 0, 0x4ccc, 0x4ccc, 1000, 0, 0x27100000, 0, false},
         {19, 60, 20, 0x70000, 0x68000, 24, 7, 9, 32, 90, 0x1999, 0x1999, 500, 0x9999, 0x90000, 2, true},
-        {20, 1, 5, 0, 0x80000, 32, 255, 0, 8, 24, 0x3333, 0x3333, 0, 0, 0x80000, 0, false},
+        {20, 1, 5, 0, 0x80000, 32, 255, 0, 8, 24, 0x3333, 0x3333, 0, 0, 0x80000, 1, false},
         {21, 60, 0, 0, 0, 255, 0, 0, 16, 64, 0x3333, 0x3333, 0, 0xb333, 0, 0, true},
         {22, 150, 30, 0x80000, 0x78000, 32, 7, 9, 64, 32, 0x8000, 0xb333, 800, 0x6666, 0x140000, 8, true},
         {23, 260, 25, 0x98000, 0x98000, 40, 6, 7, 64, 32, 0x5999, 0x5999, 1000, 0x6666, 0x27100000, 30, false},
@@ -649,14 +661,20 @@ void TestRealEnemyDataAndStayBox()
     CHECK(box->GetSpawnRecords().size() == 2);
 }
 
-void LoadRealMap(GameFixture& fixture)
+void LoadRealMap(GameFixture& fixture, int mapId = 2008, int day = 1)
 {
-    fixture.engine.StartNewGame();
+    if (day == 1) {
+        fixture.engine.StartNewGame();
+    } else {
+        fixture.engine.SetPreUpdateEnabled(true);
+        fixture.engine.SetInGame(true);
+        CHECK(fixture.scene->LoadDay(day) == soft3d::S3D_OK);
+    }
     fixture.RunFrames(57);
     fixture.engine.GetScriptEngine().Unload();
     fixture.engine.GetScriptEngine().SetState(soft3d::ScriptState::Initialized);
-    CHECK(fixture.scene->LoadMap(2008) == 0);
-    for (int frame = 0; frame < 80 &&
+    CHECK(fixture.scene->LoadMap(mapId) == 0);
+    for (int frame = 0; frame < 500 &&
          (fixture.scene->GetMapProgress() != -1 || fixture.scene->GetTransitionStage() != 0);
          ++frame) {
         fixture.RunFrames(1);
@@ -1093,6 +1111,354 @@ void TestStage10EngineFrames()
     CHECK(fixture.scene->IsInitialized());
 }
 
+void TestStage11TypesAndResources()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    manager->PrepareDayEnemies(3);
+    auto* ghost = dynamic_cast<game::Ghost*>(manager->GetPooledEnemy(3, 0));
+    CHECK(ghost != nullptr && manager->GetPooledEnemy(3, 1) == nullptr);
+    CHECK(ghost->GetObject(0) == nullptr && ghost->GetProximitySound() != nullptr);
+    CHECK(ghost->GetProximitySound() != ghost->GetSoundResource(5));
+    for (std::size_t slot = 0; slot < 8; ++slot) {
+        auto* lamper = dynamic_cast<game::Lamper*>(manager->GetPooledEnemy(4, slot));
+        auto* weed = dynamic_cast<game::Weed*>(manager->GetPooledEnemy(5, slot));
+        CHECK(lamper != nullptr && weed != nullptr);
+        CHECK(lamper->GetObject(0) != nullptr && !lamper->IsShadowEnabled());
+        CHECK(lamper->GetAnimationResource(5) != nullptr && lamper->GetSoundResource(5) != nullptr);
+        CHECK(weed->GetObject(0) != nullptr && weed->GetAnimationResource(5) != nullptr);
+        CHECK(weed->GetSoundResource(1) != nullptr && weed->GetSoundResource(4) != nullptr &&
+              weed->GetSoundResource(5) != nullptr);
+    }
+
+    manager->PrepareDayEnemies(5);
+    for (std::size_t slot = 0; slot < 8; ++slot) {
+        auto* worm = dynamic_cast<game::Worm*>(manager->GetPooledEnemy(10, slot));
+        CHECK(worm != nullptr && worm->GetObject(0) != nullptr);
+        CHECK(worm->GetAnimationResource(0) != nullptr && worm->GetAnimationResource(3) != nullptr &&
+              worm->GetAnimationResource(5) != nullptr);
+        CHECK(worm->GetAnimationResource(4) == nullptr && worm->GetGunExperienceReward() == 1);
+    }
+}
+
+void TestWormColorsAndAttack()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    struct ColorCase {
+        uint32_t seed;
+        uint32_t speedRandom;
+        uint32_t scaleRandom;
+        int32_t variant;
+    };
+    static constexpr ColorCase cases[] = {
+        {1646, 5413, 4876, 0}, {10409, 1262, 17929, 0},
+        {10088, 213, 8331, 1}, {31689, 5217, 23377, 1},
+        {31368, 4169, 13779, 2}, {5795, 18962, 2766, 2},
+    };
+    WormProbe enemy(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, enemy, u"r_bug_a");
+    for (const ColorCase& value : cases) {
+        manager->SetRandomSeed(value.seed);
+        enemy.Spawn({});
+        CHECK(enemy.GetColorVariant() == value.variant);
+        CHECK(enemy.GetChaseSpeed() == 0x3333 + static_cast<int32_t>(value.speedRandom % 0x3333));
+        const soft3d::Fixed scale = 0x10000 + static_cast<int32_t>(value.scaleRandom % 80000);
+        CHECK(enemy.GetObject(0)->GetAxisX().x == scale);
+        CHECK(enemy.GetObject(0)->GetAxisY().y == soft3d::fixedOne);
+        CHECK(enemy.GetObject(0)->GetAxisZ().z == scale);
+    }
+
+    auto* player = fixture.scene->GetPlayer();
+    enemy.SetBsp(nullptr);
+    player->SetPosition({0, 0, 0x20000});
+    enemy.ForceVisible(true);
+    enemy.Update();
+    CHECK(enemy.IsAttackPathClear());
+    enemy.ForceDistance(0x20000);
+    CHECK(enemy.SelectAttack() == 1);
+    player->SetPosition({0, enemy.GetPosition().y + 0x50001, 0x20000});
+    enemy.Update();
+    CHECK(!enemy.IsAttackPathClear());
+    CHECK(enemy.SelectAttack() == 0);
+    player->SetPosition({0, 0, 0x20000});
+    enemy.Update();
+    CHECK(enemy.IsAttackPathClear());
+    enemy.ForceDistance(0x20000);
+    enemy.BeginAttack();
+    CHECK((enemy.GetPhysicsFlags() & soft3d::PhysicKeepDirection) != 0);
+    CHECK((enemy.GetPhysicsFlags() & soft3d::PhysicSimpleMovement) == 0);
+    enemy.ForceStateTime(13);
+    enemy.UpdateAttack();
+    CHECK(enemy.GetStateTime() == 14 && enemy.GetVelocity().y == 0xcccc);
+    CHECK((enemy.GetPhysicsFlags() & soft3d::PhysicSeparateAxisCollision) != 0);
+    enemy.ForceVerticalVelocity(-1);
+    enemy.ForceGroundCollision(true);
+    enemy.ForcePlayerCollision();
+    const int32_t playerHealth = player->GetHealth();
+    enemy.UpdateAttack();
+    CHECK(enemy.GetLandingCount() == 1 && enemy.IsAttackHitDone());
+    CHECK(player->GetHealth() == playerHealth - 5);
+    CHECK(enemy.GetObject(0)->GetAnimationTime() == 0x13ec);
+    CHECK((enemy.GetPhysicsFlags() & soft3d::PhysicSeparateAxisCollision) == 0);
+
+    enemy.SetHealth(0);
+    CHECK(enemy.GetState() == game::EnemyDying && player->GetGunExperience() == 1);
+    for (int index = 0; index < 12; ++index) {
+        enemy.ForceFinished(true);
+        enemy.UpdateDeath();
+    }
+    CHECK(enemy.GetState() == game::EnemyRemoved);
+}
+
+void TestGhostEncounter()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    VariantProbe<game::Ghost> enemy(manager->GetContext(), manager->GetData());
+    enemy.SetManager(manager);
+    enemy.SetPlayer(player);
+    enemy.LoadResources(u"", nullptr, nullptr);
+    enemy.Spawn({});
+    CHECK(enemy.GetObject(0) == nullptr && !enemy.ReceivePlayerAttack());
+
+    player->SetPosition({0, 0, 0x140000});
+    enemy.Update();
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() == fixture.scene->GetTwistShader());
+    CHECK(fixture.scene->GetTwistShader()->GetAmplitude() == 1);
+    CHECK(enemy.GetProximityVoice() != -1);
+    const int32_t voice = enemy.GetProximityVoice();
+    player->SetPosition({0, 0, 0xa0000});
+    enemy.Update();
+    CHECK(fixture.scene->GetTwistShader()->GetAmplitude() == 2);
+    CHECK(enemy.GetProximityVoice() == voice);
+    enemy.SetNavigationEnabled(true);
+    CHECK(enemy.GetProximityVoice() == -1);
+    enemy.SetNavigationEnabled(false);
+    player->SetPosition({0, 0, 0x140000});
+    enemy.Update();
+    CHECK(enemy.GetProximityVoice() != -1);
+    enemy.SetStopped(true);
+    enemy.SetPosition({});
+    player->SetPosition({0, 0, 0x150000});
+    enemy.Update();
+    CHECK(fixture.engine.GetRenderer().GetActiveShader() !=
+          fixture.scene->GetTwistShader());
+    CHECK(enemy.GetProximityVoice() == -1);
+
+    player->SetPosition({});
+    player->SetCollisionBounds({{-0x100000, -0x100000, -0x100000},
+                                {0x100000, 0x100000, 0x100000}});
+    enemy.SetPosition({});
+    enemy.BeginAttack();
+    enemy.ForceStateTime(7);
+    const int32_t health = player->GetHealth();
+    enemy.UpdateAttack();
+    CHECK(player->GetHealth() == health - 25 && enemy.GetStateTime() == 8);
+    enemy.ForceStateTime(19);
+    enemy.UpdateAttack();
+    CHECK(enemy.GetState() == game::EnemyIdle && enemy.GetStateTime() == 0);
+    CHECK(enemy.GetAttackCooldown() == 48);
+    soft3d::RenderQueues queues;
+    enemy.SubmitRenderables(queues);
+    enemy.StopSound();
+}
+
+void TestLamperEncounter()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    VariantProbe<game::Lamper> enemy(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, enemy, u"r_lamper_a");
+    CHECK(!enemy.IsCollisionEnabled());
+    enemy.ForceDistance(0x70000);
+    CHECK(enemy.UpdatePerception() && enemy.IsPlayerVisible());
+    enemy.ForceDistance(0x90000);
+    CHECK(!enemy.UpdatePerception() && !enemy.IsPlayerVisible());
+
+    enemy.SetPosition({});
+    player->SetPosition({});
+    player->SetCollisionBounds({{-0x100000, -0x100000, -0x100000},
+                                {0x100000, 0x100000, 0x100000}});
+    enemy.BeginAttack();
+    enemy.ForceStateTime(7);
+    CHECK(!enemy.TestAttackHit());
+    enemy.ForceStateTime(8);
+    const int32_t health = player->GetHealth();
+    CHECK(enemy.TestAttackHit() && player->GetHealth() == health - 15);
+    CHECK(!enemy.TestAttackHit());
+
+    enemy.Spawn({});
+    enemy.SetHealth(50);
+    player->PrepareWeapon(manager->GetData(), 1);
+    player->SetWeapon(1);
+    player->ChangeState(game::PlayerAttackA2);
+    player->Update();
+    enemy.SetCollisionBounds({{INT32_MIN, INT32_MIN, INT32_MIN}, {INT32_MAX, INT32_MAX, INT32_MAX}});
+    CHECK(enemy.ReceivePlayerAttack());
+    CHECK(enemy.GetHealth() == 30 && enemy.GetState() == game::EnemyDying);
+    CHECK(!enemy.IsCollisionEnabled() && enemy.GetBloodLife() == 0);
+    enemy.Damage(1);
+    CHECK(enemy.GetBloodLife() == 0);
+}
+
+void TestWeedEncounter()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    VariantProbe<game::Weed> enemy(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, enemy, u"r_weed_a");
+    enemy.ForceDistance(0x90000);
+    CHECK(enemy.UpdatePerception());
+    enemy.ForceDistance(0x100000);
+    CHECK(enemy.UpdatePerception() && enemy.IsPlayerVisible());
+
+    player->PrepareWeapon(manager->GetData(), 1);
+    player->SetWeapon(1);
+    player->ChangeState(game::PlayerAttackA2);
+    player->Update();
+    enemy.SetPosition(player->GetPosition());
+    enemy.SetCollisionBounds({{INT32_MIN, INT32_MIN, INT32_MIN}, {INT32_MAX, INT32_MAX, INT32_MAX}});
+    manager->SetRandomSeed(0);
+    CHECK(enemy.ReceivePlayerAttack());
+    CHECK(enemy.GetHealth() == 60 && enemy.GetState() == game::EnemyKnockback);
+    CHECK(enemy.GetHitCooldown() == 8 && enemy.GetBloodLife() == 0);
+
+    uint32_t hurtSeed = 0;
+    for (; hurtSeed < 1000; ++hurtSeed) {
+        manager->SetRandomSeed(hurtSeed);
+        if (manager->NextRandom() % 1000 > 500) break;
+    }
+    CHECK(hurtSeed < 1000);
+    enemy.SetHealth(80);
+    enemy.ForceHitCooldown(0);
+    manager->SetRandomSeed(hurtSeed);
+    CHECK(enemy.ReceivePlayerAttack());
+    CHECK(enemy.GetHealth() == 60 && enemy.GetState() == game::EnemyHurt);
+    enemy.Damage(1);
+    CHECK(enemy.GetBloodLife() == 0);
+}
+
+void ExecuteEnemySpawnCommandTree(GameFixture& fixture, soft3d::ScriptCommand* command,
+                                  int32_t enemyType)
+{
+    if (command->GetId() == 180 && command->GetArgumentCount() >= 2 &&
+        command->GetArgument(1).GetInt() == enemyType) {
+        fixture.gameInterface->Execute(*command);
+    }
+    for (soft3d::ScriptCommand* child : command->GetBody()) {
+        ExecuteEnemySpawnCommandTree(fixture, child, enemyType);
+    }
+    for (soft3d::ScriptCommand* child : command->GetConditions()) {
+        ExecuteEnemySpawnCommandTree(fixture, child, enemyType);
+    }
+}
+
+void ExecuteEnemySpawnCommands(GameFixture& fixture, int32_t enemyType)
+{
+    auto& script = fixture.engine.GetScriptEngine();
+    for (std::size_t task = 0; task < script.GetFunctionCount(); ++task) {
+        const auto& function = script.GetFunction(static_cast<uint32_t>(task));
+        for (soft3d::ScriptCommand* command : function.GetEntryCommands()) {
+            ExecuteEnemySpawnCommandTree(fixture, command, enemyType);
+        }
+        for (soft3d::ScriptCommand* command : function.GetCommands()) {
+            ExecuteEnemySpawnCommandTree(fixture, command, enemyType);
+        }
+    }
+}
+
+void TestStage11RealContent()
+{
+#ifndef SOFT3D_SPK_ENGLISH_LAYOUT
+    {
+        GameFixture fixture;
+        LoadRealMap(fixture);
+        auto* manager = fixture.scene->GetUnitManager();
+        CHECK(manager->LoadDayContent(3, fixture.engine) == soft3d::S3D_OK);
+        manager->PrepareDayEnemies(3);
+        fixture.engine.SetPreUpdateEnabled(true);
+        fixture.engine.SetInGame(true);
+        bool sawLamper = false;
+        bool sawWeed = false;
+        for (const auto& group : manager->GetData().GetEnemyInfoGroups()) {
+            manager->SetMapId(group.mapId);
+            manager->SpawnMapEnemies();
+            for (soft3d::GameUnit* unit = manager->GetFirstUnit(0); unit != nullptr;
+                 unit = unit->GetNextUnit()) {
+                auto* enemy = dynamic_cast<game::Enemy*>(unit);
+                if (enemy == nullptr) continue;
+                sawLamper = sawLamper || dynamic_cast<game::Lamper*>(enemy) != nullptr;
+                sawWeed = sawWeed || dynamic_cast<game::Weed*>(enemy) != nullptr;
+            }
+            fixture.RunFrames(3);
+            manager->RemoveAllEnemies();
+        }
+        CHECK(sawLamper && sawWeed);
+    }
+    {
+        GameFixture fixture;
+        LoadRealMap(fixture, 1053, 5);
+        auto* manager = fixture.scene->GetUnitManager();
+        manager->PrepareDayEnemies(5);
+        auto& script = fixture.engine.GetScriptEngine();
+        CHECK(script.LoadFromPak(u".\\day5\\ep1053",
+                                 fixture.engine.GetResourceManager().GetFilePak()) == soft3d::S3D_OK);
+        ExecuteEnemySpawnCommands(fixture, 10);
+        for (int id : {2, 3, 5}) {
+            CHECK(dynamic_cast<game::Worm*>(manager->FindEnemy(id)) != nullptr);
+        }
+        fixture.engine.SetPreUpdateEnabled(true);
+        fixture.engine.SetInGame(true);
+        fixture.RunFrames(12);
+    }
+    {
+        GameFixture fixture;
+        LoadRealMap(fixture);
+        auto* manager = fixture.scene->GetUnitManager();
+        manager->PrepareDayEnemies(3);
+        auto& script = fixture.engine.GetScriptEngine();
+        CHECK(script.LoadFromPak(u".\\day3\\ep1020",
+                                 fixture.engine.GetResourceManager().GetFilePak()) == soft3d::S3D_OK);
+        ExecuteEnemySpawnCommands(fixture, 3);
+        CHECK(dynamic_cast<game::Ghost*>(manager->FindEnemy(2)) != nullptr);
+        fixture.engine.SetPreUpdateEnabled(true);
+        fixture.engine.SetInGame(true);
+        fixture.RunFrames(12);
+    }
+#endif
+}
+
+void TestStage11EngineFrames()
+{
+    GameFixture fixture;
+    LoadRealMap(fixture);
+    auto* manager = fixture.scene->GetUnitManager();
+    manager->PrepareDayEnemies(3);
+    manager->PrepareDayEnemies(5);
+    const soft3d::Vec3 origin = fixture.scene->GetPlayer()->GetPosition();
+    const int types[] = {3, 4, 5, 10};
+    for (int index = 0; index < 4; ++index) {
+        fixture.Add(1100 + index, types[index], -1,
+                    origin.x + (index + 1) * 0x40000, origin.z + 0x40000);
+        CHECK(manager->FindEnemy(1100 + index) != nullptr);
+    }
+    CHECK(manager->GetBucketCount(0) == 4);
+    fixture.RunFrames(30);
+    for (int index = 0; index < 4; ++index) {
+        CHECK(manager->FindEnemy(1100 + index) != nullptr);
+        fixture.Execute(196, {Argument::Short(1100 + index)});
+    }
+    fixture.RunFrames(20);
+    const auto* video = dynamic_cast<const soft3d::platform::DummyVideoBackend*>(
+        fixture.engine.GetVideo().GetBackend());
+    CHECK(video != nullptr && !video->GetPresentedPixels().empty());
+    CHECK(fixture.scene->IsInitialized());
+}
+
 void Run(const char* name, void (*test)())
 {
     test();
@@ -1115,6 +1481,13 @@ int main()
         Run("BullyDay3 encounter", TestBullyDay3Encounter);
         Run("BullyDay5 encounter", TestBullyDay5Encounter);
         Run("stage 10 engine frames", TestStage10EngineFrames);
+        Run("stage 11 types and resources", TestStage11TypesAndResources);
+        Run("Worm colors and attack", TestWormColorsAndAttack);
+        Run("Ghost encounter", TestGhostEncounter);
+        Run("Lamper encounter", TestLamperEncounter);
+        Run("Weed encounter", TestWeedEncounter);
+        Run("stage 11 real content", TestStage11RealContent);
+        Run("stage 11 engine frames", TestStage11EngineFrames);
     } catch (const std::exception& error) {
         std::cerr << "FAIL: " << error.what() << '\n';
         return 1;

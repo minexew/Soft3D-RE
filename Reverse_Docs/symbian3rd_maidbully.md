@@ -4,7 +4,7 @@
 
 Stage 10 recovers `Maid`, `Maid2`, `Maid3`, `FatMaid`, `Bully`, `BullyDay3`, and `BullyDay5` from the ARM Symbian 3rd binary. The loaded memory block begins at `0x8000`; addresses below are loaded addresses and already include that bias. Do not add it again.
 
-The portable implementation is `Reversed_Game/src/game/MaidBully.*`. `MyGameUnitMgr::Initialize` selects these concrete classes before falling back to the common adapter for stages 11–12. Common `Enemy` behavior remains in `Enemy.*`; the variants do not share an invented substitute for native overrides.
+The portable implementation is `Reversed_Game/src/game/MaidBully.*`. `MyGameUnitMgr::Initialize` selects these concrete classes, then the stage-11 classes in `SpecialEnemies.*`, before falling back to the common adapter for stage 12. Common `Enemy` behavior remains in `Enemy.*`; the variants do not share an invented substitute for native overrides.
 
 | Type | Class | Native size | Pool capacity |
 |---:|---|---:|---:|
@@ -20,11 +20,12 @@ Day 2 prepares Bully and Maid, day 4 prepares FatMaid and Maid2, and day 5 prepa
 
 ## Gun-experience correction
 
-The stage-9 audit missed `Maid3_Ctor` (`0x000520dc`) assigning **2** at native `Enemy+0x838`. The complete nonzero ordinary-pool reward list is therefore:
+The stage-9 audit missed `Maid3_Ctor` (`0x000520dc`) assigning **2** at native `Enemy+0x838`. Stage 11 also corrected Worm's native **1** at the same field. The complete nonzero ordinary-pool reward list is therefore:
 
 | Type | Class | Reward |
 |---:|---|---:|
 | 9 | Maid3 | 2 |
+| 10 | Worm | 1 |
 | 12 | Victor | 8 |
 | 13 | BullyDay5 | 30 |
 | 15 | Sam | 10 |

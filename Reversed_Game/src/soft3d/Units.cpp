@@ -1364,10 +1364,15 @@ void Creature::SetNavigationSpeed(Fixed value) { navigationSpeed = value; }
 Fixed Creature::GetNavigationSpeed() const { return navigationSpeed; }
 const Vec3& Creature::GetNavigationTarget() const { return navigationTarget; }
 bool Creature::IsNavigationEnabled() const { return navigationEnabled; }
-void Creature::ResetNavigationPath()
+void Creature::ResetNavigationPathNodes()
 {
     previousPathNode = nullptr;
     currentPathNode = nullptr;
+}
+
+void Creature::ResetNavigationPath()
+{
+    ResetNavigationPathNodes();
     reachedCurrentPathNode = false;
 }
 

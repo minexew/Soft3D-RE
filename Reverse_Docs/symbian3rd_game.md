@@ -10,7 +10,7 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-Stages 1–10 are implemented in `seven_days_game`. Stage 9 supplies common enemy AI/pools and commands; stage 10 adds the concrete Maid/Bully families in `MaidBully.*`, including their native projectile, charge, QTE, saw, death, and reward behavior. See `symbian3rd_enemy.md` and `symbian3rd_maidbully.md`.
+Stages 1–11 are implemented in `seven_days_game`. Stage 9 supplies common enemy AI/pools and commands; stage 10 adds the concrete Maid/Bully families in `MaidBully.*`, including their native projectile, charge, QTE, saw, death, and reward behavior. Stage 11 adds Worm, Ghost, Lamper, and Weed in `SpecialEnemies.*`, including Worm's cosmetic colour variants and jump attack, Ghost's Twist/proximity behavior, Lamper's one-hit death, and Weed's custom damage path. See `symbian3rd_enemy.md`, `symbian3rd_maidbully.md`, and `symbian3rd_specialenemies.md`.
 
 - `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
 - Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL new-game smoke test proves that this path reaches progress 100 and executes the stage-3 camera/audio commands.
@@ -176,7 +176,7 @@ The hierarchy has **18 named concrete classes**: 17 ordinary pool classes plus `
 
 `MyGameUnitMgr_InitializeEnemyPools` constructs only slot 0 for singleton types and all eight slots for non-singleton types, assigns the player and manager, and initializes their shadows. `MyGameUnitMgr_PrepareDayEnemies` selects resources and outfit variants by day. `Boss` has separate construction/behavior from the ordinary pool and must not be omitted merely because it is not in that pool's constructor loop.
 
-Stage 10 replaces the common adapter for all Maid/Bully pool rows with the native classes documented in `symbian3rd_maidbully.md`. The adapter remains only for stages 11–12. Their special perception, movement, attacks, projectiles, transformations, death, linked actors, and boss scripting still require individual ARM recovery; none may be approximated by the generic enemy.
+Stages 10–11 replace the common adapter for all Maid/Bully rows and for Ghost, Lamper, Weed, and Worm with the native classes documented in `symbian3rd_maidbully.md` and `symbian3rd_specialenemies.md`. The adapter remains only for stage 12. Those variants' special perception, movement, attacks, transformations, death, linked actors, and boss scripting still require individual ARM recovery; none may be approximated by the generic enemy.
 
 ## Full save format and unit reconstruction
 
@@ -257,3 +257,7 @@ Stage 7 adds `HideTriggerLayout` (0x90), `ItemTriggerLayout` (0x7c), `TalkTrigge
 Stage 8 adds `GameUIDlgLayout` (0x524) and `GameUIMapMarkerRecord` (0x0c), 59 function renames, typed UI/command signatures, corrected kill-count fields, comments, `stage8` tags, bookmarks, and a completion property. The native marker area has eight records. `GameUI_CloseDialog` preserves its result, dialog string slot 4 aliases the secondary label, and ID 81 is direct-map opening rather than `ClearRank`. Details are in `symbian3rd_gameui.md`.
 
 Stage 9 adds the saved 0x83c `Enemy` layout and distinct 0x24 `EnemyWaypointNode`, typed common `Enemy` signatures, common AI/helper names, pool constructors, all 36 enemy/collision command names, BSP blood-splat and normalized-reciprocal functions, behavioral plates, and 140 verified `game,enemy,stage9` function-tag assignments. Comments correct the `0x26` StayBox meaning, native missing-enemy command behavior, Ghost's empty model input, Kate's sound mapping, constructor defaults/rewards, and the sword constructor's inverted empty hit bounds. The program was saved after checking the layouts and typed decompilation. See `symbian3rd_enemy.md`.
+
+Stage 10 adds all seven Maid/Bully native layouts, typed variant signatures, recovered helper names, behavior comments, 96 stage-10 functions, and a completion property. Maid3's reward is corrected to 2 and the Victor/Day3 sound-block ordering is fixed. See `symbian3rd_maidbully.md`.
+
+Stage 11 adds `Worm` (0x840), `Ghost` (0x844), `Lamper`/`Weed` (0x83c), and `EnemyBloodSplatLayout`, which records blood life at native `Enemy+0x758`. It saves 45 typed/commented functions, `game,enemy,stage11` tags, and `Stage11Types`/`Stage11Status` properties. Corrections include Worm's reward of 1, its three random texture variants, Ghost's separate index-50 proximity sound and Twist consumer, and the Lamper/Weed blood-life clears. See `symbian3rd_specialenemies.md`.

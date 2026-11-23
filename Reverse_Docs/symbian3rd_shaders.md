@@ -209,7 +209,7 @@ Expanded input channels are red `pixel & 0xf8`, green `((pixel >> 5) & 0x3f) << 
 
 ## TwistShader
 
-Twist adds three 32-bit fields to the base: amplitude `+0x14`, offset `+0x18`, and velocity `+0x1c`. `TwistShader_Ctor` (`0x00030f30`) initializes them to 2, 0, and 1. Render is `0x000e43f0`, the RGB565 expansion helper is `0x000e4990`, and destructors are `0x000e4d08`/`0x000e4d60`.
+Twist adds three 32-bit fields to the base: amplitude `+0x14`, offset `+0x18`, and velocity `+0x1c`. `TwistShader_Ctor` (`0x00030f30`) initializes them to 2, 0, and 1. Render is `0x000e43f0`, the RGB565 expansion helper is `0x000e4990`, and destructors are `0x000e4d08`/`0x000e4d60`. Portable `SetAmplitude`/`GetAmplitude` expose the first field for the stage-11 Ghost consumer: Ghost selects Twist amplitude 2 within 10 units and amplitude 1 within 20, rather than selecting MotionBlur. See `symbian3rd_specialenemies.md`.
 
 Each render starts a local row offset from the persistent offset and a local row step of +1, regardless of persistent velocity's sign. For each source row:
 

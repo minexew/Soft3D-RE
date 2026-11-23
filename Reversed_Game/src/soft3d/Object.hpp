@@ -33,6 +33,7 @@ public:
     result LoadMaterials(int cacheLevel, const char16_t* directory = nullptr);
 
     void SetTransformVectors(const std::array<Vec3, 4>& transform);
+    void ResetTransform();
     void RestoreAxes(const Vec3& axisZ, const Vec3& axisX, const Vec3& axisY);
     void SetModelMatrix(const Matrix4& matrix);
     void SetSecondaryTransform(const Matrix4& matrix);
