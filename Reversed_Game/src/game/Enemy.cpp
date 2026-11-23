@@ -26,107 +26,13 @@ const std::array<EnemyCommonConfig, 17> commonConfigs{{
     {18, 240, 0, 0xb0000, 0xa0000, 8, 14, 16, 0, 0, 0x4ccc, 0x4ccc, 1000, 0, 0x27100000, 0, false},
     {19, 60, 20, 0x70000, 0x68000, 24, 7, 9, 32, 90, 0x1999, 0x1999, 500, 0x9999, 0x90000, 2, true},
     {20, 1, 5, 0, 0x80000, 32, 255, 0, 8, 24, 0x3333, 0x3333, 0, 0, 0x80000, 1, false},
-    {21, 60, 0, 0, 0, 255, 0, 0, 16, 64, 0x3333, 0x3333, 0, 0xb333, 0, 0, true},
+    {21, 60, 0, 0, 0, 255, 0, 0, 16, 64, 0x3333, 0x3333, 0, 0xb333, 0, 1, true},
     {22, 150, 30, 0x80000, 0x78000, 32, 7, 9, 64, 32, 0x8000, 0xb333, 800, 0x6666, 0x140000, 8, true},
     {23, 260, 25, 0x98000, 0x98000, 40, 6, 7, 64, 32, 0x5999, 0x5999, 1000, 0x6666, 0x27100000, 30, false},
     {24, 40, 35, 0, 0x1e0000, 40, 0, 0, 0, 0, 0x13333, 0x13333, 1000, 0, 0x3e80000, 0, false},
     {25, 1, 0, 0, 0, 255, 0, 0, 9999, 1, 0x4ccc, 0x4ccc, 0, 0, 0, 10, true},
     {26, 9999, 0, 0, 0x40000, 255, 0, 0, 0, 0, 0x8ccc, 0x8ccc, 0, 0, 0x27100000, 0, true},
 }};
-
-class CommonPoolEnemy final : public Enemy {
-public:
-    CommonPoolEnemy(const soft3d::UnitManagerContext& context, const GameData& gameData,
-                    int32_t type)
-        : Enemy(context.resources, context.renderer, context.audio, context.bsp)
-        , data(gameData)
-    {
-        enemyType = type;
-        ConfigureCommonDefaults(GetEnemyCommonConfig(type));
-        SetPositionalAudio(GetEnemyCommonConfig(type).positionalAudio);
-    }
-
-    void InitializeAnimations(const soft3d::Animation* const*) override
-    {
-        static constexpr std::array<int16_t, 6> zero{};
-        const std::array<int16_t, 6>* names = &zero;
-        static constexpr std::array<int16_t, 6> maid{87, 88, 89, 90, 91, 92};
-        static constexpr std::array<int16_t, 6> bully{93, 94, 95, 96, 97, 98};
-        static constexpr std::array<int16_t, 6> lamper{110, 111, 112, 113, 114, 115};
-        static constexpr std::array<int16_t, 6> weed{116, 117, 118, 119, 120, 121};
-        static constexpr std::array<int16_t, 6> fatMaid{122, 123, 124, 125, 128, 129};
-        static constexpr std::array<int16_t, 6> maid2{130, 131, 132, 133, 134, 135};
-        static constexpr std::array<int16_t, 6> maid3{184, 185, 186, 187, 188, 189};
-        static constexpr std::array<int16_t, 6> worm{190, 191, 192, 193, 194, 195};
-        static constexpr std::array<int16_t, 6> prisoner{196, 199, 200, 201, 202, 203};
-        static constexpr std::array<int16_t, 6> victor{204, 205, 206, 207, 208, 209};
-        static constexpr std::array<int16_t, 6> sam{234, 234, -1, -1, -1, -1};
-        static constexpr std::array<int16_t, 6> kate{235, 236, 237, -1, -1, -1};
-        switch (enemyType) {
-        case 0: names = &maid; break;
-        case 1: names = &bully; break;
-        case 4: names = &lamper; break;
-        case 5: names = &weed; break;
-        case 6: names = &fatMaid; break;
-        case 7: names = &maid2; break;
-        case 9: names = &maid3; break;
-        case 10: names = &worm; break;
-        case 11: names = &prisoner; break;
-        case 12: names = &victor; break;
-        case 15: names = &sam; break;
-        case 16: names = &kate; break;
-        default: break;
-        }
-        for (std::size_t index = 0; index < names->size(); ++index) {
-            const int16_t name = (*names)[index];
-            SetAnimationResource(static_cast<int32_t>(index),
-                                 name < 0 ? nullptr : data.GetAnimationName(name));
-        }
-    }
-
-    void InitializeSounds(soft3d::AudioData* const*) override
-    {
-        static constexpr std::array<int16_t, 6> zero{};
-        const std::array<int16_t, 6>* names = &zero;
-        static constexpr std::array<int16_t, 6> maid{0, 33, 34, 35, 36, 37};
-        static constexpr std::array<int16_t, 6> bully{0, 39, 40, 41, 42, 43};
-        static constexpr std::array<int16_t, 6> ghost{0, 45, 46, 47, 48, 49};
-        static constexpr std::array<int16_t, 6> lamper{0, 52, 53, 54, 55, 56};
-        static constexpr std::array<int16_t, 6> weed{0, 58, 59, 60, 61, 62};
-        static constexpr std::array<int16_t, 6> fatMaid{0, 64, 65, 66, 67, 68};
-        static constexpr std::array<int16_t, 6> maid2{0, 71, 72, 73, 74, 75};
-        static constexpr std::array<int16_t, 6> maid3{0, 77, 78, 79, 80, 81};
-        static constexpr std::array<int16_t, 6> worm{0, 83, 84, 85, 86, 87};
-        static constexpr std::array<int16_t, 6> prisoner{0, 89, 90, 91, 92, 93};
-        static constexpr std::array<int16_t, 6> victor{110, 111, 112, 113, 114, 115};
-        static constexpr std::array<int16_t, 6> sam{0, 107, 0, 0, 0, 108};
-        static constexpr std::array<int16_t, 6> kate{0, 109, 109, 0, 0, 0};
-        switch (enemyType) {
-        case 0: names = &maid; break;
-        case 1: names = &bully; break;
-        case 3: names = &ghost; break;
-        case 4: names = &lamper; break;
-        case 5: names = &weed; break;
-        case 6: names = &fatMaid; break;
-        case 7: names = &maid2; break;
-        case 9: names = &maid3; break;
-        case 10: names = &worm; break;
-        case 11: names = &prisoner; break;
-        case 12: names = &victor; break;
-        case 15: names = &sam; break;
-        case 16: names = &kate; break;
-        default: break;
-        }
-        for (std::size_t index = 0; index < names->size(); ++index) {
-            const int16_t name = (*names)[index];
-            SetSoundResource(static_cast<int32_t>(index),
-                             name <= 0 ? nullptr : data.GetSoundName(name));
-        }
-    }
-
-private:
-    const GameData& data;
-};
 
 int16_t DecrementPositive(int16_t value)
 {
@@ -159,15 +65,6 @@ bool IsSingletonEnemyType(int32_t enemyType)
     default:
         return false;
     }
-}
-
-std::unique_ptr<Enemy> CreateCommonPoolEnemy(const soft3d::UnitManagerContext& context,
-                                             const GameData& data, int32_t enemyType)
-{
-    if (enemyType < 0 || enemyType >= 17) {
-        return nullptr;
-    }
-    return std::make_unique<CommonPoolEnemy>(context, data, enemyType);
 }
 
 void Enemy::BloodSplat::LoadResources(soft3d::s3dResManager* manager)

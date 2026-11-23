@@ -10,7 +10,7 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-Stages 1–11 are implemented in `seven_days_game`. Stage 9 supplies common enemy AI/pools and commands; stage 10 adds the concrete Maid/Bully families in `MaidBully.*`, including their native projectile, charge, QTE, saw, death, and reward behavior. Stage 11 adds Worm, Ghost, Lamper, and Weed in `SpecialEnemies.*`, including Worm's cosmetic colour variants and jump attack, Ghost's Twist/proximity behavior, Lamper's one-hit death, and Weed's custom damage path. See `symbian3rd_enemy.md`, `symbian3rd_maidbully.md`, and `symbian3rd_specialenemies.md`.
+Stages 1–12 are implemented in `seven_days_game`. Stage 9 supplies common enemy AI/pools and commands; stage 10 adds the concrete Maid/Bully families in `MaidBully.*`, including their native projectile, charge, QTE, saw, death, and reward behavior. Stage 11 adds Worm, Ghost, Lamper, and Weed in `SpecialEnemies.*`. Stage 12 completes Victor, Sam, Prisoner, Kate, DarkKen, Lord, and the separate Boss in `NamedEnemies.*`, `Lord.*`, and `Boss.*`, removes the common adapter, and preserves Lord's full encounter and Boss's original empty sequence hook. See `symbian3rd_enemy.md`, `symbian3rd_maidbully.md`, `symbian3rd_specialenemies.md`, and `symbian3rd_namedenemies.md`.
 
 - `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
 - Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL new-game smoke test proves that this path reaches progress 100 and executes the stage-3 camera/audio commands.
@@ -176,7 +176,7 @@ The hierarchy has **18 named concrete classes**: 17 ordinary pool classes plus `
 
 `MyGameUnitMgr_InitializeEnemyPools` constructs only slot 0 for singleton types and all eight slots for non-singleton types, assigns the player and manager, and initializes their shadows. `MyGameUnitMgr_PrepareDayEnemies` selects resources and outfit variants by day. `Boss` has separate construction/behavior from the ordinary pool and must not be omitted merely because it is not in that pool's constructor loop.
 
-Stages 10–11 replace the common adapter for all Maid/Bully rows and for Ghost, Lamper, Weed, and Worm with the native classes documented in `symbian3rd_maidbully.md` and `symbian3rd_specialenemies.md`. The adapter remains only for stage 12. Those variants' special perception, movement, attacks, transformations, death, linked actors, and boss scripting still require individual ARM recovery; none may be approximated by the generic enemy.
+Stages 10–12 replace the common adapter for every pool row with the native classes documented in `symbian3rd_maidbully.md`, `symbian3rd_specialenemies.md`, and `symbian3rd_namedenemies.md`; the adapter has been removed. Special perception, movement, attacks, transformations, death, linked actors, Lord's encounter, and Boss scripting are implemented individually. Boss remains outside the ordinary pool and has no native constructor caller in this binary.
 
 ## Full save format and unit reconstruction
 

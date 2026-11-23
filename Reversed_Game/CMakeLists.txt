@@ -91,13 +91,16 @@ endif()
 
 add_library(seven_days_game STATIC
     src/game/CameraController.cpp
+    src/game/Boss.cpp
     src/game/Enemy.cpp
     src/game/GameData.cpp
     src/game/GameSI.cpp
     src/game/GameUiController.cpp
+    src/game/Lord.cpp
     src/game/MaidBully.cpp
     src/game/MapUnits.cpp
     src/game/MyGameUnitMgr.cpp
+    src/game/NamedEnemies.cpp
     src/game/Player.cpp
     src/game/PlayerStates.cpp
     src/game/ResourceNames.cpp

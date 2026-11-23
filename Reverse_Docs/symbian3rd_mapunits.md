@@ -4,7 +4,7 @@
 
 Stage 5 recovers the game-specific `Things` descendants and map-unit consumers. `Reversed_Game/src/game/MapUnits.*` implements `Breakable`, `Pushable`, `Pickable`, `BspUnit`, `ElectricSaw`, `Trap`, and `StayBox`; `MyGameUnitMgr` owns construction, lensflares, and update/submission integration. `GameSI` implements commands 219–254 from their individual ARM bodies.
 
-The reusable `Things` base in `src/soft3d/Units.*` now implements the shared save/load extension used by all three descendants. All concrete interaction triggers are implemented in stages 6–7. Stage 9 implements the concrete `MyGameUnitMgr` StayBox host and common enemy pool behavior; stages 10–11 complete the Maid/Bully and Worm/Ghost/Lamper/Weed variants, while the other variant-specific enemy overrides remain stage 12. Full scene reconstruction of these records remains stage 13.
+The reusable `Things` base in `src/soft3d/Units.*` now implements the shared save/load extension used by all three descendants. All concrete interaction triggers are implemented in stages 6–7. Stage 9 implements the concrete `MyGameUnitMgr` StayBox host and common enemy pool behavior; stages 10–12 complete all concrete enemy variants and remove the common adapter. Full scene reconstruction of these records remains stage 13.
 
 ## Native layouts
 

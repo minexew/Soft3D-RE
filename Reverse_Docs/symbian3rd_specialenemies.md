@@ -4,7 +4,7 @@
 
 Stage 11 recovers the four special enemy classes from the ARM Symbian 3rd binary. The loaded memory block begins at `0x8000`; addresses below are loaded addresses and already include that bias. Do not add it again.
 
-The portable implementation is `Reversed_Game/src/game/SpecialEnemies.*`. `MyGameUnitMgr::Initialize` selects these concrete classes after the Maid/Bully factory and before the common adapter, which is now needed only for stage 12. Common behavior remains in `Enemy.*`; these classes retain their native overrides rather than receiving a shared approximation.
+The portable implementation is `Reversed_Game/src/game/SpecialEnemies.*`. `MyGameUnitMgr::Initialize` selects these concrete classes after the Maid/Bully factory and before the completed stage-12 classes. The former common adapter has been removed. Common behavior remains in `Enemy.*`; these classes retain their native overrides rather than receiving a shared approximation.
 
 | Type | Class | Native size | Pool capacity | Day/resource preparation |
 |---:|---|---:|---:|---|

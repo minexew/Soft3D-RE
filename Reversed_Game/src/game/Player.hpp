@@ -200,6 +200,7 @@ public:
     void AddHealth(int32_t value);
     void SetWeapon(int type);
     void PrepareWeapon(const GameData& data, int type);
+    void LoadWeaponAnimations(const GameData& data, int type);
     void LoadBullyQteAnimations(const GameData& data);
     void LoadSpecialAnimations(const GameData& data, bool alternate);
     void SetYoung(bool value);
@@ -282,7 +283,6 @@ private:
     void LoadAdultModel(bool snapToGround);
     void LoadYoungModel();
     void LoadDefaultAnimations(const GameData& data);
-    void LoadWeaponAnimations(const GameData& data, int type);
     const soft3d::Animation* GetActionAnimation(int type, int action) const;
     void UpdateGunTargets();
     bool SelectGunTarget(soft3d::GameUnit* target) const;

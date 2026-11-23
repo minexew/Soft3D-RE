@@ -188,6 +188,8 @@ public:
     void SetOptionCount(int32_t value);
     void SetString(int32_t index, int32_t textId);
     void SetCameraVectors(const soft3d::Vec3& position, const soft3d::Vec3& target);
+    void SetTitleId(int32_t value) { titleId = value; }
+    void SetReserved5c(int32_t value) { reserved5c = value; }
     void ClearSelection() { selection = -1; }
     int32_t GetSelection() const { return selection; }
     int32_t GetOptionCount() const { return optionCount; }

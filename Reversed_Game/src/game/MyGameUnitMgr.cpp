@@ -2,6 +2,7 @@
 
 #include "game/CameraController.hpp"
 #include "game/MaidBully.hpp"
+#include "game/NamedEnemies.hpp"
 #include "game/Scene.hpp"
 #include "game/SpecialEnemies.hpp"
 #include "game/Triggers.hpp"
@@ -94,7 +95,10 @@ soft3d::result MyGameUnitMgr::Initialize(soft3d::GameEngine& engine)
                 enemy = CreateSpecialPoolEnemy(GetContext(), data, type);
             }
             if (enemy == nullptr) {
-                enemy = CreateCommonPoolEnemy(GetContext(), data, type);
+                enemy = CreateNamedPoolEnemy(GetContext(), data, type);
+            }
+            if (enemy == nullptr) {
+                throw std::runtime_error("No concrete enemy class for pool type");
             }
             enemyPools[static_cast<std::size_t>(type)][slot] = std::move(enemy);
         }
@@ -348,10 +352,16 @@ void MyGameUnitMgr::PrepareDayEnemies(int32_t value)
         prepareWeapon(extraWeapon ? 4 : 3);
         prepareWeapon(1);
         break;
-    case 6:
+    case 6: {
         prepare(1, u"r_bully_a");
         prepare(16, u"r_kate_a");
+        auto* kate = dynamic_cast<Kate*>(GetPooledEnemy(16, 0));
+        auto* bully = dynamic_cast<Bully*>(GetPooledEnemy(1, 0));
+        if (kate != nullptr) {
+            kate->SetLinkedBully(bully);
+        }
         break;
+    }
     case 7:
         if (concretePlayer != nullptr) {
             concretePlayer->RemoveItem(1);

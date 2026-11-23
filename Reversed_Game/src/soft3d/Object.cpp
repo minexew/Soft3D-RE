@@ -47,6 +47,8 @@ void Object::SetModel(const ObjectRes* resource)
     materialStates.assign(count, MaterialState{});
     for (std::size_t index = 0; index < count; ++index) {
         materialStates[index].blendMode = model->GetObjects()[index].blendMode;
+        materialStates[index].textureScrollU = model->GetObjects()[index].textureScrollU;
+        materialStates[index].textureScrollV = model->GetObjects()[index].textureScrollV;
     }
     if (model != nullptr) {
         primaryBounds = ToBounds(model->GetTrailer());
@@ -473,6 +475,22 @@ void Object::SetMaterialBlendMode(uint32_t material, uint32_t mode)
     }
 }
 
+void Object::SetMaterialTextureScroll(uint32_t material, Fixed u, Fixed v)
+{
+    if (material < materialStates.size()) {
+        materialStates[material].textureScrollU = u;
+        materialStates[material].textureScrollV = v;
+    }
+}
+
+void Object::SetMaterialTextureOffset(uint32_t material, Fixed u, Fixed v)
+{
+    if (material < materialStates.size()) {
+        materialStates[material].textureU = u;
+        materialStates[material].textureV = v;
+    }
+}
+
 void Object::RebuildLocalCorners()
 {
     const Vec3 center = ShiftRight(Add(primaryBounds.minimum, primaryBounds.maximum), 1);
@@ -507,7 +525,7 @@ void Object::UpdateMatrixPalette()
     }
 }
 
-void Object::UpdateMaterial(MaterialState& state, const SojObject& material,
+void Object::UpdateMaterial(MaterialState& state, const SojObject&,
                             const Texture* texture)
 {
     state.intensity = AddFixed(state.intensity, state.intensitySpeed);
@@ -521,14 +539,14 @@ void Object::UpdateMaterial(MaterialState& state, const SojObject& material,
     if (texture == nullptr) {
         return;
     }
-    state.textureU = AddFixed(state.textureU, material.textureScrollU);
+    state.textureU = AddFixed(state.textureU, state.textureScrollU);
     const Fixed width = texture->GetFixedWidth();
     if (state.textureU >= width) {
         state.textureU = SubtractFixed(state.textureU, width);
     } else if (state.textureU <= NegateFixed(width)) {
         state.textureU = AddFixed(state.textureU, width);
     }
-    state.textureV = AddFixed(state.textureV, material.textureScrollV);
+    state.textureV = AddFixed(state.textureV, state.textureScrollV);
     const Fixed height = texture->GetFixedHeight();
     if (state.textureV >= height) {
         state.textureV = SubtractFixed(state.textureV, height);
@@ -764,6 +782,14 @@ std::array<Fixed, 4> Object::GetMaterialIntensityState(uint32_t material) const
 uint32_t Object::GetMaterialBlendMode(uint32_t material) const
 {
     return material < materialStates.size() ? materialStates[material].blendMode : 0;
+}
+std::array<Fixed, 4> Object::GetMaterialTextureState(uint32_t material) const
+{
+    if (material >= materialStates.size()) {
+        return {};
+    }
+    const MaterialState& state = materialStates[material];
+    return {state.textureU, state.textureV, state.textureScrollU, state.textureScrollV};
 }
 ObjectRenderMode Object::GetRenderMode() const { return renderMode; }
 

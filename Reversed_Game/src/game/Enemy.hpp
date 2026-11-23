@@ -13,6 +13,7 @@
 namespace game {
 
 class MyGameUnitMgr;
+class Kate;
 
 enum EnemyState : int32_t {
     EnemyIdle = 0,
@@ -176,6 +177,8 @@ public:
     const soft3d::Vec3& GetBloodVelocity() const { return blood.velocity; }
 
 protected:
+    friend class Kate;
+
     struct BloodSplat {
         void LoadResources(soft3d::s3dResManager* manager);
         void Trigger(const soft3d::Vec3& position, const soft3d::Vec3& spread,
@@ -253,8 +256,5 @@ protected:
     int32_t moveMode = EnemyNoMovement;
     soft3d::Vec3 moveTarget;
 };
-
-std::unique_ptr<Enemy> CreateCommonPoolEnemy(const soft3d::UnitManagerContext& context,
-                                             const GameData& data, int32_t enemyType);
 
 } // namespace game

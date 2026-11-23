@@ -72,6 +72,8 @@ public:
     void SetMaterialIntensityBounce(uint32_t material, Fixed minimum, Fixed maximum,
                                     int32_t period);
     void SetMaterialBlendMode(uint32_t material, uint32_t mode);
+    void SetMaterialTextureScroll(uint32_t material, Fixed u, Fixed v);
+    void SetMaterialTextureOffset(uint32_t material, Fixed u, Fixed v);
 
     void Render() override;
     void RenderNormal();
@@ -111,12 +113,15 @@ public:
     void RestoreAnimationState(int32_t paused, int32_t time, int32_t direction,
                                int32_t loop, int32_t speed);
     uint32_t GetMaterialBlendMode(uint32_t material) const;
+    std::array<Fixed, 4> GetMaterialTextureState(uint32_t material) const;
     ObjectRenderMode GetRenderMode() const;
 
 private:
     struct MaterialState {
         Fixed textureU = 0;
         Fixed textureV = 0;
+        Fixed textureScrollU = 0;
+        Fixed textureScrollV = 0;
         Fixed minimumIntensity = 0x1999;
         Fixed maximumIntensity = fixedOne;
         Fixed intensity = 0x1999;

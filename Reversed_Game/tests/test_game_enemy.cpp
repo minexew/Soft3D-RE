@@ -1,6 +1,9 @@
 #include "game/Enemy.hpp"
+#include "game/Boss.hpp"
 #include "game/GameSI.hpp"
+#include "game/Lord.hpp"
 #include "game/MaidBully.hpp"
+#include "game/NamedEnemies.hpp"
 #include "game/Scene.hpp"
 #include "game/SpecialEnemies.hpp"
 #include "platform/dummy/DummyVideoBackend.hpp"
@@ -246,6 +249,53 @@ public:
     void ForceVerticalVelocity(soft3d::Fixed value) { velocity.y = value; }
 };
 
+class VictorProbe final : public VariantProbe<game::Victor> {
+public:
+    using VariantProbe<game::Victor>::VariantProbe;
+    using game::Victor::BeginLeapAtPlayer;
+    using game::Victor::UpdateLeap;
+    void ForceLeapPhase(int32_t value) { leapPhase = value; }
+    void ForceUnitCollision() { unitCollision = true; }
+};
+
+class SamProbe final : public VariantProbe<game::Sam> {
+public:
+    using VariantProbe<game::Sam>::VariantProbe;
+    void ForceDeathCountdown(int16_t value) { deathCountdown = value; }
+};
+
+class DarkKenProbe final : public VariantProbe<game::DarkKen> {
+public:
+    using VariantProbe<game::DarkKen>::VariantProbe;
+    using game::DarkKen::ChooseNextRegion;
+    void ForceAttackCooldown(int16_t value) { attackCooldown = value; }
+};
+
+class LordProbe final : public VariantProbe<game::Lord> {
+public:
+    using VariantProbe<game::Lord>::VariantProbe;
+    using game::Lord::SetEquipmentStage;
+    using game::Lord::TryBeginLeap;
+    using game::Lord::UpdateEncounter;
+    using game::Lord::UpdateLeap;
+    void ForceEncounter(int32_t phase, int32_t timer)
+    {
+        encounterPhase = phase;
+        encounterTimer = timer;
+    }
+    void ForceEquipment(int32_t value) { equipmentStage = value; }
+    void ForceLeapPhase(int32_t value) { leapPhase = value; }
+    void ForceVerticalVelocity(soft3d::Fixed value) { velocity.y = value; }
+    void ForceShadowCollision(bool value) { shadowTrace->startSolid = value; }
+    void ForceHaste(int32_t value) { haste = value; }
+};
+
+class BossProbe final : public game::Boss {
+public:
+    explicit BossProbe(const soft3d::UnitManagerContext& context) : Boss(context) {}
+    void ForceFinished(bool value) { SetAnimationFinished(value); }
+};
+
 template <typename T>
 void PrepareVariant(GameFixture& fixture, T& enemy, const char16_t* model = nullptr)
 {
@@ -288,7 +338,7 @@ void TestConstructorDefaults()
         {18, 240, 0, 0xb0000, 0xa0000, 8, 14, 16, 0, 0, 0x4ccc, 0x4ccc, 1000, 0, 0x27100000, 0, false},
         {19, 60, 20, 0x70000, 0x68000, 24, 7, 9, 32, 90, 0x1999, 0x1999, 500, 0x9999, 0x90000, 2, true},
         {20, 1, 5, 0, 0x80000, 32, 255, 0, 8, 24, 0x3333, 0x3333, 0, 0, 0x80000, 1, false},
-        {21, 60, 0, 0, 0, 255, 0, 0, 16, 64, 0x3333, 0x3333, 0, 0xb333, 0, 0, true},
+        {21, 60, 0, 0, 0, 255, 0, 0, 16, 64, 0x3333, 0x3333, 0, 0xb333, 0, 1, true},
         {22, 150, 30, 0x80000, 0x78000, 32, 7, 9, 64, 32, 0x8000, 0xb333, 800, 0x6666, 0x140000, 8, true},
         {23, 260, 25, 0x98000, 0x98000, 40, 6, 7, 64, 32, 0x5999, 0x5999, 1000, 0x6666, 0x27100000, 30, false},
         {24, 40, 35, 0, 0x1e0000, 40, 0, 0, 0, 0, 0x13333, 0x13333, 1000, 0, 0x3e80000, 0, false},
@@ -1459,6 +1509,382 @@ void TestStage11EngineFrames()
     CHECK(fixture.scene->IsInitialized());
 }
 
+void TestStage12TypesAndResources()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    manager->PrepareDayEnemies(5);
+    auto* victor = dynamic_cast<game::Victor*>(manager->GetPooledEnemy(12, 0));
+    CHECK(victor != nullptr && manager->GetPooledEnemy(12, 1) == nullptr);
+    CHECK(victor->GetObject(0) != nullptr && victor->GetAnimationResource(0) != nullptr &&
+          victor->GetAnimationResource(5) != nullptr);
+    CHECK(victor->GetLeapAnimation(0) != nullptr && victor->GetLeapAnimation(2) != nullptr);
+    CHECK(victor->GetLeapSound(0) != nullptr && victor->GetLeapSound(1) == victor->GetLeapSound(2));
+    CHECK(victor->GetMinimumLeapDistance() == 0x140000 && victor->GetMaximumLeapDistance() == 0x280000);
+    auto* sam = dynamic_cast<game::Sam*>(manager->GetPooledEnemy(15, 0));
+    CHECK(sam != nullptr && sam->GetObject(0) != nullptr && manager->GetPooledEnemy(15, 1) == nullptr);
+    CHECK(sam->GetAnimationResource(0) == sam->GetAnimationResource(1));
+    CHECK(sam->GetAnimationResource(2) == nullptr && sam->GetSoundResource(1) != nullptr &&
+          sam->GetSoundResource(5) != nullptr);
+    for (std::size_t slot = 0; slot < 8; ++slot) {
+        auto* prisoner = dynamic_cast<game::Prisoner*>(manager->GetPooledEnemy(11, slot));
+        CHECK(prisoner != nullptr && prisoner->GetObject(0) != nullptr);
+        CHECK(prisoner->GetAnimationResource(0) != nullptr && prisoner->GetAnimationResource(1) != nullptr &&
+              prisoner->GetAnimationResource(5) != nullptr && prisoner->GetGunExperienceReward() == 1);
+    }
+    CHECK(dynamic_cast<game::Lord*>(manager->GetPooledEnemy(8, 0)) != nullptr);
+    CHECK(dynamic_cast<game::DarkKen*>(manager->GetPooledEnemy(14, 0)) != nullptr);
+    CHECK(manager->GetPooledEnemy(8, 0)->GetObject(0) == nullptr);
+    CHECK(manager->GetPooledEnemy(14, 0)->GetObject(0) == nullptr);
+
+    manager->PrepareDayEnemies(6);
+    auto* kate = dynamic_cast<game::Kate*>(manager->GetPooledEnemy(16, 0));
+    auto* bully = dynamic_cast<game::Bully*>(manager->GetPooledEnemy(1, 0));
+    CHECK(kate != nullptr && kate->GetObject(0) != nullptr && kate->GetLinkedBully() == bully);
+    CHECK(kate->GetAnimationResource(0) != nullptr && kate->GetAnimationResource(3) == nullptr);
+    CHECK(kate->GetSoundResource(1) == kate->GetSoundResource(2));
+}
+
+void TestVictorSamAndPrisoner()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    VictorProbe victor(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, victor, u"r_victor_a");
+    victor.SetBsp(nullptr);
+    player->SetPosition({0, 0, 0x140000});
+    player->SetCollisionBounds({{-0x10000, -0x10000, 0x130000}, {0x10000, 0x10000, 0x150000}});
+    victor.ForceDistance(0x140000);
+    CHECK(victor.BeginLeapAtPlayer(7000) == false);
+    CHECK(victor.BeginLeapAtPlayer(7001) && victor.GetState() == 6 && victor.GetStateTime() == 18);
+    victor.ForceFinished(true);
+    victor.UpdateLeap();
+    CHECK(victor.GetLeapPhase() == 1);
+    CHECK((victor.GetPhysicsFlags() & soft3d::PhysicSimpleMovement) == 0);
+    victor.ForceUnitCollision();
+    victor.UpdateLeap();
+    CHECK(victor.GetLeapPhase() == 2 && victor.GetVelocity().x == 0 && victor.GetVelocity().z == 0);
+    victor.ForceFinished(true);
+    victor.UpdateLeap();
+    CHECK(victor.GetState() == game::EnemyIdle && victor.GetLeapPhase() == 0 &&
+          victor.GetAttackCooldown() == victor.GetAttackInterval());
+    victor.ForceDistance(0x280001);
+    CHECK(!victor.BeginLeapAtPlayer(9999));
+    victor.BeginAttack();
+    CHECK(victor.GetAttackStart() == 7 && victor.GetAttackEnd() == 9);
+
+    SamProbe sam(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, sam, u"r_sam_b");
+    CHECK(!sam.UpdatePerception() && sam.SelectAttack() == 0);
+    CHECK(sam.GetObject(0)->GetMaterialBlendMode(0) == 0);
+    const int32_t kills = player->GetKillCount();
+    const int32_t experience = player->GetGunExperience();
+    sam.Die();
+    CHECK(sam.GetState() == game::EnemyDying && sam.GetDeathCountdown() == 16);
+    CHECK(player->GetKillCount() == kills + 1 && player->GetGunExperience() == experience + 10);
+    sam.ForceDeathCountdown(13);
+    sam.UpdateDeath();
+    CHECK(sam.GetObject(0)->GetMaterialBlendMode(0) == 3);
+    sam.ForceDeathCountdown(9);
+    sam.UpdateDeath();
+    CHECK(sam.GetObject(0)->GetMaterialBlendMode(0) == 2);
+    sam.ForceDeathCountdown(5);
+    sam.UpdateDeath();
+    CHECK(sam.GetObject(0)->GetMaterialBlendMode(0) == 1);
+    sam.ForceDeathCountdown(1);
+    sam.UpdateDeath();
+    CHECK(sam.GetState() == game::EnemyRemoved && sam.GetBloodLife() == 0);
+
+    VariantProbe<game::Prisoner> prisoner(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, prisoner, u"r_qiutu_a");
+    CHECK(!prisoner.UpdatePerception() && prisoner.SelectAttack() == 0);
+    for (int32_t variant = 0; variant < 3; ++variant) {
+        uint32_t seed = 0;
+        for (; seed < 10000; ++seed) {
+            manager->SetRandomSeed(seed);
+            const uint32_t value = manager->NextRandom() % 30000;
+            const int32_t selected = value < 11000 ? 0 : value < 19000 ? 1 : 2;
+            if (selected == variant) break;
+        }
+        CHECK(seed < 10000);
+        prisoner.Spawn({});
+        manager->SetRandomSeed(seed);
+        prisoner.ForceState(game::EnemyIdle);
+        prisoner.ForceFinished(true);
+        prisoner.Update();
+        CHECK(prisoner.GetIdleVariant() == variant);
+    }
+    const int32_t prisonerKills = player->GetKillCount();
+    prisoner.SetHealth(0);
+    CHECK(player->GetKillCount() == prisonerKills + 1);
+    for (int index = 0; index < 12; ++index) {
+        prisoner.ForceFinished(true);
+        prisoner.UpdateDeath();
+    }
+    CHECK(prisoner.GetState() == game::EnemyRemoved);
+}
+
+void TestKateAndDarkKen()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    VariantProbe<game::Kate> kate(manager->GetContext(), manager->GetData());
+    VariantProbe<game::Bully> bully(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, kate, u"r_kate_a");
+    PrepareVariant(fixture, bully, u"r_bully_a");
+    kate.SetLinkedBully(&bully);
+    CHECK(kate.UpdatePerception() && kate.SelectAttack() == -1);
+    kate.ForceDistance(0x50000);
+    kate.UpdateIdle();
+    CHECK(kate.GetState() == game::EnemyIdle);
+    kate.ForceDistance(0x50001);
+    kate.UpdateIdle();
+    CHECK(kate.GetState() == game::EnemyChase);
+    kate.ForceState(game::EnemyIdle);
+    CHECK(!bully.IsPlayerVisible());
+    kate.Update();
+    CHECK(bully.IsPlayerVisible());
+
+    DarkKenProbe dark(manager->GetContext(), manager->GetData());
+    dark.SetManager(manager);
+    dark.SetPlayer(fixture.scene->GetPlayer());
+    dark.Spawn({});
+    CHECK(dark.GetObject(0) != nullptr && dark.GetGunObject(0)->GetModel() != nullptr &&
+          dark.GetGunObject(1)->GetModel() != nullptr);
+    CHECK(dark.GetAnimationResource(0) != nullptr && dark.GetExtraAnimation(7) != nullptr &&
+          dark.GetExtraSound(0) != nullptr);
+    CHECK(dark.GetRegion(0).minimum.x == -0x4c0000 && dark.GetRegion(15).maximum.z == -0x130000);
+    for (std::size_t region = 0; region < 16; ++region) {
+        std::array<bool, 16> seen{};
+        seen[region] = true;
+        soft3d::Fixed previous = -1;
+        for (std::size_t index = 0; index < 15; ++index) {
+            const int32_t other = dark.GetRegionNeighbor(region, index);
+            CHECK(other >= 0 && other < 16 && !seen[static_cast<std::size_t>(other)]);
+            seen[static_cast<std::size_t>(other)] = true;
+            const soft3d::Fixed distance = soft3d::Length(soft3d::Subtract(
+                soft3d::ShiftRight(soft3d::Add(dark.GetRegion(region).minimum, dark.GetRegion(region).maximum), 1),
+                soft3d::ShiftRight(soft3d::Add(dark.GetRegion(static_cast<std::size_t>(other)).minimum,
+                                               dark.GetRegion(static_cast<std::size_t>(other)).maximum), 1)));
+            CHECK(previous <= distance);
+            previous = distance;
+        }
+    }
+    dark.SetBsp(nullptr);
+    dark.ForceDistance(0x1d0000);
+    CHECK(dark.SelectAttack() == 0);
+    dark.ForceDistance(0x1e0000);
+    CHECK(dark.SelectAttack() == 1);
+    dark.ForceAttackCooldown(1);
+    CHECK(dark.SelectAttack() == 0);
+    dark.ForceAttackCooldown(0);
+    dark.BeginAttack();
+    dark.ForceFinished(true);
+    dark.UpdateAttack();
+    CHECK(dark.GetAttackPhase() == 1 && dark.GetAttackStep() == 0 &&
+          dark.GetGunObject(0)->GetAnimation() == dark.GetExtraAnimation(6));
+    dark.ForceFinished(true);
+    dark.UpdateAttack();
+    CHECK(dark.GetAttackPhase() == 1 && dark.GetAttackStep() == 1 &&
+          dark.GetGunObject(1)->GetAnimation() == dark.GetExtraAnimation(7));
+    dark.ForceFinished(true);
+    dark.UpdateAttack();
+    CHECK(dark.GetState() == game::EnemyIdle && dark.GetAttackCooldown() == 40 &&
+          dark.GetAttackPhase() == 0);
+}
+
+void TestLordEncounter()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    LordProbe lord(manager->GetContext(), manager->GetData());
+    lord.SetManager(manager);
+    lord.SetPlayer(player);
+    lord.Spawn({});
+    CHECK(lord.GetObject(0) != nullptr && lord.GetSwordObject()->GetModel() != nullptr &&
+          lord.GetShieldObject()->GetModel() != nullptr);
+    CHECK(lord.GetBodyAnimation(18) != nullptr && lord.GetSwordAnimation(15) != nullptr &&
+          lord.GetShieldAnimation(12) != nullptr && lord.GetExtraSound(6) != nullptr);
+    CHECK(manager->GetBucketCount(2) == 5 && manager->GetBucketCount(4) == 5);
+    CHECK(lord.GetEncounterPhase() == 1 && lord.GetEncounterTimer() == 4 && lord.GetEquipmentStage() == 0);
+    CHECK(lord.GetObject(0)->GetMaterialTextureState(0)[3] == 0x60000);
+    CHECK(lord.GetShieldObject()->GetMaterialTextureState(0)[2] == -0x60000);
+    CHECK(!lord.ReceivePlayerAttack());
+
+    player->PrepareWeapon(manager->GetData(), 1);
+    player->SetWeapon(1);
+    player->ChangeState(game::PlayerAttackA2);
+    player->Update();
+    lord.ForceEquipment(1);
+    lord.SetHealth(161);
+    lord.SetCollisionBounds({{INT32_MIN, INT32_MIN, INT32_MIN}, {INT32_MAX, INT32_MAX, INT32_MAX}});
+    CHECK(!lord.ReceivePlayerAttack());
+    CHECK(lord.GetEncounterPhase() == 12 && lord.GetState() == 7);
+
+    lord.SetEquipmentStage(2);
+    CHECK(lord.GetHealth() == 160 && lord.GetHitDistance() == 0xa0000 &&
+          lord.GetAttackRange() == 0x90000 && lord.GetAnimationResource(0) == lord.GetBodyAnimation(0));
+    lord.SetEquipmentStage(3);
+    CHECK(lord.GetHealth() == 80 && lord.GetHitDistance() == 0x78000 &&
+          lord.GetAttackRange() == 0x88000 && lord.GetAnimationResource(3) == lord.GetBodyAnimation(5));
+    lord.ForceEquipment(2);
+    lord.ForceState(game::EnemyIdle);
+    lord.ForceDistance(0x100000);
+    lord.ForceStateTime(1);
+    CHECK(lord.TryBeginLeap() && lord.GetState() == 6 && lord.GetStateTime() == 8);
+    lord.ForceFinished(true);
+    lord.UpdateLeap();
+    CHECK(lord.GetLeapPhase() == 1 && lord.GetVelocity().y != 0);
+    lord.ForceVerticalVelocity(-1);
+    lord.ForceShadowCollision(true);
+    lord.UpdateLeap();
+    CHECK(lord.GetLeapPhase() == 2 && lord.GetStateTime() == 0);
+    lord.ForceFinished(true);
+    lord.UpdateLeap();
+    CHECK(lord.GetState() == game::EnemyIdle && lord.GetHaste() == 0);
+
+    manager->RemoveUnitById(0, 2, true);
+    lord.ForceState(7);
+    lord.ForceEncounter(43, 1);
+    lord.UpdateEncounter();
+    CHECK(lord.GetEncounterPhase() == 44);
+    lord.ForceFinished(true);
+    lord.UpdateEncounter();
+    CHECK(lord.GetEncounterPhase() == 45);
+    auto* corpse = dynamic_cast<soft3d::VisUnit*>(manager->FindUnit(2, 0));
+    CHECK(corpse != nullptr && corpse->GetAnimation() != nullptr && !corpse->IsCollisionEnabled());
+    corpse->SetAnimationTime(corpse->GetAnimation()->GetEndTime());
+    corpse->PostUpdate();
+    CHECK(corpse->IsAnimationFinished());
+    lord.ForceEncounter(45, 1);
+    lord.UpdateEncounter();
+    CHECK(lord.GetEncounterPhase() == 46);
+    lord.ForceEncounter(46, 1);
+    lord.UpdateEncounter();
+    CHECK(lord.GetEquipmentStage() == 4 && lord.GetEncounterPhase() == 47);
+    CHECK(fixture.scene->GetCameraController()->GetShakeFrames() == 64);
+    lord.ForceEncounter(47, 1);
+    lord.UpdateEncounter();
+    CHECK(lord.GetState() == game::EnemyDead && lord.GetEncounterPhase() == 48);
+}
+
+void TestBossLifecycle()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    BossProbe boss(manager->GetContext());
+    boss.SetEnemyType(0);
+    boss.ConfigureCommonDefaults(game::GetEnemyCommonConfig(0));
+    boss.SetManager(manager);
+    boss.SetPlayer(player);
+    boss.LoadResources(u"r_nvyong_a", nullptr, nullptr);
+    const auto* attack = dynamic_cast<const soft3d::Animation*>(
+        fixture.engine.GetResourceManager().GetResource(
+            soft3d::ResourceAnimation, 2, manager->GetData().GetAnimationName(87)));
+    CHECK(attack != nullptr);
+    boss.SetAttackAnimation(0, attack);
+    boss.Spawn({});
+    boss.SetUnitId(1300);
+    manager->AddUnit(&boss, 0);
+    fixture.RunFrames(2);
+    player->SetPosition({0, 0, 0x40000});
+    boss.UpdateIdle();
+    CHECK(boss.GetState() == game::EnemyIdle && boss.GetMoveMode() == game::EnemyNoMovement);
+    boss.FollowPlayer();
+    boss.UpdateIdle();
+    CHECK(boss.GetState() == game::EnemyChase && boss.GetMoveMode() == game::EnemyFollowPlayer);
+    boss.Spawn({});
+
+    boss.ConfigureSequences({{{3, 7}, {-1, -1}, {0, 0}}});
+    CHECK(boss.StartSequence(0));
+    boss.Update();
+    CHECK(boss.GetState() == game::EnemyAttack && boss.GetCurrentAction() == 3 &&
+          boss.GetCurrentActionIndex() == 1 && boss.GetAttackAnimationIndex() == 0);
+    boss.ForceFinished(true);
+    boss.Update();
+    CHECK(boss.GetState() == game::EnemyIdle);
+    boss.Update();
+    CHECK(boss.GetCurrentSequence() == -1 && boss.GetCurrentAction() == 7);
+
+    boss.ConfigureSequences({{{0, 7}, {2, -1}, {0, 0}}});
+    CHECK(boss.StartSequence(0));
+    boss.Update();
+    CHECK(boss.GetDelayTimer() == 2 && boss.GetCurrentActionIndex() == 1);
+    boss.Update();
+    CHECK(boss.GetDelayTimer() == 1 && boss.GetCurrentActionIndex() == 1);
+    boss.Update();
+    CHECK(boss.GetDelayTimer() == -1 && boss.GetCurrentActionIndex() == 1);
+    boss.Update();
+    CHECK(boss.GetCurrentSequence() == -1 && boss.GetCurrentAction() == 7);
+
+    const int32_t kills = player->GetKillCount();
+    boss.SetHealth(0);
+    CHECK(boss.GetState() == game::EnemyDying && player->GetKillCount() == kills + 1);
+    for (int index = 0; index < 12; ++index) {
+        boss.ForceFinished(true);
+        boss.UpdateDeath();
+    }
+    CHECK(boss.GetState() == game::EnemyDead);
+    manager->RemoveUnit(&boss, 0, false);
+}
+
+void TestStage12RealContent()
+{
+#ifndef SOFT3D_SPK_ENGLISH_LAYOUT
+    struct Encounter { int map; int day; int type; const char16_t* script; int id; };
+    static constexpr Encounter encounters[] = {
+        {1051, 5, 8, u".\\day5\\ep1051", 5},
+        {1051, 5, 11, u".\\day5\\ep1056", 3},
+        {1060, 5, 12, u".\\day5\\ep1060", 1},
+        {1051, 5, 15, u".\\day5\\ep2052", 7},
+        {2066, 5, 14, u".\\day5\\ep2066", 2},
+        {2008, 6, 16, u".\\day6\\ep6004", 50},
+    };
+    for (const Encounter& encounter : encounters) {
+        GameFixture fixture;
+        LoadRealMap(fixture, encounter.map, encounter.day);
+        auto* manager = fixture.scene->GetUnitManager();
+        auto& script = fixture.engine.GetScriptEngine();
+        CHECK(script.LoadFromPak(encounter.script,
+                                 fixture.engine.GetResourceManager().GetFilePak()) == soft3d::S3D_OK);
+        ExecuteEnemySpawnCommands(fixture, encounter.type);
+        CHECK(manager->FindEnemy(encounter.id) != nullptr);
+        CHECK(manager->FindEnemy(encounter.id)->GetEnemyType() == encounter.type);
+        fixture.RunFrames(5);
+    }
+#endif
+}
+
+void TestStage12EngineFrames()
+{
+    GameFixture fixture;
+    LoadRealMap(fixture);
+    auto* manager = fixture.scene->GetUnitManager();
+    manager->PrepareDayEnemies(5);
+    manager->PrepareDayEnemies(6);
+    const soft3d::Vec3 origin = fixture.scene->GetPlayer()->GetPosition();
+    const int types[] = {8, 11, 12, 14, 15, 16};
+    for (int index = 0; index < 6; ++index) {
+        fixture.Add(1200 + index, types[index], -1,
+                    origin.x + (index + 1) * 0x40000, origin.z + 0x40000);
+        CHECK(manager->FindEnemy(1200 + index) != nullptr);
+    }
+    CHECK(manager->GetBucketCount(0) == 6);
+    fixture.RunFrames(10);
+    for (int index = 0; index < 6; ++index) {
+        CHECK(manager->FindEnemy(1200 + index) != nullptr);
+        fixture.Execute(196, {Argument::Short(1200 + index)});
+    }
+    fixture.RunFrames(15);
+    const auto* video = dynamic_cast<const soft3d::platform::DummyVideoBackend*>(
+        fixture.engine.GetVideo().GetBackend());
+    CHECK(video != nullptr && !video->GetPresentedPixels().empty());
+    CHECK(fixture.scene->IsInitialized());
+}
+
 void Run(const char* name, void (*test)())
 {
     test();
@@ -1488,6 +1914,13 @@ int main()
         Run("Weed encounter", TestWeedEncounter);
         Run("stage 11 real content", TestStage11RealContent);
         Run("stage 11 engine frames", TestStage11EngineFrames);
+        Run("stage 12 types and resources", TestStage12TypesAndResources);
+        Run("Victor, Sam, and Prisoner", TestVictorSamAndPrisoner);
+        Run("Kate and DarkKen", TestKateAndDarkKen);
+        Run("Lord encounter", TestLordEncounter);
+        Run("Boss lifecycle", TestBossLifecycle);
+        Run("stage 12 real content", TestStage12RealContent);
+        Run("stage 12 engine frames", TestStage12EngineFrames);
     } catch (const std::exception& error) {
         std::cerr << "FAIL: " << error.what() << '\n';
         return 1;
