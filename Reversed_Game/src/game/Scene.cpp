@@ -176,18 +176,6 @@ void Scene::StartNewGame(const soft3d::NewGameOptions& options)
     RequireStatus(LoadDay(1), "Scene_StartNewGame");
 }
 
-bool Scene::LoadSaveSlot(int slot)
-{
-    throw std::runtime_error("Scene_LoadSave requires the full stage-13 reader; slot " +
-                             std::to_string(slot));
-}
-
-bool Scene::SaveSaveSlot(int slot)
-{
-    throw std::runtime_error("Scene_SaveSave requires the full stage-13 writer; slot " +
-                             std::to_string(slot));
-}
-
 void Scene::ReturnToMainMenu()
 {
     for (int action = 1; action <= 7; ++action) {

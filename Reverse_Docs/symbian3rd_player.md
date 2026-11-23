@@ -192,7 +192,7 @@ inventory[9], inventoryDayStart[9], healthPackCount,
 notes[128], notesDayStart[128]
 ```
 
-`Player_LoadState` (`0x0003d278`) resets first, skips the consumed four-byte type word, restores those fields in the same order, reapplies weapon resources, and resets to stand. This is preserved for stage 13 rather than replacing it with the header-only save path.
+`Player_LoadState` (`0x0003d278`) resets first, skips the consumed four-byte type word, restores those fields in the same order, reapplies weapon resources, and resets to stand. Stage 13 uses this loader in the full scene path. To make immediate second saves byte-deterministic, the portable implementation additionally replays the saved visual record after those native resets so animation time and other visual fields are not cleared; this deliberate completion correction is documented in `symbian3rd_savegame.md`.
 
 ## `GameSI` player commands
 

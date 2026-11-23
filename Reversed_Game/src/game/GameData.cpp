@@ -359,4 +359,14 @@ const std::vector<EnemyInfoGroup>& GameData::GetEnemyInfoGroups() const
     return enemyInfoGroups;
 }
 
+void GameData::RestoreGameItemGroups(std::vector<GameItemGroup> groups)
+{
+    gameItemGroups = std::move(groups);
+}
+
+void GameData::RestoreEnemyInfoGroups(std::vector<EnemyInfoGroup> groups)
+{
+    enemyInfoGroups = std::move(groups);
+}
+
 } // namespace game

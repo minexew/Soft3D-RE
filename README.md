@@ -4,7 +4,7 @@
 
 ## Game decompilation and reconstruction
 
-[`Reversed_Game/`](Reversed_Game/) contains a self-contained C++17/CMake decompilation and reconstruction of the engine, together with an SDL3 application, platform backends, reference resources, and a test suite. It currently runs the startup and complete menu flow plus the stage-3 game camera, map camera/light triggers, door transitions, environment audio, and scene presentation. Concrete player/unit behavior, full save/load, and license services remain unfinished. See [`Reversed_Game/README.md`](Reversed_Game/README.md) for standalone build, run, test, configuration, and library-integration instructions.
+[`Reversed_Game/`](Reversed_Game/) contains a self-contained C++17/CMake decompilation and reconstruction of the engine, together with an SDL3 application, platform backends, reference resources, and a test suite. It runs the startup/menu flow and stages 1–13 of game reconstruction, including concrete gameplay classes and deterministic full scene/script-sidecar save/load. License services, remaining script callbacks, and full-game validation remain staged. See [`Reversed_Game/README.md`](Reversed_Game/README.md) for standalone build, run, test, configuration, and library-integration instructions.
 
 ## File formats overview
 
@@ -13,6 +13,7 @@
 |✔️|SPK|Chinese and English variants|resource archives; 64-byte and 32-byte path layouts documented in `Reverse_Docs/filepak_api.md`
 |✔️|S3DTEX|S2D SDK samples|S2D images/textures; recovered direct/keyed and paletted RGB332/444/555/565/666/888 decoding, header flags, color keys, and all 173 samples documented and tested in `Reverse_Docs/s3dtex_format.md`
 |✔️|S3DSTY||BSP lightmap-frame animation sequences; 256-record layout, loader, update cadence, and lightmap modulation documented and tested in `Reverse_Docs/s3dsty_format.md`
+|✔️|SAV|S60v3|44-byte little-endian slot header, complete scene/unit stream, and `spt` script sidecar documented and tested in `Reverse_Docs/symbian3rd_savegame.md`
 |🔧|SAI||<p>3D model animations, mostly understood</p><ul><li>Fixed-point transform tracks, bounds, morph targets, timing, and interpolation documented in `Reverse_Docs/soft3d_models_animations.md`</li></ul>
 |✔️|SAU|DA320 (all), GA330, S60v1 (chi), S60v2, S60v3, Win32 (chi)|AMI ADPCM audio, low nibble first; same format as WAR except nibble order, well-understood
 |🔧|SBN|GA330, S60v3|font (glyphs) + text data (32-bit encoding); Symbian base/local glyphs, string tables, character lookup, and drawing documented in `Reverse_Docs/sbn_format.md`

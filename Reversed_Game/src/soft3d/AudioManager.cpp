@@ -104,6 +104,11 @@ void AudioManager::PlayMusic(int nameIndex, bool looping, int fadeFrames)
     PlayMusic(soundNameTable + nameIndex * 64, looping, fadeFrames);
 }
 
+const char16_t* AudioManager::GetMusicName() const
+{
+    return musicData != nullptr ? musicData->GetFileName() : nullptr;
+}
+
 int AudioManager::PlaySound(const char16_t* name, bool looping)
 {
     if (effectsVolume == 0) {

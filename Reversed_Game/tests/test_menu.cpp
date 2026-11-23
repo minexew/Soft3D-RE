@@ -184,7 +184,7 @@ void TestMenuFlow(const TemporaryDirectory& directory)
     RunUntilMode(engine, soft3d::MainUIDlg::SoundPrompt);
     CHECK(engine.GetSaveSlots()[0].present);
     CHECK(engine.GetSaveSlots()[0].GetDay() == 1);
-    CHECK(engine.GetSaveSlots()[0].GetPlayTime() == 1234);
+    CHECK(engine.GetSaveSlots()[0].GetSaveNumber() == 1234);
 
     Click(engine, soft3d::Key::Right);
     CHECK(engine.GetMainMenu()->IsSoundEnabled());

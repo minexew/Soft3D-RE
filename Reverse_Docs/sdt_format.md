@@ -332,7 +332,7 @@ The original loader reads the entire file without a layout-size guard. The porta
 
 The three `str.sdt` sound names are not the menu sound table used by `AudioManager_PlaySoundByIndex`. Index 0 is reserved and empty; indices 1–8 resolve to `ui_select`, `ui_selectitem`, `ui_confirm`, `ui_cancel`, `ui_item`, `ui_false`, `ui_paper`, and `t_lock_open`. Stage 1 supplies all 143 slots through `game::GameData`; see `game_data_tables.md`.
 
-Each save slot is a separate 44-byte `slot%d.sav` header. Its confirmed fields are day at `0x00`, play time at `0x14`, and present flag at `0x18`; the other words are consumed by the later game loader and are not reinterpreted here.
+Each save slot starts with a separate 44-byte little-endian header. Its confirmed fields are day at `0x00`, map at `0x04`, six 16-bit local timestamp fields at `0x08`, save number at `0x14`, present flag at `0x18`, item-use/kill counts at `0x1c`/`0x20`, play time at `0x24`, and deaths at `0x28`. The slot UI displays the save number at `0x14`, not play time. The complete big-endian scene body and `spt\\slot%d.sav` script sidecar are documented in `symbian3rd_savegame.md`; header display remains distinct from full scene loading.
 
 ## Other SDT families and scope
 

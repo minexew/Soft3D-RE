@@ -2,7 +2,7 @@
 
 ## Scope
 
-The binary contains a small polymorphic stream hierarchy used by save files and by the verification/network code. Stage 12 reconstructs its portable, non-platform-specific behavior, generic unit and script state records, narrow-path IO, and standalone RAM diagnostics. Episode-specific scene and save-slot schemas remain outside this work.
+The binary contains a small polymorphic stream hierarchy used by save files and by the verification/network code. Engine stage 12 reconstructs its portable, non-platform-specific behavior, generic unit and script state records, narrow-path IO, and standalone RAM diagnostics. Game-completion stage 13 builds the complete episode scene/slot schema on these primitives; see `symbian3rd_savegame.md`.
 
 The RTTI hierarchy and native sizes are:
 
@@ -147,8 +147,8 @@ Scope 0 is the separate array at native `SimpleScript +0x34b4`; it is not the cu
 
 ## Reconstruction and verification
 
-`Reversed_Game/src/soft3d/Stream.*` implements all seven classes and vector/fixed helpers. `Units.*` implements the generic state slots, `SimpleScript.*` implements archive sizing and file round trips, `s3dIO.*` adds narrow overloads and shared widening, and `platform/linux/Memory.cpp` plus `s3dMemory.hpp` implement RAM queries. The SDL app no longer duplicates that widening logic.
+`Reversed_Game/src/soft3d/Stream.*` implements all seven classes and vector/fixed helpers. `Units.*` implements the generic state slots, `SimpleScript.*` implements archive sizing and file round trips, `s3dIO.*` adds narrow overloads and shared widening, and `platform/linux/Memory.cpp` plus `s3dMemory.hpp` implement RAM queries. The SDL app no longer duplicates that widening logic. Game stage 13 adds a sticky portable read-error query for checked scene reconstruction without changing native size/cursor semantics.
 
 `tests/test_stream.cpp` checks exact typed bytes, sentinel and EOF behavior, seeking, growth/copying, file flush/reopen/truncation/error paths, narrow IO, RAM diagnostics, `GameUnit` and empty/real `VisUnit` state, lifecycle persistence, quit, and fresh-engine restoration. The real fixture uses `cg_bully_tuomao_a` and `cg_bully_cc_aa`. `tests/test_script.cpp` checks real SST archive round trips, exact second serialization, typed globals/locals, shared words and task state, and truncated/missing archives.
 
-All 26 normal CTest tests, all 20 stdio-logging tests, all 20 SDL-independent ASan/UBSan tests, and all six standalone SOJ converter tests pass. Ghidra contains saved stream structures, 82 stage-12 function annotations, corrected state comments, and the 0x48-byte `ObjectMaterial` layout.
+At engine stage 12, all 26 normal CTest tests, 20 stdio-logging tests, and 20 SDL-independent ASan/UBSan tests passed. After game stage 13, the current totals are 37 default tests and 30 tests in each SDL-independent STDIO/host-math/WAR/ASan-UBSan build, all passing serially. Ghidra contains saved stream structures, 82 engine-stage-12 function annotations, corrected state comments, and the 0x48-byte `ObjectMaterial` layout; game-stage-13 save functions are annotated separately.

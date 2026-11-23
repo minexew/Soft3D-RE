@@ -2,7 +2,7 @@
 
 ## Scope and reliability
 
-This document covers `SymbianBin/out.bin` (`out.bin` in Ghidra) at image base zero. Names listed as recovered have been applied to the program. Platform behavior is established from local control flow, RTTI, the corrected E32 import names, and the S60 3rd FP2 headers in `SDK/devices/`. The `CDirectScreenAccess` and `CDirectScreenBitmap` calls in this path now match those SDK declarations.
+This document covers `SymbianBin/out.bin` (`out.bin` in Ghidra). The Ghidra image base is now `0x8000`; addresses below retain the documentation's native-offset convention, so add `0x8000` when navigating in Ghidra. Names listed as recovered have been applied to the program. Platform behavior is established from local control flow, RTTI, the corrected E32 import names, and the S60 3rd FP2 headers in `SDK/devices/`. The `CDirectScreenAccess` and `CDirectScreenBitmap` calls in this path now match those SDK declarations.
 
 ## Application and engine initialization
 

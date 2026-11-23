@@ -10,14 +10,14 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-Stages 1–12 are implemented in `seven_days_game`. Stage 9 supplies common enemy AI/pools and commands; stage 10 adds the concrete Maid/Bully families in `MaidBully.*`, including their native projectile, charge, QTE, saw, death, and reward behavior. Stage 11 adds Worm, Ghost, Lamper, and Weed in `SpecialEnemies.*`. Stage 12 completes Victor, Sam, Prisoner, Kate, DarkKen, Lord, and the separate Boss in `NamedEnemies.*`, `Lord.*`, and `Boss.*`, removes the common adapter, and preserves Lord's full encounter and Boss's original empty sequence hook. See `symbian3rd_enemy.md`, `symbian3rd_maidbully.md`, `symbian3rd_specialenemies.md`, and `symbian3rd_namedenemies.md`.
+Stages 1–13 are implemented in `seven_days_game`. Stage 13 adds complete deterministic scene/slot and script-sidecar persistence in `SaveGame.cpp`; see `symbian3rd_savegame.md`. Stage 9 supplies common enemy AI/pools and commands; stage 10 adds the concrete Maid/Bully families in `MaidBully.*`, including their native projectile, charge, QTE, saw, death, and reward behavior. Stage 11 adds Worm, Ghost, Lamper, and Weed in `SpecialEnemies.*`. Stage 12 completes Victor, Sam, Prisoner, Kate, DarkKen, Lord, and the separate Boss in `NamedEnemies.*`, `Lord.*`, and `Boss.*`, removes the common adapter, and preserves Lord's full encounter and Boss's original empty sequence hook. See `symbian3rd_enemy.md`, `symbian3rd_maidbully.md`, `symbian3rd_specialenemies.md`, and `symbian3rd_namedenemies.md`.
 
 - `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
 - Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL new-game smoke test proves that this path reaches progress 100 and executes the stage-3 camera/audio commands.
 - `Scene` owns the BSP, manager, concrete `Player`, game `CameraController`, camera-path resources, six presentation shaders, transition state, event/snapshot arrays, and two environment-channel states. Stage 4 adds the complete 20-state player, sword/gunfire, combat, inventory, and hide/FPS lifecycle; `symbian3rd_player.md` is the detailed reference.
 - `GameSI` contains all 218 ARM handler addresses and zero adjustments. Stage-2 scene commands, stage-3 camera/audio/presentation commands, stage-4 player commands, stage-5 thing/map/trap commands 219–254, stage-6 interaction commands 149–165, stage-7 Hide/Item/Talk commands 166–179, StayBox commands 205–207, and stage-8 UI/progression commands are implemented alongside the confirmed empty/shared-word callbacks. Every remaining later-stage command throws `GameSIError` with its ID and ARM address. The real `ep0` test confirms the map handshake and reaches later-stage input command 47 (`0x00065560`).
 - The SBP factory creates concrete `BspUnit` renderable entities for types -1/0, real camera/light triggers for types 10/11, type-102 header state, and manager-owned type-202 lensflares. Other game-owned non-renderable records return null and are skipped by the generic loader, as in ARM. See `symbian3rd_mapunits.md` for the completed stage-5 classes and command matrix.
-- `game::GameUiController` completes the GameUI HUD/map/about-model/item operations, including high-`0x10000` special-door subtitles, dialogs, inventory/files, progression, and statistics; see `symbian3rd_gameui.md`. Full scene save/load remains stage 13 and reports an explicit error rather than treating the 44-byte header as a scene load. License gating remains stage 14.
+- Stage 13 implements complete scene/slot persistence and script sidecars in `game::Scene`/`SaveGame.cpp`; `LoadDlg` still uses only the 44-byte header for display. See `symbian3rd_savegame.md`. License gating remains stage 14.
 
 These boundaries leave substantial gameplay work, but the application no longer uses an empty scene or an unbound script host.
 
@@ -180,19 +180,11 @@ Stages 10–12 replace the common adapter for every pool row with the native cla
 
 ## Full save format and unit reconstruction
 
-`Scene_LoadSave` seeks to `0x2c`, after the 44-byte `slot%d.sav` header, then reads:
+`Scene_SaveSave` (`0x0002ff34`) and `Scene_LoadSave` write/read the complete stream after the 44-byte header: day/map, music and environment resources, both `0x2800` progression blocks, gun HUD, player, manager/content, typed units, and the separate `spt\\slot%d.sav` script archive. The header's `0x14` word is the displayed save number; play time is at `0x24`.
 
-1. day and map IDs;
-2. a wide music name and two environment-audio configurations/resources;
-3. both 0x2800-byte progression blocks;
-4. day content and GameUI state;
-5. player state through the custom player loader;
-6. manager content and a sequence of typed unit records;
-7. script state from `spt\\slot%d.sav`.
+The native `MyGameUnitMgr_LoadUnitState` switch handles 0, 4, `0x1b`–`0x1f`, `0x21`–`0x23`, and `0x25`–`0x28`. Record `0x26` consumes the next embedded 0x6c-byte StayBox at manager `+0xa28`; it is not pooled-enemy reconstruction. PickTrigger appends its linked-thing ID. Map camera/light entities are rebuilt from BSP data.
 
-`MyGameUnitMgr_LoadUnitState` handles unit type words 0, 4, `0x1b`, `0x1c`, `0x1d`, `0x1e`, `0x1f`, `0x21`, `0x22`, `0x23`, `0x25`, `0x26`, `0x27`, and `0x28`. These represent base collision units, Things, Event/Breakable/Pushable/Pickable/Trap/Act/Door/Hide/Pick/StayBox/Item/Talk records. In particular, `0x26` consumes the next embedded 0x6c-byte StayBox at manager `+0xa28`; it does not reconstruct a pooled enemy, and this switch has no enemy case. PickTrigger stores an additional linked-thing ID. Map-driven camera/light entities are rebuilt from map data rather than emitted by this switch.
-
-The save writer, exact field order, per-class extensions, EOF rules, script archive consistency, and second-save byte determinism are all still required. Reading only the header cannot produce a valid load.
+Native writing can nevertheless emit concrete enemy tags `0x0a`–`0x1a`, and the native writer omits embedded StayBoxes. Portable stage 13 deliberately completes those asymmetries with concrete-pool enemy reconstruction and explicit StayBox emission. Reverse-order bucket insertion and post-reset player visual replay provide deterministic second-save bytes. The complete schema, native/portable distinction, validation, and tests are in `symbian3rd_savegame.md`; `SaveGame.cpp` replaces the former header-only/stub path.
 
 ## Game-data tables
 
@@ -214,7 +206,7 @@ These are not UI string hierarchies. `GameEngine_Init` reads 512 bytes from `mes
 
 ### Resource-name and statistics tables
 
-`InitializeAnimationResourceNames` (`0x00089238`) fills 260 names. `InitializeSoundResourceNames` (`0x00088594`, formerly `InitializeUiResourceNames`) fills 142 named slots following a reserved empty index 0, producing a 143-slot indexed table now present in `src/game/ResourceNames.cpp`. `Scene_InitializeDoorResources` (`0x0002b554`) has 22 model records and two 22-entry sound-index arrays; animation entries 238–259 mirror the door models. Stage 8 implements the HUD/inventory/map/QTE/story, item-effect, statistics, and runtime-unlock consumers; `symbian3rd_gameui.md` records them. Full scene save records remain stage 13.
+`InitializeAnimationResourceNames` (`0x00089238`) fills 260 names. `InitializeSoundResourceNames` (`0x00088594`, formerly `InitializeUiResourceNames`) fills 142 named slots following a reserved empty index 0, producing a 143-slot indexed table now present in `src/game/ResourceNames.cpp`. `Scene_InitializeDoorResources` (`0x0002b554`) has 22 model records and two 22-entry sound-index arrays; animation entries 238–259 mirror the door models. Stage 8 implements the HUD/inventory/map/QTE/story, item-effect, statistics, and runtime-unlock consumers; `symbian3rd_gameui.md` records them. Stage 13 implements full scene save records and script sidecars in `symbian3rd_savegame.md`.
 
 ## Game UI and progression
 
@@ -261,3 +253,5 @@ Stage 9 adds the saved 0x83c `Enemy` layout and distinct 0x24 `EnemyWaypointNode
 Stage 10 adds all seven Maid/Bully native layouts, typed variant signatures, recovered helper names, behavior comments, 96 stage-10 functions, and a completion property. Maid3's reward is corrected to 2 and the Victor/Day3 sound-block ordering is fixed. See `symbian3rd_maidbully.md`.
 
 Stage 11 adds `Worm` (0x840), `Ghost` (0x844), `Lamper`/`Weed` (0x83c), and `EnemyBloodSplatLayout`, which records blood life at native `Enemy+0x758`. It saves 45 typed/commented functions, `game,enemy,stage11` tags, and `Stage11Types`/`Stage11Status` properties. Corrections include Worm's reward of 1, its three random texture variants, Ghost's separate index-50 proximity sound and Twist consumer, and the Lamper/Weed blood-life clears. See `symbian3rd_specialenemies.md`.
+
+Stage 13 adds `SaveSlotHeader` (0x2c), `ManagerSerialized19cRecord` (0x08), `Scene::pSaveStream`, four recovered helper/writer names, typed scene/manager/engine/player signatures and locals, nine behavioral plates, ten `stage13` function assignments, two bookmarks, and a saved `Stage13Status` property. The Ghidra image base is now `0x8000`; native documentation offsets map by adding `0x8000` (for example `Scene_LoadSave` native `0x0002f864`, Ghidra `0x00037864`). Native enemy-tag and StayBox writer/reader asymmetries are explicitly distinguished from portable deterministic completion fixes. See `symbian3rd_savegame.md`.

@@ -72,6 +72,9 @@ MyGameUnitMgr::MyGameUnitMgr(const soft3d::UnitManagerContext& context)
     : GameUnitManager(context)
     , interactionState(this)
 {
+    for (auto& record : serialized19c) {
+        record.fill(-1);
+    }
     auto* engine = static_cast<soft3d::GameEngine*>(context.gameContext);
     for (auto& lensflare : lensflares) {
         lensflare = std::make_unique<soft3d::Lensflare>(context.renderer,
@@ -138,7 +141,9 @@ void MyGameUnitMgr::Reset()
     lensflareCount = 0;
     mapReady = false;
     paused = false;
-    healthPackCount = 0;
+    for (auto& record : serialized19c) {
+        record.fill(-1);
+    }
     pushTarget = nullptr;
     interactionState.Reset();
 }

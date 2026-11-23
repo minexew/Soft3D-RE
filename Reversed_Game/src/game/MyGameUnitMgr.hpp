@@ -37,6 +37,9 @@ public:
     int32_t GetMapId() const { return mapId; }
     int32_t GetHealthPackCount() const { return healthPackCount; }
     void SetHealthPackCount(int32_t value) { healthPackCount = value; }
+    void RestoreDayAndMap(int32_t savedDay, int32_t savedMap) { day = savedDay; mapId = savedMap; }
+    soft3d::result SaveState(soft3d::OutputStream& stream) const;
+    soft3d::result LoadUnitState(soft3d::InputStream& stream);
     soft3d::GameUnit* GetPushTarget() const { return pushTarget; }
     void SetPushTarget(soft3d::GameUnit* value) { pushTarget = value; }
 
@@ -133,6 +136,7 @@ private:
     StayBoxHost* stayBoxHost = this;
     std::array<soft3d::Fixed, 6> mapHeaderValues{};
     std::array<int32_t, 1024> doorStates{};
+    std::array<std::array<int32_t, 2>, 32> serialized19c{};
     std::array<std::array<std::unique_ptr<Enemy>, enemyPoolStride>, enemyTypeCount> enemyPools{};
     uint32_t randomState = 0;
     int32_t day = 0;

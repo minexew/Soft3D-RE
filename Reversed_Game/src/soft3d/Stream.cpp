@@ -91,6 +91,7 @@ void InputStream::SetData(const void* data, int32_t byteSize)
     buffer = nullptr;
     size = byteSize + 1;
     position = 0;
+    error = false;
     if (size > 0) {
         buffer = Allocate(size);
         if (buffer != nullptr && data != nullptr && byteSize > 0) {
@@ -102,9 +103,11 @@ void InputStream::SetData(const void* data, int32_t byteSize)
 result InputStream::Read(void* destination, int32_t bytes)
 {
     if (bytes < 0 || (destination == nullptr && bytes != 0)) {
+        error = true;
         return S3D_PARAM;
     }
     if (static_cast<int64_t>(position) + bytes >= size) {
+        error = true;
         return S3D_ACCESS;
     }
     if (bytes != 0) {
@@ -179,16 +182,19 @@ result InputStream::ReadWideString(char16_t* destination, int32_t characterCapac
         return status;
     }
     if (destination == nullptr || characterCapacity < 0) {
+        error = true;
         return S3D_PARAM;
     }
     if (characterCapacity < bytes || bytes < 0) {
+        error = true;
         return S3D_ACCESS;
     }
     std::memset(destination, 0, static_cast<size_t>(characterCapacity) * sizeof(char16_t));
     if (bytes == 0) {
         return S3D_OK;
     }
-    if (static_cast<int64_t>(position) + bytes >= size) {
+    if ((bytes & 1) != 0 || static_cast<int64_t>(position) + bytes >= size) {
+        error = true;
         return S3D_ACCESS;
     }
     std::memcpy(destination, buffer + position, static_cast<size_t>(bytes));
@@ -211,16 +217,17 @@ InputFileStream::InputFileStream(const char16_t* path, Engine* engine)
     }
     file.Seek(0, SEEK_END);
     const int32_t fileSize = static_cast<int32_t>(file.Tell());
-    size = fileSize;
     if (fileSize == -1) {
         file.Close();
         return;
     }
     file.Seek(0, SEEK_SET);
+    size = fileSize;
     if (fileSize > 0) {
         buffer = Allocate(fileSize);
-        if (buffer != nullptr) {
-            file.Read(buffer, static_cast<uint32_t>(fileSize));
+        if (buffer != nullptr && file.Read(buffer, static_cast<uint32_t>(fileSize)) !=
+                                   static_cast<uint32_t>(fileSize)) {
+            error = true;
         }
     }
     file.Close();

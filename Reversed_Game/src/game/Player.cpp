@@ -1134,6 +1134,21 @@ int32_t Player::GetAnimationTime() const
     return GetObject(0) != nullptr ? GetObject(0)->GetAnimationTime() : 0;
 }
 
+void Player::RestoreHeaderStatistics(int32_t itemUses, int32_t kills, int32_t time, int32_t deaths)
+{
+    itemUseCount = itemUses;
+    killCount = kills;
+    playTime = time;
+    deathCount = deaths;
+    SnapshotHeaderStatistics();
+}
+
+void Player::SnapshotHeaderStatistics()
+{
+    savedItemUseCount = itemUseCount;
+    savedKillCount = killCount;
+}
+
 void Player::SaveState(soft3d::OutputStream& stream) const
 {
     VisUnit::SaveState(stream);
@@ -1157,8 +1172,10 @@ void Player::SaveState(soft3d::OutputStream& stream) const
 void Player::LoadState(soft3d::InputStream& stream)
 {
     Reset(scene->GetUnitManager()->GetData());
+    const int32_t visualStart = stream.Tell() + 4;
     stream.Seek(4, 1);
     VisUnit::LoadState(stream);
+    const int32_t visualEnd = stream.Tell();
     int32_t value = 0;
     stream.ReadInt32(value);
     Creature::SetNavigationEnabled(value != 0);
@@ -1179,6 +1196,11 @@ void Player::LoadState(soft3d::InputStream& stream)
     for (int32_t& note : notes) stream.ReadInt32(note);
     for (int32_t& note : notesDayStart) stream.ReadInt32(note);
     StateMachine<Player>::Reset(this);
+    if (!stream.HasError() && visualEnd > visualStart) {
+        soft3d::InputDataStream visual;
+        visual.SetData(stream.GetData() + visualStart, visualEnd - visualStart);
+        VisUnit::LoadState(visual);
+    }
 }
 
 } // namespace game

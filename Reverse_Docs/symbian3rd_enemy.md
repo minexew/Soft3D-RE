@@ -205,7 +205,7 @@ state
 
 `Enemy_LoadState` reads that same extension. The portable loader restores the raw navigation flag through `Creature::RestoreNavigationEnabled`, avoiding pause side effects during reconstruction.
 
-The earlier identification of manager record `0x26` as an enemy was wrong. In `MyGameUnitMgr_LoadUnitState` (`0x00048314`), `0x26` consumes the next embedded 0x6c-byte StayBox at manager `+0xa28`, loads it, and binds the player. There is no pooled-enemy case in this switch. Full-scene writing/reading remains stage 13; any enemy persistence outside that switch must be established separately rather than assigned to `0x26`.
+The earlier identification of manager record `0x26` as an enemy was wrong. In `MyGameUnitMgr_LoadUnitState` (`0x00048314`), `0x26` consumes the next embedded 0x6c-byte StayBox at manager `+0xa28`, loads it, and binds the player. There is no native pooled-enemy case in this switch. Stage-13 analysis of the native writer additionally established that configured live enemies carry unit tags `0x0a`–`0x1a`, one per pool row; the native writer can emit them even though the native switch cannot reconstruct them. Portable full persistence accepts those writer-generated records through the concrete pools, without using `0x26` or a generic runtime adapter. See `symbian3rd_savegame.md` for this deliberate completion fix and deterministic round-trip tests.
 
 StayBox despawn preserves the configured return position, type, active-byte health, and stopped/spawn state, not the enemy's current world position. Missing units and states above 14 clear the record's active byte.
 

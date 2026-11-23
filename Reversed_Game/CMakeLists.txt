@@ -104,6 +104,7 @@ add_library(seven_days_game STATIC
     src/game/Player.cpp
     src/game/PlayerStates.cpp
     src/game/ResourceNames.cpp
+    src/game/SaveGame.cpp
     src/game/Scene.cpp
     src/game/SpecialEnemies.cpp
     src/game/Sword.cpp
@@ -399,6 +400,16 @@ if(BUILD_TESTING)
         target_compile_options(game_ui_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME game_ui COMMAND game_ui_tests)
+
+    add_executable(game_save_tests tests/test_game_save.cpp)
+    target_link_libraries(game_save_tests PRIVATE seven_days_game)
+    target_compile_definitions(game_save_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(game_save_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME game_save COMMAND game_save_tests)
 
     if(TARGET seven_days)
         add_executable(soft3d_sdl_input_tests

@@ -23,7 +23,8 @@ struct SaveSlotInfo {
     bool present = false;
 
     uint32_t GetDay() const { return words[0]; }
-    uint32_t GetPlayTime() const { return words[5]; }
+    uint32_t GetSaveNumber() const { return words[5]; }
+    uint32_t GetPlayTime() const { return words[9]; }
 };
 
 struct GameplayHooks {
@@ -105,13 +106,13 @@ public:
     GameplayHooks& GetGameplayHooks();
     std::array<SaveSlotInfo, 3>& GetSaveSlots();
     const std::array<SaveSlotInfo, 3>& GetSaveSlots() const;
+    std::u16string PersistencePath(const char16_t* name) const;
     int GetWidth() const;
     int GetHeight() const;
     int GetLanguage() const;
     bool IsInGame() const { return inGame; }
 
 private:
-    std::u16string PersistencePath(const char16_t* name) const;
     void InitializeUiSoundNames();
 
     std::unique_ptr<MenuBackdrop> menuBackdrop;

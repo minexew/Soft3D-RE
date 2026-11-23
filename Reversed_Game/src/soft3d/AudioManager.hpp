@@ -29,6 +29,7 @@ public:
 
     void PlayMusic(const char16_t* name, bool looping, int fadeFrames = 0);
     void PlayMusic(int nameIndex, bool looping, int fadeFrames = 0);
+    const char16_t* GetMusicName() const;
     int PlaySound(const char16_t* name, bool looping = false);
     int PlaySound(int nameIndex, bool looping = false);
     int PlaySound(AudioData* data, bool looping = false);

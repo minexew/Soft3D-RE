@@ -281,13 +281,7 @@ void TestCallbackTableAndCommands()
         malformed = true;
     }
     CHECK(malformed);
-    malformed = false;
-    try {
-        fixture.scene->LoadSaveSlot(1);
-    } catch (const std::runtime_error& error) {
-        malformed = std::string(error.what()).find("stage-13") != std::string::npos;
-    }
-    CHECK(malformed);
+    CHECK(!fixture.scene->LoadSaveSlot(1));
 }
 
 void TestRealNewGameHandshake()

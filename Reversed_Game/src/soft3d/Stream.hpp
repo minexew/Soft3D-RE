@@ -51,6 +51,10 @@ public:
     result ReadInt32(int32_t& value);
     result ReadUInt32(uint32_t& value);
     result ReadWideString(char16_t* destination, int32_t capacity);
+    bool HasError() const { return error; }
+
+protected:
+    bool error = false;
 };
 
 class InputDataStream : public InputStream {

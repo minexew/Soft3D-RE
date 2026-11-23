@@ -250,12 +250,17 @@ bool GameEngine::LoadSaveSlot(int slot)
         return false;
     }
     persistenceIo.Close();
-    if (gameplayHooks.loadGame && !gameplayHooks.loadGame(slot)) {
-        return false;
+    if (gameplayHooks.loadGame) {
+        gameUi->Initialize();
+        if (!gameplayHooks.loadGame(slot)) {
+            return false;
+        }
     }
     inGame = true;
     menuActive = false;
-    gameUi->Initialize();
+    if (!gameplayHooks.loadGame) {
+        gameUi->Initialize();
+    }
     ActivateMenuDialog(6);
     return true;
 }

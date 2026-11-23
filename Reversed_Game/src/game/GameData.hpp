@@ -16,7 +16,7 @@ inline constexpr std::size_t animationResourceNameCount = 260;
 inline constexpr std::size_t soundResourceNameCount = 143;
 inline constexpr std::size_t doorResourceCount = 22;
 inline constexpr std::size_t resourceNameCapacity = 64;
-inline constexpr std::size_t enemyInfoGroupCapacity = 100;
+inline constexpr std::size_t enemyInfoGroupCapacity = 64;
 inline constexpr std::size_t enemySpawnCapacity = 32;
 
 struct GameItemSpawnRecord {
@@ -86,6 +86,9 @@ public:
     EnemySpawnRecord* AddEnemySpawnRecord(int32_t mapId, int32_t enemyType, int32_t unitId);
     const std::vector<GameItemGroup>& GetGameItemGroups() const;
     const std::vector<EnemyInfoGroup>& GetEnemyInfoGroups() const;
+    std::vector<EnemyInfoGroup>& GetEnemyInfoGroups() { return enemyInfoGroups; }
+    void RestoreGameItemGroups(std::vector<GameItemGroup> groups);
+    void RestoreEnemyInfoGroups(std::vector<EnemyInfoGroup> groups);
 
 private:
     std::array<char16_t, animationResourceNameCount * resourceNameCapacity> animationNames{};

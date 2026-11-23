@@ -265,7 +265,7 @@ Use `Creature` navigation/hearing and the real player/BSP. All concrete enemies 
 **Verification**
 
 - Directed tests for every common virtual slot and state transition, sight/hearing/path cases, damage/death, and pooled reuse.
-- Every enemy command with valid/invalid IDs and types, plus common state round trips. Verify from the native loader that `0x26` reconstructs StayBox, not enemy; full scene loading remains stage 13.
+- Every enemy command with valid/invalid IDs and types, plus common state round trips. Verify from the native loader that `0x26` reconstructs StayBox, not enemy; stage 13 subsequently completes full scene loading and concrete-pool enemy restoration.
 - Real enemy resources, exact blood-splat lightmap pixels, and player interaction through the scene frame loop.
 
 **Status: complete for common behavior.** `src/game/Enemy.*` implements slots 28–49, common helpers, AI states, combat, waypoints, StayBox return behavior, blood splats, and the four-word save extension. `MyGameUnitMgr` implements 17 pool rows, singleton selection, collision search, nondeleting reuse, day preparation, map spawning/snapshotting, and collision-unit commands. `GameSI` implements IDs 180–204 and 208–218. Stages 10–12 have since completed every concrete variant; the temporary common adapter has been removed.
@@ -343,6 +343,8 @@ Replace the header-only `LoadSaveSlot` path with the real scene load while retai
 - Exact byte fixtures for every record and a full scene, truncation at every section, invalid type/link, missing sidecar, and reload/destruction.
 - Save → load → second-save byte determinism, including task cursors/local values and environment state.
 - Resume each concrete unit class and real maps, then continue gameplay rather than only comparing structures.
+
+**Status: complete.** `src/game/SaveGame.cpp` implements the complete scene writer/reader, 44-byte headers, both progression blocks, environment/music/GameUI/player state, manager data tables, typed units, concrete pooled enemies, embedded StayBoxes, pickup links, and script sidecars. Deterministic reconstruction preserves bucket order and replays player visual state after native resets. The original writer/reader asymmetries for enemy tags `0x0a`–`0x1a` and StayBox `0x26` are documented as portable completion fixes rather than misattributed to the native switch. The slot-header word at `0x14` is a save number; play time is at `0x24`. `test_game_save.cpp` covers every reconstruction family, exact second-save body/sidecar bytes, malformed/truncated sections, invalid types/links, missing sidecars, and resumed real engine frames. All 37 default tests pass; 30 SDL-independent tests pass in each ASan/UBSan, host-math, STDIO-logging, and WAR build. See `symbian3rd_savegame.md`.
 
 ## Stage 14 — License, network/device services, and vibration
 

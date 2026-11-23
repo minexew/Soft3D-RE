@@ -10,7 +10,7 @@ The implementation is split without creating a second UI system:
 - `src/game/GameUiController.*` supplies concrete gameplay drawing, player/content synchronization, item operations, map projection, and item-model submission.
 - `GameUiController` implements the existing `TriggerUiHost`; `Scene` owns it and installs it as the manager's real interaction UI. The old `InteractionState` remains useful as a standalone test/fallback host, but is not the application's production substitute.
 - `GameEngine::PrepareRender` preserves the existing scene/About ordering and calls the GameUI item-model preparation hook. Inventory and About use the same controller-owned `Object` array.
-- Full scene save records remain stage 13. The stage-8 save menu invokes the real slot callback; `Scene::SaveSaveSlot` currently fails explicitly instead of writing a header-only or otherwise incomplete save.
+- Stage 13 implements full scene save records and script sidecars. The stage-8 save menu invokes the real slot callback and `Scene::SaveSaveSlot` writes the complete scene; `LoadDlg` continues to use the 44-byte header only for display. See `symbian3rd_savegame.md`.
 
 ## Native `GameUIDlg` layout
 

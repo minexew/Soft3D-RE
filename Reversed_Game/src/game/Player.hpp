@@ -188,6 +188,8 @@ public:
     int32_t GetItemUseCount() const { return itemUseCount; }
     int32_t GetKillCount() const { return killCount; }
     int32_t GetDeathCount() const { return deathCount; }
+    void RestoreHeaderStatistics(int32_t itemUses, int32_t kills, int32_t time, int32_t deaths);
+    void SnapshotHeaderStatistics();
     int32_t GetHealthPackCount() const;
     Sword* GetSword() const { return sword.get(); }
     soft3d::GunFire& GetGunFire() { return gunFire; }
