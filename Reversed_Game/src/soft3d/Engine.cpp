@@ -13,6 +13,8 @@ Engine::Engine(EngineConfig config)
     , renderer(config.width, config.height)
     , camera(config.width, config.height, &renderer)
     , video(config.width, config.height, std::move(config.videoBackend))
+    , vibration(config.vibrationBackend ? std::move(config.vibrationBackend)
+                                       : std::make_unique<platform::UnsupportedVibrationBackend>())
 {
     if (clock == nullptr) {
         clock = std::make_unique<platform::SystemClock>();

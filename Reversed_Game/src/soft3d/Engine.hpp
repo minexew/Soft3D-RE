@@ -1,5 +1,6 @@
 #pragma once
 
+#include "platform/PlatformServices.hpp"
 #include "soft3d/AudioManager.hpp"
 #include "soft3d/Camera.hpp"
 #include "soft3d/EngineClock.hpp"
@@ -24,6 +25,7 @@ struct EngineConfig {
     std::unique_ptr<EngineClock> clock;
     std::unique_ptr<VideoBackend> videoBackend;
     std::unique_ptr<AudioBackend> audioBackend;
+    std::unique_ptr<platform::VibrationBackend> vibrationBackend;
 };
 
 class Engine : public s3dBase {
@@ -99,6 +101,7 @@ protected:
     s3dMemInfo memInfo;
     s3dExit exitState;
     VID_impl video;
+    std::unique_ptr<platform::VibrationBackend> vibration;
 };
 
 } // namespace soft3d

@@ -387,7 +387,7 @@ void TestDoorTrigger()
     fixture.Execute(155, AddDoorArguments(10000, 0, 102, 6, 2012, 2022));
     fixture.Click();
     manager->Update();
-    CHECK(fixture.scene->GetAuthorizationStage() == 1 && fixture.scene->GetAuthorizationTimer() == 1);
+    CHECK(fixture.scene->GetAuthorizationStage() == 1 && fixture.scene->GetAuthorizationActive() == 1);
     CHECK(manager->GetDoorState(10000) == 1 && fixture.scene->GetNextMapId() == 2012);
 
     game::DoorTrigger restored;

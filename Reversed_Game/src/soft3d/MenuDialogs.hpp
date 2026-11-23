@@ -6,6 +6,7 @@ namespace soft3d {
 
 class AudioManager;
 class GameEngine;
+class TextureRes;
 
 class MenuDialog : public Dialog {
 public:
@@ -35,11 +36,19 @@ public:
     int32_t GetSelection() const;
     void SetSelection(int32_t value);
     void ShowMain(int32_t value);
+    void ShowAuthorization(int32_t state = 0);
     int32_t GetMode() const;
     bool IsSoundEnabled() const;
+    int32_t GetAuthorizationState() const { return authorizationState; }
 
 private:
+    void RenderAuthorization();
+    void FinishAuthorization();
+
     int32_t mode = Handedness;
+    int32_t authorizationState = 0;
+    TextureRes* authorizationTexture = nullptr;
+    bool authorizationConnecting = false;
     int32_t selection = 0;
     int32_t soundSelection = 0;
     int32_t startupFrames = 0;

@@ -103,6 +103,7 @@ void GameEngine::LoadGameState()
     persistenceIo.Close();
     if (read == data.size()) {
         DeserializeGameConfiguration(data.data(), data.size(), configuration);
+        vibration->SetEnabled(configuration.vibrationEnabled != 0);
     }
 }
 
@@ -123,6 +124,9 @@ void GameEngine::PreUpdate()
         menuBackdrop->Update();
     }
     if (inGame) {
+        if (authorizationHost != nullptr) {
+            authorizationHost->PollSession();
+        }
         scriptEngine.Update();
         scene->Update();
         return;
@@ -293,6 +297,22 @@ void GameEngine::SetSoundEnabled(bool enabled)
 void GameEngine::SetVibrationEnabled(bool enabled)
 {
     configuration.vibrationEnabled = enabled ? 1 : 0;
+    vibration->SetEnabled(enabled);
+}
+
+bool GameEngine::Vibrate(uint32_t durationMilliseconds)
+{
+    return configuration.vibrationEnabled != 0 && vibration->Vibrate(durationMilliseconds);
+}
+
+bool GameEngine::IsVibrationSupported() const
+{
+    return vibration->IsSupported();
+}
+
+void GameEngine::SetAuthorizationHost(AuthorizationHost* host)
+{
+    authorizationHost = host;
 }
 
 void GameEngine::SetControlOrientation(int orientation)

@@ -6,6 +6,7 @@
 #include "platform/sdl/SdlClock.hpp"
 #include "platform/sdl/SdlInput.hpp"
 #include "platform/sdl/SdlVideoBackend.hpp"
+#include "platform/sdl/SdlVibrationBackend.hpp"
 #include "soft3d/MenuDialogs.hpp"
 #include <filesystem>
 #include <iostream>
@@ -114,6 +115,7 @@ bool Application::InitializeVideo()
         config.displayOrientation == DisplayOrientation::Landscape);
     auto* sdlVideo = videoBackend.get();
     engineConfig.videoBackend = std::move(videoBackend);
+    engineConfig.vibrationBackend = std::make_unique<soft3d::platform::SdlVibrationBackend>();
     if (config.enableAudio) {
         engineConfig.audioBackend = std::make_unique<soft3d::platform::SdlAudioBackend>();
     }
@@ -141,6 +143,7 @@ bool Application::InitializeVideo()
         return false;
     }
     engine->SetSceneHost(std::move(sceneOwner));
+    engine->SetAuthorizationHost(scene->GetLicense());
     gameInterface = std::make_unique<game::GameSI>();
     gameInterface->Bind({scene, scene->GetUnitManager(), scene->GetCameraController(),
                          scene->GetPlayer(), scene->GetGameUi(), scene->GetAudio(),
@@ -181,6 +184,7 @@ void Application::Shutdown()
 {
     if (engine != nullptr) {
         engine->SetScriptInterface(nullptr);
+        engine->SetAuthorizationHost(nullptr);
         engine->GetVideo().Stop();
         engine->Shutdown();
         engine.reset();

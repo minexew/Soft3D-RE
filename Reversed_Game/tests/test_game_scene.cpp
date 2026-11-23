@@ -410,6 +410,7 @@ void TestNextScriptAndDay1Fallback()
         GameFixture fixture;
         fixture.engine.StartNewGame();
         fixture.engine.GetScriptEngine().Unload();
+        fixture.scene->GetLicense()->SetCheckPolicy(game::LicenseCheckPolicy::OfflineAuthorized);
         CHECK(fixture.scene->LoadDay(2) == soft3d::S3D_OK);
         fixture.RunFrames(57);
         CHECK(fixture.scene->GetScriptName() == u".\\day2\\ep0");
@@ -600,6 +601,7 @@ void TestDayTitlesAndGameOver()
                                                              u"7nd", u".\\ui\\"));
         CHECK(alternateResource != nullptr && normalResource != nullptr);
         CHECK(alternateResource->GetTexture() != nullptr && normalResource->GetTexture() != nullptr);
+        fixture.scene->GetLicense()->SetCheckPolicy(game::LicenseCheckPolicy::OfflineAuthorized);
         CHECK(fixture.scene->LoadDay(7) == soft3d::S3D_OK);
         fixture.RunFrames(1);
         const uint32_t alternate = HashFrame(fixture.engine.GetVideo().GetBackBufferPtr());

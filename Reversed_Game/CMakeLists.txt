@@ -96,6 +96,7 @@ add_library(seven_days_game STATIC
     src/game/GameData.cpp
     src/game/GameSI.cpp
     src/game/GameUiController.cpp
+    src/game/License.cpp
     src/game/Lord.cpp
     src/game/MaidBully.cpp
     src/game/MapUnits.cpp
@@ -127,6 +128,7 @@ if(SOFT3D_BUILD_APP)
         src/platform/sdl/SdlClock.cpp
         src/platform/sdl/SdlInput.cpp
         src/platform/sdl/SdlVideoBackend.cpp
+        src/platform/sdl/SdlVibrationBackend.cpp
     )
     target_include_directories(seven_days PRIVATE src)
     target_compile_features(seven_days PRIVATE cxx_std_17)
@@ -410,6 +412,16 @@ if(BUILD_TESTING)
         target_compile_options(game_save_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME game_save COMMAND game_save_tests)
+
+    add_executable(game_license_tests tests/test_game_license.cpp)
+    target_link_libraries(game_license_tests PRIVATE seven_days_game)
+    target_compile_definitions(game_license_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(game_license_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME game_license COMMAND game_license_tests)
 
     if(TARGET seven_days)
         add_executable(soft3d_sdl_input_tests

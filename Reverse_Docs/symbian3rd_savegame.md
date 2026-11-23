@@ -109,7 +109,7 @@ The portable `InputStream` additionally remembers read failures for checked scen
 - full scene and script-sidecar byte determinism from offset `0x2c` onward;
 - resumed real script/map loading and subsequent engine frames with real player/BSP rendering.
 
-All 37 default tests pass serially. Thirty SDL-independent tests also pass in each of the ASan/UBSan, host-math, STDIO-logging, and WAR-nibble builds. Build directories and test suites were run independently and serially.
+At stage-13 completion, all 37 default tests passed serially. Thirty SDL-independent tests also passed in each of the ASan/UBSan, host-math, STDIO-logging, and WAR-nibble builds. Build directories and test suites were run independently and serially. Stage 14 subsequently raises the current totals to 38 and 31.
 
 ## Ghidra writeback
 

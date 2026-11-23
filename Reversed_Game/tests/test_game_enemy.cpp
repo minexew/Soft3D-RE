@@ -718,6 +718,7 @@ void LoadRealMap(GameFixture& fixture, int mapId = 2008, int day = 1)
     } else {
         fixture.engine.SetPreUpdateEnabled(true);
         fixture.engine.SetInGame(true);
+        fixture.scene->GetLicense()->SetCheckPolicy(game::LicenseCheckPolicy::OfflineAuthorized);
         CHECK(fixture.scene->LoadDay(day) == soft3d::S3D_OK);
     }
     fixture.RunFrames(57);

@@ -112,15 +112,12 @@ int MainUIDlg::Render(uint32_t context)
             engine.GetAudioManager().StopAllSounds();
             engine.SetSoundEnabled(soundEnabled);
             selection = 0;
-            mode = MainMenu;
-            if (!engine.GetMenuBackdrop()->IsLoaded()) {
-                engine.LoadMenuBackdrop();
-            }
-            engine.GetAudioManager().PlaySound(u"e_wind01", true);
+            mode = Authorization;
+            authorizationState = 0;
         }
         break;
     case Authorization:
-        mode = MainMenu;
+        RenderAuthorization();
         break;
     case MainMenu:
         SetStateTime(5, selection);
@@ -288,6 +285,98 @@ int MainUIDlg::Render(uint32_t context)
     return 1;
 }
 
+void MainUIDlg::RenderAuthorization()
+{
+    if (authorizationTexture == nullptr) {
+        authorizationTexture = static_cast<TextureRes*>(engine.GetResourceManager().GetResource(
+            ResourceTexture, 1, u"shouquan", u".\\ui\\"));
+    }
+    const Texture* texture = authorizationTexture != nullptr ? authorizationTexture->GetTexture() : nullptr;
+    int32_t left = 10;
+    int32_t top = 10;
+    int32_t right = engine.GetWidth() - 10;
+    int32_t bottom = engine.GetHeight() - 10;
+    if (texture != nullptr) {
+        const int32_t width = static_cast<int32_t>(texture->GetWidth());
+        const int32_t height = static_cast<int32_t>(texture->GetHeight());
+        const int32_t x = (engine.GetWidth() - width) >> 1;
+        const int32_t y = engine.GetHeight() - height - 5;
+        engine.GetScreenBlitter().BlitUnscaled(texture, x, y, {0, 0, width, height});
+        left = x + 10;
+        right = x + width - 10;
+        top = y + 10;
+        bottom = y + height - 10;
+    }
+    static constexpr uint16_t textIds[5] = {400, 401, 402, 404, 405};
+    const int state = std::clamp(authorizationState, 0, 4);
+    engine.GetSecondaryFont()->DrawString(textIds[state], 0, 0, {left, top, right, bottom});
+
+    AuthorizationHost* host = engine.GetAuthorizationHost();
+    if (host != nullptr) {
+        host->SetMenuResultHandler([this](int result) {
+            authorizationState = result;
+            authorizationConnecting = false;
+        });
+        if (authorizationConnecting && !host->PollSession() && authorizationState == 0) {
+            authorizationState = 4;
+            authorizationConnecting = false;
+        }
+    }
+    Input& input = engine.GetInput();
+    const bool accept = Accept(input) || input.IsKeyClick(Key::SoftLeft);
+    const bool back = Back(input);
+    switch (state) {
+    case 0:
+        if (back) {
+            if (host != nullptr) host->ResetSession();
+            authorizationConnecting = false;
+            authorizationState = 2;
+        }
+        break;
+    case 1:
+        if (accept) {
+            authorizationState = 0;
+            authorizationConnecting = host != nullptr && host->ConnectSession();
+            if (!authorizationConnecting) authorizationState = 4;
+        } else if (back) {
+            authorizationState = 2;
+        }
+        break;
+    case 2:
+        if (accept) FinishAuthorization();
+        break;
+    case 3:
+        if (accept) {
+            authorizationState = 0;
+            authorizationConnecting = host != nullptr && host->ConnectSession();
+            if (!authorizationConnecting) authorizationState = 4;
+        } else if (back) {
+            authorizationState = 2;
+        }
+        break;
+    case 4:
+        if (accept) FinishAuthorization();
+        break;
+    }
+}
+
+void MainUIDlg::FinishAuthorization()
+{
+    authorizationConnecting = false;
+    if (engine.GetAuthorizationHost() != nullptr) {
+        engine.GetAuthorizationHost()->ResetSession();
+    }
+    if (authorizationTexture != nullptr) {
+        engine.GetResourceManager().ReleaseResource(authorizationTexture);
+        authorizationTexture = nullptr;
+    }
+    mode = MainMenu;
+    if (!engine.GetMenuBackdrop()->IsLoaded()) {
+        engine.LoadMenuBackdrop();
+    }
+    engine.GetAudioManager().PlaySound(u"e_wind01", true);
+}
+
 int32_t MainUIDlg::GetSelection() const
 {
     return selection;
@@ -302,6 +391,13 @@ void MainUIDlg::ShowMain(int32_t value)
 {
     selection = value;
     mode = MainMenu;
+}
+
+void MainUIDlg::ShowAuthorization(int32_t state)
+{
+    authorizationState = state;
+    authorizationConnecting = false;
+    mode = Authorization;
 }
 
 int32_t MainUIDlg::GetMode() const

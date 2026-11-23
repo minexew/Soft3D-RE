@@ -76,6 +76,7 @@ Scene::Scene(soft3d::GameEngine& owner)
     , motionBlurShader(owner.GetWidth(), owner.GetHeight())
 {
     ResetEnvironmentAudio();
+    license->SetSceneResultHandler([this](int result) { authorizationStage = result; });
 }
 
 Scene::~Scene()
@@ -138,6 +139,12 @@ soft3d::result Scene::Initialize()
     if (status != soft3d::S3D_OK) {
         return status;
     }
+    std::array<uint8_t, 512> messageData{};
+    if (filePak->Select(u".\\common\\message.sdt") != soft3d::S3D_OK ||
+        filePak->Read(messageData.data(), messageData.size()) != soft3d::S3D_OK) {
+        return soft3d::S3D_FILE;
+    }
+    license->SetMessageData(messageData.data(), messageData.size());
     initialized = true;
     return soft3d::S3D_OK;
 }
@@ -199,6 +206,8 @@ void Scene::ReturnToMainMenu()
     mapId = 0;
     gameOverStage = 0;
     specialDoorIndex = -1;
+    authorizationStage = 0;
+    authorizationActive = 0;
     engine.GetAudioManager().PlaySound(u"e_wind01", true);
     engine.GetInput().ClearKey();
 }
@@ -638,9 +647,18 @@ void Scene::UpdateWorld()
         ? player->GetPosition() : cameraController.GetPosition());
 }
 
+bool Scene::AllowsScenePhase(int slot)
+{
+    const int check = license->CheckVerification(slot);
+    if (day > 1 && check < 1 && authorizationActive == 0) {
+        BeginAuthorization();
+    }
+    return (day < 2 || check > 0) && authorizationActive == 0;
+}
+
 void Scene::Update()
 {
-    if (!initialized) {
+    if (!initialized || !AllowsScenePhase(7)) {
         return;
     }
     if (dayIntroPending != 0) {
@@ -701,7 +719,7 @@ void Scene::RestartAfterGameOver()
 
 void Scene::PostUpdate()
 {
-    if (!initialized || dayIntroPending != 0) {
+    if (!initialized || !AllowsScenePhase(9) || dayIntroPending != 0) {
         return;
     }
     if (transitionStage == 2 || transitionStage == 3) {
@@ -756,7 +774,7 @@ void Scene::PostUpdate()
 
 void Scene::PrepareRender()
 {
-    if (!initialized || showDayTitle != 0) {
+    if (!initialized || !AllowsScenePhase(12) || showDayTitle != 0) {
         return;
     }
     if (transitionStage >= 1 && transitionStage <= 3) {
@@ -823,8 +841,70 @@ void Scene::RenderDayTitle()
 
 void Scene::SubmitRenderables()
 {
-    if (initialized && showDayTitle != 0) {
-        RenderDayTitle();
+    if (!initialized) {
+        return;
+    }
+    if (AllowsScenePhase(14)) {
+        if (showDayTitle != 0) {
+            RenderDayTitle();
+        }
+    } else {
+        DrawAuthorization();
+    }
+}
+
+void Scene::DrawAuthorization()
+{
+    engine.GetScreenBlitter().Clear(0, 0, 0);
+    const soft3d::ScreenRect full{0, 0, engine.GetWidth(), engine.GetHeight()};
+    const soft3d::Rect textRect{10, 10, engine.GetWidth() - 10, engine.GetHeight() - 10};
+    const soft3d::Point leftHint{2, engine.GetHeight() - 16};
+    const soft3d::Point rightHint{engine.GetWidth() - 30, engine.GetHeight() - 16};
+    const auto accept = [this] {
+        return engine.GetInput().IsKeyClick(soft3d::Key::Accept) ||
+            engine.GetInput().IsKeyClick(soft3d::Key::SoftLeft);
+    };
+    const auto back = [this] {
+        return engine.GetInput().IsKeyClick(soft3d::Key::SoftRight) ||
+            engine.GetInput().IsKeyClick(soft3d::Key::Number0);
+    };
+    if (authorizationStage == 1) {
+        engine.GetScreenBlitter().FillRect(0xffff, full);
+        engine.GetSecondaryFont()->DrawString(410, 0, 0, textRect);
+        engine.GetSecondaryFont()->DrawString(1, 0, 0, leftHint);
+        engine.GetSecondaryFont()->DrawString(2, 0, 0, rightHint);
+        if (accept() || engine.GetInput().IsKeyClick(soft3d::Key::Number6)) {
+            authorizationStage = license->BeginSceneAuthorization();
+        }
+        if (back()) {
+            engine.ReturnToMainMenu();
+        }
+    } else if (authorizationStage == 2) {
+        engine.GetScreenBlitter().FillRect(0xffff, full);
+        const soft3d::Point center{textRect.left + ((textRect.right - textRect.left) >> 2),
+                                   textRect.top + ((textRect.bottom - textRect.top) >> 1)};
+        engine.GetSecondaryFont()->DrawString(411, 0, 4, textRect);
+        engine.GetSecondaryFont()->DrawString(413, 0, 0x41, center);
+        soft3d::VisString number;
+        number.Append(license->GetAuthorizationAttempts());
+        engine.GetSecondaryFont()->DrawString(&number, 0, 0x44, center);
+        engine.GetSecondaryFont()->DrawString(415, 0, 0x44,
+                                              soft3d::Point{center.x + 4, center.y});
+        number.Clear();
+        number.Append(license->GetAuthorizationElapsed());
+        engine.GetSecondaryFont()->DrawString(&number, 0, 0x44,
+                                              soft3d::Point{center.x + 8, center.y});
+        authorizationStage = license->UpdateSceneAuthorization();
+        if (authorizationStage == 4) {
+            authorizationActive = 0;
+        }
+    } else if (authorizationStage == 5) {
+        engine.GetScreenBlitter().FillRect(0xffff, full);
+        engine.GetSecondaryFont()->DrawString(414, 0, 4, textRect);
+        if (back()) {
+            authorizationActive = 0;
+            engine.ReturnToMainMenu();
+        }
     }
 }
 

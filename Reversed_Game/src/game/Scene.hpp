@@ -1,6 +1,7 @@
 #pragma once
 
 #include "game/CameraController.hpp"
+#include "game/License.hpp"
 #include "game/MyGameUnitMgr.hpp"
 #include "game/Player.hpp"
 #include "soft3d/BezierCurve3.hpp"
@@ -149,10 +150,12 @@ public:
     void FailQte();
     void SetHideMask(int32_t index, bool active);
     void ShowTutorial(int32_t id, int32_t frames);
-    int32_t GetDoorAuthorizationStatus() const { return -1; }
-    void BeginAuthorization() { authorizationStage = 1; authorizationTimer = 1; }
+    int32_t GetDoorAuthorizationStatus() const { return license->CheckVerification(7); }
+    void BeginAuthorization() { authorizationStage = 1; authorizationActive = 1; }
     int32_t GetAuthorizationStage() const { return authorizationStage; }
-    int32_t GetAuthorizationTimer() const { return authorizationTimer; }
+    int32_t GetAuthorizationActive() const { return authorizationActive; }
+    License* GetLicense() { return license.get(); }
+    const License* GetLicense() const { return license.get(); }
 
     static soft3d::BspEntity* CreateGameEntity(soft3d::BspEntityRecord* record, void* context,
                                                 soft3d::BspEntityRecord* recordBase);
@@ -166,8 +169,11 @@ private:
     void LoadNextScript();
     void RenderDayTitle();
     void RestartAfterGameOver();
+    bool AllowsScenePhase(int slot);
+    void DrawAuthorization();
 
     soft3d::GameEngine& engine;
+    std::unique_ptr<License> license = std::make_unique<License>();
     std::unique_ptr<soft3d::Bsp> bsp;
     std::unique_ptr<soft3d::CameraPathCollection> cameraPaths;
     CameraController cameraController;
@@ -222,7 +228,7 @@ private:
     int32_t tutorialId = 0;
     int32_t tutorialFrames = 0;
     int32_t authorizationStage = 0;
-    int32_t authorizationTimer = 0;
+    int32_t authorizationActive = 0;
     bool initialized = false;
 };
 
