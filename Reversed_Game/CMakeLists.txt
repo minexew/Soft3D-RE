@@ -95,6 +95,7 @@ add_library(seven_days_game STATIC
     src/game/GameData.cpp
     src/game/GameSI.cpp
     src/game/GameUiController.cpp
+    src/game/MaidBully.cpp
     src/game/MapUnits.cpp
     src/game/MyGameUnitMgr.cpp
     src/game/Player.cpp

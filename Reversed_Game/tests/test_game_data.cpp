@@ -111,8 +111,8 @@ void TestResourceNames()
     CHECK(Wide("c_ghost_walk02") == data.GetSoundName(47));
     CHECK(Wide("c_weed_walk") == data.GetSoundName(58));
     CHECK(Wide("c_baron_walk01") == data.GetSoundName(95));
-    CHECK(Wide("c_bully_attack_a") == data.GetSoundName(110));
-    CHECK(Wide("c_victor_stand") == data.GetSoundName(119));
+    CHECK(Wide("c_victor_stand") == data.GetSoundName(110));
+    CHECK(Wide("c_bully_attack_a") == data.GetSoundName(119));
     CHECK(Wide("a_getitem") == data.GetSoundName(141));
     CHECK(Wide("a_gunlevelup") == data.GetSoundName(142));
     CHECK(data.GetSoundName(143) == nullptr);

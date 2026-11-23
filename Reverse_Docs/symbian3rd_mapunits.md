@@ -4,7 +4,7 @@
 
 Stage 5 recovers the game-specific `Things` descendants and map-unit consumers. `Reversed_Game/src/game/MapUnits.*` implements `Breakable`, `Pushable`, `Pickable`, `BspUnit`, `ElectricSaw`, `Trap`, and `StayBox`; `MyGameUnitMgr` owns construction, lensflares, and update/submission integration. `GameSI` implements commands 219–254 from their individual ARM bodies.
 
-The reusable `Things` base in `src/soft3d/Units.*` now implements the shared save/load extension used by all three descendants. All concrete interaction triggers are implemented in stages 6–7. Stage 9 implements the concrete `MyGameUnitMgr` StayBox host and common enemy pool behavior; variant-specific enemy overrides remain stages 10–12. Full scene reconstruction of these records remains stage 13.
+The reusable `Things` base in `src/soft3d/Units.*` now implements the shared save/load extension used by all three descendants. All concrete interaction triggers are implemented in stages 6–7. Stage 9 implements the concrete `MyGameUnitMgr` StayBox host and common enemy pool behavior; stage 10 completes the Maid/Bully variants, while the other variant-specific enemy overrides remain stages 11–12. Full scene reconstruction of these records remains stage 13.
 
 ## Native layouts
 
@@ -17,7 +17,7 @@ The reusable `Things` base in `src/soft3d/Units.*` now implements the shared sav
 | `Trap` | `0x64` | `0x54` player; `0x58` fixed XYZ impulse. |
 | `StayBox` | `0x6c` | `0x54` enemy; `0x58` enemy-outside flag, initially 0; `0x5c` spawned flag, initially 1; `0x60` allowed-region list; `0x64` denied-region list; `0x68` spawn-record list. |
 
-`Breakable`, `Pushable`, and `Pickable` use unit types `0x1c`, `0x1d`, and `0x1e`; `Trap` uses `0x1f`. `BspUnit` sets type 3, while `StayBox` sets `0x26` as a manager-internal record. `ElectricSaw` retains the `VisUnit` type and has no recovered extension behavior beyond its update method.
+`Breakable`, `Pushable`, and `Pickable` use unit types `0x1c`, `0x1d`, and `0x1e`; `Trap` uses `0x1f`. `BspUnit` sets type 3, while `StayBox` sets `0x26` as a manager-internal record. `ElectricSaw` is a 0xc0-byte `VisUnit` derivative. Stage 10 recovers eleven animation pointers at `0x90`–`0xb8` and the owning BullyDay5 pointer at `0xbc`; portable `BullySaw` stores those resources while retaining the ordinary update expansion. Its use in the Day5 encounter is documented in `symbian3rd_maidbully.md`.
 
 A `StayBoxRegion` is `0x1c` bytes: 24-byte bounds and a next pointer at `0x18`. A spawn record is `0x14` bytes: position at 0, unit ID/type/active/spawn-state bytes at `0x0c`–`0x0f`, and next pointer at `0x10`. Region and record insertion is head-first; portable vectors insert at the beginning to preserve that ordering.
 
@@ -142,4 +142,4 @@ All handlers have the standard `(arguments, argumentCount, output)` script dispa
 
 Real map 2008 creates 15 `BspUnit` instances and exercises opaque/transparent submission. Real map 2009 creates and submits its shipped lensflare. Both paths run through incremental loading and the real engine frame loop, followed by teardown. At stage-5 completion, the real `day1/ep0` startup advanced to stage-6 command 159 (`GameSI_AddActTrigger`, `0x0006934c`); after stages 6–8 it passes those commands and reaches later-stage input command 47 (`0x00065560`).
 
-At stage-5 completion, all 33 default tests passed sequentially, and core, STDIO logging, host-math, WAR-nibble, and ASan/UBSan builds each passed all 26 SDL-independent tests in separate directories. After stage 9, all 36 default, logging, math, and WAR tests pass, and 29 core and ASan/UBSan tests pass. The breakable tests now prepare the real sword and use computed hit bounds, matching the corrected inverted/empty constructor bounds. Ghidra contains the recovered names, typed signatures, native layouts, comments, 90 `stage5` function tags, the corrected StayBox constructor plate, stage-7 command tags, stage-9 enemy tags, completion properties, and saved bookmarks.
+At stage-5 completion, all 33 default tests passed sequentially, and core, STDIO logging, host-math, WAR-nibble, and ASan/UBSan builds each passed all 26 SDL-independent tests in separate directories. After stage 10, all 36 default and host-math tests pass, and all 29 ASan/UBSan tests pass; the stage-9 run also passed logging and WAR variants. The breakable tests now prepare the real sword and use computed hit bounds, matching the corrected inverted/empty constructor bounds. Ghidra contains the recovered names, typed signatures, native layouts, comments, 90 `stage5` function tags, the corrected StayBox constructor plate, stage-7 command tags, stage-9 enemy tags, completion properties, and saved bookmarks.

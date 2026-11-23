@@ -199,6 +199,9 @@ protected:
     const soft3d::Vec3& GetForward() const;
     void SetStateTime(int32_t value) { stateTime = static_cast<int16_t>(value); }
     void SetAnimationFinished(bool value) { animationFinished = value; }
+    bool TestAttackHitVolume(int32_t firstStart, int32_t firstEnd,
+                             int32_t secondStart = -1, int32_t secondEnd = -1,
+                             soft3d::Fixed widthBonus = 0);
 
     int32_t enemyType = 0;
     int32_t maxHealth = 0;

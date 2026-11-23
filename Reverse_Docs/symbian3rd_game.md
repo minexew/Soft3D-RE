@@ -10,7 +10,7 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-Stages 1–8 are implemented in `seven_days_game`:
+Stages 1–10 are implemented in `seven_days_game`. Stage 9 supplies common enemy AI/pools and commands; stage 10 adds the concrete Maid/Bully families in `MaidBully.*`, including their native projectile, charge, QTE, saw, death, and reward behavior. See `symbian3rd_enemy.md` and `symbian3rd_maidbully.md`.
 
 - `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
 - Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL new-game smoke test proves that this path reaches progress 100 and executes the stage-3 camera/audio commands.
@@ -176,7 +176,7 @@ The hierarchy has **18 named concrete classes**: 17 ordinary pool classes plus `
 
 `MyGameUnitMgr_InitializeEnemyPools` constructs only slot 0 for singleton types and all eight slots for non-singleton types, assigns the player and manager, and initializes their shadows. `MyGameUnitMgr_PrepareDayEnemies` selects resources and outfit variants by day. `Boss` has separate construction/behavior from the ordinary pool and must not be omitted merely because it is not in that pool's constructor loop.
 
-The current common pool adapter is only a stage-9 boundary, not a completed concrete-enemy implementation. Stages 10–12 must supply every native override. Special perception, movement, attacks, projectiles, transformations, death, linked actors, and boss scripting cannot be approximated by one generic enemy.
+Stage 10 replaces the common adapter for all Maid/Bully pool rows with the native classes documented in `symbian3rd_maidbully.md`. The adapter remains only for stages 11–12. Their special perception, movement, attacks, projectiles, transformations, death, linked actors, and boss scripting still require individual ARM recovery; none may be approximated by the generic enemy.
 
 ## Full save format and unit reconstruction
 

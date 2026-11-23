@@ -88,6 +88,19 @@ void Player::PrepareWeapon(const GameData& data, int type)
     }
 }
 
+void Player::LoadBullyQteAnimations(const GameData& data)
+{
+    if (scene->GetEventFlag(1002)) {
+        return;
+    }
+    for (int action = 12; action <= 15; ++action) {
+        animations[2][static_cast<std::size_t>(action)] =
+            dynamic_cast<const soft3d::Animation*>(resourceManager->GetResource(
+                soft3d::ResourceAnimation, 3, data.GetAnimationName(21 + action - 12)));
+    }
+    sword->LoadQteAnimations(data, 2, false);
+}
+
 void Player::LoadSpecialAnimations(const GameData& data, bool alternate)
 {
     const auto load = [&data, this](int name) {
@@ -100,7 +113,7 @@ void Player::LoadSpecialAnimations(const GameData& data, bool alternate)
         sword->LoadQteAnimations(data, 3, false);
         sword->UseStandForSpecial(3);
     } else {
-        animations[4][12] = load(40);
+        animations[4][12] = load(36);
         sword->LoadQteAnimations(data, 4, true);
         sword->UseStandForSpecial(4);
     }

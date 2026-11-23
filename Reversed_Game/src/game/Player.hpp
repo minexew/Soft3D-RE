@@ -162,6 +162,7 @@ public:
     bool IsHiddenOrFPS() const { return hidden != 0 || fpsActive != 0; }
     bool IsFpsActive() const { return fpsActive != 0; }
     bool AreAttacksDisabled() const { return attacksDisabled != 0; }
+    bool IsHurt4Requested() const { return hurt4Request != 0; }
     soft3d::ObjectBounds GetInteractionBounds() const;
     bool IsDead() const { return deathState != 0; }
     bool IsDeathComplete() const { return deathState == 2; }
@@ -199,6 +200,7 @@ public:
     void AddHealth(int32_t value);
     void SetWeapon(int type);
     void PrepareWeapon(const GameData& data, int type);
+    void LoadBullyQteAnimations(const GameData& data);
     void LoadSpecialAnimations(const GameData& data, bool alternate);
     void SetYoung(bool value);
     void SetCustomAnimation(const soft3d::Animation* animation, bool loop);

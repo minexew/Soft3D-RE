@@ -1,6 +1,7 @@
 #include "game/MyGameUnitMgr.hpp"
 
 #include "game/CameraController.hpp"
+#include "game/MaidBully.hpp"
 #include "game/Scene.hpp"
 #include "game/Triggers.hpp"
 #include "soft3d/GameEngine.hpp"
@@ -87,8 +88,11 @@ soft3d::result MyGameUnitMgr::Initialize(soft3d::GameEngine& engine)
     for (int32_t type = 0; type < static_cast<int32_t>(enemyTypeCount); ++type) {
         const std::size_t count = IsSingletonEnemyType(type) ? 1 : enemyPoolStride;
         for (std::size_t slot = 0; slot < count; ++slot) {
-            enemyPools[static_cast<std::size_t>(type)][slot] =
-                CreateCommonPoolEnemy(GetContext(), data, type);
+            std::unique_ptr<Enemy> enemy = CreateMaidBullyPoolEnemy(GetContext(), data, type);
+            if (enemy == nullptr) {
+                enemy = CreateCommonPoolEnemy(GetContext(), data, type);
+            }
+            enemyPools[static_cast<std::size_t>(type)][slot] = std::move(enemy);
         }
     }
     return soft3d::S3D_OK;

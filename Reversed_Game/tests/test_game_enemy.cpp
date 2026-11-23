@@ -1,5 +1,6 @@
 #include "game/Enemy.hpp"
 #include "game/GameSI.hpp"
+#include "game/MaidBully.hpp"
 #include "game/Scene.hpp"
 #include "platform/dummy/DummyVideoBackend.hpp"
 #include "soft3d/Animation.hpp"
@@ -186,6 +187,65 @@ public:
     }
 };
 
+template <typename T>
+class VariantProbe : public T {
+public:
+    VariantProbe(const soft3d::UnitManagerContext& context, const game::GameData& data)
+        : T(context, data) {}
+    ~VariantProbe() { this->StopSound(); }
+
+    void ForceState(int32_t value) { this->state = value; }
+    void ForceDistance(soft3d::Fixed value) { this->playerDistance = value; }
+    void ForceFinished(bool value) { this->SetAnimationFinished(value); }
+    void ForceStateTime(int16_t value) { this->stateTime = value; }
+    void ForceVisible(bool value) { this->playerVisible = value ? 1 : 0; }
+    void ForceHitCooldown(int16_t value) { this->hitCooldown = value; }
+    void ForceGroundCollision(bool value) { this->groundTrace->startSolid = value; }
+};
+
+class FatMaidProbe final : public VariantProbe<game::FatMaid> {
+public:
+    using VariantProbe<game::FatMaid>::VariantProbe;
+    using game::FatMaid::CanThrowProjectile;
+    using game::FatMaid::UpdateProjectile;
+    using game::FatMaid::UpdateThrow;
+    void ForceThrowCooldown(int32_t value) { throwCooldown = value; }
+};
+
+class BullyDay3Probe final : public VariantProbe<game::BullyDay3> {
+public:
+    using VariantProbe<game::BullyDay3>::VariantProbe;
+    using game::BullyDay3::BeginQte;
+    using game::BullyDay3::UpdateCharge;
+    using game::BullyDay3::UpdateQte;
+    void ForceAttackKind(int32_t value) { attackKind = value; }
+};
+
+class BullyDay5Probe final : public VariantProbe<game::BullyDay5> {
+public:
+    using VariantProbe<game::BullyDay5>::VariantProbe;
+    using game::BullyDay5::BeginSlamAttack;
+    using game::BullyDay5::BeginThrowAttack;
+    using game::BullyDay5::UpdateChargeAttack;
+    using game::BullyDay5::UpdatePickup;
+    using game::BullyDay5::UpdateSlam;
+    using game::BullyDay5::UpdateThrow;
+    using game::BullyDay5::UpdateThrownSaw;
+    void ForceThrowPhase(int32_t value) { throwPhase = value; }
+};
+
+template <typename T>
+void PrepareVariant(GameFixture& fixture, T& enemy, const char16_t* model = nullptr)
+{
+    enemy.SetManager(fixture.scene->GetUnitManager());
+    enemy.SetPlayer(fixture.scene->GetPlayer());
+    if (model != nullptr) {
+        enemy.LoadResources(model, nullptr, nullptr);
+    }
+    enemy.Spawn({});
+    CHECK(enemy.GetObject(0) != nullptr);
+}
+
 void PrepareProbe(GameFixture& fixture, ProbeEnemy& enemy)
 {
     enemy.ConfigureCommonDefaults(game::GetEnemyCommonConfig(0));
@@ -214,7 +274,7 @@ void TestConstructorDefaults()
         {16, 9999, 25, 0x90000, 0x88000, 24, 8, 10, 32, 96, 0x4000, 0x4000, 999, 0, 0xb0000, 0, true},
         {17, 50, 15, 0x78000, 0x70000, 16, 3, 6, 16, 80, 0x3333, 0x9999, 100, 0xb333, 0xa0000, 0, true},
         {18, 240, 0, 0xb0000, 0xa0000, 8, 14, 16, 0, 0, 0x4ccc, 0x4ccc, 1000, 0, 0x27100000, 0, false},
-        {19, 60, 20, 0x70000, 0x68000, 24, 7, 9, 32, 90, 0x1999, 0x1999, 500, 0x9999, 0x90000, 0, true},
+        {19, 60, 20, 0x70000, 0x68000, 24, 7, 9, 32, 90, 0x1999, 0x1999, 500, 0x9999, 0x90000, 2, true},
         {20, 1, 5, 0, 0x80000, 32, 255, 0, 8, 24, 0x3333, 0x3333, 0, 0, 0x80000, 0, false},
         {21, 60, 0, 0, 0, 255, 0, 0, 16, 64, 0x3333, 0x3333, 0, 0xb333, 0, 0, true},
         {22, 150, 30, 0x80000, 0x78000, 32, 7, 9, 64, 32, 0x8000, 0xb333, 800, 0x6666, 0x140000, 8, true},
@@ -636,6 +696,403 @@ void TestEngineFrameCombat()
     CHECK(fixture.scene->IsInitialized());
 }
 
+void TestStage10TypesAndResources()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    manager->PrepareDayEnemies(2);
+    for (std::size_t slot = 0; slot < 8; ++slot) {
+        CHECK(dynamic_cast<game::Maid*>(manager->GetPooledEnemy(0, slot)) != nullptr);
+    }
+    CHECK(dynamic_cast<game::Bully*>(manager->GetPooledEnemy(1, 0)) != nullptr);
+    CHECK(manager->GetPooledEnemy(1, 1) == nullptr);
+
+    manager->PrepareDayEnemies(4);
+    for (std::size_t slot = 0; slot < 8; ++slot) {
+        auto* fat = dynamic_cast<game::FatMaid*>(manager->GetPooledEnemy(6, slot));
+        auto* maid2 = dynamic_cast<game::Maid2*>(manager->GetPooledEnemy(7, slot));
+        CHECK(fat != nullptr && maid2 != nullptr);
+        CHECK(fat->GetObject(0) != nullptr && fat->GetProjectileObject() != nullptr);
+        CHECK(fat->GetThrowAnimation() != nullptr && fat->GetProjectileAnimation() != nullptr);
+        CHECK(fat->GetProjectileSound() != nullptr);
+        CHECK(fat->GetAnimationResource(4) == nullptr && fat->GetAnimationResource(5) == nullptr);
+        CHECK(maid2->GetObject(0) != nullptr && maid2->GetAnimationResource(5) != nullptr);
+        CHECK(maid2->GetSoundResource(5) != nullptr);
+    }
+
+    manager->PrepareDayEnemies(5);
+    for (std::size_t slot = 0; slot < 8; ++slot) {
+        auto* maid3 = dynamic_cast<game::Maid3*>(manager->GetPooledEnemy(9, slot));
+        CHECK(maid3 != nullptr && maid3->GetObject(0) != nullptr);
+        CHECK(maid3->GetAnimationResource(5) != nullptr && maid3->GetSoundResource(5) != nullptr);
+        CHECK(maid3->GetGunExperienceReward() == 2);
+    }
+
+    fixture.Add(800, 2, -1, 0x1000000);
+    auto* day3 = dynamic_cast<game::BullyDay3*>(manager->FindEnemy(800));
+    CHECK(day3 != nullptr && day3->GetQteObject() != nullptr);
+    for (std::size_t index = 0; index < 11; ++index) {
+        CHECK(day3->GetExtraAnimation(index) != nullptr);
+    }
+    CHECK(day3->GetExtraSound(0) == nullptr);
+    for (std::size_t index = 1; index < 9; ++index) {
+        CHECK(day3->GetExtraSound(index) != nullptr);
+    }
+
+    fixture.Add(801, 13, -1, 0x2000000);
+    auto* day5 = dynamic_cast<game::BullyDay5*>(manager->FindEnemy(801));
+    CHECK(day5 != nullptr && day5->GetSaw() != nullptr);
+    CHECK(day5->GetSaw()->GetObject(0) != nullptr &&
+          day5->GetSaw()->GetShadowObject() != nullptr);
+    for (std::size_t index = 0; index < 4; ++index) {
+        CHECK(day5->GetExtraAnimation(index) != nullptr);
+    }
+    for (std::size_t index = 0; index < 9; ++index) {
+        CHECK(day5->GetExtraSound(index) != nullptr);
+    }
+    CHECK(day5->GetSaw()->GetAnimationResource(3) == nullptr);
+    for (std::size_t index = 0; index < 11; ++index) {
+        if (index != 3) CHECK(day5->GetSaw()->GetAnimationResource(index) != nullptr);
+    }
+    CHECK(day5->GetGunExperienceReward() == 30);
+}
+
+void TestMaid3AndBullyAttacks()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    VariantProbe<game::Maid3> maid(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, maid, u"r_bingnvyong_a");
+    CHECK(maid.GetChaseSpeed() >= 0x1999 && maid.GetChaseSpeed() < 0x3333);
+    maid.SetHealth(0);
+    CHECK(maid.GetState() == game::EnemyDying && player->GetGunExperience() == 2);
+    for (int index = 0; index < 12; ++index) {
+        maid.GetObject(0)->SetAnimationTime(maid.GetAnimation()->GetEndTime());
+        maid.PostUpdate();
+        maid.UpdateDeath();
+    }
+    CHECK(maid.GetState() == game::EnemyRemoved);
+
+    VariantProbe<game::Bully> bully(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, bully, u"r_bully_a");
+    bully.SetDirection({0, 0, soft3d::fixedOne});
+    player->SetPosition({0, 0, 0x40000});
+    player->SetCollisionBounds({{-0x100000, -0x100000, -0x100000},
+                                {0x100000, 0x100000, 0x100000}});
+    bully.BeginAttack();
+    const int32_t health = player->GetHealth();
+    bully.ForceStateTime(10);
+    CHECK(!bully.TestAttackHit());
+    bully.ForceStateTime(11);
+    CHECK(bully.TestAttackHit() && player->GetHealth() == health - 30);
+    bully.ForceStateTime(22);
+    CHECK(!bully.TestAttackHit());
+    bully.ForceStateTime(23);
+    CHECK(bully.TestAttackHit() && player->GetHealth() == health - 60);
+    CHECK(bully.GetSecondAttackStart() == 23 && bully.GetSecondAttackEnd() == 25);
+}
+
+void TestFatMaidProjectile()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    FatMaidProbe enemy(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, enemy, u"r_pangnvyong_a");
+    player->SetPosition({0, 0, 0x100000});
+    enemy.SetDirection(soft3d::Subtract(player->GetPosition(), enemy.GetPosition()));
+    enemy.ForceState(game::EnemyChase);
+    enemy.ForceDistance(0x100000);
+    enemy.SetBsp(nullptr);
+    CHECK(enemy.CanThrowProjectile());
+    for (uint32_t seed = 0; seed < 1000 && enemy.GetState() != 6; ++seed) {
+        enemy.ForceState(game::EnemyChase);
+        enemy.ForceThrowCooldown(0);
+        manager->SetRandomSeed(seed);
+        enemy.UpdateChase();
+    }
+    CHECK(enemy.GetState() == 6);
+    CHECK(enemy.GetThrowAnimation() == enemy.GetAnimation());
+    for (int index = 0; index < 22; ++index) enemy.UpdateThrow();
+    CHECK(enemy.GetProjectileState() == 1);
+    CHECK(enemy.GetProjectileObject()->GetAnimation() == enemy.GetProjectileAnimation());
+    CHECK(enemy.GetProjectileVelocity().z > 0);
+
+    const int32_t health = enemy.GetHealth();
+    enemy.Damage(1000);
+    CHECK(enemy.GetHealth() == health && !enemy.ReceivePlayerAttack());
+    const soft3d::Vec3 oldPosition = enemy.GetProjectileObject()->GetPosition();
+    enemy.UpdateProjectile();
+    CHECK(enemy.GetProjectileObject()->GetPosition().z != oldPosition.z);
+    CHECK(enemy.GetProjectileVelocity().y == -0x1999);
+
+    enemy.GetProjectileObject()->SetPosition(
+        soft3d::Subtract(player->GetPosition(), enemy.GetProjectileVelocity()));
+    player->SetCollisionBounds({soft3d::Subtract(player->GetPosition(), {0x10000, 0x10000, 0x10000}),
+                                soft3d::Add(player->GetPosition(), {0x10000, 0x10000, 0x10000})});
+    enemy.ForceThrowCooldown(0);
+    const int32_t playerHealth = player->GetHealth();
+    enemy.UpdateProjectile();
+    CHECK(enemy.GetProjectileState() == 2 && player->GetHealth() == playerHealth - 15);
+    CHECK(enemy.GetAttackPower() == 25);
+    enemy.GetProjectileObject()->SetAnimationTime(
+        enemy.GetProjectileObject()->GetAnimation()->GetEndTime());
+    enemy.PostUpdate();
+    enemy.UpdateProjectile();
+    CHECK(enemy.GetProjectileState() == 0);
+}
+
+void CompleteVariantQte(GameFixture& fixture, bool success)
+{
+    auto* player = fixture.scene->GetPlayer();
+    for (int frame = 0; frame < 128 && player->GetQteResult() == -1; ++frame) {
+        const int32_t action = player->GetQteKey();
+        if (success && action >= 1 && action <= 4) {
+            const auto key = static_cast<soft3d::Key>(
+                fixture.engine.GetControlMap().GetPrimaryBinding(action));
+            fixture.engine.GetInput().KeyDown(key);
+            fixture.engine.GetInput().KeyUp(key);
+        }
+        player->Update();
+    }
+    CHECK(player->GetQteResult() == (success ? 1 : 0));
+}
+
+void TestBullyDay3Encounter()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    BullyDay3Probe enemy(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, enemy);
+    player->SetCollisionBounds({{-0x100000, -0x100000, -0x100000},
+                                {0x100000, 0x100000, 0x100000}});
+
+    for (int desired = 0; desired < 2; ++desired) {
+        manager->SetRandomSeed(0);
+        for (int attempt = 0; attempt < 1000; ++attempt) {
+            enemy.BeginAttack();
+            if (enemy.GetAttackKind() == desired) break;
+        }
+        CHECK(enemy.GetAttackKind() == desired);
+        CHECK(enemy.GetAttackPower() == (desired == 0 ? 20 : 25));
+        enemy.ForceStateTime(desired == 0 ? 11 : 10);
+        CHECK(enemy.TestAttackHit());
+        if (desired == 0) {
+            enemy.ForceStateTime(23);
+            CHECK(enemy.TestAttackHit());
+        }
+    }
+
+    enemy.ForceState(6);
+    enemy.ForceStateTime(12);
+    enemy.ForceFinished(true);
+    enemy.UpdateCharge();
+    CHECK(enemy.GetChargePhase() == 1);
+    CHECK(enemy.GetAnimation() == enemy.GetExtraAnimation(2));
+    enemy.ForceFinished(false);
+    enemy.ForceGroundCollision(true);
+    enemy.UpdateCharge();
+    CHECK(enemy.GetChargePhase() == 2);
+    enemy.ForceFinished(true);
+    enemy.UpdateCharge();
+    CHECK(enemy.GetChargePhase() == 3 && enemy.GetStateTime() == 40);
+    enemy.ForceStateTime(1);
+    enemy.ForceFinished(false);
+    enemy.UpdateCharge();
+    CHECK(enemy.GetState() == game::EnemyIdle && enemy.GetStateTime() == 12);
+
+    enemy.Spawn({});
+    player->PrepareWeapon(manager->GetData(), 1);
+    player->SetWeapon(1);
+    player->ChangeState(game::PlayerAttackA2);
+    player->Update();
+    enemy.SetPosition(player->GetPosition());
+    enemy.SetCollisionBounds({{INT32_MIN, INT32_MIN, INT32_MIN}, {INT32_MAX, INT32_MAX, INT32_MAX}});
+    CHECK(enemy.ReceivePlayerAttack());
+    while (enemy.GetHealth() > 100) {
+        enemy.ForceHitCooldown(0);
+        CHECK(enemy.ReceivePlayerAttack());
+    }
+    CHECK(enemy.GetHealth() == 100 && enemy.GetState() == 7 && enemy.GetQtePhase() == 0);
+    CHECK(player->AreAttacksDisabled());
+    enemy.ForceFinished(true);
+    enemy.UpdateQte();
+    CHECK(enemy.GetQtePhase() == 1 && fixture.engine.GetControlMap().IsEnabled());
+    enemy.SetCollisionBounds({soft3d::Subtract(player->GetPosition(), {0x10000, 0x10000, 0x10000}),
+                              soft3d::Add(player->GetPosition(), {0x10000, 0x10000, 0x10000})});
+    fixture.engine.GetControlMap().SetBinding(5, static_cast<uint32_t>(soft3d::Key::Accept));
+    fixture.engine.GetInput().KeyDown(soft3d::Key::Accept);
+    fixture.engine.GetInput().KeyUp(soft3d::Key::Accept);
+    enemy.UpdateQte();
+    CHECK(enemy.GetQtePhase() == 2);
+    for (int index = 0; index < 8; ++index) enemy.UpdateQte();
+    CHECK(enemy.GetQtePhase() == 3);
+    enemy.ForceFinished(true);
+    enemy.UpdateQte();
+    CHECK(enemy.GetQtePhase() == 4 && player->GetCurrentStateId() == game::PlayerQTE);
+    CompleteVariantQte(fixture, true);
+    enemy.UpdateQte();
+    CHECK(enemy.GetQteSuccessCount() == 1 && enemy.GetQtePhase() == 4);
+    CompleteVariantQte(fixture, true);
+    enemy.UpdateQte();
+    CHECK(enemy.GetQteSuccessCount() == 2 && enemy.GetQtePhase() == 6);
+    enemy.ForceFinished(true);
+    enemy.UpdateQte();
+    for (int index = 0; index < 8; ++index) enemy.UpdateQte();
+    CHECK(enemy.GetEncounterMode() == 1 && enemy.GetState() == game::EnemyIdle);
+
+    enemy.Spawn({});
+    fixture.scene->SetEventFlag(1002);
+    player->ChangeState(game::PlayerAttackA2);
+    player->Update();
+    enemy.SetPosition(player->GetPosition());
+    enemy.SetCollisionBounds({{INT32_MIN, INT32_MIN, INT32_MIN}, {INT32_MAX, INT32_MAX, INT32_MAX}});
+    enemy.SetHealth(20);
+    enemy.ForceHitCooldown(0);
+    CHECK(enemy.ReceivePlayerAttack());
+    CHECK(enemy.GetQtePhase() == 6 && enemy.GetEncounterMode() == 1);
+    enemy.ForceFinished(true);
+    enemy.UpdateQte();
+    for (int index = 0; index < 8; ++index) enemy.UpdateQte();
+    CHECK(enemy.GetState() == game::EnemyDead && player->GetKillCount() == 1);
+
+    GameFixture failureFixture;
+    auto* failureManager = failureFixture.scene->GetUnitManager();
+    BullyDay3Probe failure(failureManager->GetContext(), failureManager->GetData());
+    PrepareVariant(failureFixture, failure);
+    failure.BeginQte(false);
+    failure.ForceFinished(true);
+    failure.UpdateQte();
+    failure.SetCollisionBounds({{-0x10000, -0x10000, -0x10000}, {0x10000, 0x10000, 0x10000}});
+    failureFixture.engine.GetControlMap().SetBinding(5, static_cast<uint32_t>(soft3d::Key::Accept));
+    failureFixture.engine.GetInput().KeyDown(soft3d::Key::Accept);
+    failureFixture.engine.GetInput().KeyUp(soft3d::Key::Accept);
+    failure.UpdateQte();
+    for (int index = 0; index < 8; ++index) failure.UpdateQte();
+    failure.ForceFinished(true);
+    failure.UpdateQte();
+    CompleteVariantQte(failureFixture, false);
+    failure.UpdateQte();
+    CHECK(failure.GetQtePhase() == 5);
+    failure.ForceFinished(true);
+    failure.UpdateQte();
+    for (int index = 0; index < 8; ++index) failure.UpdateQte();
+    CHECK(failure.GetState() == game::EnemyIdle && failure.GetHealth() == 150);
+    CHECK(failure.GetQteOutcome() == 0);
+}
+
+void TestBullyDay5Encounter()
+{
+    GameFixture fixture;
+    auto* manager = fixture.scene->GetUnitManager();
+    auto* player = fixture.scene->GetPlayer();
+    BullyDay5Probe enemy(manager->GetContext(), manager->GetData());
+    PrepareVariant(fixture, enemy);
+    enemy.SetBsp(nullptr);
+    CHECK(enemy.GetSawState() == 2 && enemy.GetSlamCooldown() == 220);
+    player->SetPosition({0, 0, 0x40000});
+    enemy.BeginThrowAttack();
+    enemy.UpdateThrow();
+    CHECK(enemy.GetState() == 6 && enemy.GetThrowPhase() == 1 && enemy.GetSawState() == 0);
+    soft3d::Object* sawObject = enemy.GetSaw()->GetObject(0);
+    sawObject->SetAnimationTime(sawObject->GetAnimation()->GetEndTime() -
+                                sawObject->GetAnimationSpeed());
+    enemy.GetSaw()->PostUpdate();
+    enemy.UpdateThrow();
+    CHECK(enemy.GetState() == 7 && enemy.GetThrowPhase() == 2 && enemy.GetThrowTimer() == 9);
+    CHECK(enemy.GetThrowVelocity().z != 0);
+    for (int index = 0; index < 10; ++index) enemy.UpdateThrownSaw();
+    CHECK(enemy.GetChargePhase() == 1);
+    enemy.GetSaw()->SetPosition({0, 0, 0x100000});
+    player->SetPosition({0, 0, 0x4000000});
+    player->SetCollisionBounds({soft3d::Subtract(player->GetPosition(), {0x10000, 0x10000, 0x10000}),
+                                soft3d::Add(player->GetPosition(), {0x10000, 0x10000, 0x10000})});
+    enemy.UpdateChargeAttack();
+    CHECK(enemy.GetChargePhase() == 2);
+    enemy.ForceGroundCollision(true);
+    enemy.UpdateChargeAttack();
+    CHECK(enemy.GetState() == 8 && enemy.GetChargePhase() == 0);
+    enemy.UpdatePickup();
+    CHECK(enemy.GetSawState() == 1 && enemy.GetAnimation() == enemy.GetExtraAnimation(3));
+    enemy.ForceFinished(true);
+    enemy.UpdatePickup();
+    CHECK(enemy.GetSawState() == 2 && enemy.GetState() == game::EnemyIdle);
+
+    enemy.BeginSlamAttack();
+    enemy.UpdateSlam();
+    CHECK(enemy.GetSlamPhase() == 1 && enemy.GetAnimation() == enemy.GetExtraAnimation(0));
+    enemy.GetObject(0)->SetAnimationTime(0xf3c);
+    enemy.UpdateSlam();
+    CHECK(player->IsHurt4Requested());
+    enemy.ForceFinished(true);
+    enemy.UpdateSlam();
+    CHECK(enemy.GetState() == game::EnemyIdle && enemy.GetSlamPhase() == 0);
+
+    enemy.Spawn({});
+    player->PrepareWeapon(manager->GetData(), 1);
+    player->SetWeapon(1);
+    player->ChangeState(game::PlayerAttackA2);
+    player->Update();
+    enemy.SetPosition(player->GetPosition());
+    enemy.SetCollisionBounds({{INT32_MIN, INT32_MIN, INT32_MIN}, {INT32_MAX, INT32_MAX, INT32_MAX}});
+    CHECK(enemy.ReceivePlayerAttack());
+    CHECK(enemy.GetHealth() == 240 && enemy.GetState() == game::EnemyHurt);
+    CHECK(enemy.IsKnockbackPending());
+    enemy.SetHealth(20);
+    enemy.ForceHitCooldown(0);
+    CHECK(enemy.ReceivePlayerAttack());
+    CHECK(enemy.GetState() == game::EnemyDying && enemy.GetThrowPhase() == 3);
+    CHECK(enemy.GetSaw()->GetAnimation() == enemy.GetSaw()->GetAnimationResource(9));
+    CHECK(player->GetGunExperience() == 30 && player->GetKillCount() == 1);
+
+    GameFixture segmentFixture;
+    auto* segmentManager = segmentFixture.scene->GetUnitManager();
+    auto* segmentPlayer = segmentFixture.scene->GetPlayer();
+    BullyDay5Probe segment(segmentManager->GetContext(), segmentManager->GetData());
+    PrepareVariant(segmentFixture, segment);
+    segment.SetBsp(nullptr);
+    segment.ForceThrowPhase(2);
+    segment.GetSaw()->SetCollisionBounds({{-1, -1, -1}, {1, 1, 1}});
+    segmentPlayer->PrepareWeapon(segmentManager->GetData(), 3);
+    segmentPlayer->SetWeapon(3);
+    segmentPlayer->ChangeState(game::PlayerAttackC2);
+    CHECK(segmentPlayer->GetAttackPhase() == 2);
+    segment.IsSegmentInside({}, {1, 0, 0});
+    CHECK(segment.GetImpactSoundPending() == 1);
+    segment.UpdateThrownSaw();
+    CHECK(segment.GetImpactSoundPending() == 0 && segment.GetThrowPhase() == 3);
+}
+
+void TestStage10EngineFrames()
+{
+    GameFixture fixture;
+    LoadRealMap(fixture);
+    auto* manager = fixture.scene->GetUnitManager();
+    manager->PrepareDayEnemies(2);
+    manager->PrepareDayEnemies(4);
+    manager->PrepareDayEnemies(5);
+    const soft3d::Vec3 origin = fixture.scene->GetPlayer()->GetPosition();
+    const int types[] = {0, 1, 2, 6, 7, 9, 13};
+    for (int index = 0; index < 7; ++index) {
+        fixture.Add(900 + index, types[index], -1,
+                    origin.x + (index + 1) * 0x40000, origin.z + 0x40000);
+        CHECK(manager->FindEnemy(900 + index) != nullptr);
+    }
+    CHECK(manager->GetBucketCount(0) == 7);
+    fixture.RunFrames(30);
+    for (int index = 0; index < 7; ++index) {
+        CHECK(manager->FindEnemy(900 + index) != nullptr);
+        fixture.Execute(196, {Argument::Short(900 + index)});
+    }
+    fixture.RunFrames(10);
+    const auto* video = dynamic_cast<const soft3d::platform::DummyVideoBackend*>(
+        fixture.engine.GetVideo().GetBackend());
+    CHECK(video != nullptr && !video->GetPresentedPixels().empty());
+    CHECK(fixture.scene->IsInitialized());
+}
+
 void Run(const char* name, void (*test)())
 {
     test();
@@ -652,6 +1109,12 @@ int main()
         Run("pools and commands", TestPoolsAndCommands);
         Run("real enemy data and StayBox", TestRealEnemyDataAndStayBox);
         Run("engine frame combat", TestEngineFrameCombat);
+        Run("stage 10 types and resources", TestStage10TypesAndResources);
+        Run("Maid3 and Bully attacks", TestMaid3AndBullyAttacks);
+        Run("FatMaid projectile", TestFatMaidProjectile);
+        Run("BullyDay3 encounter", TestBullyDay3Encounter);
+        Run("BullyDay5 encounter", TestBullyDay5Encounter);
+        Run("stage 10 engine frames", TestStage10EngineFrames);
     } catch (const std::exception& error) {
         std::cerr << "FAIL: " << error.what() << '\n';
         return 1;

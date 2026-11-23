@@ -24,7 +24,7 @@ const std::array<EnemyCommonConfig, 17> commonConfigs{{
     {16, 9999, 25, 0x90000, 0x88000, 24, 8, 10, 32, 96, 0x4000, 0x4000, 999, 0, 0xb0000, 0, true},
     {17, 50, 15, 0x78000, 0x70000, 16, 3, 6, 16, 80, 0x3333, 0x9999, 100, 0xb333, 0xa0000, 0, true},
     {18, 240, 0, 0xb0000, 0xa0000, 8, 14, 16, 0, 0, 0x4ccc, 0x4ccc, 1000, 0, 0x27100000, 0, false},
-    {19, 60, 20, 0x70000, 0x68000, 24, 7, 9, 32, 90, 0x1999, 0x1999, 500, 0x9999, 0x90000, 0, true},
+    {19, 60, 20, 0x70000, 0x68000, 24, 7, 9, 32, 90, 0x1999, 0x1999, 500, 0x9999, 0x90000, 2, true},
     {20, 1, 5, 0, 0x80000, 32, 255, 0, 8, 24, 0x3333, 0x3333, 0, 0, 0x80000, 0, false},
     {21, 60, 0, 0, 0, 255, 0, 0, 16, 64, 0x3333, 0x3333, 0, 0xb333, 0, 0, true},
     {22, 150, 30, 0x80000, 0x78000, 32, 7, 9, 64, 32, 0x8000, 0xb333, 800, 0x6666, 0x140000, 8, true},
@@ -54,7 +54,7 @@ public:
         static constexpr std::array<int16_t, 6> bully{93, 94, 95, 96, 97, 98};
         static constexpr std::array<int16_t, 6> lamper{110, 111, 112, 113, 114, 115};
         static constexpr std::array<int16_t, 6> weed{116, 117, 118, 119, 120, 121};
-        static constexpr std::array<int16_t, 6> fatMaid{122, 123, 124, 125, 126, 127};
+        static constexpr std::array<int16_t, 6> fatMaid{122, 123, 124, 125, 128, 129};
         static constexpr std::array<int16_t, 6> maid2{130, 131, 132, 133, 134, 135};
         static constexpr std::array<int16_t, 6> maid3{184, 185, 186, 187, 188, 189};
         static constexpr std::array<int16_t, 6> worm{190, 191, 192, 193, 194, 195};
@@ -331,7 +331,7 @@ void Enemy::SetAnimationResource(int32_t index, const char16_t* name)
     animations[static_cast<std::size_t>(index)] = nullptr;
     if (name != nullptr && resourceManager != nullptr) {
         animations[static_cast<std::size_t>(index)] = dynamic_cast<const soft3d::Animation*>(
-            resourceManager->GetResource(soft3d::ResourceAnimation, 2, name));
+            resourceManager->GetResource(soft3d::ResourceAnimation, cacheLevel, name));
     }
     if (state == index) {
         SetAnimationByIndex(index, 1, true);
@@ -346,7 +346,7 @@ void Enemy::SetSoundResource(int32_t index, const char16_t* name)
     sounds[static_cast<std::size_t>(index)] = nullptr;
     if (name != nullptr && resourceManager != nullptr) {
         sounds[static_cast<std::size_t>(index)] = dynamic_cast<soft3d::AudioData*>(
-            resourceManager->GetResource(soft3d::ResourceAudio, 2, name, u".\\audio\\"));
+            resourceManager->GetResource(soft3d::ResourceAudio, cacheLevel, name, u".\\audio\\"));
     }
 }
 
@@ -795,6 +795,55 @@ bool Enemy::TestAttackHit()
     };
     expand(start);
     expand(end);
+    const bool hit = player != nullptr && player->IsBoundsInside(bounds);
+    if (hit) {
+        attackHitDone = 1;
+        player->DamageFrom(this);
+    }
+    return hit;
+}
+
+bool Enemy::TestAttackHitVolume(int32_t firstStart, int32_t firstEnd,
+                                int32_t secondStart, int32_t secondEnd,
+                                soft3d::Fixed widthBonus)
+{
+    if (secondStart >= 0 && stateTime == secondStart) {
+        attackHitDone = 0;
+    }
+    const bool inFirst = stateTime >= firstStart && stateTime <= firstEnd;
+    const bool inSecond = secondStart >= 0 && stateTime >= secondStart && stateTime <= secondEnd;
+    if (attackHitDone != 0 || (!inFirst && !inSecond)) {
+        return false;
+    }
+
+    const soft3d::Vec3 end = soft3d::Add(position, soft3d::Scale(GetForward(), hitDistance));
+    const soft3d::Fixed halfWidth = soft3d::AddFixed(
+        soft3d::SubtractFixed(localBounds.maximum.x, localBounds.minimum.x) >> 1, widthBonus);
+    const soft3d::Fixed halfHeight =
+        soft3d::SubtractFixed(localBounds.maximum.y, localBounds.minimum.y) >> 1;
+    const soft3d::Vec3 across = soft3d::Scale(
+        GetObject(0) != nullptr ? GetObject(0)->GetAxisX() : soft3d::Vec3{}, halfWidth);
+    std::array<soft3d::Vec3, 4> corners{position, position, end, end};
+    for (soft3d::Vec3& point : corners) {
+        point.y = soft3d::AddFixed(point.y, halfHeight);
+    }
+    corners[1].y = soft3d::SubtractFixed(corners[1].y, soft3d::AddFixed(halfHeight, halfHeight));
+    corners[3].y = soft3d::SubtractFixed(corners[3].y, soft3d::AddFixed(halfHeight, halfHeight));
+    corners[0] = soft3d::Add(corners[0], across);
+    corners[1] = soft3d::Subtract(corners[1], across);
+    corners[2] = soft3d::Add(corners[2], across);
+    corners[3] = soft3d::Subtract(corners[3], across);
+
+    soft3d::ObjectBounds bounds{{INT32_MAX, INT32_MAX, INT32_MAX},
+                                {INT32_MIN, INT32_MIN, INT32_MIN}};
+    for (const soft3d::Vec3& point : corners) {
+        bounds.minimum.x = std::min(bounds.minimum.x, point.x);
+        bounds.minimum.y = std::min(bounds.minimum.y, point.y);
+        bounds.minimum.z = std::min(bounds.minimum.z, point.z);
+        bounds.maximum.x = std::max(bounds.maximum.x, point.x);
+        bounds.maximum.y = std::max(bounds.maximum.y, point.y);
+        bounds.maximum.z = std::max(bounds.maximum.z, point.z);
+    }
     const bool hit = player != nullptr && player->IsBoundsInside(bounds);
     if (hit) {
         attackHitDone = 1;

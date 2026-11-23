@@ -268,7 +268,7 @@ Use `Creature` navigation/hearing and the real player/BSP. All concrete enemies 
 - Every enemy command with valid/invalid IDs and types, plus common state round trips. Verify from the native loader that `0x26` reconstructs StayBox, not enemy; full scene loading remains stage 13.
 - Real enemy resources, exact blood-splat lightmap pixels, and player interaction through the scene frame loop.
 
-**Status: complete for common behavior.** `src/game/Enemy.*` implements slots 28–49, common helpers, AI states, combat, waypoints, StayBox return behavior, blood splats, and the four-word save extension. `MyGameUnitMgr` implements 17 pool rows, singleton selection, collision search, nondeleting reuse, day preparation, map spawning/snapshotting, and collision-unit commands. `GameSI` implements IDs 180–204 and 208–218. Concrete variant overrides remain stages 10–12.
+**Status: complete for common behavior.** `src/game/Enemy.*` implements slots 28–49, common helpers, AI states, combat, waypoints, StayBox return behavior, blood splats, and the four-word save extension. `MyGameUnitMgr` implements 17 pool rows, singleton selection, collision search, nondeleting reuse, day preparation, map spawning/snapshotting, and collision-unit commands. `GameSI` implements IDs 180–204 and 208–218. Stage 10 has since completed all Maid/Bully overrides; the remaining concrete variant overrides belong to stages 11–12.
 
 `test_game_enemy.cpp` covers common AI/persistence, every new command, pools, real `einfo2` data, StayBox integration, and real map-2008 combat. `test_bsprender.cpp` verifies exact blood-splat palette/blend pixels, transparency, flips, clipping, and the axis-plane quirk. All 36 default, logging, math, and WAR tests pass serially; core and ASan/UBSan each pass 29. The 0x83c `Enemy` and 0x24 `EnemyWaypointNode` layouts, typed common signatures, native names/comments, and stage-9 tags are saved in Ghidra. See `symbian3rd_enemy.md`.
 
@@ -288,6 +288,10 @@ Recover their constructor layouts, animations, perception, attacks, movement, da
 - Per-class directed tests for each override, not only inherited-base tests.
 - Real model/animation/audio checks for all seven and day-specific preparation.
 - Scripted encounters covering each family’s distinct behavior and pooled capacity.
+
+**Status: complete.** `src/game/MaidBully.*` implements all seven concrete classes and every recovered override, including FatMaid's fruit projectile, Bully's second hit window, Day3's charge/two-round QTE encounter and custom death, and Day5's owned saw, throw/charge/pickup/slam states, and segment-hit handling. Maid3's missed gun reward is corrected to 2; Day5's 30-point path is exercised through real player damage. The shared sound table now places Victor at 110–118 and Day3 Bully sounds at 119–127. Native missing resources remain null rather than receiving substitutes.
+
+`test_game_enemy.cpp` adds six stage-10 groups covering dynamic types/capacities, all real model/animation/audio tables, exact state transitions, QTE success/failure, rewards, and all seven classes through the real map-2008 engine frame loop. All 36 default and host-math tests pass serially, and all 29 ASan/UBSan tests pass. Exact layouts, 61 typed method prototypes plus seven constructors, recovered helper names, behavior comments, 96 stage-10 functions, and a saved completion property are in Ghidra. Details are in `symbian3rd_maidbully.md`.
 
 ## Stage 11 — Worm, Weed, Lamper, and Ghost
 

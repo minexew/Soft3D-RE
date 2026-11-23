@@ -93,7 +93,7 @@ private:
     const soft3d::SojVertices* secondaryVertices = nullptr;
 };
 
-class ElectricSaw final : public soft3d::VisUnit {
+class ElectricSaw : public soft3d::VisUnit {
 public:
     ElectricSaw(soft3d::s3dResManager* resources = nullptr, int cacheLevel = 3,
                 soft3d::Renderer* renderer = nullptr, soft3d::AudioManager* audio = nullptr);
