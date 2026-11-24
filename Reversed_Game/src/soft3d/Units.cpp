@@ -610,7 +610,11 @@ void VisUnit::PostUpdate()
 
 void VisUnit::SubmitRenderables(RenderQueues& queues)
 {
-    if (primaryObject == nullptr || primaryObject->GetRenderMode() != ObjectRenderMode::Normal) {
+    if (primaryObject == nullptr) {
+        return;
+    }
+    primaryObject->UpdateFrustumVisibility();
+    if (primaryObject->IsFrustumCulled()) {
         return;
     }
     primaryObject->sortKey = primaryObject->HasTransparency() ? primaryObject->GetCameraDepth()

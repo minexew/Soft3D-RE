@@ -112,8 +112,11 @@ int MainUIDlg::Render(uint32_t context)
             engine.GetAudioManager().StopAllSounds();
             engine.SetSoundEnabled(soundEnabled);
             selection = 0;
-            mode = Authorization;
-            authorizationState = 0;
+            mode = MainMenu;
+            if (!engine.GetMenuBackdrop()->IsLoaded()) {
+                engine.LoadMenuBackdrop();
+            }
+            engine.GetAudioManager().PlaySound(u"e_wind01", true);
         }
         break;
     case Authorization:
@@ -309,7 +312,7 @@ void MainUIDlg::RenderAuthorization()
     }
     static constexpr uint16_t textIds[5] = {400, 401, 402, 404, 405};
     const int state = std::clamp(authorizationState, 0, 4);
-    engine.GetSecondaryFont()->DrawString(textIds[state], 0, 0, {left, top, right, bottom});
+    engine.GetSecondaryFont()->DrawString(textIds[state], 0xffff, 0, {left, top, right, bottom});
 
     AuthorizationHost* host = engine.GetAuthorizationHost();
     if (host != nullptr) {
@@ -810,7 +813,7 @@ void AboutDlg::RenderPhoto()
         WideSprintf(name, u"photo_20%d", textIndex);
     }
     auto* resource = static_cast<TextureRes*>(engine.GetResourceManager().GetResource(
-        ResourceTexture, 3, name, engine.GetLanguage() == 2 ? u".\\ui\\" : u".\\uien\\"));
+        ResourceTexture, 3, name, engine.GetLanguage() == 2 ? u".\\uien\\" : u".\\ui\\"));
     if (resource != nullptr && resource->GetTexture() != nullptr) {
         const Texture* texture = resource->GetTexture();
         engine.GetScreenBlitter().BlitUnscaled(
@@ -1039,7 +1042,7 @@ int32_t LoadDlg::DrawPlayTime(uint32_t value, int32_t x, int32_t y)
     char16_t text[10];
     WideSprintf(text, u"%d", static_cast<int32_t>(value));
     auto* resource = static_cast<TextureRes*>(engine.GetResourceManager().GetResource(
-        ResourceTexture, 1, u"shuzi_1", engine.GetLanguage() == 2 ? u".\\ui\\" : u".\\uien\\"));
+        ResourceTexture, 1, u"shuzi_1", engine.GetLanguage() == 2 ? u".\\uien\\" : u".\\ui\\"));
     if (resource == nullptr || resource->GetTexture() == nullptr) {
         return 0;
     }

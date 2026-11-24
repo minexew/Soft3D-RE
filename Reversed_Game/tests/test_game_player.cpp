@@ -503,6 +503,12 @@ void TestPlayerCommands()
     game::Player* player = fixture.scene->GetPlayer();
     fixture.Execute(118, {Argument::Bool(true)});
     CHECK(player->GetObject(0)->GetRenderMode() == soft3d::ObjectRenderMode::Normal);
+    fixture.Execute(118, {Argument::Bool(false)});
+    CHECK(player->GetObject(0)->GetRenderMode() == soft3d::ObjectRenderMode::SecondaryStreams);
+    soft3d::RenderQueues secondaryQueues;
+    player->SubmitRenderables(secondaryQueues);
+    CHECK(secondaryQueues.GetCount(3) + secondaryQueues.GetCount(4) > 0);
+    fixture.Execute(118, {Argument::Bool(true)});
     fixture.Execute(119, {Argument::String("r_ken_stand_a"), Argument::Bool(true)});
     CHECK(fixture.Execute(120, {}, true) == 0);
     fixture.Execute(121, {Argument::Fixed(0), Argument::Fixed(0), Argument::Fixed(0)});
@@ -589,11 +595,11 @@ void TestEngineInputAndFrames()
     player->BeginQTE(1, 10, 1);
     const uint32_t qte = fixture.FrameHash();
     CHECK(player->GetCurrentStateId() == game::PlayerQTE);
-    CHECK(stand == 0xe308b835U);
-    CHECK(run == 0x28ee5e85U);
-    CHECK(attack == 0xc503d75dU);
-    CHECK(hurt == 0xe926f91dU);
-    CHECK(qte == 0x77c59b7dU);
+    CHECK(stand == 0xf2a51c5dU);
+    CHECK(run == 0x6d6dfde5U);
+    CHECK(attack == 0x3240a1c5U);
+    CHECK(hurt == 0xd8f2ec35U);
+    CHECK(qte == 0x83da4c65U);
 }
 
 } // namespace

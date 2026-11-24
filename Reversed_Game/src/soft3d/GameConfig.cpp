@@ -93,14 +93,14 @@ void ControlMap::SetOrientation(int value)
 {
     orientation = value;
     if (value == 1) {
-        primaryBindings = {0, 13, 14, 16, 15, 0, 0, 0};
-        configuration.controlBindings = {0, 7, 9, 11, 5, 0, 1, 3};
+        primaryBindings = {0, 13, 14, 16, 15, 19, 17, 18};
+        configuration.controlBindings = {0, 7, 9, 11, 5, 8, 1, 3};
     } else if (value == 2) {
-        primaryBindings = {0, 14, 13, 15, 16, 0, 0, 0};
-        configuration.controlBindings = {0, 9, 7, 5, 11, 0, 1, 3};
+        primaryBindings = {0, 14, 13, 15, 16, 19, 17, 18};
+        configuration.controlBindings = {0, 9, 7, 5, 11, 8, 1, 3};
     } else {
-        primaryBindings = {0, 15, 16, 13, 14, 0, 0, 0};
-        configuration.controlBindings = {0, 5, 11, 7, 9, 0, 1, 3};
+        primaryBindings = {0, 15, 16, 13, 14, 19, 17, 18};
+        configuration.controlBindings = {0, 5, 11, 7, 9, 8, 1, 3};
     }
 }
 

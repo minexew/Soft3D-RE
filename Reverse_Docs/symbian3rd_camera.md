@@ -67,7 +67,7 @@ Each randomized environment channel is 0x4c bytes (`EnvironmentAudioChannel`):
 | 7 | `CameraController_SetSideFollowMode` `0x0007c904` | `CameraController_UpdateSideFollow` `0x0007e144` | Side-follow using the spot right vector and follow distance. |
 | 8 | `CameraController_SetFreeLookMode` `0x0007cb84` | `CameraController_UpdateFreeLook` `0x0007e6c8` | Free-look rotation with optional lock and angular limits. |
 
-`CameraController_Update` (`0x0007a1ac`) refreshes the bound position before invoking the active callback. Modes 2, 3, 4, and 7, plus fixed/path modes with a bound target, use bound position + `(0,2,0)` as the look target. `CameraController_Reset` (`0x0007b608`) clears triggers and restores the default mode-3 camera from the bound spot, normalized `{0,-0x6666,-0x10000}` direction, and `0x1a8000` follow distance.
+`CameraController_Update` (`0x0007a1ac`) refreshes the bound position before invoking the active callback. Modes 2, 3, 4, and 7, plus fixed/path modes with a bound target, use bound position + `(0,2,0)` as the look target. `previousDesiredTarget` preserves the desired camera pose for fixed/orbit updates, while `previousDirection` receives the current desired look target; they are not interchangeable. `previousDesiredPosition` receives the bound position at the end of an update. `CameraController_Reset` (`0x0007b608`) clears triggers and restores the default mode-3 camera from the bound spot, normalized `{0,-0x6666,-0x10000}` direction, and `0x1a8000` follow distance. Its horizontal offset uses the negated spot-right vector and its height delta is `previousDesiredTarget.y - previousDesiredPosition.y`.
 
 The original snap polarity is important: **snap zero selects the immediate pose** (also when the separate instant byte is set), while nonzero snap interpolates. Normal interpolation uses `0x1999`, approximately 0.1. Direct-follow mode can instead cap position motion by its configured fixed speed and scale target movement by `speed / distance`. `CameraController_MoveCamera` (`0x00080978`) performs independent component-wise position/target steps and returns true only after all position components arrive.
 
@@ -77,7 +77,7 @@ Shake consumes three random values per update, each mapped from `0,1,2` to `-1,0
 
 ## SPL playback and target modes
 
-For nonzero speed, `CameraController_UpdatePath` evaluates position at current time, then advances time by:
+For nonzero speed, `CameraController_StartPath` initializes the desired position from global spline time zero; only zero-speed paths perform closest-point projection. `CameraController_UpdatePath` then evaluates position at current time and advances time by:
 
 ```text
 step = 1 / (16 * speed)
@@ -136,7 +136,7 @@ The 22 model/sound records from `Scene_InitializeDoorResources` (`0x0002b554`) a
 
 Camera speed before stage 2 is `distance / 8`; after door creation it is `distance / 20`. Door model update occurs in stages 2–3 and post-update only before timer 29. Door submission is restricted to stages 2–3 before timer 29; stage 1 with a negative door index instead submits the player. Map-chunk loading and finalization continue in the same update, so `Player_ResetForMap` can make the player visible again after frame 28. Tests must not treat intermediate visibility as a standalone transition rule.
 
-`Scene_FinishMapLoad` (`0x0002d018`) resets the player/camera, forces an immediate update, finalizes manager content, clears input, and starts script tasks. `Scene_LoadNextLevel` clears triggers and unfreezes before queuing script/map state.
+`Scene_FinishMapLoad` (`0x0002d018`) resets the player/camera, forces an immediate update, finalizes manager content, clears input, and starts script tasks. It calls `Player_EnterFPS` only when the post-reset `nFpsActive` flag is nonzero; ordinary map starts must not force first-person mode or hide the player. `Scene_LoadNextLevel` clears triggers and unfreezes before queuing script/map state.
 
 Day titles load `riqi_<day>` and `<day>nd` from the active UI directory. On day 7 with event flag 699 clear, ARM appends `_a` to the formatted name, selecting **`7nd_a`** instead of `7nd`. These are the two shipped ending-specific textures; replacing the whole name with `_a` was incorrect. The portable dummy-presented hashes for these two frames are `0x84f3b875` and `0x506a0bad` respectively.
 

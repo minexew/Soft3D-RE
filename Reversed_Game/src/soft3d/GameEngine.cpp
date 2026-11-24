@@ -42,7 +42,7 @@ int GameEngine::Init()
 
     secondaryFont->SetEngine(this);
     if (secondaryFont->LoadBaseFont(language, resourceManager.GetFilePak()) != S3D_OK ||
-        secondaryFont->LoadSbnFont(language == 2 ? u".\\ui\\system.sbn" : u".\\uien\\system.sbn",
+        secondaryFont->LoadSbnFont(language == 2 ? u".\\uien\\system.sbn" : u".\\ui\\system.sbn",
                                    resourceManager.GetFilePak()) != S3D_OK) {
         return S3D_FILE;
     }
@@ -53,7 +53,7 @@ int GameEngine::Init()
     uiManager->SetScreenBlitter(&screenBlitter);
     uiManager->SetFont(secondaryFont.get());
     uiManager->SetLanguage(language);
-    if (uiManager->LoadStrSdt(language == 2 ? u".\\ui\\str.sdt" : u".\\uien\\str.sdt") != S3D_OK) {
+    if (uiManager->LoadStrSdt(language == 2 ? u".\\uien\\str.sdt" : u".\\ui\\str.sdt") != S3D_OK) {
         return S3D_FILE;
     }
     InitializeUiSoundNames();
@@ -72,7 +72,7 @@ int GameEngine::Init()
     gameUi = game.get();
     uiManager->AddDialog(std::move(game));
 
-    if (uiManager->LoadStateSdt(language == 2 ? u".\\ui\\state.sdt" : u".\\uien\\state.sdt") !=
+    if (uiManager->LoadStateSdt(language == 2 ? u".\\uien\\state.sdt" : u".\\ui\\state.sdt") !=
         S3D_OK) {
         return S3D_FILE;
     }

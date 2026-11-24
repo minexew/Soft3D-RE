@@ -352,9 +352,11 @@ void TestStage15Commands()
     fixture.Execute(114, {Argument::Bool(true)});
     CHECK(fixture.scene->GetPlayer()->IsPresentationVisible());
     fixture.Execute(116, {Argument::Bool(false)});
-    CHECK(!fixture.scene->GetPlayer()->IsPresentationVisible());
-    CHECK(!fixture.scene->GetPlayer()->IsVisible());
+    CHECK(!fixture.scene->GetPlayer()->IsNavigationEnabled());
+    CHECK(fixture.scene->GetPlayer()->IsPresentationVisible());
+    CHECK(fixture.scene->GetPlayer()->IsVisible());
     fixture.Execute(116, {Argument::Bool(true)});
+    CHECK(fixture.scene->GetPlayer()->IsNavigationEnabled());
     CHECK(fixture.scene->GetPlayer()->IsPresentationVisible());
     CHECK(fixture.scene->GetPlayer()->IsVisible());
 }
@@ -367,6 +369,17 @@ void TestRealNewGameHandshake()
     CHECK(fixture.scene->IsDayIntroPending());
     CHECK(fixture.scene->IsDayTitleVisible());
     CHECK(fixture.scene->GetMapProgress() == -1);
+    CHECK(fixture.engine.GetLanguage() == 0);
+    CHECK(fixture.engine.GetBaseFont()->GetCount() > 0);
+    CHECK(fixture.engine.GetBaseFont()->GetString(1) != nullptr);
+    const auto* calendar = static_cast<const soft3d::TextureRes*>(
+        fixture.engine.GetResourceManager().GetResource(soft3d::ResourceTexture, 3,
+                                                        u"riqi_1", u".\\ui\\"));
+    const auto* dayNumber = static_cast<const soft3d::TextureRes*>(
+        fixture.engine.GetResourceManager().GetResource(soft3d::ResourceTexture, 3,
+                                                        u"1nd", u".\\ui\\"));
+    CHECK(calendar != nullptr && calendar->GetTexture() != nullptr);
+    CHECK(dayNumber != nullptr && dayNumber->GetTexture() != nullptr);
     fixture.RunFrames(55);
     CHECK(fixture.scene->IsDayIntroPending());
     CHECK(!fixture.scene->IsNextLevelPending());
@@ -443,6 +456,9 @@ void TestMapFinishAndRepeatedStartup()
     CHECK(fixture.scene->GetMapProgress() == -1);
     CHECK(fixture.scene->GetUnitManager()->IsMapReady());
     CHECK(fixture.scene->GetPlayer()->IsVisible());
+    CHECK(fixture.scene->GetPlayer()->IsPresentationVisible());
+    CHECK(!fixture.scene->GetPlayer()->IsFpsActive());
+    CHECK(fixture.scene->GetCameraController()->GetMode() != game::CameraController::FirstPerson);
     CHECK(fixture.engine.GetScriptEngine().GetState() == soft3d::ScriptState::Running);
 
     fixture.RunFrames(40);

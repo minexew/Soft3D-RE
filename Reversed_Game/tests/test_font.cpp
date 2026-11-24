@@ -26,8 +26,8 @@ void Check(bool condition, int line)
 void TestRealFonts(soft3d::s3dFilePak& archive)
 {
     soft3d::StringManager base;
-    CHECK(base.LoadBaseFont(2, &archive) == soft3d::S3D_OK);
-    CHECK(base.GetFont()->GetMaxHeight() == 15);
+    CHECK(base.LoadBaseFont(0, &archive) == soft3d::S3D_OK);
+    CHECK(base.GetFont()->GetMaxHeight() == 17);
     CHECK(base.GetFont()->GetBaseCharCnt() == 64);
     CHECK(base.GetFont()->GetLocalCharCnt() == 0);
     CHECK(base.GetFont()->GetCharWidth(4) == 7);
@@ -36,7 +36,7 @@ void TestRealFonts(soft3d::s3dFilePak& archive)
     CHECK(base.GetFont()->GetCharWidth(30) == 7);
 
     soft3d::StringManager localized;
-    CHECK(localized.LoadBaseFont(2, &archive) == soft3d::S3D_OK);
+    CHECK(localized.LoadBaseFont(0, &archive) == soft3d::S3D_OK);
     CHECK(localized.LoadSbnFont(u".\\ui\\system.sbn", &archive) == soft3d::S3D_OK);
     CHECK(localized.GetFont()->GetLocalCharCnt() == 18);
     CHECK(localized.GetCount() == 581);
@@ -62,7 +62,7 @@ void TestRealFonts(soft3d::s3dFilePak& archive)
         output.write(reinterpret_cast<const char*>(bytes.data()), bytes.size());
     }
     soft3d::StringManager fileBased;
-    CHECK(fileBased.LoadBaseFont(2, &archive) == soft3d::S3D_OK);
+    CHECK(fileBased.LoadBaseFont(0, &archive) == soft3d::S3D_OK);
     CHECK(fileBased.LoadSbnFontFromFile(path.u16string().c_str()) == soft3d::S3D_OK);
     CHECK(fileBased.GetFont()->GetLocalCharCnt() == 18);
     CHECK(fileBased.GetCount() == 581);
@@ -89,7 +89,7 @@ void TestTextAndDrawing(soft3d::StringManager& manager)
     const uint32_t width = manager.GetFont()->GetCharWidth(4);
     const uint32_t height = manager.GetFont()->GetCharHeight(4);
     CHECK(manager.CountTextWidth(glyph.get()) == width);
-    CHECK(manager.GetTextHeight() == 15);
+    CHECK(manager.GetTextHeight() == 17);
     std::vector<uint32_t> target(32 * 32, 0);
     manager.SetRenderProperties(target.data(), 32, 32);
     manager.DrawString(glyph.get(), 0xf800, 0, soft3d::Point{2, 3});
@@ -135,16 +135,15 @@ void TestTextAndDrawing(soft3d::StringManager& manager)
     std::fill(target.begin(), target.end(), 0);
     manager.DrawString(&wrapped, 0xf800, rect);
     checkGlyph(target, 4, 0xf800, 0, 0);
-    checkGlyph(target, 55, 0xf800, 0, 15);
+    checkGlyph(target, 55, 0xf800, 0, 17);
 
     std::fill(target.begin(), target.end(), 0);
     manager.DrawString(&wrapped, 0x07e0, 2, rect);
-    checkGlyph(target, 4, 0x07e0, 0, 0);
-    checkGlyph(target, 55, 0x07e0, 7, 15);
+    checkGlyph(target, 4, 0x07e0, 7, 0);
 
     std::fill(target.begin(), target.end(), 0);
     manager.DrawString(&wrapped, 0x001f, 4, rect);
-    checkGlyph(target, 55, 0x001f, 4, 15);
+    checkGlyph(target, 55, 0x001f, 7, 17);
 
     const soft3d::Rect lineRect{0, 0, 70, 40};
     std::vector<uint32_t> ranged(32 * 32, 0);
@@ -170,7 +169,7 @@ int main()
         CHECK(archive.Open(SOFT3D_TEST_ARCHIVE, 0) == soft3d::S3D_OK);
         TestRealFonts(archive);
         soft3d::StringManager manager;
-        CHECK(manager.LoadBaseFont(2, &archive) == soft3d::S3D_OK);
+        CHECK(manager.LoadBaseFont(0, &archive) == soft3d::S3D_OK);
         CHECK(manager.LoadSbnFont(u".\\ui\\system.sbn", &archive) == soft3d::S3D_OK);
         TestTextAndDrawing(manager);
     } catch (const std::exception& error) {

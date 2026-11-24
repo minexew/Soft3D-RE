@@ -210,7 +210,7 @@ void GameUiController::CloseDialog()
 soft3d::TextureRes* GameUiController::LoadTexture(const char16_t* name, int32_t cacheLevel,
                                                    bool localized)
 {
-    const char16_t* directory = !localized || engine.GetLanguage() == 2 ? u".\\ui\\" : u".\\uien\\";
+    const char16_t* directory = !localized || engine.GetLanguage() != 2 ? u".\\ui\\" : u".\\uien\\";
     return static_cast<soft3d::TextureRes*>(engine.GetResourceManager().GetResource(
         soft3d::ResourceTexture, cacheLevel, name, directory));
 }
@@ -452,8 +452,8 @@ void GameUiController::RenderDialog()
 void GameUiController::RenderHealth()
 {
     Player* player = scene.GetPlayer();
-    if (ui->IsSubtitleActive() || player->GetMaxHealth() <= 0) return;
-    if (player->GetHealth() >= player->GetMaxHealth()) {
+    if (ui->IsSubtitleActive()) return;
+    if (player->GetHealth() > 0 && player->GetHealth() <= player->GetDangerHealthThreshold()) {
         ui->AdvanceElementTime(7, 0);
     }
 }

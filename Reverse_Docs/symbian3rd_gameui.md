@@ -53,7 +53,7 @@ The recovered native object is **0x524 bytes**. Ghidra stores `GameUIDlgLayout` 
 2. Interaction prompt, QTE, hide mask, modal dialog, health, gun HUD.
 3. Subtitle/special-door bars and text last.
 
-The prompt uses one quarter of its texture per frame and advances every four frames. Full health advances state 7 element 0; the inventory-only health selector at `0x0005a3f4` chooses SDT elements 8/9/10 from current/max health.
+The prompt uses one quarter of its texture per frame and advances every four frames. State 7 element 0 advances only while `0 < health <= initialHealthTenths` (10 at the default 100 HP), so the danger animation stays stopped at full health. The inventory-only health selector at `0x0005a3f4` chooses SDT elements 8/9/10 from current/max health.
 
 QTE functions are `GameUI_ShowQte` (`0x0005ac74`) and `GameUI_FailQte` (`0x0005acdc`). Keys are stored zero-based. Single-hit mode follows the mapped phone key; mash mode alternates from the remaining frame count. Failure displays four result textures at two frames each. Waiting hints use the player's state counter and original QTE duration to select blend modes 3/4/5 at the two endpoints. The existing `PlayerStateSet::CQTE` remains the sole input/result state machine.
 
@@ -173,17 +173,17 @@ The real `day1/ep0` path passes command 102 and executes input query ID 47 (`0x0
 Exact FNV-1a dummy-presented frame baselines are:
 
 ```text
-HUD            3b5055c5    event          3b5055c5
-simple         51869d85    choice         6af484dd
-timed          8eac1485    QTE            9f3555ed
-QTE failure    d70741c5    subtitle       c4d75e0d
-hide mask      2dcb348d    menu           74c2dfb5
-inventory      19324f3d    item actions   57909715
-item examine   63a84ca5    map            ac605735
-map/other hand 96792195     About model    a415e615
+HUD            9ef3185d    event          6bf63cc5
+simple         a70acd85    choice         d10f2ad5
+timed          24a71b05    QTE            8fa0e5dd
+QTE failure    81a48ad5    subtitle       62f6354d
+hide mask      5d6e1fed    menu           839fe2bd
+inventory      ac5fcb4d    item actions   08f9a64d
+item examine   29718445    map            ac605735
+map/other hand 96792195     About model    40cddb75
 ```
 
-The event baseline intentionally equals HUD for the selected real-resource sequence; the shipped `juqing_01` backdrop is a solid black strip, and this check is retained as a regression baseline rather than presented as proof of a visually distinct portrait frame.
+The event baseline includes visible dialogue text after correcting localized day-font loading and the accept/number-6 action bindings. HUD checks also assert that the danger animation remains at time zero at full health and advances at 10 HP.
 
 At stage-8 completion, all 35 default tests passed serially. STDIO logging and host-math variants each passed 35; core and combined ASan/UBSan builds passed 28; the WAR-nibble variant passed 35. After stage 9, the corresponding current counts are 36 for default/logging/math/WAR and 29 for core/ASan-UBSan. These builds use separate directories and serial CTest execution.
 

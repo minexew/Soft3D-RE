@@ -142,7 +142,7 @@ private:
     std::u16string persistenceDirectory = u".";
     bool inGame = false;
     bool menuActive = false;
-    int language = 2;
+    int language = 0;
     GameConfiguration configuration;
     ControlMap controlMap;
     GameContent content;

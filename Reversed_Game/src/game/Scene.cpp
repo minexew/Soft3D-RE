@@ -344,7 +344,6 @@ void Scene::FinishMapLoad()
 {
     player->ResetForMap();
     player->SetVisible(true);
-    player->EnterFPS();
     cameraController.Bind(&playerSpot, true);
     cameraController.Reset();
     cameraController.SetInstant(true);
@@ -353,6 +352,9 @@ void Scene::FinishMapLoad()
     engine.GetControlMap().SetEnabled(true);
     engine.GetInput().ClearKey();
     cameraWarmupCounter = 0;
+    if (player->IsFpsActive()) {
+        player->EnterFPS();
+    }
     engine.GetScriptEngine().StartTasks();
 }
 

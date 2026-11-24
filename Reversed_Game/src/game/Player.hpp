@@ -173,6 +173,7 @@ public:
     bool IsPushingUnit(int32_t id) const;
     int32_t GetHealth() const { return health; }
     int32_t GetMaxHealth() const { return maxHealth; }
+    int32_t GetDangerHealthThreshold() const { return healthTenths; }
     int32_t GetWeapon() const { return sword->GetType(); }
     int32_t GetGunExperience() const { return gunExperience; }
     int32_t GetGunLevel() const { return gunLevel; }

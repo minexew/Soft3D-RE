@@ -336,7 +336,7 @@ result StringManager::LoadBaseFont(uint32_t value, s3dFilePak* filePak)
     font->SetEngine(engine);
     std::vector<uint8_t> data;
     const result status = ReadArchiveEntry(
-        filePak, language == 2 ? u".\\ui\\basefont.sbn" : u".\\uien\\basefont.sbn", data);
+        filePak, language == 2 ? u".\\uien\\basefont.sbn" : u".\\ui\\basefont.sbn", data);
     return status == S3D_OK ? font->ParseBaseFont(data.data(), data.size()) : status;
 }
 

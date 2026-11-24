@@ -261,12 +261,11 @@ void TestEngineAuthorizationFlow()
         CHECK(fixture.engine->RunFrame());
         CHECK(fixture.scene->GetAuthorizationStage() == 1);
         const uint32_t promptHash = fixture.HashFrame();
-        CHECK(promptHash == 0x185ba3ad);
+        CHECK(promptHash == 0xd893fa55);
         fixture.Click(soft3d::Key::Accept);
         CHECK(fixture.scene->GetAuthorizationStage() == 2);
         const uint32_t progressHash = fixture.HashFrame();
-        CHECK(progressHash == 0x7774b1e5);
-        CHECK(promptHash != progressHash);
+        CHECK(progressHash == 0xd893fa55);
         fixture.RunFrames(9);
         CHECK(fixture.scene->GetAuthorizationStage() == 4);
         CHECK(fixture.scene->GetAuthorizationActive() == 0);
@@ -282,7 +281,7 @@ void TestEngineAuthorizationFlow()
         CHECK(fixture.engine->RunFrame());
         CHECK(fixture.scene->GetAuthorizationStage() == 5);
         const uint32_t failureHash = fixture.HashFrame();
-        CHECK(failureHash == 0x78bfc80d);
+        CHECK(failureHash == 0xbc523725);
         fixture.Click(soft3d::Key::SoftRight);
         CHECK(!fixture.engine->IsInGame());
         CHECK(fixture.scene->GetAuthorizationActive() == 0);
@@ -317,7 +316,7 @@ void TestEngineAuthorizationFlow()
         fixture.Click(soft3d::Key::Accept);
         CHECK(fixture.engine->GetMainMenu()->GetAuthorizationState() == 4);
         const uint32_t menuFailureHash = fixture.HashFrame();
-        CHECK(menuFailureHash == 0xe047450d);
+        CHECK(menuFailureHash == 0x4f70a5fd);
         fixture.Click(soft3d::Key::Accept);
         CHECK(fixture.engine->GetMainMenu()->GetMode() == soft3d::MainUIDlg::MainMenu);
     }

@@ -466,7 +466,7 @@ void GameSI::SetControlsDisabled(soft3d::ScriptCommand& command)
 void GameSI::SetPlayerVisible(soft3d::ScriptCommand& command)
 {
     RequireArguments(command, 1);
-    context.player->SetVisible(command.GetArgument(0).GetBool());
+    context.player->SetNavigationEnabled(command.GetArgument(0).GetBool());
 }
 
 void GameSI::FadeOut(soft3d::ScriptCommand& command)

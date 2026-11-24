@@ -113,7 +113,7 @@ void GameUIDlg::LoadResources()
     static_assert(std::size(names) == UiTextureCount);
     textures.clear();
     textures.reserve(UiTextureCount);
-    const char16_t* directory = engine.GetLanguage() == 2 ? u".\\ui\\" : u".\\uien\\";
+    const char16_t* directory = engine.GetLanguage() == 2 ? u".\\uien\\" : u".\\ui\\";
     for (const char16_t* name : names) {
         textures.push_back(name == nullptr ? nullptr : static_cast<TextureRes*>(
             engine.GetResourceManager().GetResource(ResourceTexture, 1, name, directory)));
@@ -597,7 +597,7 @@ void GameUIDlg::RenderFiles()
                 WideSprintf(name, index < 10 ? u"photo_200%d" : u"photo_20%d", index);
                 auto* resource = static_cast<TextureRes*>(engine.GetResourceManager().GetResource(
                     ResourceTexture, 3, name,
-                    engine.GetLanguage() == 2 ? u".\\ui\\" : u".\\uien\\"));
+                    engine.GetLanguage() == 2 ? u".\\uien\\" : u".\\ui\\"));
                 if (resource != nullptr && resource->GetTexture() != nullptr) {
                     const Texture* texture = resource->GetTexture();
                     engine.GetScreenBlitter().BlitUnscaled(texture,

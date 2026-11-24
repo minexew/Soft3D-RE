@@ -203,6 +203,8 @@ void TestCommandsAndStatistics()
 
     fixture.Execute(73, {Argument::Short(20)});
     CHECK(ui->IsDialogActive() && ui->GetDialogKind() == 0 && ui->GetDialogTextId() == 20);
+    for (int count = 0; count < 8 && ui->IsDialogActive(); ++count) fixture.Click();
+    CHECK(!ui->IsDialogActive());
     fixture.Execute(74, {Argument::Int(0), Argument::Short(30)});
     fixture.Execute(74, {Argument::Int(4), Argument::Short(31)});
     CHECK(ui->GetDialogOption(0) == 30 && ui->GetDialogOption(4) == 31);
@@ -341,6 +343,14 @@ void TestExactRendering()
     GameFixture fixture;
     fixture.Start();
     auto* ui = fixture.scene->GetGameUi();
+    auto* player = fixture.scene->GetPlayer();
+    fixture.RunFrames(1);
+    CHECK(ui->GetElementCurrentTime(7, 0) == 0);
+    player->SetHealth(10);
+    fixture.RunFrames(1);
+    CHECK(ui->GetElementCurrentTime(7, 0) == 1);
+    player->SetHealth(100);
+    ui->SetElementCurrentTime(7, 0, 0);
     ui->ResetLevelState();
     fixture.scene->GetUnitManager()->SetPaused(false);
     std::array<std::pair<const char*, uint32_t>, 13> hashes{};
@@ -398,16 +408,16 @@ void TestExactRendering()
     const uint32_t about = fixture.FrameHash();
     CHECK(index == hashes.size());
     constexpr std::array<uint32_t, 13> expected = {
-        0x3b5055c5U, 0x3b5055c5U, 0x51869d85U, 0x6af484ddU,
-        0x8eac1485U, 0x9f3555edU, 0xd70741c5U, 0xc4d75e0dU,
-        0x2dcb348dU, 0x74c2dfb5U, 0x19324f3dU, 0x57909715U, 0x63a84ca5U,
+        0x9ef3185dU, 0x6bf63cc5U, 0xa70acd85U, 0xd10f2ad5U,
+        0x24a71b05U, 0x8fa0e5ddU, 0x81a48ad5U, 0x62f6354dU,
+        0x5d6e1fedU, 0x839fe2bdU, 0xac5fcb4dU, 0x08f9a64dU, 0x29718445U,
     };
     for (std::size_t index = 0; index < hashes.size(); ++index) {
         CHECK(hashes[index].second == expected[index]);
     }
     CHECK(map == 0xac605735U);
     CHECK(mapOtherOrientation == 0x96792195U);
-    CHECK(about == 0xa415e615U);
+    CHECK(about == 0x40cddb75U);
 }
 
 } // namespace

@@ -52,6 +52,8 @@ void TestFixedAndFollowModes()
     CHECK_VEC(controller.GetTarget(), {0x10000, 0x20000, 0x40000});
     controller.Update();
     CHECK_VEC(fixture.camera.GetPosition(), {0x10000, 0x20000, 0x30000});
+    controller.Update();
+    CHECK_VEC(controller.GetDesiredPosition(), {0x10000, 0x20000, 0x30000});
 
     controller.SetMode(game::CameraController::FixedMode, {0x20000, 0, 0},
                        {0, 0, soft3d::fixedOne}, 0, nullptr, 0, true, 0);
@@ -92,6 +94,12 @@ void TestFixedAndFollowModes()
     controller.Shake(1, 0x10000);
     controller.Update();
     CHECK(controller.GetShakeFrames() == 0);
+
+    controller.Reset();
+    CHECK(!controller.IsBound());
+    CHECK(controller.GetPosition().x < fixture.spot.GetPosition().x);
+    controller.Update();
+    CHECK(controller.GetDesiredPosition().x < fixture.spot.GetPosition().x);
 }
 
 void TestFirstPersonAndFreeLook()
@@ -121,8 +129,11 @@ void TestPathsAndShake()
         std::vector<soft3d::Vec3>{{0, 0, 0}, {0x100000, 0, 0}})));
     ControllerFixture fixture;
     auto& controller = fixture.controller;
-    fixture.spot.SetPosition({});
+    fixture.spot.SetPosition({0x100000, 0, 0});
     controller.SetMode(game::CameraController::Path, {}, {}, 0, &paths, 0x1e0000, false, 0);
+    CHECK_VEC(controller.GetPosition(), {0, 0, 0});
+    CHECK_VEC(controller.GetDesiredPosition(), {0, 0, 0});
+    fixture.spot.SetPosition({});
     controller.Update();
     CHECK(controller.GetPathTime() == 136);
     CHECK(!controller.IsPathCompleted());

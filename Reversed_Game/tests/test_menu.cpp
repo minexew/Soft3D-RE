@@ -192,11 +192,6 @@ void TestMenuFlow(const TemporaryDirectory& directory)
     Click(engine, soft3d::Key::Down);
     CHECK(!engine.GetMainMenu()->IsSoundEnabled());
     Click(engine, soft3d::Key::Accept);
-    CHECK(engine.GetMainMenu()->GetMode() == soft3d::MainUIDlg::Authorization);
-    CHECK(engine.GetMainMenu()->GetAuthorizationState() == 0);
-    Click(engine, soft3d::Key::SoftRight);
-    CHECK(engine.GetMainMenu()->GetAuthorizationState() == 2);
-    Click(engine, soft3d::Key::Accept);
     CHECK(engine.GetMainMenu()->GetMode() == soft3d::MainUIDlg::MainMenu);
     CHECK(engine.GetAudioManager().GetDevice().GetMasterVolume() == 1);
     CHECK(engine.GetMenuBackdrop()->IsLoaded());

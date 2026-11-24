@@ -75,7 +75,7 @@ The remaining large game-state and embedded structures have not been assigned in
 
 `AppUi_ConstructL` creates `GameView`; `GameView_ConstructL` creates the 320×240 descriptor and `GameEngine`, invokes virtual `Init`, and then starts it. `GameEngine_Init` (`0x0006ebc0`) performs the significant early work in this order:
 
-1. Select the language/resource variant and open `res.spk`.
+1. Select the language/resource variant and open `res.spk`. Language 2 selects `uien` for base fonts, system strings, and state tables; other language values select `ui`. The portable application defaults to language 0 for the supplied English archive.
 2. Construct/initialize the script engine and load `str.sdt` into the dialog manager.
 3. Bind the renderer and screen blitter to the UI and initialize resource-name arrays.
 4. Start the `0x11` frame interval.

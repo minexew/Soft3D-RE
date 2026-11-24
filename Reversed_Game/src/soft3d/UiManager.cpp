@@ -95,7 +95,7 @@ result UiManager::LoadStrSdt(const char16_t* entryName)
     resources.assign(resourceNames.size(), nullptr);
     for (size_t index = 0; index < resourceNames.size(); ++index) {
         resources[index] = static_cast<TextureRes*>(resourceManager->GetResource(
-            ResourceTexture, 1, resourceNames[index].c_str(), language == 2 ? u"\\ui" : u"\\uien"));
+            ResourceTexture, 1, resourceNames[index].c_str(), language == 2 ? u"\\uien" : u"\\ui"));
         if (resources[index] == nullptr) {
             return S3D_FILE;
         }
@@ -350,7 +350,7 @@ uint32_t UiManager::InternTextureName(const std::u16string& name)
     TextureRes* resource = nullptr;
     if (resourceManager != nullptr) {
         resource = static_cast<TextureRes*>(resourceManager->GetResource(
-            ResourceTexture, 1, name.c_str(), language == 2 ? u"\\ui" : u"\\uien"));
+            ResourceTexture, 1, name.c_str(), language == 2 ? u"\\uien" : u"\\ui"));
         if (resource == nullptr) {
             return 0;
         }

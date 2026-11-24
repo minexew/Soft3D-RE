@@ -103,7 +103,7 @@ Operation 1 updates the initial menu result when `menuRegistered` is false; othe
 | 3 | 404 | Accept retries; back selects state 2. |
 | 4 | 405 | Accept leaves for the main menu. |
 
-After the sound prompt, the portable menu now enters mode 4 rather than skipping directly to the main menu. Backing out of state 0 reaches state 2 and then the main menu without inventing a license-success result. Unsupported connection attempts select state 4. `MainUIDlg::ShowAuthorization` provides an explicit host/test entry point for the recovered screen.
+After the sound prompt, native `MainUIDlg_Update` advances from mode 3 directly to main-menu mode 5; it does not enter authorization mode 4. Mode 4 remains reachable only through the explicit authorization path. Backing out of state 0 reaches state 2 and then the main menu without inventing a license-success result. Unsupported connection attempts select state 4. `MainUIDlg::ShowAuthorization` provides an explicit host/test entry point for the recovered screen. Authorization text uses `0xffff` white, matching `PackRgb565(255,255,255)` in the native renderer.
 
 ## Scene authorization
 
@@ -133,6 +133,6 @@ SDL3 3.2.10 haptics are available in the build environment. `SdlVibrationBackend
 - the Luhn-valid Linux test identity and vibration support results;
 - real engine-frame day-1 nag, later-day gating, offline contrast, SMS completion/failure, menu connection failure, and exact framebuffer hashes.
 
-Exact hashes are scene prompt `0x185ba3ad`, scene progress `0x7774b1e5`, scene failure `0x78bfc80d`, and menu failure `0xe047450d`. The direct menu test clears the framebuffer before entering mode 4 because that mode preserves the previous startup background.
+Exact hashes are scene prompt/progress `0xd893fa55` (both screens currently produce the same dummy-presented output), scene failure `0xbc523725`, and menu failure `0x4f70a5fd`. The direct menu test clears the framebuffer before entering mode 4 because that mode preserves the previous startup background.
 
 The default suite has 38 tests; SDL-independent variant suites have 31. Tests run serially because existing fixed temporary filenames can collide.

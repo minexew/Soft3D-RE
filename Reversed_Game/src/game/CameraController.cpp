@@ -133,11 +133,11 @@ void CameraController::Reset()
     inputCancelled = false;
     pathLoop = false;
     SetMode(OrbitFollow, {}, initialDirection, 0x1a8000, nullptr, 0, false, 0);
-    heightDelta = soft3d::SubtractFixed(previousDesiredPosition.y, previousBoundPosition.y);
+    heightDelta = soft3d::SubtractFixed(previousDesiredTarget.y, previousDesiredPosition.y);
     const Fixed verticalSquared = soft3d::FixedMultiply(heightDelta, heightDelta);
     const Fixed distanceSquared = soft3d::FixedMultiply(followDistance, followDistance);
     const Fixed horizontal = soft3d::FixedSqrt(soft3d::SubtractFixed(distanceSquared, verticalSquared));
-    Vec3 lateral = spot->GetRight();
+    Vec3 lateral = soft3d::Scale(spot->GetRight(), -soft3d::fixedOne);
     lateral.y = 0;
     lateral = soft3d::Scale(lateral, horizontal);
     desiredPosition = soft3d::Add(previousBoundPosition, lateral);
@@ -151,6 +151,7 @@ void CameraController::Reset()
     orbitEndFrames = -8;
     orbitRotationEnabled = false;
     orbitTargetEnabled = false;
+    bound = false;
     snapMode = false;
     targetMode = 0;
     pathTime = 0;
@@ -188,8 +189,9 @@ void CameraController::SetMode(int32_t newMode, const Vec3& newPosition, const V
             position = desiredPosition;
             target = desiredTarget;
         }
-        previousDesiredPosition = newPosition;
-        previousDesiredTarget = previousDesiredPosition;
+        previousDesiredPosition = previousBoundPosition;
+        previousDesiredTarget = newPosition;
+        previousDirection = previousDesiredTarget;
         direction = newDirection;
         followDistance = 0xa0000;
         targetMode = newTargetMode;
@@ -205,12 +207,13 @@ void CameraController::SetMode(int32_t newMode, const Vec3& newPosition, const V
             position = desiredPosition;
             target = desiredTarget;
         }
-        previousDesiredPosition = desiredPosition;
-        previousDesiredTarget = previousDesiredPosition;
+        previousDesiredPosition = previousBoundPosition;
+        previousDesiredTarget = desiredPosition;
+        previousDirection = previousDesiredTarget;
         direction = newDirection;
         followDistance = time;
         if (newMode == OrbitFollow) {
-            heightDelta = soft3d::SubtractFixed(previousDesiredPosition.y, previousBoundPosition.y);
+            heightDelta = soft3d::SubtractFixed(previousDesiredTarget.y, previousDesiredPosition.y);
         }
         break;
     }
@@ -243,7 +246,11 @@ void CameraController::SetMode(int32_t newMode, const Vec3& newPosition, const V
             const Fixed endDistance = soft3d::SquaredLength(soft3d::Subtract(
                 paths->EvaluatePosition(soft3d::fixedOne), previousBoundPosition));
             pathReverse = endDistance <= startDistance;
-            (void)ProjectOntoPath(true);
+            if (pathSpeed == 0) {
+                (void)ProjectOntoPath(true);
+            } else {
+                desiredPosition = paths->EvaluatePosition(0);
+            }
             previousDesiredPosition = desiredPosition;
             if (targetMode == 0) {
                 direction = paths->EvaluateDerivative(0);
@@ -615,11 +622,11 @@ void CameraController::UpdatePath(bool)
 
 void CameraController::UpdateFixed(bool)
 {
-    desiredPosition = previousDesiredPosition;
+    desiredPosition = previousDesiredTarget;
     if (targetMode == 1 && spot != nullptr) {
         desiredTarget = soft3d::Add(spot->GetPosition(), targetOffset);
     } else if (targetMode == 0) {
-        desiredTarget = soft3d::Add(previousDesiredPosition, direction);
+        desiredTarget = soft3d::Add(previousDesiredTarget, direction);
     }
     if (MovementInput()) {
         inputCancelled = false;
@@ -630,7 +637,7 @@ void CameraController::UpdateFrontFollow(bool)
 {
     desiredPosition = soft3d::Subtract(previousBoundPosition,
                                        soft3d::Scale(direction, followDistance));
-    previousDesiredPosition = desiredPosition;
+    previousDesiredTarget = desiredPosition;
     desiredTarget = soft3d::Add(previousBoundPosition, targetOffset);
     if (MovementInput()) {
         inputCancelled = false;
@@ -640,7 +647,7 @@ void CameraController::UpdateFrontFollow(bool)
 
 void CameraController::UpdateOrbitFollow(bool immediate)
 {
-    Vec3 offset = soft3d::Subtract(target, position);
+    Vec3 offset = soft3d::Subtract(position, target);
     if (!Near(previousBoundPosition, previousDesiredPosition) || immediate) {
         const Fixed horizontal = soft3d::FixedSqrt(soft3d::SubtractFixed(
             soft3d::FixedMultiply(followDistance, followDistance),
@@ -651,6 +658,7 @@ void CameraController::UpdateOrbitFollow(bool immediate)
         }
         desiredPosition = soft3d::Add(target, soft3d::Scale(offset, horizontal));
         desiredPosition.y = soft3d::AddFixed(desiredPosition.y, heightDelta);
+        previousDesiredTarget = desiredPosition;
         direction = soft3d::Normalize(soft3d::Subtract(previousBoundPosition, desiredPosition));
     }
     desiredTarget = previousBoundPosition;
@@ -999,7 +1007,7 @@ void CameraController::Update(const Vec3* targetOverride, bool immediate)
         camera->UpdateRoll();
     }
     previousPosition = position;
-    previousDesiredTarget = desiredTarget;
+    previousDirection = desiredTarget;
     previousTarget = target;
     previousDesiredPosition = previousBoundPosition;
 }
