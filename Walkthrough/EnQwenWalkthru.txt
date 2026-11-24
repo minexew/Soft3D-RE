@@ -1,0 +1,274 @@
+# 7 Days (七夜) — Full English Translation
+
+*Below is a complete translation of the encyclopedia entry and the full walkthrough. I've left out the Baidu Baike page furniture (video listings, timestamps, "subscribe/edit/discuss" buttons, gallery links), since none of that is part of the guide. Item names are given in quotes, room names are capitalized. Note: the source calls the protagonist simply **Ken** (肯), full name **Ken Savit** (肯·萨维特); the remake 《七夜：救赎》 is "7 Days: Salvation."*
+
+---
+
+## Overview
+
+**7 Days** is a 3D adventure game developed by the Chinese company Dingoo Technology, released on the Symbian platform in 2008. Built on the studio's own in-house **Soft3D engine**, it runs on a wide range of handset models with no hardware acceleration required, and it earned a **Best 3D Game nomination at IMGA 2007** (International Mobile Gaming Awards). The remake, **7 Days: Salvation**, is being developed by the original team, Hangzhou Fula, using the original as its blueprint but built in **Unreal Engine 5** — a single-player, buy-to-play title for PC and consoles. That version cracked the technical problems of high-precision animation and cinematic staging for a homegrown third-person horror-action game. The original never turned a commercial profit because of piracy.
+
+The game follows horror novelist Ken Savit through seven days at an American country manor, with the player's choices during each day's independently themed events shaping how the story unfolds. The remake adds freshly captured gameplay footage and a procedural animation solution, blends local folklore and historical elements into its environments, and uses motion capture to make the character animation more expressive. The original used real-time-rendered cutscenes and 3D sound to create an immersive puzzle-solving experience, and was the first Symbian game to achieve real-time 3D rendering.
+
+| | |
+|---|---|
+| **Chinese title** | 七夜 |
+| **Genre** | 3D adventure game |
+| **English title** | 7days |
+| **Publisher** | DINGOO GAMES |
+| **Award** | IMGA 2007 Best 3D Game nomination |
+
+---
+
+## Game Description
+
+**7 Days** is a 3D adventure game that received a Best 3D Game nomination at IMGA 2007 (International Mobile Gaming Awards 2007).
+
+- It is built on the Soft3D engine and is **entirely software-rendered**, requiring no hardware acceleration whatsoever, so it supports most popular phone models.
+- Every screen and every cutscene in the game is **calculated in real time**; there is no pre-rendered CG animation at all, which keeps the file size extremely small.
+- Soft3D is fully cross-platform, so 7 Days can support Symbian, BREW, WinCE and other platforms without difficulty. If needed, the engine can also easily be extended with hardware acceleration to reach top-tier visual quality.
+
+7 Days tells the story of a famous horror novelist. Ken is a man in his thirties, reclusive and introverted. He habitually shuts himself away in his villa on the outskirts of town to plot out his novels. But from a certain day onward, strange things begin happening one after another, and Ken finds himself trapped in the villa, unable to leave… Is it salvation, or a descent into an endless cycle? Or is it all just a nightmare? When will this dream ever end?
+
+The game narrates Ken's seven-day ordeal. Each day's events have a theme, and the developers attempt to present those themes to the player through cinematic techniques. In addition, the player's choices and interactions may affect the flow of later events.
+
+This is a puzzle game that requires you to use your head — but if you're a "lightweight" player, you should still easily find enjoyment in the beautiful visuals, the vivid 3D sound, and the clever puzzles.
+
+---
+
+# COMPLETE WALKTHROUGH
+
+## Night One — Hallucination
+
+First, pick up the **"Housekeeper's Business"** note from the desk. Leave the study and step out onto the open balcony; at the round table you can pick up **"Housekeeper's Business 2."** Going to the door that leads to the Central Hall triggers a hallucination event. On the round table you'll see a mask dripping blood; walk close and you'll hear a little girl crying. Ignore it — go to the other end, push the crate aside, and walk to the far end of the area, and the scene returns to normal.
+
+Go out the door and, following the map, reach the Sky Corridor, where another hallucination occurs: the entire room has been flipped over. Examine the rope on the floor, then lower it, and exit — you can now reach the bedroom. In the bedroom you'll find the **"Grand Hall Key"** on the tea table, the **"Novel Cover Design"** at the writing desk, and a **"Sedative"** on the bed.
+
+Take the stairs down to 1F and first go to the Office on the right side of the map. Entering triggers the third hallucination: the room turns gray, with a little girl crying in the corner. Grab **"Housekeeper's Diary 2"** from the cabinet first; walk up to the girl and the hallucination vanishes. Exit and loop around the other way to the Message Room. On the way you pass through a long corridor and yet another hallucination occurs — the whole room turns wildly, riotously colorful. Enter the room marked **S**, where you can find **"Housekeeper's Diary"**; make a save and press on.
+
+You arrive at the room just before the Grand Hall. Go into the Message Room to find **"Ken's Message."** Then head to the Grand Hall: first find the **"Publisher's Photograph"** on the table, then examine the front door and discover it's locked. Head back the way you came and you'll find the corridor now filled with green gas — run back to the bedroom, fast.
+
+---
+
+## Night Two — Fear
+
+Ken wakes up to find himself in, of all places, the kitchen. He's hungry, so naturally he looks for food first: in the fridge you'll find a **"Chunk of Meat."** A cutscene plays — Ken goes to the washroom to rinse the meat, then turns around to find the sink brimming with red, bloody water and a gory, mangled female zombie crawling across the mirror. Ken bolts out of the washroom and reaches the door of the small guest room, where a huge man covered in rolls of fat appears and comes straight at him. Seeing the situation is bad, Ken immediately ducks into the small guest room — quickly hide in the cabinet beside the bed. (**This is timed: you must be hidden before the giant breaks the door down.**) Once the on-screen prompt appears you can come out of the cabinet; on the small cabinet you'll find **"Ken's Note."**
+
+Go outside; at the spot where the giant appeared you can find the **"Storeroom Key"** and a knife. After that false alarm, go save at the spot marked **S**, where you can also find **"Victor's Novel Synopsis"** and a bottle of **"Sedative."** Leaving the save point, you can see a child in front of the Changing Room door — before you can get a good look, the child suddenly shatters into pieces. (You can skip triggering this, but it affects some later developments.)
+
+A thoroughly baffled Ken has found no clues, so head first for the corridor leading to the storage room. Not far in, the giant appears again. Run — your destination is the storage room. Once inside, you finally shake off the pursuit. There's a servant sweeping in here; killing him is just a matter of swinging the knife nonstop. On the table to the right you'll find the **"Stairwell Key."**
+
+Naturally, with the key you go open the stairwell door. Coming out of the stairwell onto 2F, Ken finds his leg stuck in a rail track — and a train comes roaring in. Mash the buttons as prompted to escape, and you reach the Utility Room. Here you can find a **"Sedative,"** and on the other side of the Utility Room, **"Half a Crutch."**
+
+Go out to the Reception Room to look for the telephone. Here you meet another servant, this one mopping; kill him, then flip the light switch and check the phone — the line has been cut, it's useless. Someone seems to be coming up the stairwell; ignore him and press on. In the room to the left of the Central Hall you can grab a **"Sedative"** from the sofa.
+
+In the Central Hall, Ken decides to use the great clock's bell to send out a distress signal, but the door to the Grand Clock Platform won't open. Head for the door to the Screening Room — and the giant suddenly follows. Run. Run all the way to the Screening Room, where you see the shattered little girl walk past behind you; no time to worry about that, the giant is already on your heels. In the Screening Room, get around the back of the screen and hide in the cabinet. You'll watch the giant smash the projector and electrocute himself to death. Good — another narrow escape.
+
+Now you can safely go back to the 1F dining room, where you'll find the **"Grand Clock Platform Key"** and **"Housekeeper's Business 3."** Go to the Old Records Room on 2F and push the shelves in the correct order to obtain the **"Large Gear."** With the Large Gear in hand, go from the Central Hall back to the bedroom and out onto the balcony, where you can find a **"Small Key"** in the bird's nest, with a **"Locked Toolbox"** beside the nest. Combine these two items in your inventory to get the **"Small Gear."**
+
+Take the bedroom stairs back to 1F; in the Office you can find a **"Sedative."** Walk down the long corridor (at one point a puppet drops down, and there's a servant as well). At the door leading into the Grand Hall you again see the shattered little girl run past. Follow her through the door, kill a servant, and you can obtain another **"Half a Crutch."** Combine it with the earlier one to get the **"Complete Crutch."** Return to the Reading Room, examine the ladder beside the bookshelf, climb up, and use the Complete Crutch to obtain the **"Medium Gear."**
+
+With all three gears collected, return to the Grand Clock Platform on 2F, use each of the three gears, and the great bell rings out.
+
+---
+
+## Night Three — Chaos
+
+The bell has only rung a few times when the clock tower jams. Nothing for it — go back to the Central Hall, where the little girl appears again, fiddling with a Rubik's cube. After a huge rumble, she hands the cube to us and leaves on her own. Then a scream is heard, and Ken decides to go save her.
+
+At the Sky Corridor you find the whole house has turned upside down. Back to the Central Hall; Ken decides to check the Screening Room first. The passage to the Screening Room has also been completely inverted (**there's a blood-red number "740" here — you'll see what it's for later**). Grab the **"Machine Oil,"** then enter the Reception Room through the other door off the Central Hall. Because everything's inverted, there's still no way through here; examine the ventilation duct at the side and you can bypass the blockage. This section switches to a first-person view, with the direction keys controlling movement to the exit at the far end. Here you can pick up a **"Servant's Diary,"** then go through the purple door. Enter through the vent here and you arrive at the Exhibit Room. There's a monster in here; since you have no weapon, you can ignore it for now.
+
+On the other side you'll find a chessboard; examine it and move the cube onto the green square — but the face of the cube must match the board's color and face upward. Another tremor; go back through the vent. Here you must first duck into the extra dead end that has appeared just before the exit; when you look back you'll see that half-bodied zombie from the meat-washing scene on Day Two crawl past. Leave it alone, climb out of the vent, and take another vent back to the Central Hall and on to the Screening Room (**you can pick up "Lubricating Oil" inside the vent**). Everything is back to normal now. In the Screening Room, Ken finds the giant is gone. Examine the photograph on the floor to obtain the **"Torn Half of a Group Photo."**
+
+Return the same way to the Reception Room, where a ladder has suddenly appeared. Climb it to the Utility Room; passing through the middle section you'll see a figure go down the stairs. Investigate and you'll find a hole — don't go down yet. Go out the other door of the Utility Room and a cutscene triggers: a sword falls from above; just press the direction keys as prompted. Having dodged the falling sword, examine it and you'll have a weapon. You can also find a **"Ram's Horn"** here.
+
+Go to the Exhibit Room and fit the Ram's Horn onto the statue missing a horn — a safe appears. Enter the three-digit number you saw earlier, **740**, to obtain **"A Damaged Old Group Photo"** and the **"Attic Small Key."** Go to the Utility Room and jump down the hole you found earlier into the 1F Sundries Room. Here's another chessboard; place the cube according to the rules and you can leave (there's also a **"Sedative"** here).
+
+Outside, the whole corridor has flipped over. Walk into a clock and you'll see a mopping servant die for no apparent reason — there's actually an invisible monster here, so don't rush in. Examine the clock that fell on the floor, then use the **"Lubricating Oil"** on it in your inventory. As long as you ring the clock, the invisible monster is destroyed.
+
+Now go collect your things: from the servant's corpse you can get the **"Wardrobe Key"**; at the windowsill from the cutscene you can get the **"Changing Room Key"**; and beside the storeroom you'll also find an **"Empty Lighter"** (no fuel). From the corridor beside the Changing Room you'll find another hole; jump down and you arrive in the Tool Room. Grab **"Servant's Diary 2,"** push the crate aside, enter the vent back to the Reception Room, and then head for the open balcony (you can pick up a **"Sedative"** on the way).
+
+On the left of the open balcony is a pile of weeds; examine it, then combine the **Empty Lighter** with the **Machine Oil** to get a **"Filled Lighter."** Use it and you can obtain the **"Fallen Stone Disc."** From the statue you can climb up to the upper level of the balcony; use the Fallen Stone Disc on the half-disc there to join them together, and the cube puzzle begins.
+
+Once you've solved the cube, take the vent back to the earlier 1F passage and enter the Changing Room (there's a servant deep inside). Open the wardrobe and you'll see a stone disc. Deal with the servant who charges in first, then place the cube, and take the stair room back to 2F — now you can finally go to the Sky Corridor.
+
+After the cutscene in the Sky Corridor, enter the roof from the balcony. Go into the little wooden hut, climb the ladder, and continue through the vents. After coming out of the vent, save at the **S** point first, then make a straight dash for the stairwell — there's an invisible monster here too, so you absolutely must reach the 3F stairwell before it shows up. Once you reach the central part of the stairwell, a servant appears from each of the two doors; quickly get over and finish one of them off.
+
+Take the stairwell door to the attic, and a cutscene plays: the giant appears again, covered head to foot in blood. This time it's a real boss fight.
+
+**Boss strategy:** This boss is very simple. At the start, circle around him and bait out his two-handed slam; then go in and hack him during his recovery frames. After that he'll start charging — just keep your distance, read the direction of his charge, dodge, and cut him from behind. When he goes down, walk up and press attack, then follow the direction-key prompts to finish him off.
+
+With the giant finally dealt with, you'll find the **"Bell Tower Key"** beside him. Head back to the bell tower, and at the door you find the little girl. On this **Night Three — Chaos**, Ken finally recalls his memories of the little girl, **Kate**.
+
+---
+
+## Night Four — Oppression
+
+Enter the bell tower and obtain the **"Bloodstained Note."** Go upstairs to the great bell and you find the pendulum has fallen off from the massive tremors, so the bell can't be rung. Nothing to do but go back downstairs. Ahead is the Typewriter Room; the door on the left can't be entered. Go into the vent, and after crawling a stretch, a pile of columns falls from above and blocks the passage — so you're forced to head for the stairwell. In the stairwell, the stairs you couldn't use on Night Three are now passable.
+
+Go to the 2F stairwell and into the storeroom for a **"Sedative."** On the way back out, a cabinet door suddenly swings open and a maid tumbles out — she won't attack, though. Go out and downstairs; you'll see some iron barrels, but the iron door inside is rusted shut, so go back.
+
+Take the door on the right of the stairwell into the passage. To Ken's left you'll find a female stone statue and obtain **"Dante's Love Letter"**; there's also an empty vase beside it — ignore it for now. Go the other way, through the corridor with the strong wind, to the Housekeeper's Study, where you get the **"Real Estate Developer's Advertisement"** and **"Housekeeper's Diary, First Half."** Go out and continue deeper to the Housekeeper's Bedroom, where you get **"Adhesive Tape"** and **"Housekeeper's Diary, Second Half"** — from which you learn there's a back door on the first floor, so Ken decides to go down and look.
+
+Out of the bedroom you come to the Painting Studio, where you find another stone statue with **"Simon's Love Letter"** beside it, and a sheet of paper on a chair: **"Ken's Novel: Dante — Foreword."** Go into the Collection Room and you'll see a **"Sedative"** — just as you go to take it, a knight's sword suddenly drops down. Deeper in, the door won't open and there's nothing else worthwhile in the room.
+
+Leave the storeroom and go to the Garden. In the middle you get **"Fresh Flowers."** There's a monster here, and Ken still has no weapon, so all you can do is dodge. With the flowers in hand, you remember that female statue and the vase — run back, put the flowers in the vase, and a red heart-shaped gem appears on the statue's chest: the **"Ruby."** After you take it, the female statue weeps tears of blood and the flowers wither.
+
+Go back to the Painting Studio and place the ruby on the statue there. It too weeps blood tears, and a rope drops down. Ken involuntarily walks toward it, ready to hang himself — a voice stops him. Coming to his senses, he realizes it was another hallucination. Take the **"Rope."**
+
+Go to the Garden, dodge that unnameable monster, and you'll find a **"Sedative"** on the chair by the door — take it. Enter the Sunroom and you'll see a pulley mechanism that's missing its rope; fit the rope you just got and you obtain the **"Old Key."**
+
+Return to the stairwell and go down to 1F. Enter the Typewriter Room for a **"Sedative,"** then use the Old Key on the door on the other side. Outside, you'll see a paper stuck on the wall: the **"Power Supply Notice."** Go right to the Sewing Room, which is pitch dark; the Switchboard Room across the way is locked. Deeper in, there are mannequin limbs on the floor — stepping on them makes noise. Turn on the light at the back and you'll find a **"Coin"** on the sewing machine. Just then a maid comes in — you must not be spotted, so kill the light immediately. When you run back out, remember not to step on the limbs, or the noise will give you away.
+
+Out of the Sewing Room, head right on the map toward the Recreation Room. On the way you'll see a fat woman chasing a little boy — ignore it for now. In the Recreation Room there are three maids, with a key pinned underneath one of them. Use the coin on the jukebox, then hide under a table; once all three maids have gathered around the jukebox, run over and take the key: the **"Switchboard Room Key."**
+
+Come out the back door and in the corner you'll find the boy the fat woman was chasing. You learn he's playing hide-and-seek with the maids, and he agrees to help Ken find the key to the 1F back door, so the two split up.
+
+Go down to that staff dormitory: a **"Sedative"** on the table, **"Maid Sophie's Diary 1"** on the bed on the other side. Nothing else here. Go out to another dormitory; at the door you hear voices from inside. Enter and take **"Maid Jennifer's Diary"** from the bed. There's a big hole broken through the wall — the sound you heard at the door came through it. Use the tape to patch the hole (**you can skip this, but it affects some later developments**). On another bed you get **"Maid Sophie's Diary 2,"** and on a bed in another corner, **"Maid Rolis's Diary."**
+
+Go out to the third dormitory, where a maid is sleeping; on another bed is the **"Maid's Note,"** from which you learn the maid is afraid of mice. Walk over to the far corner and the TV suddenly switches on; the maid wakes up, turns it off, and leaves. On the bed is the **"Warehouse Key."**
+
+Go out to the Bathroom, where you'll find someone showering — you can do a bit of petty pilfering nearby. Go deeper in: nothing there. On the way back, the innermost door opens and a fat woman comes out — run! (**After leaving, if you go back in, you can find a "Sedative" in the innermost stall.**)
+
+Out of the Bathroom to the Laundry Room, where there are two maids. Use the lighting to slip past the first one, then use the electric current to knock out the second; inside you get **"Insulating Tape."** (*How to use the current: let the maid spot you, then once she's run over next to the battery, run past on the other side to trigger the current. Note that the maid may turn back while you're running to the other side, so you need to time it. Once you've got the knack it's basically 100% reliable.*)
+
+Return to the square passage where you first came in, then enter again; at the right turn you'll see the maid chasing the little boy. Go to the staff dormitory at the bottom of the map and you'll find the boy inside a cabinet. After a conversation you obtain the **"Outer Door Key."**
+
+Go to the back door; a cutscene takes you to the Warehouse, where a fat woman stands guard. Climb the ladder at the side and go through the vent to the other side. There's a maid inside — the note earlier mentioned a maid who's afraid of mice, and you can use that. When her back is turned, run over and topple the yellow crate to release the mice and scare her off. Then the fat woman comes over; at this point you can choose based on your situation: either dash straight in and grab the **"Pliers,"** or hide in the cabinet first and see how things develop.
+
+Out of the Warehouse, go down and take the **"Cafeteria Duty Regulations"** from the wall. Then use the tables to slip past the maid and reach the Switchboard Room. Combine the pliers with the insulating tape and sabotage the circuitry inside — this will make the power unstable in certain places.
+
+Go to the Servants' Cafeteria; use the lighting to slip past the maid at the door. Ring the bell and a maid will come to return the key — hide in the wardrobe nearby, and when she's standing at the window, come out, take the key, and leave. If you didn't sabotage the Switchboard Room, all the lights in here will be on, so don't come here before doing that. As for the trick to dodging maids: if you're not comfortable with it, observe first, and once you understand the pattern of the lights going on and off, make your run. If you're confident, you can sprint straight to the bell right after the first blackout.
+
+After leaving the cafeteria, maids come at you from both sides; there's a wardrobe on the right you can hide in. Head right and enter the kitchen through the door at the top of the map. Open the central cellar hatch to enter the underground passage. The exit above is blocked — there's no going back, so you can only press forward. Pick up the **"Tattered Book Page"** along the way, and go straight ahead into the Back Garden. In the middle of the garden stands a stone statue — the baron the page mentioned. Continue on to the back door; just as you're about to open it, the bell tolls, and blood pours in from all directions, converging on the baron…
+
+---
+
+## Night Five — Bloodshed
+
+You start out facing the baron. First take the weapon placed in the middle, then go to the right and destroy the crystal — otherwise nothing you do will have any effect. Once it's destroyed, spar with him, learn his attack patterns, and counterattack. When you knock him flat, destroy the other crystal. Remember to destroy the crystals promptly each time, or he'll recover and you'll have to knock him down all over again (such a pain~~).
+
+After a good fight, the baron is finally put down. Enter the underground passage — note that while running you must stay in the middle; there's a pull on both sides that will suck you in and drain your health~~
+
+Through the long passage you reach the Corpse Cellar. There's a **"Sedative"** in the bottom-right corner of the map — take it. The doors on both sides are locked, so you can only go forward, arriving at the Sewers. Three bugs come at you as you exit, so be ready; there are also two female zombies coming down the right passage — kill them. Go down and you'll see an iron bar; there's a sedative outside the window, but you can't reach it. Turn back and go the other way into the Typewriter Room. There's a crate in the middle — push it into the upper corner by the door and a bookshelf drops away, revealing a hidden door. Enter and take the **"7 Days Production: Paranormal Casebook."**
+
+Go out and continue; at the far left end you get a **"Sedative."** Head back to the junction and you're surrounded by three female zombies — first run to a spot far away from them, then open fire. After finishing them, enter the inner room; on the wall is a diagram showing how to push that crate in the Typewriter Room. In the corner you find a **"Hacksaw"** — just then two bugs run in; deal with them. Go back to where you saw the iron bar; two female zombies come out from inside — kill them, then use the saw to obtain the **"Iron Bar."** Use it on the iron gate above and the door opens. Once inside you're surrounded again — first circle past the ones behind you, then run somewhere far off and shoot. If you stay put, note that a bug will drop down from the middle partway through.
+
+Once they're all dealt with, continue on; at the stairs a female zombie runs out of the small door on the right — kill her and you can find a **"Sedative"** inside. Coming out of the Sewers, two bugs come at you from the bend; kill them and enter the Typewriter Room for a **"Sedative."** Out of the save room, go through the iron gate; on exiting, a bug and a female zombie come from the right and another female zombie from the left. Kill them and head right on the map into the Prison.
+
+The prisoners in here can be killed to farm experience, and they won't fight back (^0^). Enter the Torture Chamber for a **"Sedative"** and **"Jailer's Diary 2."** Go out and head left; two female zombies appear at the corner — kill them and enter the Warden's Office, where you get a **"Sedative,"** **"Jailer's Diary 1,"** and the **"Antique Key"** in the middle. When taking the key, it's best to find a position from which you can attack both directions, because female zombies will keep coming from both sides; note that a bug will run out from the left corner partway through.
+
+Once everything's dead, go out and use the key on the door opposite to enter the Guard's Bedroom and take the **"Matches."** (A scorpion darts out of the hole here — if you used the tape on Night Four to patch that drafty hole in the staff dormitory, the scorpion won't appear.)
+
+With the matches you can leave the prison. As you're about to go out the prison gate, a female zombie appears on the right. Leave the prison and go to the Filthy Kitchen; use the matches on the central stove to obtain **"Cooked Rotten Meat."** Enter the inner room and you'll see a woman eating something. Put the meat you just cooked in; she eats it and appears to die of poisoning ^_^ — take the **"Filthy Key."**
+
+Take the key and leave, then use it on the door on the left of the map. Inside, several bugs crawl over — kill them and continue. There's a door in the middle that won't open; ignore it and keep going. At the bend there's a female zombie you can't see until you turn. Go to the far-left corner of the map and obtain the **Eyeball** — note there's also a bug at that turn.
+
+With the eyeball, head toward the Church. On the way you'll see the same crate as the one Ken lowered the rope from in the Sky Corridor on Night One (**if you didn't lower the rope on Night One, a scorpion appears here**). Enter the church and take the **"Prayer Manuscript"** in the middle, along with a **"Dull Ring"** placed on the stone altar. After you take the ring, the stone door on the right as you came in opens. Inside you find the black-clad man you saw after killing the baron at the start of Night Five; after a conversation, the two of you split up.
+
+There's a **"Sedative"** on the right. Go upstairs to a bedroom; on the sofa take the **"Sloppily Written Medical Record."** Walk up to the bed and you'll notice the quilt moving (feels kind of like XX…). On the table on the other side is a sedative; walk close and a head suddenly pops out. The door to the viewing balcony is sealed with a strange lock — use the eyeball you just got and the pattern changes, entering the sliding-tile puzzle. (**Puzzle solution: Left, Down, Down, Right, Right, Up, Up, Up, Left, Left, Down, Right, Up, Left, Down, Down, Down, Right, Right, Up, Left, Down, Right.**)
+
+Go out the door; there's a **"Sedative"** in the corner to the protagonist's left. Take it and head toward the stairs, where you see a red moon. Just as you're about to go up, someone clubs you unconscious from behind. You wake up tied up, your gun set off to the side, and a fat man coming at you with a chainsaw — a quick-time-event sequence. After escaping, you fight the Chainsaw Man. When the battle ends, the black-clad man appears again; after another conversation, he leaves.
+
+Go out into a passage and enter the Typewriter Room opposite for a **"Sedative."** Back in the passage there's a powerful wind behind you making running very difficult; the doors on both sides won't open. At the very end you discover it's a giant fan, so you can only turn back. Halfway back a little boy suddenly comes running up behind you — but when you look back, there's nothing there… Never mind, keep going.
+
+Through the iron gate you reach the stairwell; two bugs come running in as you enter, plus a female zombie on the other side. Kill them and you'll find the door opposite won't open, so you have to take the other staircase. Down the stairs to the second floor, two bugs come at the turn; kill them and you'll find the door beside you won't open either. Keep going deeper and you'll see another iron gate. Go through and out, and more bugs come at you — you can ignore these, they're endless. Go the other way and pick up **"Simon's Last Testament"** nearby, then enter the Well.
+
+Investigate the well and suddenly a hand reaching up grabs you and you can't move. Use the ring you got in the church; putting it on turns the well water red and the ring red as well, giving you the **"Blood-Stained Ring."** The hand withdraws into the water and Ken can move again.
+
+Leave the well and enter the door that keeps spewing out bugs (**remember not to let the bugs surround you, or you'll just get bitten to death**). Inside you see a person bound against the wall, his right hand groping for something. Place the ring you just got there; after a moan, the **"Crimson Heart"** appears. A scorpion comes out of a hole to one side — you can just circle past it and run out, or kill it; choose according to your situation.
+
+Go out and you come to the Railway. There are quite a few monsters along the way, so watch yourself. There's a Typewriter Room on the tracks with a **"Sedative"** inside — remember to take it~
+
+At the far end of the railway, things feel a bit familiar — very similar to the scene where Ken hallucinated at the fountain on Night One. Take **"Hell and Judgment: Crime and Punishment"** from a crate at the side. Following the note's hint, place the heart on the scales on the wall and the door opens. Enter the studio and you find the man who appeared on Night Three standing there. After a conversation, Ken goes to the mirror and enters his inner world, where he sees a dark version of himself. After an argument, Ken is killed by Dark Ken. Back in reality, he's once again before the man; they talk again, and after some encouragement Ken decides to face things bravely. He takes the dagger and confronts Dark Ken, successfully destroying him, and Ken recovers some of his memories. After a few more words the man leaves again, leaving Ken only one line: *"If you want the answer, come find me. I'll be waiting there."*
+
+---
+
+## Night Six — Memory
+
+Leaving the studio, you find yourself somewhere you don't recognize. There's food on the table, and Ken, who hasn't eaten in days, quickly demolishes it. Afterward he notices there's also a note on the table: **"Frank's Note."** Read it and leave the house.
+
+You arrive in the little town and enter memory (flashback) mode. Passing the tavern, Ken decides to go in and ask around, but finds nobody there. Take the **"Tavern Logbook"** from the wall at the side. As you're about to leave, you notice a photograph hanging behind the door: **"Solo Photo of a Man."**
+
+Leave the tavern and go forward, and you see a building identical to the one in the photo, so you run over to look. Investigate beneath the building and you enter memory mode again: you remember the little girl's name is **Kate**, and that the small room from the very beginning was your own home — so you decide to go home and look. In the room, take the **"Childhood Diary"** from the bookshelf and the **"Childhood Group Photo"** from the table; the little boy in the photo is the one who's appeared over the past few nights. As you're about to leave, the boy knocks on the room's window, calling Ken to come out and play, so Ken chases after him. He finds the boy has run to a distant corner; chase further and the boy is gone. Investigate the swing and enter memory mode.
+
+After a conversation with the two kids, you play hide-and-seek with them. There are two places to hide here: the water pipe in the corner, or the oil drum off to one side. It doesn't affect the story — either works. After those two brats have had their laugh at your expense, the little boy appears again and helps Ken out; you learn his name is **Sam**. After a conversation you return to reality. Ken thinks of the places he used to play as a child, has a bad premonition, and decides to go check the railway.
+
+The railway is to the right of the monument; keep running forward past the church area. At the railway, investigate the bloodstain on the tracks and enter memory mode again. Sam says he wants to find a rare stone and asks Ken to help look. Find a green stone on the left of the tracks — Ken says it's a gem, Sam says it's a worthless rock and throws it onto the rails. Ken refuses to let it go and wants to fetch it back; Sam, exasperated, agrees to get it for him — but his foot gets caught in the rails and won't come free. Just then a train comes. Sam calls to Ken to come help pull his foot out, but by the time Ken runs over it's already too late, the train is right on top of them. To protect Ken, Sam shoves him away — and is run over himself.
+
+Back in reality, Ken is full of remorse at his own willfulness, and deeply grieved, so he goes back to the tavern to drown his sorrows. Entering memory mode, through a conversation with the tavern keeper he remembers that the man is his own father, named **Frank**, so Ken decides to go home and look in his father's room.
+
+In Frank's room he finds no one there. On the table is a photograph: the **"Torn Family Portrait."** Scattered on the floor are the things his mother left behind when she went away. On the sofa take **"Frank's Diary"** — and learn just how much his father suffered. Ken decides to go out and look for his father. As he steps out, he hears noises from Kate's house across the way, so he goes in.
+
+Entering memory mode: after a conversation with Kate, her father comes home, and Kate tells Ken to find a hiding place fast — so he hides behind a cabinet in the kitchen. Finding no activity, he comes out to look, and Kate is gone too. Then there's a noise from the second floor. Go up to 2F and you see that Kate's father is the very fat man who's been chasing you all this time — and he's beating Kate. Apparently having beaten her enough, he prepares to come out — hide quickly, behind the cabinet in the next room. After her father leaves, go into Kate's room and you find her lying on the floor crying. After hearing her out, Ken decides to take Kate away.
+
+They've barely stepped out the door when her father comes back — hide again in the room you just used. Once the fat man goes in, go downstairs, only to find the front door locked. Run to the kitchen, push aside the crate you hid behind, and enter the underground passage. A few steps in, the fat man is chasing again; the two run forward. At the bend there are some crates you can hide behind for the moment, and the fat man doesn't find them. At a passage venting steam, they check and find the gas too hot to pass, so they keep searching nearby. Here you need to read the fat man's walking pattern — much like dodging the maids on Night Four. Shut the steam valve at the right moment and keep running.
+
+Out of the underground passage, the two arrive at the church. Kate sits down at the piano and, playing, recounts what she's been through.
+
+Back in reality mode, after some reflection, enter the Priest's Room and continue in memory mode — and discover that the person coming to unburden himself to the priest is his own father. Having heard some of his father's innermost thoughts and secrets, Ken wants to find him more than ever. Leave the church and you hear the factory's end-of-shift bell, so Ken decides to go look for his father at the factory. Enter the factory and enter memory mode once more; after a conversation with his father and some self-reproach in reality, the chapter ends and you go into the ending.
+
+---
+
+## Night Seven — SALVATION
+
+You're back at the opening scene of Night One, only from a different angle. At the start, Ken has a headache and is in **Danger** status, so he needs to get his medicine from the bedroom. Take **"Novel Fragment 1"** from the table. Go out the door and take **"Novel Fragment 2"** from the table to the right of the fountain. Enter the room and you'll find a maid there — because you're in Danger status you die very easily, so run to Ken's left, fast. Go out the door and take **"Novel Fragment 3"** in front of the room opposite. Come to the Sky Corridor and go straight into the bedroom; take the **"Sedative"** from the table beside the bed.
+
+After taking the medicine, go downstairs to the Reading Room, where you'll find a maid here too — ignore her and go straight into the next area. Keep heading toward the Grand Hall. In the corridor where the hallucination occurred on Night One there's an invisible monster — sprint past into the Typewriter Room, take the **"Sedative,"** then continue toward the hall. In the passage leading to the Grand Hall you find a maid blocking the hall door, so you have to go another way. Go to the Message Room and take the **"Housekeeper's Note,"** which tells you the housekeeper left a little gift for Ken in the Office, along with a key.
+
+So head to the Office. Take the note on the table, **"Housekeeper's Diary,"** and use the key you just got on the wardrobe in the corner to obtain the gun. Ken decides to fight for his life, so he takes the gun and runs for the Grand Hall — all the maids along the way, on seeing Ken with a gun, vanish before they can even react. He reaches the Grand Hall… and is clubbed unconscious from behind by the fat woman with a frying pan`` Then he's in the prison, holding a gun, surrounded by endless female zombies……
+
+He wakes to find himself lying in bed — it was all a dream. The fat woman is right in front of him: she's actually his housekeeper. She tells Ken all about him running around with a gun, says she's already called a doctor, and tells him to rest well. Only then does Ken realize that everything — all of it — was a memory. What follows are some of Ken's recollections and reflections; see them for yourself.
+
+---
+
+## Night Seven — REINCARNATION (the Cycle)
+
+The setting is much the same as Salvation, only from a different angle. After some thought, Ken decides to get to the bottom of things. Take the note on the table, **"Housekeeper's Business"** — same content as Night One. Leave the room and go to the other door by the fountain; Ken is relieved that no hallucination occurs as it did on Night One. Open the door, go in, take the door on the left, and run to the door opposite. The only difference from Night One is that there's no knocking sound. Take **"Housekeeper's Plan"** — same content as Night One. Ken doesn't feel the same unease he did on Night One and decides to press on to the Grand Hall. Through the Sky Corridor — it isn't flipped over this time either.
+
+Come to the bedroom and take the **"Sedative"** by the bed. He decides to go downstairs, but as soon as he's out the door he smells something foul: the house is being renovated and the whole place is full of cleaning solvent, so he has to go back to the bedroom. He remembers there's a set of instructions for a makeshift gas mask in the study, so he runs back there and takes the **"Makeshift Gas Mask Instructions"** from the bookshelf: you need a **towel, clean water, and soap**.
+
+Coming out of the fountain room, you can find the **"Towel"** in the right corner of that room. Go through the reception room into the sundries room; on the crate in the middle you'll find a **"Water Bottle,"** and in the far corner inside, the **"Soap."** With all three items, return to the fountain and use the empty bottle at the pool to get a **"Bottle of Clean Water."** Combine soap + water to get **"Soapy Water,"** then combine that with the towel to obtain the makeshift gas mask.
+
+All right, mask done. Go through the bedroom to the first floor again and dash all the way to the Grand Hall. At the door leading outside you find a letter: **"Kate's Letter."** After reading it, Ken decides to go out and find them — only to discover he's still trapped inside and can't get out. Just as he's about to despair, a man claiming to be from the renovation company shows up and smashes the door open for him. Once the man comes in and takes off his hat, you realize he's actually the fat man — **Kate's father**.
+
+---
+
+# TIPS & HIDDEN EVENTS
+
+**Night 1**
+- If you don't lower the rope, you'll encounter a scorpion on the way to the church on Night Five.
+- If you don't place the sheet music on the Grand Hall piano, then on Night Six, after bringing Kate to the church, the cutscene won't include the piano playing~
+- When you first reach the bedroom, point the camera outside the balcony for a few seconds and you'll see a giant sedative bottle float past outside.
+
+**Night 4**
+- If you don't seal up the drafty hole in the dormitory, a scorpion will come out when you get the matches on Night Five~
+
+**Night 6**
+- If you don't save Sam, he gets run over by the train outright, and Ken's first two lines back in reality are different.
+- If you don't get Kate out, her father takes her away partway through, and again Ken's first two lines back in reality differ.
+- If Ken is spotted when Kate's father comes home, or before Ken has gotten Kate out, the fat man throws him outside and warns him not to come looking for Kate again.
+- During hide-and-seek, if you don't hide, or hide in a different spot, the two kids' lines afterward are different.
+- In the alley beside Kate's house you can find an old key that opens the car at the factory gate — inside you'll find a pile of junk. I think a lot of people know this one, but here's the thing`` that's not the point: if you open it **after** hearing the factory's end-of-shift bell, it's different — you can find the other half of the **[Torn Family Portrait]** (^-^ bet you never found that, huh? It's a hilarious picture.)
+
+### Getting the Salvation ending
+I figure most people end up with the Reincarnation ending, since Reincarnation has no conditions — you get it no matter how you play, so I won't say more about it. Straight to Salvation:
+1. **Night 1:** Find the sheet music in the Message Room and place it on the Grand Hall piano.
+2. **Night 2:** See the cutscene where Sam is struck by a stone falling from the ceiling.
+3. **Night 4:** Trigger Sam being chased twice and swept away by the train.
+4. **Night 6:** You must save Sam, get Kate out, and listen to the father's confession to the priest.
+
+### Hospital Patient outfit
+On Night Two or Night Three, break the sandbag in front of the Tool Room. In the Reincarnation ending you can come back here to get the Mysterious Key; take the key to the first room after you come out of the Reading Room and open it — the outfit is inside.
+
+### Priest outfit
+On Night Two, **do not** break the sandbag. On Night One, in the corridor where the hallucination occurs and there are women's items on the floor, investigate the women's items on the ground in front of the typewriter room door. Then, in the Salvation ending, passing through this corridor will trigger a hallucination just like Night One. Investigate the writing on the wall, enter the church, and take the outfit from the central cabinet.
+
+### Night 5 — beating the fat man (Chainsaw Man)
+Use the door-blocking trick to take zero damage: as soon as the fight starts, immediately run to the bottom-right corner beside the iron door, get into position, then immediately turn around and fire continuously. The fat man won't be able to hit you — he may not even attack at all.
+
+### Beating Dark Ken
+There's no real trick to it; the main thing is to get close. At the start you've already been separated by distance, so you have to find a way to close in — he won't shoot if you're right up next to him, so keep the fight at close range. If he runs far away, immediately put a wall between you so he can't hit you. Follow this method and you can clear it without taking a hit.
+
+### Sliding puzzle solution
+From the start, enter in order: **Left, Down, Down, Right, Right, Up, Up, Up, Left, Left, Down, Right, Up, Left, Down, Down, Down, Right, Right, Up, Left, Down, Right**~
