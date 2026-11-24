@@ -2,7 +2,7 @@
 
 ## Scope and evidence
 
-This document records the stage-4 recovery of `Player`, `Sword`, and `PlayerStateSet`. The authority is the ARMv5 Symbian 3rd binary, not the leaked early script sources. The loaded Ghidra memory block begins at `0x8000`; all addresses below are loaded addresses and already include that bias. Do not add `0x8000` a second time.
+This document records the stage-4 recovery of `Player`, `Sword`, and `PlayerStateSet`. The authority is the ARMv5 Symbian 3rd binary, not the leaked early script sources. The current database reports image base `0x8000`, but its corrected memory block resolves the native-offset addresses below directly. Do not add another bias.
 
 The portable implementation is in `Reversed_Game/src/game/Player.*`, `PlayerStates.cpp`, and `Sword.*`. It uses generic `Creature`, `StateMachine`, `CameraSpot`, `Object`, `GunFire`, physics, render queues, and resource managers. Stage 9 supplies common enemy AI behind `CombatTarget`; concrete variant overrides remain stages 10–12. `Pushable` and the concrete HUD/QTE drawing were completed in stages 5 and 8.
 
@@ -258,4 +258,4 @@ hurt   0xe926f91d
 QTE    0x77c59b7d
 ```
 
-At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. After stage 9, all 36 default, logging, host-math, and WAR tests and all 29 core and ASan/UBSan tests pass serially. The frame hashes above include the stage-8 HUD and remain unchanged. The real `day1/ep0` application path reaches later-stage input command 47; real map-2008 engine frames also exercise ItemTrigger registration, `Player_UseItem`, and common enemy combat. No later-stage command was made a silent no-op.
+At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. After stage 9, all 36 default, logging, host-math, and WAR tests and all 29 core and ASan/UBSan tests pass serially. The frame hashes above include the stage-8 HUD and remain unchanged. The real `day1/ep0` application path executes input command 47 and continues through the running script; real map-2008 engine frames also exercise ItemTrigger registration, `Player_UseItem`, and common enemy combat. Stage 15 provides directed synthetic coverage for every player command and every other callback.

@@ -260,13 +260,9 @@ void TestCallbackTableAndCommands()
     fixture.Execute(260);
     fixture.Execute(259);
 
-    bool unsupported = false;
-    try {
-        fixture.Execute(121);
-    } catch (const game::GameSIError& error) {
-        unsupported = error.GetCommandId() == 121 && error.GetArmAddress() == 0x00067ba4;
-    }
-    CHECK(unsupported);
+    fixture.Execute(121, {Argument::Fixed(0x10000), Argument::Fixed(0x20000),
+                          Argument::Fixed(0x30000)});
+    CHECK_VEC(fixture.scene->GetPlayer()->GetPosition(), {0x10000, 0x20000, 0x30000});
     bool malformed = false;
     try {
         fixture.Execute(56);
@@ -282,6 +278,84 @@ void TestCallbackTableAndCommands()
     }
     CHECK(malformed);
     CHECK(!fixture.scene->LoadSaveSlot(1));
+}
+
+void TestStage15Commands()
+{
+    GameFixture fixture;
+    auto& input = fixture.engine.GetInput();
+    fixture.engine.GetControlMap().SetBinding(5, static_cast<uint32_t>(soft3d::Key::Number3));
+    CHECK(fixture.Execute(46, {Argument::Int(5)}, true) == 1);
+    input.KeyDown(soft3d::Key::Number3);
+    CHECK(fixture.Execute(43, {Argument::Int(5)}, true) == 1);
+    CHECK(fixture.Execute(44, {Argument::Int(5)}, true) == 1);
+    CHECK(fixture.Execute(45, {Argument::Int(5)}, true) == 0);
+    CHECK(fixture.Execute(46, {Argument::Int(5)}, true) == 0);
+    CHECK(fixture.Execute(47, {Argument::Int(5)}, true) == 0);
+    CHECK(fixture.Execute(48, {}, true) == 1);
+    CHECK(fixture.Execute(49, {}, true) == 0);
+    input.KeyPress(soft3d::Key::Number3);
+    CHECK(fixture.Execute(45, {Argument::Int(5)}, true) == 1);
+    input.KeyUp(soft3d::Key::Number3);
+    CHECK(fixture.Execute(43, {Argument::Int(5)}, true) == 0);
+    CHECK(fixture.Execute(44, {Argument::Int(5)}, true) == 0);
+    CHECK(fixture.Execute(46, {Argument::Int(5)}, true) == 1);
+    CHECK(fixture.Execute(47, {Argument::Int(5)}, true) == 1);
+    CHECK(fixture.Execute(48, {}, true) == 0);
+    CHECK(fixture.Execute(49, {}, true) == 1);
+    fixture.Execute(50, {Argument::String("stage15")});
+
+    fixture.Execute(102, {Argument::Bool(true), Argument::Bool(false),
+                          Argument::Bool(false), Argument::Bool(true)});
+    CHECK(fixture.Execute(47, {Argument::Int(5)}, true) == 0);
+    CHECK(fixture.Execute(47, {Argument::Int(1)}, true) == 0);
+    fixture.Execute(102, {Argument::Bool(false), Argument::Bool(false),
+                          Argument::Bool(false), Argument::Bool(false)});
+    CHECK(fixture.Execute(47, {Argument::Int(5)}, true) == 1);
+    fixture.Execute(115, {Argument::Bool(true)});
+    CHECK(!fixture.engine.GetControlMap().IsEnabled());
+    CHECK(fixture.Execute(47, {Argument::Int(5)}, true) == 0);
+    CHECK(fixture.Execute(49, {}, true) == 0);
+    fixture.Execute(115, {Argument::Bool(false)});
+    CHECK(fixture.engine.GetControlMap().IsEnabled());
+    CHECK(fixture.Execute(46, {Argument::Int(5)}, true) == 1);
+
+    fixture.Execute(92, {Argument::Int(1)});
+    CHECK(fixture.scene->UsesCameraListener());
+    fixture.Execute(92, {Argument::Int(0)});
+    CHECK(!fixture.scene->UsesCameraListener());
+    fixture.Execute(93, {Argument::Int(3)});
+    CHECK(fixture.Execute(94, {Argument::Int(3)}, true) == 0);
+    fixture.scene->GetUnitManager()->Update();
+    CHECK(fixture.Execute(94, {Argument::Int(3)}, true) == 1);
+    fixture.scene->GetUnitManager()->Update();
+    CHECK(fixture.Execute(94, {Argument::Int(3)}, true) == 2);
+    fixture.Execute(62, {Argument::Bool(true)});
+    fixture.scene->GetUnitManager()->Update();
+    CHECK(fixture.Execute(94, {Argument::Int(3)}, true) == 2);
+    fixture.Execute(62, {Argument::Bool(false)});
+    fixture.scene->GetUnitManager()->Update();
+    CHECK(fixture.Execute(94, {Argument::Int(3)}, true) == 3);
+    fixture.Execute(95, {Argument::Int(3)});
+    CHECK(fixture.Execute(94, {Argument::Int(3)}, true) == 0);
+    fixture.scene->GetUnitManager()->Update();
+    CHECK(fixture.Execute(94, {Argument::Int(3)}, true) == 0);
+
+    fixture.Execute(113, {Argument::Fixed(1), Argument::Fixed(2), Argument::Fixed(3),
+                          Argument::Fixed(4), Argument::Fixed(5), Argument::Fixed(6)});
+    CHECK_VEC(fixture.scene->GetBsp()->GetScriptVector(0), {1, 2, 3});
+    CHECK_VEC(fixture.scene->GetBsp()->GetScriptVector(1), {4, 5, 6});
+    fixture.Execute(114, {Argument::Bool(false)});
+    CHECK(!fixture.scene->GetPlayer()->IsPresentationVisible());
+    CHECK(fixture.scene->GetPlayer()->IsVisible());
+    fixture.Execute(114, {Argument::Bool(true)});
+    CHECK(fixture.scene->GetPlayer()->IsPresentationVisible());
+    fixture.Execute(116, {Argument::Bool(false)});
+    CHECK(!fixture.scene->GetPlayer()->IsPresentationVisible());
+    CHECK(!fixture.scene->GetPlayer()->IsVisible());
+    fixture.Execute(116, {Argument::Bool(true)});
+    CHECK(fixture.scene->GetPlayer()->IsPresentationVisible());
+    CHECK(fixture.scene->GetPlayer()->IsVisible());
 }
 
 void TestRealNewGameHandshake()
@@ -336,17 +410,9 @@ void TestRealNewGameHandshake()
     CHECK(mapWords[4] == (7 << 16));
     CHECK(mapWords[5] == (199 << 16));
 
-    bool unsupported = false;
-    for (int frame = 0; frame < 40 && !unsupported; ++frame) {
-        try {
-            CHECK(fixture.engine.RunFrame());
-        } catch (const game::GameSIError& error) {
-            CHECK(error.GetCommandId() == 47);
-            CHECK(error.GetArmAddress() == 0x00065560);
-            unsupported = true;
-        }
-    }
-    CHECK(unsupported);
+    fixture.RunFrames(40);
+    CHECK(fixture.scene->GetMapProgress() == -1);
+    CHECK(fixture.engine.GetScriptEngine().GetState() == soft3d::ScriptState::Running);
     fixture.engine.ReturnToMainMenu();
     CHECK(fixture.scene->GetDay() == 0);
     CHECK(!fixture.scene->GetBsp()->IsLoaded());
@@ -641,6 +707,7 @@ int main()
 {
     try {
         TestCallbackTableAndCommands();
+        TestStage15Commands();
         TestRealNewGameHandshake();
         TestMapFinishAndRepeatedStartup();
         TestNextScriptAndDay1Fallback();

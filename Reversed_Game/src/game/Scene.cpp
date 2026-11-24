@@ -186,7 +186,7 @@ void Scene::StartNewGame(const soft3d::NewGameOptions& options)
 void Scene::ReturnToMainMenu()
 {
     for (int action = 1; action <= 7; ++action) {
-        engine.GetControlMap().SetActionEnabled(action, false);
+        engine.GetControlMap().SetActionEnabled(action, true);
     }
     cameraController.SetFrozen(false);
     UnloadLevel();
@@ -317,10 +317,7 @@ void Scene::BeginMapLoad()
     engine.GetRenderer().SetGlobalLightDirection(soft3d::Normalize({0xa666, -0x10000, 0xcccc}));
     engine.GetRenderer().SetAmbientIntensity(0xb333);
     engine.GetRenderer().SetFogEnabled(false);
-    if (engine.GetControlMap().IsEnabled()) {
-        engine.GetInput().ClearKey();
-    }
-    engine.GetControlMap().SetEnabled(false);
+    engine.GetControlMap().SetEnabled(true, &engine.GetInput());
     if (!fadeShader.IsActive()) {
         fadeShader.StartFade(1, transitionColor, 8, 1);
     }
@@ -464,7 +461,7 @@ void Scene::LoadNextScript()
 {
     char16_t path[64];
     if (nextEpisodeId < 1000 && nextEpisodeId != 0) {
-        soft3d::WideSprintf(path, u".\\day%d\\ep0_%d", day, nextEpisodeId);
+        soft3d::WideSprintf(path, u".\\day%d\\ep0%d", day, nextEpisodeId);
     } else {
         soft3d::WideSprintf(path, u".\\day%d\\ep%d", day, nextEpisodeId);
     }
@@ -704,8 +701,9 @@ void Scene::RestartAfterGameOver()
     cameraWarmupCounter = 0;
     cameraController.SetInstant(true);
     engine.SetPreUpdateEnabled(true);
+    engine.GetControlMap().SetEnabled(true, &engine.GetInput());
     for (int action = 1; action <= 7; ++action) {
-        engine.GetControlMap().SetActionEnabled(action, false);
+        engine.GetControlMap().SetActionEnabled(action, true);
     }
     engine.GetScriptEngine().Reset();
     cameraController.Reset();

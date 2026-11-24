@@ -2,6 +2,7 @@
 
 #include "game/Scene.hpp"
 #include "soft3d/SimpleScript.hpp"
+#include "soft3d/s3dLog.hpp"
 
 #include <array>
 #include <cstdint>
@@ -63,7 +64,22 @@ private:
 
     void RequireArguments(const soft3d::ScriptCommand& command, std::size_t count) const;
     void RequireContext() const;
-    void Unimplemented(soft3d::ScriptCommand& command);
+    void IsActionFirstDown(soft3d::ScriptCommand& command);
+    void IsActionDown(soft3d::ScriptCommand& command);
+    void IsActionPress(soft3d::ScriptCommand& command);
+    void IsActionUp(soft3d::ScriptCommand& command);
+    void IsActionClicked(soft3d::ScriptCommand& command);
+    void IsAnyKeyDown(soft3d::ScriptCommand& command);
+    void IsAnyKeyClick(soft3d::ScriptCommand& command);
+    void LogMessage(soft3d::ScriptCommand& command);
+    void SetUseCameraListener(soft3d::ScriptCommand& command);
+    void StartScriptTimer(soft3d::ScriptCommand& command);
+    void GetScriptTimerElapsed(soft3d::ScriptCommand& command);
+    void StopScriptTimer(soft3d::ScriptCommand& command);
+    void SetBspScriptVectors(soft3d::ScriptCommand& command);
+    void SetPlayerPresentationVisible(soft3d::ScriptCommand& command);
+    void SetControlsDisabled(soft3d::ScriptCommand& command);
+    void SetPlayerVisible(soft3d::ScriptCommand& command);
     void FadeOut(soft3d::ScriptCommand& command);
     void FadeIn(soft3d::ScriptCommand& command);
     void Fade(soft3d::ScriptCommand& command, bool fadeOut);
@@ -278,6 +294,7 @@ private:
     void NullCallback(soft3d::ScriptCommand& command);
 
     GameSIContext context;
+    soft3d::s3dLog scriptLog;
     std::unique_ptr<soft3d::CameraPathCollection> cameraCommandPaths;
     std::array<Callback, gameSICallbackCount> callbacks{};
 };

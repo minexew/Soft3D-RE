@@ -212,6 +212,16 @@ int s3dFilePak::GetEntryCount() const
     return entryCount;
 }
 
+const char* s3dFilePak::GetEntryName(int index) const
+{
+    if (index < 0 || index >= entryCount || entryTable == nullptr) {
+        return nullptr;
+    }
+    const auto* entry = reinterpret_cast<const PakEntry*>(
+        reinterpret_cast<const uint8_t*>(entryTable) + index * pakEntryBytes);
+    return entry->name;
+}
+
 void s3dFilePak::SetEngine(Engine* value)
 {
     file.SetEngine(value);

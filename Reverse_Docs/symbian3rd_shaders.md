@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document records the portable presentation effects recovered for Stage 8 from `SymbianBin/out.bin`. The Ghidra image base is now `0x8000`; addresses below are native offsets and require adding `0x8000` for Ghidra navigation. It supplements `symbian3rd_video.md`: `BasicShader` and `FogShader` were already implemented, while this pass covers `MotionBlurShader`, `GrayShader`, `FadeShader`, `InkShader`, `BlindShader`, and `TwistShader`.
+This document records the portable presentation effects recovered for Stage 8 from `SymbianBin/out.bin`. The current database reports image base `0x8000`, but its corrected memory block resolves the native-offset addresses below directly; do not add another bias. It supplements `symbian3rd_video.md`: `BasicShader` and `FogShader` were already implemented, while this pass covers `MotionBlurShader`, `GrayShader`, `FadeShader`, `InkShader`, `BlindShader`, and `TwistShader`.
 
 The reconstruction is in `Reversed_Game/src/soft3d/PresentationShaders.*`; directed exact-pixel and state tests are in `Reversed_Game/tests/test_shaders.cpp`. `Renderer::SelectShader` now exposes the original forwarder at `0x00031d8c`.
 

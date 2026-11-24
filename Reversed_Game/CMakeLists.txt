@@ -403,6 +403,16 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME game_ui COMMAND game_ui_tests)
 
+    add_executable(game_integration_tests tests/test_game_integration.cpp)
+    target_link_libraries(game_integration_tests PRIVATE seven_days_game)
+    target_compile_definitions(game_integration_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(game_integration_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME game_integration COMMAND game_integration_tests)
+
     add_executable(game_save_tests tests/test_game_save.cpp)
     target_link_libraries(game_save_tests PRIVATE seven_days_game)
     target_compile_definitions(game_save_tests PRIVATE

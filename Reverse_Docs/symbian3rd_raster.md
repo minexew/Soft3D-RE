@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document records the portable object-rendering path recovered for Stage 7 from `SymbianBin/out.bin`. The Ghidra image base is now `0x8000`; addresses below are native offsets and require adding `0x8000` for Ghidra navigation. It covers `Renderer`, `Raster`, SOJ material state, projection/clipping, edge walking, and the 100-entry scanline table. BSP lightmapped span rendering is related but uses its own perspective-correct path; see `sbp_format.md`.
+This document records the portable object-rendering path recovered for Stage 7 from `SymbianBin/out.bin`. The current database reports image base `0x8000`, but its corrected memory block resolves the native-offset addresses below directly; do not add another bias. It covers `Renderer`, `Raster`, SOJ material state, projection/clipping, edge walking, and the 100-entry scanline table. BSP lightmapped span rendering is related but uses its own perspective-correct path; see `sbp_format.md`.
 
 The corresponding portable code is `Reversed_Game/src/soft3d/Renderer.*`, `Raster.*`, `Object.*`, and `ObjectRes.*`. Exact directed tests are in `Reversed_Game/tests/test_raster.cpp`.
 

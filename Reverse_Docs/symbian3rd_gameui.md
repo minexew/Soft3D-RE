@@ -164,7 +164,7 @@ Commands 104/105 also write/clear the eight custom descriptor records in GameUI.
 | 107–110 | Item-use, kill, play-time, and death counters. |
 | 111–112 | Note and secret counts. |
 
-The real `day1/ep0` path now passes command 102 and reaches the later-stage input query ID 47 (`0x00065560`).
+The real `day1/ep0` path passes command 102 and executes input query ID 47 (`0x00065560`) through the completed dispatcher. ID 102's native Boolean arguments are suppression values: nonzero disables the selected actions.
 
 ## Verification and Ghidra state
 

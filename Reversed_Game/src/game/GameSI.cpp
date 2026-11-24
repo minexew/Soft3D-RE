@@ -75,8 +75,24 @@ GameSIError::GameSIError(int id, uint32_t address, const std::string& reason)
 GameSI::GameSI()
 {
     for (std::size_t index = 0; index < callbacks.size(); ++index) {
-        callbacks[index] = {armHandlers[index], &GameSI::Unimplemented, 0};
+        callbacks[index] = {armHandlers[index], nullptr, 0};
     }
+    callbacks[43 - gameSIFirstCommand].handler = &GameSI::IsActionFirstDown;
+    callbacks[44 - gameSIFirstCommand].handler = &GameSI::IsActionDown;
+    callbacks[45 - gameSIFirstCommand].handler = &GameSI::IsActionPress;
+    callbacks[46 - gameSIFirstCommand].handler = &GameSI::IsActionUp;
+    callbacks[47 - gameSIFirstCommand].handler = &GameSI::IsActionClicked;
+    callbacks[48 - gameSIFirstCommand].handler = &GameSI::IsAnyKeyDown;
+    callbacks[49 - gameSIFirstCommand].handler = &GameSI::IsAnyKeyClick;
+    callbacks[50 - gameSIFirstCommand].handler = &GameSI::LogMessage;
+    callbacks[92 - gameSIFirstCommand].handler = &GameSI::SetUseCameraListener;
+    callbacks[93 - gameSIFirstCommand].handler = &GameSI::StartScriptTimer;
+    callbacks[94 - gameSIFirstCommand].handler = &GameSI::GetScriptTimerElapsed;
+    callbacks[95 - gameSIFirstCommand].handler = &GameSI::StopScriptTimer;
+    callbacks[113 - gameSIFirstCommand].handler = &GameSI::SetBspScriptVectors;
+    callbacks[114 - gameSIFirstCommand].handler = &GameSI::SetPlayerPresentationVisible;
+    callbacks[115 - gameSIFirstCommand].handler = &GameSI::SetControlsDisabled;
+    callbacks[116 - gameSIFirstCommand].handler = &GameSI::SetPlayerVisible;
     callbacks[51 - gameSIFirstCommand].handler = &GameSI::FadeOut;
     callbacks[52 - gameSIFirstCommand].handler = &GameSI::FadeIn;
     callbacks[53 - gameSIFirstCommand].handler = &GameSI::LoadNextDay;
@@ -289,6 +305,8 @@ void GameSI::Bind(const GameSIContext& value)
         throw std::invalid_argument("GameSI requires the complete scene context");
     }
     context = value;
+    scriptLog.SetEngine(&value.scene->GetEngine());
+    S3D_LOG_ON(scriptLog);
 }
 
 const GameSI::Callback& GameSI::GetCallback(int commandId) const
@@ -330,13 +348,133 @@ void GameSI::ExecuteGameCommand(soft3d::ScriptCommand& command)
 {
     RequireContext();
     const Callback& callback = GetCallback(command.GetId());
+    if (callback.handler == nullptr) {
+        throw GameSIError(command.GetId(), callback.armAddress, "no ARM handler is bound");
+    }
     (this->*callback.handler)(command);
 }
 
-void GameSI::Unimplemented(soft3d::ScriptCommand& command)
+void GameSI::IsActionFirstDown(soft3d::ScriptCommand& command)
 {
-    throw GameSIError(command.GetId(), GetArmHandlerAddress(command.GetId()),
-                      "ARM handler is not implemented in the portable reconstruction yet");
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.controlMap->ActionFirstDown(
+            context.scene->GetEngine().GetInput(), command.GetArgument(0).GetInt(), false));
+    }
+}
+
+void GameSI::IsActionDown(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.controlMap->ActionDown(
+            context.scene->GetEngine().GetInput(), command.GetArgument(0).GetInt(), false));
+    }
+}
+
+void GameSI::IsActionPress(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.controlMap->ActionPress(
+            context.scene->GetEngine().GetInput(), command.GetArgument(0).GetInt(), false));
+    }
+}
+
+void GameSI::IsActionUp(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.controlMap->ActionUp(
+            context.scene->GetEngine().GetInput(), command.GetArgument(0).GetInt(), false));
+    }
+}
+
+void GameSI::IsActionClicked(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.controlMap->ActionClick(
+            context.scene->GetEngine().GetInput(), command.GetArgument(0).GetInt(), false));
+    }
+}
+
+void GameSI::IsAnyKeyDown(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.scene->GetEngine().GetInput().IsAnyKeyDown());
+    }
+}
+
+void GameSI::IsAnyKeyClick(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 0);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetBool(context.scene->GetEngine().GetInput().IsAnyKeyClick());
+    }
+}
+
+void GameSI::LogMessage(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    S3D_LOG(scriptLog, u"***%s\n", command.GetArgument(0).GetString().c_str());
+}
+
+void GameSI::SetUseCameraListener(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.scene->SetUseCameraListener(command.GetArgument(0).GetInt() != 0);
+}
+
+void GameSI::StartScriptTimer(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.unitManager->StartScriptTimer(command.GetArgument(0).GetInt());
+}
+
+void GameSI::GetScriptTimerElapsed(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    if (command.GetOutput() != nullptr) {
+        command.GetOutput()->SetInt(
+            context.unitManager->GetScriptTimerElapsed(command.GetArgument(0).GetInt()));
+    }
+}
+
+void GameSI::StopScriptTimer(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.unitManager->StopScriptTimer(command.GetArgument(0).GetInt());
+}
+
+void GameSI::SetBspScriptVectors(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 6);
+    context.bsp->SetScriptVectors(
+        {command.GetArgument(0).GetFixed(), command.GetArgument(1).GetFixed(),
+         command.GetArgument(2).GetFixed()},
+        {command.GetArgument(3).GetFixed(), command.GetArgument(4).GetFixed(),
+         command.GetArgument(5).GetFixed()});
+}
+
+void GameSI::SetPlayerPresentationVisible(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->SetPresentationVisible(command.GetArgument(0).GetBool());
+}
+
+void GameSI::SetControlsDisabled(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.controlMap->SetEnabled(!command.GetArgument(0).GetBool(),
+                                   &context.scene->GetEngine().GetInput());
+}
+
+void GameSI::SetPlayerVisible(soft3d::ScriptCommand& command)
+{
+    RequireArguments(command, 1);
+    context.player->SetVisible(command.GetArgument(0).GetBool());
 }
 
 void GameSI::FadeOut(soft3d::ScriptCommand& command)
@@ -1997,11 +2135,11 @@ void GameSI::SetSubtitle(soft3d::ScriptCommand& command)
 void GameSI::SetActionMask(soft3d::ScriptCommand& command)
 {
     RequireArguments(command, 4);
-    context.controlMap->SetActionEnabled(5, command.GetArgument(0).GetBool());
-    context.controlMap->SetActionEnabled(6, command.GetArgument(1).GetBool());
-    context.controlMap->SetActionEnabled(7, command.GetArgument(2).GetBool());
+    context.controlMap->SetActionEnabled(5, !command.GetArgument(0).GetBool());
+    context.controlMap->SetActionEnabled(6, !command.GetArgument(1).GetBool());
+    context.controlMap->SetActionEnabled(7, !command.GetArgument(2).GetBool());
     for (int action = 1; action <= 4; ++action) {
-        context.controlMap->SetActionEnabled(action, command.GetArgument(3).GetBool());
+        context.controlMap->SetActionEnabled(action, !command.GetArgument(3).GetBool());
     }
 }
 

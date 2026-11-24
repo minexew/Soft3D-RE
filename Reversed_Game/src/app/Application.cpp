@@ -1,6 +1,7 @@
 #include "app/Application.hpp"
 
 #include "game/GameSI.hpp"
+#include "game/GameUiController.hpp"
 #include "game/Scene.hpp"
 #include "platform/sdl/SdlAudioBackend.hpp"
 #include "platform/sdl/SdlClock.hpp"
@@ -161,6 +162,7 @@ bool Application::InitializeVideo()
         scene->ReturnToMainMenu();
     };
     engine->SetGameplayHooks(std::move(hooks));
+    scene->GetUiController()->InstallHooks();
     engine->Start();
     if (config.startNewGame) {
         engine->StartNewGame();

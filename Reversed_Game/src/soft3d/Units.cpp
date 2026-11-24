@@ -1277,9 +1277,9 @@ bool Creature::NavigateTo(const Vec3& target, Fixed radius)
     const BspPathPair* pair = nullptr;
     for (uint16_t index = 0; index < startNode->pairCount; ++index) {
         pair = &bsp->GetPathPairs()[startNode->firstPair + index];
-        cumulative = static_cast<uint16_t>(cumulative + pair->nodes[1]);
+        cumulative = static_cast<uint16_t>(cumulative + pair->weight);
         if (targetNode->index < cumulative) {
-            nextNode = bsp->GetPathNode(pair->nodes[0]);
+            nextNode = bsp->GetPathNode(pair->nextNode);
             break;
         }
     }

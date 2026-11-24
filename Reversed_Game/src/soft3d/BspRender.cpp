@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cstring>
 #include <new>
+#include <stdexcept>
 #include <utility>
 
 namespace soft3d {
@@ -314,6 +315,19 @@ void Bsp::SetLightStyleEnabled(uint8_t index, uint8_t enabled)
 {
     lightStyles[index].enabled = enabled;
     AdvanceLightStyles();
+}
+
+void Bsp::SetScriptVectors(const Vec3& first, const Vec3& second)
+{
+    scriptVectors = {first, second};
+}
+
+const Vec3& Bsp::GetScriptVector(int index) const
+{
+    if (index < 0 || index >= static_cast<int>(scriptVectors.size())) {
+        throw std::out_of_range("BSP script vector index");
+    }
+    return scriptVectors[static_cast<std::size_t>(index)];
 }
 
 void Bsp::Update()

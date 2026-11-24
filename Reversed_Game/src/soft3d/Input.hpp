@@ -58,6 +58,7 @@ public:
     bool IsKeyUp(Key key) const;
     bool IsKeyClick(Key key) const;
     bool IsKeyDownOrClick(Key key) const;
+    bool IsAnyKeyDown() const;
     bool IsAnyKeyClick() const;
     uint8_t GetKeyState(Key key) const;
     uint8_t GetRepeatCount(Key key) const;

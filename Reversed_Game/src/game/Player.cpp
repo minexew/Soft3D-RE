@@ -361,23 +361,12 @@ bool Player::ActionClick(int action) const
 
 bool Player::ActionPress(int action) const
 {
-    if (controls == nullptr || !controls->IsEnabled()) {
-        return false;
-    }
-    const soft3d::Input& input = scene->GetEngine().GetInput();
-    return input.IsKeyPress(static_cast<soft3d::Key>(controls->GetPrimaryBinding(action))) ||
-           input.IsKeyPress(static_cast<soft3d::Key>(controls->GetBinding(action)));
+    return controls != nullptr && controls->ActionPress(scene->GetEngine().GetInput(), action, false);
 }
 
 bool Player::ActionUp(int action) const
 {
-    if (controls == nullptr || !controls->IsEnabled()) {
-        return false;
-    }
-    const soft3d::Input& input = scene->GetEngine().GetInput();
-    const soft3d::Key primary = static_cast<soft3d::Key>(controls->GetPrimaryBinding(action));
-    const soft3d::Key secondary = static_cast<soft3d::Key>(controls->GetBinding(action));
-    return input.IsKeyUp(primary) && input.IsKeyUp(secondary);
+    return controls != nullptr && controls->ActionUp(scene->GetEngine().GetInput(), action, false);
 }
 
 soft3d::Key Player::QteInputKey() const

@@ -126,8 +126,11 @@ void ControlMap::SetBinding(int action, uint32_t key)
     }
 }
 
-void ControlMap::SetEnabled(bool value)
+void ControlMap::SetEnabled(bool value, Input* input)
 {
+    if (enabled != value && input != nullptr) {
+        input->ClearKey();
+    }
     enabled = value;
 }
 
@@ -143,17 +146,17 @@ bool ControlMap::IsEnabled() const
     return enabled;
 }
 
-bool ControlMap::ActionClick(const Input& input, int action, bool primaryOnly) const
+bool ControlMap::ActionFirstDown(const Input& input, int action, bool primaryOnly) const
 {
     if (!enabled || !ValidAction(action) || !actionEnabled[action]) {
         return false;
     }
     const Key primary = static_cast<Key>(primaryBindings[action]);
-    if (primary != Key::None && input.IsKeyClick(primary)) {
+    if (primary != Key::None && input.IsKeyFirstDown(primary)) {
         return true;
     }
     const Key secondary = static_cast<Key>(configuration.controlBindings[action]);
-    return !primaryOnly && secondary != Key::None && input.IsKeyClick(secondary);
+    return !primaryOnly && secondary != Key::None && input.IsKeyFirstDown(secondary);
 }
 
 bool ControlMap::ActionDown(const Input& input, int action, bool primaryOnly) const
@@ -167,6 +170,45 @@ bool ControlMap::ActionDown(const Input& input, int action, bool primaryOnly) co
     }
     const Key secondary = static_cast<Key>(configuration.controlBindings[action]);
     return !primaryOnly && secondary != Key::None && input.IsKeyDown(secondary);
+}
+
+bool ControlMap::ActionPress(const Input& input, int action, bool primaryOnly) const
+{
+    if (!enabled || !ValidAction(action) || !actionEnabled[action]) {
+        return false;
+    }
+    const Key primary = static_cast<Key>(primaryBindings[action]);
+    if (primary != Key::None && input.IsKeyPress(primary)) {
+        return true;
+    }
+    const Key secondary = static_cast<Key>(configuration.controlBindings[action]);
+    return !primaryOnly && secondary != Key::None && input.IsKeyPress(secondary);
+}
+
+bool ControlMap::ActionUp(const Input& input, int action, bool primaryOnly) const
+{
+    if (!enabled || !ValidAction(action) || !actionEnabled[action]) {
+        return false;
+    }
+    const Key primary = static_cast<Key>(primaryBindings[action]);
+    if (primary != Key::None && !input.IsKeyUp(primary)) {
+        return false;
+    }
+    const Key secondary = static_cast<Key>(configuration.controlBindings[action]);
+    return primaryOnly || secondary == Key::None || input.IsKeyUp(secondary);
+}
+
+bool ControlMap::ActionClick(const Input& input, int action, bool primaryOnly) const
+{
+    if (!enabled || !ValidAction(action) || !actionEnabled[action]) {
+        return false;
+    }
+    const Key primary = static_cast<Key>(primaryBindings[action]);
+    if (primary != Key::None && input.IsKeyClick(primary)) {
+        return true;
+    }
+    const Key secondary = static_cast<Key>(configuration.controlBindings[action]);
+    return !primaryOnly && secondary != Key::None && input.IsKeyClick(secondary);
 }
 
 } // namespace soft3d

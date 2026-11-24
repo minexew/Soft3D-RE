@@ -158,7 +158,7 @@ Portable `Boss::ConfigureSequences` owns equivalent arrays and validates equal l
 Shipped SST `AddEnemy` commands run through production `GameSI` for all six pooled variants:
 
 - Native maps 1051, 1060, and 2066 successfully run Lord (`ep1051`), Victor (`ep1060`), and DarkKen (`ep2066`).
-- Existing BSP-loader failures prevent native maps 1056, 2052, and 6004 from reaching their spawn commands. Prisoner (`ep1056`) and Sam (`ep2052`) therefore run on known-good map 1051; Kate (`ep6004`) runs on known-good day-6 map 2008. These are documented loader limitations, not substituted enemy behavior.
+- The directed class tests historically ran Prisoner (`ep1056`) and Sam (`ep2052`) on known-good map 1051 and Kate (`ep6004`) on day-6 map 2008 because their native maps then failed to load. Stage 15's corrected path/sentinel and nonfatal-SPL behavior now loads every shipped day map, and the episode integration test runs all three encounters in their actual episode contexts.
 - Lord's real map-1051 encounter creates its native objects/triggers. Boss uses real model/animation resources and the real engine frame loop but has no shipped construction site.
 
 All 36 default tests, all 29 host-math tests, and all 29 ASan/UBSan tests pass serially. Variant suites were not run concurrently.

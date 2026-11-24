@@ -861,7 +861,8 @@ result Bsp::LoadPathPairs(const SbpChunkDescriptor& chunk)
     const uint8_t* input = source.data() + chunk.offset;
     pathPairs.resize(chunk.length / 4);
     for (BspPathPair& pair : pathPairs) {
-        pair.nodes = {Read16(input), Read16(input + 2)};
+        pair.nextNode = Read16(input);
+        pair.weight = Read16(input + 2);
         input += 4;
     }
     return S3D_OK;
@@ -891,12 +892,6 @@ result Bsp::LoadPathNodes(const SbpChunkDescriptor& chunk)
         }
         node.index = static_cast<uint16_t>(index);
         input += 16;
-    }
-    for (const BspPathPair& pair : pathPairs) {
-        if (!RangeValid(pair.nodes[0], 1, pathNodes.size()) ||
-            !RangeValid(pair.nodes[1], 1, pathNodes.size())) {
-            return S3D_FORMAT;
-        }
     }
     return S3D_OK;
 }

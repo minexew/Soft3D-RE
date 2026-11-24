@@ -112,6 +112,9 @@ public:
     int32_t GetDoorState(int32_t doorId) const;
     void SetDoorState(int32_t doorId, int32_t value);
     const std::array<int32_t, 1024>& GetDoorStates() const { return doorStates; }
+    void StartScriptTimer(int32_t index);
+    int32_t GetScriptTimerElapsed(int32_t index) const;
+    void StopScriptTimer(int32_t index);
     void Update();
     void SubmitRenderables(soft3d::RenderQueues& queues);
     std::size_t GetLensflareCount() const { return lensflareCount; }
@@ -136,7 +139,7 @@ private:
     StayBoxHost* stayBoxHost = this;
     std::array<soft3d::Fixed, 6> mapHeaderValues{};
     std::array<int32_t, 1024> doorStates{};
-    std::array<std::array<int32_t, 2>, 32> serialized19c{};
+    std::array<std::array<int32_t, 2>, 32> scriptTimers{};
     std::array<std::array<std::unique_ptr<Enemy>, enemyPoolStride>, enemyTypeCount> enemyPools{};
     uint32_t randomState = 0;
     int32_t day = 0;

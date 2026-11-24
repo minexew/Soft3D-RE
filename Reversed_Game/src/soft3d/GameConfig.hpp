@@ -42,11 +42,14 @@ public:
     uint32_t GetBinding(int action) const;
     uint32_t GetPrimaryBinding(int action) const;
     void SetBinding(int action, uint32_t key);
-    void SetEnabled(bool enabled);
+    void SetEnabled(bool enabled, Input* input = nullptr);
     void SetActionEnabled(int action, bool enabled);
     bool IsEnabled() const;
-    bool ActionClick(const Input& input, int action, bool primaryOnly = true) const;
+    bool ActionFirstDown(const Input& input, int action, bool primaryOnly = true) const;
     bool ActionDown(const Input& input, int action, bool primaryOnly = true) const;
+    bool ActionPress(const Input& input, int action, bool primaryOnly = true) const;
+    bool ActionUp(const Input& input, int action, bool primaryOnly = true) const;
+    bool ActionClick(const Input& input, int action, bool primaryOnly = true) const;
 
 private:
     GameConfiguration& configuration;

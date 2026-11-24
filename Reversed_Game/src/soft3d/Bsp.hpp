@@ -165,7 +165,8 @@ using BspEntityFactory = BspEntity* (*)(BspEntityRecord* record, void* context,
                                        BspEntityRecord* recordBase);
 
 struct BspPathPair {
-    std::array<uint16_t, 2> nodes{};
+    uint16_t nextNode = 0;
+    uint16_t weight = 0;
 };
 
 struct BspPathNode {
@@ -251,6 +252,8 @@ public:
     void ResetLightStyles();
     void AdvanceLightStyles();
     void SetLightStyleEnabled(uint8_t index, uint8_t enabled);
+    void SetScriptVectors(const Vec3& first, const Vec3& second);
+    const Vec3& GetScriptVector(int index) const;
     void Update();
     void PrepareRender(const BspRenderState& state);
     void SubmitVisibleEntities(RenderQueues& queues);
@@ -407,6 +410,7 @@ private:
     std::vector<uint8_t> pvs;
     std::vector<uint8_t> lightmapData;
     std::array<BspLightStyle, 256> lightStyles{};
+    std::array<Vec3, 2> scriptVectors{};
     BspRenderState renderState;
     uint32_t frameCounter = 0;
     uint32_t leafMarkCounter = 0;

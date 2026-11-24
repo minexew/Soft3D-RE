@@ -122,7 +122,7 @@ use-player-direction flag, position, fixed light direction
 
 ## Scene transitions and presentation
 
-`Scene_BeginMapLoad` (`0x0002ca50`) sets the transition camera, renderer direction `Normalize({0xa666,-0x10000,0xcccc})`, ambient `0xb333`, fog off, controls off, and an eight-frame fade-in when no fade is active. Door index zero has special initial framing; other door indices start from the player position. A high `0x10000` index selects the GameUI special-door path, whose actual dialog rendering belongs to stage 8.
+`Scene_BeginMapLoad` (`0x0002ca50`) sets the transition camera, renderer direction `Normalize({0xa666,-0x10000,0xcccc})`, ambient `0xb333`, fog off, global controls to native zero (enabled), and an eight-frame fade-in when no fade is active. Door index zero has special initial framing; other door indices start from the player position. A high `0x10000` index selects the GameUI special-door path, whose actual dialog rendering belongs to stage 8.
 
 The 22 model/sound records from `Scene_InitializeDoorResources` (`0x0002b554`) are already tabulated in `ResourceNames.cpp` and `game_data_tables.md`. Standard transitions use these exact update numbers:
 

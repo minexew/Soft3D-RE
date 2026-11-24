@@ -153,6 +153,16 @@ bool Input::IsKeyDownOrClick(Key key) const
     return IsKeyDown(key) || IsKeyClick(key);
 }
 
+bool Input::IsAnyKeyDown() const
+{
+    for (std::size_t key = 1; key < keySlotCount; ++key) {
+        if ((keyStates[key] & keyDown) != 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Input::IsAnyKeyClick() const
 {
     for (std::size_t key = 1; key < keySlotCount; ++key) {

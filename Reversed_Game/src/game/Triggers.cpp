@@ -965,7 +965,7 @@ void TalkTrigger::FinishDialogue()
     }
     phase = 2;
     if (fadeAtEnd == 0) {
-        SetDialogueControls(false);
+        SetDialogueControls(true);
         running = 0;
         active = 0;
         phase = 0;
@@ -1004,7 +1004,7 @@ void TalkTrigger::Update()
     const bool click = scene != nullptr && InteractionClick(controls, scene->GetEngine());
     if (promptActive != 0 && running == 0 && active == 0 && phase == 0 && click &&
         !player->IsNavigationEnabled()) {
-        SetDialogueControls(true);
+        SetDialogueControls(false);
         running = 1;
         timer = 6;
         scene->GetFadeShader()->StartFade(1, 0, 5, 1);
@@ -1044,7 +1044,7 @@ void TalkTrigger::Update()
         if (timer > 0) {
             --timer;
         } else if (timer == 0) {
-            SetDialogueControls(false);
+            SetDialogueControls(true);
             running = 0;
             active = 0;
             phase = 0;
@@ -1137,11 +1137,7 @@ soft3d::result CameraTrigger::LoadEntity(const soft3d::BspEntityRecord& record,
         for (const unsigned char value : pathName) {
             wideName.push_back(value);
         }
-        const soft3d::result status = soft3d::LoadSplCameraResource(
-            *paths, wideName.c_str(), resources.GetFilePak());
-        if (status != soft3d::S3D_OK) {
-            return status;
-        }
+        soft3d::LoadSplCameraResource(*paths, wideName.c_str(), resources.GetFilePak());
     }
     pathSpeed = ParseFixed(EntityText(record, bsp, 6));
     targetMode = ParseInt(EntityText(record, bsp, 7));

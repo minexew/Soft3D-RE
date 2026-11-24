@@ -791,17 +791,9 @@ void TestRealStartupBoundary()
         fixture.RunFrames(1);
     }
     CHECK(fixture.scene->IsMapLoaded());
-    bool unsupported = false;
-    for (int frame = 0; frame < 40 && !unsupported; ++frame) {
-        try {
-            fixture.RunFrames(1);
-        } catch (const game::GameSIError& error) {
-            CHECK(error.GetCommandId() == 47);
-            CHECK(error.GetArmAddress() == 0x00065560);
-            unsupported = true;
-        }
-    }
-    CHECK(unsupported);
+    fixture.RunFrames(40);
+    CHECK(fixture.scene->GetMapProgress() == -1);
+    CHECK(fixture.engine.GetScriptEngine().GetState() == soft3d::ScriptState::Running);
 }
 
 } // namespace

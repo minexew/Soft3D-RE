@@ -2,7 +2,7 @@
 
 ## Scope and evidence rules
 
-This analysis compares `Other/S2DSDK` with the Symbian 3rd `out.bin` in Ghidra and the existing notes in `Reverse_Docs`. The Ghidra image base is now `0x8000`; documented native offsets require adding `0x8000` for Ghidra navigation. The SDK is an earlier Dingoo A320 implementation. It is evidence for API concepts, layouts, and algorithms only when the ARM binary independently supports the match.
+This analysis compares `Other/S2DSDK` with the Symbian 3rd `out.bin` in Ghidra and the existing notes in `Reverse_Docs`. The current database reports image base `0x8000`, but its corrected memory block resolves documented native offsets directly; do not add another bias. The SDK is an earlier Dingoo A320 implementation. It is evidence for API concepts, layouts, and algorithms only when the ARM binary independently supports the match.
 
 Three confidence levels are used below:
 

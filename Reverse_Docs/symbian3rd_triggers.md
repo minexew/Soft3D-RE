@@ -166,7 +166,7 @@ Item persistence (`0x0008f284`/`0x0008f308`) appends enabled and all eight signe
 
 A camera record is 0x1c bytes: `{int32 actorId; Vec3 target; Vec3 axisX}`. Actor -1 selects the player; other IDs select bucket-2 things. A line record is four bytes: `{int16 textId; uint8 duration; int8 cameraIndex}`.
 
-`TalkTrigger_Update` (`0x00093b70`) shows prompt 5 only nearby with no attacking enemy. Action 5 also requires navigation to be disabled. Interaction enables controls 6, 7, and 1–4, sets running, timer 6, and starts a black five-frame fade-out. At timer zero, `TalkTrigger_StartDialogue` (`0x000941ac`):
+`TalkTrigger_Update` (`0x00093b70`) shows prompt 5 only nearby with no attacking enemy. Action 5 also requires navigation to be disabled. Interaction writes native suppression value 1 to controls 6, 7, and 1–4, sets running, timer 6, and starts a black five-frame fade-out. At timer zero, `TalkTrigger_StartDialogue` (`0x000941ac`):
 
 1. Sets active, clears line index/phase/completed, snapshots every actor position into its camera target, applies the record's axis X through the visual virtual slot, and updates the actor.
 2. Freezes the camera and selects fixed mode at the trigger's camera position, looking at the selected camera target plus Y `0x10000`.
@@ -175,7 +175,7 @@ A camera record is 0x1c bytes: `{int32 actorId; Vec3 target; Vec3 axisX}`. Actor
 
 While active in phase 0, the timer first counts down to zero, then the trigger waits for the dialog to become inactive. `TalkTrigger_AdvanceDialogue` (`0x00094544`) selects and opens the next line, returning false, or returns true after the final line. Finalization enters phase 1, sets timer 6, starts fade-out, and decrements to 5 in that same update.
 
-At phase-1 zero, `TalkTrigger_FinishDialogue` (`0x000946d8`) unfreezes the camera, resets the scene's **camera-warmup counter**, requests an immediate camera update, closes the dialog, and clears input. Without fade-at-end it disables the dialogue controls and immediately sets completed. Otherwise phase 2 sets timer 6, starts fade-in, and completes at zero. The active word is set at dialogue start and cleared at completion; the completed word is a separate latch. `TalkTrigger_SetEnabled` (`0x00093afc`) hides an active prompt on disable and always resets line index and timer, but does not reset active/completed state.
+At phase-1 zero, `TalkTrigger_FinishDialogue` (`0x000946d8`) unfreezes the camera, resets the scene's **camera-warmup counter**, requests an immediate camera update, closes the dialog, and clears input. Without fade-at-end it writes native zero to restore the dialogue controls and immediately sets completed. Otherwise phase 2 sets timer 6, starts fade-in, and completes at zero. The active word is set at dialogue start and cleared at completion; the completed word is a separate latch. `TalkTrigger_SetEnabled` (`0x00093afc`) hides an active prompt on disable and always resets line index and timer, but does not reset active/completed state.
 
 Talk persistence (`0x000948c0`/`0x00094a68`) stores enabled, fade-at-end, camera position, camera count and each `{actorId,target,axisX}`, then line count and each line as three 32-bit values in the order `{duration,textId,cameraIndex}`. Runtime prompt/running/active/phase/completion/current-line state is excluded.
 
@@ -233,6 +233,6 @@ Portable lookups validate class/ID where the original would dereference an inval
 
 `Reversed_Game/tests/test_game_triggers.cpp` covers every stage-6/7 command, finite/infinite event entry and exit, pickup accept/cancel/full-inventory/disable behavior, door item/lock/timer/tracking/authorization states, act choices and camera-warmup restoration, hide confirmation/direct masks and player state, item capacity and paused registration, navigation/combat gates, multi-line Talk camera/dialog timing and both completion paths, removal, and second-save byte equality. Camera/Light fixtures also verify their native persistence fields without changing stage-3 camera behavior.
 
-Real-resource tests verify map-2008 item creation, spawn-record clearing and non-respawn, the no-spawn path for restored saves, and item-trigger use through `GameEngine::RunFrame`. The real `day1/ep0` engine-frame-loop path passes every stage-6 command. After stages 7–8 it reaches the later-stage input query 47 (`0x00065560`).
+Real-resource tests verify map-2008 item creation, spawn-record clearing and non-respawn, the no-spawn path for restored saves, and item-trigger use through `GameEngine::RunFrame`. The real `day1/ep0` engine-frame-loop path passes every stage-6 command. After stages 7–8 it reached then-unimplemented input query 47 (`0x00065560`); stage 15 implements the query and continues execution.
 
 All 35 default CTest tests pass serially in stage 8. Core and ASan/UBSan each pass 28 SDL-independent tests; WAR, STDIO logging, and host-math builds pass all 35. Stage-7 Ghidra state includes Hide/Item/Talk layouts, camera/line record and vector types, typed class/manager/command signatures, behavioral plates, 67 verified `stage7` tags, a completion property, and a saved bookmark at `TalkTrigger_Update`.

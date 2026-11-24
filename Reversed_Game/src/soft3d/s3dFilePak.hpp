@@ -35,6 +35,7 @@ public:
     int Tell() const;
     result Read(void* destination, int32_t requestedBytes);
     int GetEntryCount() const;
+    const char* GetEntryName(int index) const;
 
     void SetEngine(Engine* engine) override;
 

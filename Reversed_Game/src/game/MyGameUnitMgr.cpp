@@ -72,7 +72,7 @@ MyGameUnitMgr::MyGameUnitMgr(const soft3d::UnitManagerContext& context)
     : GameUnitManager(context)
     , interactionState(this)
 {
-    for (auto& record : serialized19c) {
+    for (auto& record : scriptTimers) {
         record.fill(-1);
     }
     auto* engine = static_cast<soft3d::GameEngine*>(context.gameContext);
@@ -141,7 +141,7 @@ void MyGameUnitMgr::Reset()
     lensflareCount = 0;
     mapReady = false;
     paused = false;
-    for (auto& record : serialized19c) {
+    for (auto& record : scriptTimers) {
         record.fill(-1);
     }
     pushTarget = nullptr;
@@ -838,6 +838,31 @@ void MyGameUnitMgr::SetDoorState(int32_t doorId, int32_t value)
     }
 }
 
+void MyGameUnitMgr::StartScriptTimer(int32_t index)
+{
+    if (index < 0 || index >= static_cast<int32_t>(scriptTimers.size())) {
+        throw std::out_of_range("script timer index");
+    }
+    scriptTimers[static_cast<std::size_t>(index)] = {0, 0};
+}
+
+int32_t MyGameUnitMgr::GetScriptTimerElapsed(int32_t index) const
+{
+    if (index < 0 || index >= static_cast<int32_t>(scriptTimers.size())) {
+        throw std::out_of_range("script timer index");
+    }
+    const auto& timer = scriptTimers[static_cast<std::size_t>(index)];
+    return timer[1] - timer[0];
+}
+
+void MyGameUnitMgr::StopScriptTimer(int32_t index)
+{
+    if (index < 0 || index >= static_cast<int32_t>(scriptTimers.size())) {
+        throw std::out_of_range("script timer index");
+    }
+    scriptTimers[static_cast<std::size_t>(index)] = {-1, -1};
+}
+
 void MyGameUnitMgr::Update()
 {
     for (soft3d::GameUnit* unit = GetFirstUnit(4); unit != nullptr; unit = unit->GetNextUnit()) {
@@ -846,6 +871,11 @@ void MyGameUnitMgr::Update()
         }
     }
     if (!paused) {
+        for (auto& timer : scriptTimers) {
+            if (timer[0] == 0) {
+                ++timer[1];
+            }
+        }
         for (int32_t index = 0; index < stayBoxCount; ++index) {
             stayBoxes[static_cast<std::size_t>(index)].Update();
         }

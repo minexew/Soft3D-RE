@@ -139,6 +139,8 @@ public:
     void Reset(const GameData& data);
     void ResetForMap();
     void SetVisible(bool value);
+    void SetPresentationVisible(bool value) { presentationVisible = value ? 1 : 0; }
+    bool IsPresentationVisible() const { return presentationVisible != 0; }
     bool NavigateTo(const soft3d::Vec3& target, soft3d::Fixed radius) override;
     void SetNavigationEnabled(bool enabled) override;
 

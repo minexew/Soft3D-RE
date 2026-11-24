@@ -2,7 +2,7 @@
 
 ## Scope and implementation
 
-Addresses in this document use the native-offset convention. Ghidra is saved at image base `0x8000`; add that offset for navigation (for example, native `Scene_LoadSave` `0x0002f864` is Ghidra `0x00037864`).
+Addresses in this document use native offsets. The current `out.bin` database reports image base `0x8000`, but its corrected memory block and existing symbols resolve at those native offsets; for example, `Scene_LoadSave` is at `0x0002f864`. Do not rebase the program or add another `0x8000`.
 
 Game-completion stage 13 implements the complete `slot%d.sav` scene stream and `spt\\slot%d.sav` script sidecar in `Reversed_Game/src/game/SaveGame.cpp`. `Scene::SaveSaveSlot` and `Scene::LoadSaveSlot` are the production entry points used by the save menu and `GameEngine::LoadSaveSlot`; `MyGameUnitMgr::SaveState` and `LoadUnitState` own manager content and typed unit records. `LoadDlg` continues to read only the 44-byte header for display.
 
@@ -48,7 +48,7 @@ The portable implementation checks every fixed-section read, string, environment
 
 The native manager writer (`0x00047cdc`) emits:
 
-1. `0x100` raw bytes at manager `0x19c`: 32 two-word records. Both words initialize to `-1`; native update increments the second word when the first is zero. Their script-command semantics remain a stage-15 naming concern, so portable code preserves them as `serialized19c` rather than inventing a specific timer API.
+1. `0x100` raw bytes at manager `0x19c`: 32 `ScriptTimerRecord` values `{start,current}`. Both words initialize to `-1`; start writes `{0,0}`, stop restores `{-1,-1}`, elapsed is `current-start`, and each unpaused native update increments `current` when `start` is zero. GameSI IDs 93–95 expose these operations.
 2. `0x1000` raw bytes at manager `0x2500c`: 1024 little-endian door-state words.
 3. Big-endian `int32` enemy-info group count, then each group as big-endian `int16 mapId` and `int16 recordCount`.
 4. For each enemy spawn: two big-endian vectors, then big-endian `int16 active`, `enemyType`, `unitId`, and `waypointCount`, followed by raw little-endian 0x1c-byte waypoint records `{Vec3 position, int32 waitTime, Vec3 direction}`.
@@ -113,4 +113,4 @@ At stage-13 completion, all 37 default tests passed serially. Thirty SDL-indepen
 
 ## Ghidra writeback
 
-Ghidra is saved at image base `0x8000`. Stage 13 adds `SaveSlotHeader` (0x2c) and `ManagerSerialized19cRecord` (0x08), changes `Scene+0x6afc` to `InputFileStream *pSaveStream`, names `Scene_SaveSave`, `GameEngine_SaveSaveSlot`, `GameEngine_LoadScriptArchive`, and `S3dTimer_GetLocalDateTimeWords`, and saves typed signatures/locals for ten persistence functions. Plate comments record section order, mixed endianness, header semantics, native enemy-tag and StayBox writer/reader asymmetries, and deterministic portable corrections. Ten `stage13` functions, two bookmarks, and a `Stage13Status` completion property are saved. Manager prototypes retain the useful `GameUnitManager*` view because applying the opaque derived layout degrades decompiler output.
+The current database resolves native offsets directly despite reporting image base `0x8000`. Stage 13 adds `SaveSlotHeader` (0x2c) and the timer record subsequently renamed `ScriptTimerRecord` (0x08), changes `Scene+0x6afc` to `InputFileStream *pSaveStream`, names `Scene_SaveSave`, `GameEngine_SaveSaveSlot`, `GameEngine_LoadScriptArchive`, and `S3dTimer_GetLocalDateTimeWords`, and saves typed signatures/locals for ten persistence functions. Plate comments record section order, mixed endianness, header semantics, native enemy-tag and StayBox writer/reader asymmetries, and deterministic portable corrections. Ten `stage13` functions, two bookmarks, and a `Stage13Status` completion property are saved. Manager prototypes retain the useful `GameUnitManager*` view because applying the opaque derived layout degrades decompiler output.

@@ -159,7 +159,7 @@ soft3d::GameEngine* ManagerEngine(const soft3d::UnitManagerContext& context)
 
 soft3d::result MyGameUnitMgr::SaveState(soft3d::OutputStream& stream) const
 {
-    for (const auto& record : serialized19c) {
+    for (const auto& record : scriptTimers) {
         for (int32_t value : record) {
             if (!WriteLe32(stream, value)) return soft3d::S3D_MEMORY;
         }
@@ -233,7 +233,7 @@ soft3d::result MyGameUnitMgr::LoadUnitState(soft3d::InputStream& stream)
             if (enemy != nullptr) enemy->Reset();
         }
     }
-    for (auto& record : serialized19c) {
+    for (auto& record : scriptTimers) {
         for (int32_t& value : record) {
             if (!ReadLe32(stream, value)) return soft3d::S3D_FORMAT;
         }

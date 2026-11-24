@@ -2,7 +2,7 @@
 
 ## Scope
 
-This document covers `SymbianBin/out.bin` (`out.bin` in Ghidra). The Ghidra image base is now `0x8000`; documented native offsets require adding `0x8000` for Ghidra navigation. RTTI names the class `ResManager`; the portable reconstruction calls it `s3dResManager` to match the neighboring Soft3D classes. The recovered types, function names, and signatures are applied in Ghidra.
+This document covers `SymbianBin/out.bin` (`out.bin` in Ghidra). The current database reports image base `0x8000`, but its corrected memory block resolves documented native offsets directly; do not add another bias. RTTI names the class `ResManager`; the portable reconstruction calls it `s3dResManager` to match the neighboring Soft3D classes. The recovered types, function names, and signatures are applied in Ghidra.
 
 ## Class layout
 

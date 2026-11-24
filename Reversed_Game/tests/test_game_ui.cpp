@@ -234,8 +234,12 @@ void TestCommandsAndStatistics()
 
     fixture.Execute(102, {Argument::Bool(false), Argument::Bool(true),
                           Argument::Bool(false), Argument::Bool(true)});
-    CHECK(!fixture.engine.GetControlMap().ActionClick(fixture.engine.GetInput(), 5, false));
-    CHECK(fixture.engine.GetControlMap().ActionClick(fixture.engine.GetInput(), 6, false) == 0);
+    fixture.engine.GetControlMap().SetBinding(5, static_cast<uint32_t>(soft3d::Key::Number3));
+    fixture.engine.GetInput().KeyDown(soft3d::Key::Number3);
+    fixture.engine.GetInput().KeyUp(soft3d::Key::Number3);
+    CHECK(fixture.engine.GetControlMap().ActionClick(fixture.engine.GetInput(), 5, false));
+    CHECK(!fixture.engine.GetControlMap().ActionClick(fixture.engine.GetInput(), 6, false));
+    CHECK(!fixture.engine.GetControlMap().ActionDown(fixture.engine.GetInput(), 1, false));
     fixture.Execute(104, {Argument::Int(3), Argument::Int(2), Argument::Int(100), Argument::Int(200)});
     CHECK(ui->GetMapMarker(3).x == 100 && ui->GetMapMarker(3).y == 200 &&
           ui->GetMapMarker(3).type == 1);
