@@ -6,62 +6,18 @@
 #include "soft3d/GameUIDlg.hpp"
 #include "soft3d/s3dResManager.hpp"
 
-#include <algorithm>
 #include <array>
 #include <climits>
 
 namespace game {
 namespace {
 
-void Configure(Enemy& enemy)
-{
-    enemy.SetEnemyType(8);
-    enemy.ConfigureCommonDefaults(GetEnemyCommonConfig(8));
-    enemy.SetPositionalAudio(false);
-}
-
-const soft3d::Animation* LoadAnimationResource(soft3d::s3dResManager* resources, const GameData& data,
-                                       int32_t name)
-{
-    return resources != nullptr && name >= 0
-        ? dynamic_cast<const soft3d::Animation*>(resources->GetResource(
-              soft3d::ResourceAnimation, 3, data.GetAnimationName(static_cast<std::size_t>(name))))
-        : nullptr;
-}
-
-soft3d::AudioData* LoadSound(soft3d::s3dResManager* resources, const GameData& data, int32_t name)
-{
-    return resources != nullptr && name > 0
-        ? dynamic_cast<soft3d::AudioData*>(resources->GetResource(
-              soft3d::ResourceAudio, 3, data.GetSoundName(static_cast<std::size_t>(name)),
-              u".\\audio\\"))
-        : nullptr;
-}
-
-void Expand(soft3d::ObjectBounds& bounds, const soft3d::Vec3& point)
-{
-    bounds.minimum.x = std::min(bounds.minimum.x, point.x);
-    bounds.minimum.y = std::min(bounds.minimum.y, point.y);
-    bounds.minimum.z = std::min(bounds.minimum.z, point.z);
-    bounds.maximum.x = std::max(bounds.maximum.x, point.x);
-    bounds.maximum.y = std::max(bounds.maximum.y, point.y);
-    bounds.maximum.z = std::max(bounds.maximum.z, point.z);
-}
-
-soft3d::ObjectBounds Bounds(const soft3d::Vec3& minimum, const soft3d::Vec3& maximum)
-{
-    return {soft3d::Vec3{std::min(minimum.x, maximum.x), std::min(minimum.y, maximum.y),
-                         std::min(minimum.z, maximum.z)},
-            soft3d::Vec3{std::max(minimum.x, maximum.x), std::max(minimum.y, maximum.y),
-                         std::max(minimum.z, maximum.z)}};
-}
-
 } // namespace
 
 Lord::Lord(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this);
+    ConfigureEnemy(*this, 8);
     cacheLevel = 3;
     sword = std::make_unique<soft3d::Object>(context.renderer);
     shield = std::make_unique<soft3d::Object>(context.renderer);
@@ -79,19 +35,19 @@ void Lord::InitializeAnimations(const soft3d::Animation* const*)
         150, 151, 152, 153, 154, 155, 156, 157, 158,
     };
     for (std::size_t index = 0; index < body.size(); ++index) {
-        bodyAnimations[index] = LoadAnimationResource(resourceManager, data, body[index]);
+        bodyAnimations[index] = LoadEnemyAnimationResource(resourceManager, data, body[index]);
     }
     static constexpr std::array<int32_t, 16> swordNames{
         159, -1, 160, 163, 164, -1, 161, 162, 165, 166, 167, 168, 169, 170, 171, 172,
     };
     for (std::size_t index = 0; index < swordNames.size(); ++index) {
-        swordAnimations[index] = LoadAnimationResource(resourceManager, data, swordNames[index]);
+        swordAnimations[index] = LoadEnemyAnimationResource(resourceManager, data, swordNames[index]);
     }
     static constexpr std::array<int32_t, 13> shieldNames{
         173, -1, 174, 176, 177, -1, 175, 178, 179, 180, 181, 182, 183,
     };
     for (std::size_t index = 0; index < shieldNames.size(); ++index) {
-        shieldAnimations[index] = LoadAnimationResource(resourceManager, data, shieldNames[index]);
+        shieldAnimations[index] = LoadEnemyAnimationResource(resourceManager, data, shieldNames[index]);
     }
 }
 
@@ -103,7 +59,7 @@ void Lord::InitializeSounds(soft3d::AudioData* const*)
             common[index] <= 0 ? nullptr : data.GetSoundName(static_cast<std::size_t>(common[index])));
     }
     for (std::size_t index = 0; index < extraSounds.size(); ++index) {
-        extraSounds[index] = LoadSound(resourceManager, data, 100 + static_cast<int32_t>(index));
+        extraSounds[index] = LoadEnemySoundResource(resourceManager, data, 100 + static_cast<int32_t>(index));
     }
 }
 

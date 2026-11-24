@@ -17,6 +17,7 @@
 namespace game {
 
 class GameUiController;
+class DebugConsole;
 
 class SceneCameraSpot final : public soft3d::CameraSpot {
 public:
@@ -72,10 +73,15 @@ public:
     void PostUpdate() override;
     void PrepareRender() override;
     void SubmitRenderables() override;
+    void PostRender() override;
 
     bool IsMapLoaded() const { return mapProgress == 100; }
     void SetEventFlag(int32_t index);
     bool GetEventFlag(int32_t index) const;
+    void ClearEventFlags();
+    void SetDebugConsoleEnabled(bool enabled) { debugConsoleEnabled = enabled; }
+    void ResetTransitionForDebugJump();
+    DebugConsole* GetDebugConsole() { return debugConsole.get(); }
 
     soft3d::GameEngine& GetEngine() { return engine; }
     soft3d::Bsp* GetBsp() { return bsp.get(); }
@@ -229,6 +235,8 @@ private:
     int32_t tutorialFrames = 0;
     int32_t authorizationStage = 0;
     int32_t authorizationActive = 0;
+    std::unique_ptr<DebugConsole> debugConsole;
+    bool debugConsoleEnabled = false;
     bool initialized = false;
 };
 

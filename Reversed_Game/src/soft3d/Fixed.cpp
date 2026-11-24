@@ -177,6 +177,44 @@ Vec3 Rotate(const Vec3& value, uint16_t xAngle, uint16_t yAngle, uint16_t zAngle
     };
 }
 
+Matrix4 LookAt(const Vec3& position, const Vec3& target, const Vec3& up)
+{
+    const Vec3 forward = Normalize(Subtract(target, position));
+    Vec3 right = Cross(up, forward);
+    if (AbsFixed(right.x) <= 0x4000 && AbsFixed(right.y) <= 0x4000 &&
+        AbsFixed(right.z) <= 0x4000) {
+        right = ShiftLeft(right, 8);
+    }
+    right = Normalize(right);
+    const Vec3 cameraUp = Cross(forward, right);
+    Matrix4 result;
+    result.values = {
+        right.x, cameraUp.x, forward.x, 0,
+        right.y, cameraUp.y, forward.y, 0,
+        right.z, cameraUp.z, forward.z, 0,
+        NegateFixed(Dot(right, position)), NegateFixed(Dot(cameraUp, position)),
+        NegateFixed(Dot(forward, position)), fixedOne
+    };
+    return result;
+}
+
+Matrix4 RotateXMatrix(uint16_t angle)
+{
+    Matrix4 result = Matrix4::Identity();
+    result.values[5] = FixedCos(static_cast<int16_t>(angle));
+    result.values[6] = FixedSin(angle);
+    result.values[9] = NegateFixed(result.values[6]);
+    result.values[10] = result.values[5];
+    return result;
+}
+
+void TranslateMatrix(Matrix4& matrix, Fixed x, Fixed y, Fixed z)
+{
+    matrix.values[12] = AddFixed(matrix.values[12], x);
+    matrix.values[13] = AddFixed(matrix.values[13], y);
+    matrix.values[14] = AddFixed(matrix.values[14], z);
+}
+
 Matrix4 RotateYMatrix(uint16_t angle)
 {
     Matrix4 result = Matrix4::Identity();

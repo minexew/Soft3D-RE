@@ -2,6 +2,7 @@
 
 #include "game/GameUiController.hpp"
 #include "soft3d/AudioData.hpp"
+#include "soft3d/Color.hpp"
 #include "soft3d/GameUIDlg.hpp"
 
 #include <sstream>
@@ -48,15 +49,6 @@ constexpr std::array<uint32_t, gameSICallbackCount> armHandlers = {
     0x0006d574, 0x0006d600, 0x0006d988, 0x0006d9d4, 0x0006da2c, 0x00064fd0,
     0x00064ff8, 0x00065034,
 };
-
-uint16_t PackRgb565(int16_t red, int16_t green, int16_t blue)
-{
-    const uint32_t r = static_cast<uint16_t>(red);
-    const uint32_t g = static_cast<uint16_t>(green);
-    const uint32_t b = static_cast<uint16_t>(blue);
-    return static_cast<uint16_t>(((r & 0xff) >> 3) << 11 |
-                                 ((g & 0xff) >> 2) << 5 | ((b & 0xff) >> 3));
-}
 
 } // namespace
 
@@ -490,7 +482,7 @@ void GameSI::FadeIn(soft3d::ScriptCommand& command)
 void GameSI::Fade(soft3d::ScriptCommand& command, bool fadeOut)
 {
     RequireArguments(command, 4);
-    const uint16_t color = PackRgb565(static_cast<int16_t>(command.GetArgument(0).GetInt()),
+    const uint16_t color = soft3d::PackRgb565(static_cast<int16_t>(command.GetArgument(0).GetInt()),
                                       static_cast<int16_t>(command.GetArgument(1).GetInt()),
                                       static_cast<int16_t>(command.GetArgument(2).GetInt()));
     const bool completed = context.scene->FadeCommand(fadeOut, color,
@@ -696,7 +688,7 @@ void GameSI::SetFog(soft3d::ScriptCommand& command)
         context.scene->GetEngine().GetRenderer().SetFogEnabled(false);
         return;
     }
-    const uint16_t color = PackRgb565(command.GetArgument(0).GetShort(),
+    const uint16_t color = soft3d::PackRgb565(command.GetArgument(0).GetShort(),
                                       command.GetArgument(1).GetShort(),
                                       command.GetArgument(2).GetShort());
     context.scene->GetEngine().GetRenderer().SetFog(command.GetArgument(3).GetFixed(), end, color);
@@ -1997,7 +1989,7 @@ void GameSI::SetLoadMapParams(soft3d::ScriptCommand& command)
     const soft3d::Vec3 direction{command.GetArgument(4).GetFixed(),
                                  command.GetArgument(5).GetFixed(),
                                  command.GetArgument(6).GetFixed()};
-    const uint16_t color = PackRgb565(command.GetArgument(7).GetShort(),
+    const uint16_t color = soft3d::PackRgb565(command.GetArgument(7).GetShort(),
                                       command.GetArgument(8).GetShort(),
                                       command.GetArgument(9).GetShort());
     context.scene->SetLoadMapParams(command.GetArgument(0).GetInt(), position, direction, color);

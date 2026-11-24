@@ -246,6 +246,18 @@ void TestMessagingAndGeometry()
     CHECK(unit.QuerySegment({-0x20000, 0x30000, 0}, {0x20000, 0x30000, 0}) == nullptr);
     CHECK(unit.QueryBounds({{0x8000, 0, 0}, {0x18000, 0x10000, 0x10000}}) == &unit);
     CHECK(unit.QueryBounds({{0x10001, 0, 0x30001}, {0x18000, 1, 0x38000}}) == nullptr);
+    soft3d::ObjectBounds moved = soft3d::Translate(bounds, {0x10000, 0x20000, 0x30000});
+    CHECK(moved.minimum.x == 0 && moved.maximum.z == 0x60000);
+    CHECK(soft3d::Center(bounds).x == 0 && soft3d::Center(bounds).y == 0);
+    const soft3d::ObjectBounds ordered = soft3d::Bounds({2, 3, 4}, {-2, 5, -4});
+    CHECK(ordered.minimum.x == -2 && ordered.minimum.y == 3 && ordered.minimum.z == -4);
+    CHECK(ordered.maximum.x == 2 && ordered.maximum.y == 5 && ordered.maximum.z == 4);
+    soft3d::ResetBounds(moved);
+    CHECK(moved.minimum.x == INT32_MAX && moved.maximum.x == INT32_MIN);
+    soft3d::Expand(moved, {-2, 3, -4});
+    soft3d::Expand(moved, {2, 5, 4});
+    CHECK(moved.minimum.x == -2 && moved.minimum.y == 3 && moved.minimum.z == -4);
+    CHECK(moved.maximum.x == 2 && moved.maximum.y == 5 && moved.maximum.z == 4);
     unit.SetCollisionEnabled(false);
     CHECK(unit.QueryPoint({0, 0, 0}) == nullptr);
     soft3d::GameUnit base;

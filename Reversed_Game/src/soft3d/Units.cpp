@@ -9,49 +9,6 @@
 namespace soft3d {
 namespace {
 
-ObjectBounds Translate(const ObjectBounds& bounds, const Vec3& offset)
-{
-    return {Add(bounds.minimum, offset), Add(bounds.maximum, offset)};
-}
-
-bool Contains(const ObjectBounds& bounds, const Vec3& point)
-{
-    return point.x >= bounds.minimum.x && point.y >= bounds.minimum.y &&
-           point.z >= bounds.minimum.z && point.x <= bounds.maximum.x &&
-           point.y <= bounds.maximum.y && point.z <= bounds.maximum.z;
-}
-
-bool Overlaps(const ObjectBounds& first, const ObjectBounds& second)
-{
-    return second.maximum.x >= first.minimum.x && second.maximum.y >= first.minimum.y &&
-           second.maximum.z >= first.minimum.z && second.minimum.x <= first.maximum.x &&
-           second.minimum.y <= first.maximum.y && second.minimum.z <= first.maximum.z;
-}
-
-bool SegmentHitsBounds(const Vec3& start, const Vec3& end, const ObjectBounds& bounds)
-{
-    const Vec3 center = Scale(Add(bounds.minimum, bounds.maximum), 0x8000);
-    const Vec3 extents = Subtract(bounds.maximum, center);
-    const Vec3 direction = Scale(Subtract(end, start), 0x8000);
-    const Vec3 midpoint = Subtract(Add(start, direction), center);
-    const Vec3 magnitude{AbsFixed(direction.x), AbsFixed(direction.y), AbsFixed(direction.z)};
-    if (AbsFixed(midpoint.x) > AddFixed(extents.x, magnitude.x) ||
-        AbsFixed(midpoint.y) > AddFixed(extents.y, magnitude.y) ||
-        AbsFixed(midpoint.z) > AddFixed(extents.z, magnitude.z)) {
-        return false;
-    }
-    const Vec3 cross = Cross(direction, midpoint);
-    if (AbsFixed(cross.x) > AddFixed(FixedMultiply(extents.y, magnitude.z),
-                                    FixedMultiply(extents.z, magnitude.y)) ||
-        AbsFixed(cross.y) > AddFixed(FixedMultiply(extents.x, magnitude.z),
-                                    FixedMultiply(extents.z, magnitude.x)) ||
-        AbsFixed(cross.z) > AddFixed(FixedMultiply(extents.x, magnitude.y),
-                                    FixedMultiply(extents.y, magnitude.x))) {
-        return false;
-    }
-    return true;
-}
-
 Vec3 ProjectVelocity(const Vec3& value, const Vec3& normal)
 {
     const Fixed scale = FixedMultiply(Dot(value, normal), 0x1028f);

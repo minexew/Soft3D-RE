@@ -1,6 +1,7 @@
 #include "game/GameUiController.hpp"
 
 #include "game/Scene.hpp"
+#include "soft3d/Color.hpp"
 #include "soft3d/GameEngine.hpp"
 #include "soft3d/TextureRes.hpp"
 
@@ -39,56 +40,10 @@ struct MapMarkerRecord {
 
 #include "game/GameMapData.inc"
 
-uint16_t Color565(int32_t red, int32_t green, int32_t blue)
-{
-    return static_cast<uint16_t>(((red & 0xff) >> 3) << 11 |
-                                 ((green & 0xff) >> 2) << 5 | ((blue & 0xff) >> 3));
-}
-
 soft3d::ScreenRect FullImage(const soft3d::Texture* texture)
 {
     return texture == nullptr ? soft3d::ScreenRect{} : soft3d::ScreenRect{
         0, 0, static_cast<int32_t>(texture->GetWidth()), static_cast<int32_t>(texture->GetHeight())};
-}
-
-soft3d::Matrix4 LookAt(const soft3d::Vec3& position, const soft3d::Vec3& target,
-                       const soft3d::Vec3& up)
-{
-    const soft3d::Vec3 forward = soft3d::Normalize(soft3d::Subtract(target, position));
-    soft3d::Vec3 right = soft3d::Cross(up, forward);
-    if (soft3d::AbsFixed(right.x) <= 0x4000 && soft3d::AbsFixed(right.y) <= 0x4000 &&
-        soft3d::AbsFixed(right.z) <= 0x4000) {
-        right = soft3d::ShiftLeft(right, 8);
-    }
-    right = soft3d::Normalize(right);
-    const soft3d::Vec3 cameraUp = soft3d::Cross(forward, right);
-    soft3d::Matrix4 result;
-    result.values = {
-        right.x, cameraUp.x, forward.x, 0,
-        right.y, cameraUp.y, forward.y, 0,
-        right.z, cameraUp.z, forward.z, 0,
-        soft3d::NegateFixed(soft3d::Dot(right, position)),
-        soft3d::NegateFixed(soft3d::Dot(cameraUp, position)),
-        soft3d::NegateFixed(soft3d::Dot(forward, position)), soft3d::fixedOne
-    };
-    return result;
-}
-
-soft3d::Matrix4 RotateX(soft3d::Fixed angle)
-{
-    soft3d::Matrix4 result = soft3d::Matrix4::Identity();
-    result.values[5] = soft3d::FixedCos(static_cast<int16_t>(angle));
-    result.values[6] = soft3d::FixedSin(static_cast<uint16_t>(angle));
-    result.values[9] = soft3d::NegateFixed(result.values[6]);
-    result.values[10] = result.values[5];
-    return result;
-}
-
-void Translate(soft3d::Matrix4& matrix, soft3d::Fixed x, soft3d::Fixed y, soft3d::Fixed z)
-{
-    matrix.values[12] = soft3d::AddFixed(matrix.values[12], x);
-    matrix.values[13] = soft3d::AddFixed(matrix.values[13], y);
-    matrix.values[14] = soft3d::AddFixed(matrix.values[14], z);
 }
 
 bool IsUnavailableMap(int32_t, int32_t mapId)
@@ -395,7 +350,7 @@ void GameUiController::RenderDialog()
                     left += static_cast<int32_t>(portrait->GetTexture()->GetWidth()) + 8;
                 }
             }
-            const uint16_t color = kind == 2 ? Color565(249, 231, 0) : 0xffff;
+            const uint16_t color = kind == 2 ? PackRgb565(249, 231, 0) : 0xffff;
             font->DrawStringRange(ui->GetDialogTextId(), color, ui->GetDialogTextLine(),
                 ui->GetDialogTextLine() + 1,
                 {left, top + 8, left + (kind == 0 ? ui->GetPortraitTextWidth() :
@@ -428,7 +383,7 @@ void GameUiController::RenderDialog()
             const soft3d::Texture* texture = background->GetTexture();
             const int32_t top = engine.GetHeight() - static_cast<int32_t>(texture->GetHeight());
             engine.GetScreenBlitter().BlitUnscaled(texture, 0, top, FullImage(texture), 4);
-            font->DrawStringRange(ui->GetDialogTextId(), Color565(249, 231, 0),
+            font->DrawStringRange(ui->GetDialogTextId(), PackRgb565(249, 231, 0),
                 ui->GetDialogTextLine(), ui->GetDialogTextLine() + 1,
                 {8, top + 8, 8 + ui->GetSimpleTextWidth(), engine.GetHeight() - 8});
         }
@@ -453,7 +408,7 @@ void GameUiController::RenderDialog()
         const uint32_t titleWidth = font->CountTextWidth(font->GetString(ui->GetDialogTextId()));
         soft3d::Point point{static_cast<int32_t>(engine.GetWidth() - secondaryWidth - titleWidth - 8) / 2,
                             titleY};
-        font->DrawString(ui->GetDialogSecondaryTextId(), Color565(0, 255, 0), 17, point);
+        font->DrawString(ui->GetDialogSecondaryTextId(), PackRgb565(0, 255, 0), 17, point);
         point.x += 8;
         font->DrawString(ui->GetDialogTextId(), 0xffff, 17, point);
     }
@@ -472,7 +427,7 @@ void GameUiController::RenderDialog()
             soft3d::VisString* string = font->GetString(static_cast<uint32_t>(textId));
             const int32_t width = string == nullptr ? 50 : static_cast<int32_t>(font->CountTextWidth(string));
             const int32_t left = positions[index] - 1 - width / 2;
-            engine.GetScreenBlitter().FillRect(Color565(0, 155, 219),
+            engine.GetScreenBlitter().FillRect(PackRgb565(0, 155, 219),
                 {left, y - 1, left + width, y + static_cast<int32_t>(font->GetTextHeight()) - 2});
         }
         font->DrawString(static_cast<uint32_t>(textId), 0xffff, 20, Point{positions[index], y});
@@ -782,7 +737,7 @@ soft3d::Object& GameUiController::PrepareObject(int32_t itemId, int32_t cacheLev
     object.LoadMaterials(&engine.GetResourceManager(), cacheLevel);
     object.RotateY(0xcc);
     object.UpdateTransform();
-    soft3d::Matrix4 matrix = soft3d::Multiply(object.GetModelMatrix(), RotateX(0xfc00));
+    soft3d::Matrix4 matrix = soft3d::Multiply(object.GetModelMatrix(), RotateXMatrix(0xfc00));
     object.SetModelMatrix(matrix);
     return object;
 }
@@ -809,7 +764,7 @@ void GameUiController::RenderAboutModel(int32_t modelIndex, int32_t direction,
             x = soft3d::FixedMultiply(soft3d::FixedMultiply((16 - transition) << 16,
                 soft3d::FixedDivide(zoom, -0xa0000)), soft3d::NegateFixed(direction << 16));
         }
-        Translate(matrix, x, 0, 0);
+        TranslateMatrix(matrix, x, 0, 0);
         object.SetModelMatrix(matrix);
     }
     engine.GetRenderQueues().Submit(&object, 3);
@@ -825,7 +780,7 @@ void GameUiController::PrepareModels(int32_t mode, int32_t selection)
                                                   {0, soft3d::fixedOne, 0}));
         soft3d::Object& object = PrepareObject(itemId, 3);
         soft3d::Matrix4 matrix = object.GetModelMatrix();
-        Translate(matrix, 0x18000, 0x10000, 0);
+        TranslateMatrix(matrix, 0x18000, 0x10000, 0);
         object.SetModelMatrix(matrix);
         engine.GetRenderQueues().Submit(&object, 3);
         return;
@@ -839,12 +794,12 @@ void GameUiController::PrepareModels(int32_t mode, int32_t selection)
         soft3d::Object& object = PrepareObject(itemId, 2);
         if (selection == slot && mode != 1) object.RotateY(0xcc);
         object.UpdateTransform();
-        soft3d::Matrix4 matrix = soft3d::Multiply(object.GetModelMatrix(), RotateX(0xfc00));
+        soft3d::Matrix4 matrix = soft3d::Multiply(object.GetModelMatrix(), RotateXMatrix(0xfc00));
         const soft3d::Fixed x = soft3d::SubtractFixed(
             soft3d::FixedMultiply(0x44ccc, (slot % 3) << 16), 0xcccc);
         const soft3d::Fixed y = soft3d::AddFixed(
             soft3d::FixedMultiply(-0x38000, (slot / 3) << 16), 0x58000);
-        Translate(matrix, x, y, 0);
+        TranslateMatrix(matrix, x, y, 0);
         object.SetModelMatrix(matrix);
         engine.GetRenderQueues().Submit(&object, 3);
     }

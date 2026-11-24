@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <filesystem>
 #include <iostream>
 #include <memory>
 #include <set>
@@ -93,9 +94,10 @@ std::vector<uint8_t> MakeHostScript(uint16_t id, const std::vector<Argument>& ar
 }
 
 struct GameFixture {
-    GameFixture() : engine(MakeConfig())
+    explicit GameFixture(const std::filesystem::path& persistence = {}) : engine(MakeConfig())
     {
         engine.SetResourceArchive(SOFT3D_TEST_ARCHIVE);
+        if (!persistence.empty()) engine.SetPersistenceDirectory(persistence.u16string());
         CHECK(engine.Init() == soft3d::S3D_OK);
         auto sceneOwner = std::make_unique<game::Scene>(engine);
         scene = sceneOwner.get();
@@ -448,6 +450,70 @@ void TestShippedEpisodeExecution(const std::vector<std::string>& names)
     }
 }
 
+struct TemporaryDirectory {
+    explicit TemporaryDirectory(const std::string& name)
+    {
+        path = std::filesystem::temp_directory_path() / ("soft3d-game-integration-" + name);
+        std::error_code error;
+        std::filesystem::remove_all(path, error);
+        CHECK(std::filesystem::create_directories(path));
+    }
+    ~TemporaryDirectory()
+    {
+        std::error_code error;
+        std::filesystem::remove_all(path, error);
+    }
+    std::filesystem::path path;
+};
+
+void TestDailySaveContinuations()
+{
+    for (int day = 1; day <= 7; ++day) {
+        TemporaryDirectory temporary("day" + std::to_string(day));
+        GameFixture fixture(temporary.path);
+        try {
+            fixture.engine.SetInGame(true);
+            CHECK(fixture.scene->LoadDay(day) == soft3d::S3D_OK);
+            fixture.RunFrames(120);
+            const int map = fixture.scene->GetMapId();
+            const std::u16string script = fixture.scene->GetScriptName();
+            fixture.scene->SetEventFlag(500 + day);
+            CHECK(fixture.scene->SaveSaveSlot(1));
+            CHECK(std::filesystem::is_regular_file(temporary.path / "slot1.sav"));
+            CHECK(std::filesystem::is_regular_file(temporary.path / "spt" / "slot1.sav"));
+
+            fixture.scene->ClearEventFlags();
+            CHECK(!fixture.scene->GetEventFlag(500 + day));
+            CHECK(fixture.engine.LoadSaveSlot(1));
+            CHECK(fixture.engine.IsInGame());
+            CHECK(fixture.scene->GetDay() == day);
+            CHECK(fixture.scene->GetMapId() == map);
+            CHECK(fixture.scene->GetScriptName() == script);
+            CHECK(fixture.scene->GetEventFlag(500 + day));
+            fixture.RunFrames(40);
+            CHECK(fixture.scene->GetMapProgress() == -1);
+            CHECK(fixture.scene->GetUnitManager()->IsMapReady());
+        } catch (const std::exception& error) {
+            throw std::runtime_error("day " + std::to_string(day) + " continuation: " + error.what());
+        }
+    }
+
+    TemporaryDirectory temporary("final-cycle");
+    GameFixture fixture(temporary.path);
+    fixture.engine.StartNewGame();
+    fixture.RunFrames(62);
+    CHECK(fixture.engine.IsInGame());
+    fixture.engine.ReturnToMainMenu();
+    CHECK(!fixture.engine.IsInGame());
+    CHECK(fixture.scene->GetDay() == 0);
+    fixture.engine.StartNewGame();
+    fixture.RunFrames(62);
+    CHECK(fixture.engine.IsInGame());
+    CHECK(fixture.scene->GetDay() == 1);
+    fixture.engine.ReturnToMainMenu();
+    CHECK(!fixture.engine.IsInGame());
+}
+
 } // namespace
 
 int main()
@@ -470,8 +536,9 @@ int main()
         TestUnusedSyntheticScripts(unused);
         TestShippedMapLoading(*archive);
         TestShippedEpisodeExecution(names);
+        TestDailySaveContinuations();
         std::cout << "game integration tests passed: 217 scripts, 152 maps, 19251 host calls, "
-                     "218 callbacks\n";
+                     "218 callbacks, 7 daily save continuations, final new-game/exit cycle\n";
         return 0;
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

@@ -23,21 +23,7 @@ void Camera::SetLookAt(const Vec3& newPosition, const Vec3& newTarget, const Vec
     position = newPosition;
     target = newTarget;
     up = newUp;
-    const Vec3 forward = Normalize(Subtract(target, position));
-    Vec3 right = Cross(up, forward);
-    if (AbsFixed(right.x) <= 0x4000 && AbsFixed(right.y) <= 0x4000 &&
-        AbsFixed(right.z) <= 0x4000) {
-        right = ShiftLeft(right, 8);
-    }
-    right = Normalize(right);
-    const Vec3 cameraUp = Cross(forward, right);
-    worldToCamera.values = {
-        right.x, cameraUp.x, forward.x, 0,
-        right.y, cameraUp.y, forward.y, 0,
-        right.z, cameraUp.z, forward.z, 0,
-        NegateFixed(Dot(right, position)), NegateFixed(Dot(cameraUp, position)),
-        NegateFixed(Dot(forward, position)), fixedOne
-    };
+    worldToCamera = LookAt(position, target, up);
     const Vec3 delta = Subtract(target, position);
     uint16_t roll = 0;
     if (AbsFixed(delta.x) > AbsFixed(delta.z)) {

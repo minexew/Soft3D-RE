@@ -5,120 +5,59 @@
 #include "soft3d/AudioData.hpp"
 #include "soft3d/s3dResManager.hpp"
 
-#include <algorithm>
 #include <climits>
 
 namespace game {
 namespace {
-
-void Configure(Enemy& enemy, int32_t type)
-{
-    enemy.SetEnemyType(type);
-    enemy.ConfigureCommonDefaults(GetEnemyCommonConfig(type));
-    enemy.SetPositionalAudio(GetEnemyCommonConfig(type).positionalAudio);
-}
-
-const soft3d::Animation* LoadAnimationResource(soft3d::s3dResManager* resources, const GameData& data,
-                                       int32_t name, int32_t cacheLevel)
-{
-    return resources != nullptr && name >= 0
-        ? dynamic_cast<const soft3d::Animation*>(resources->GetResource(
-              soft3d::ResourceAnimation, cacheLevel, data.GetAnimationName(
-                  static_cast<std::size_t>(name))))
-        : nullptr;
-}
-
-soft3d::AudioData* LoadSound(soft3d::s3dResManager* resources, const GameData& data,
-                             int32_t name, int32_t cacheLevel)
-{
-    return resources != nullptr && name > 0
-        ? dynamic_cast<soft3d::AudioData*>(resources->GetResource(
-              soft3d::ResourceAudio, cacheLevel,
-              data.GetSoundName(static_cast<std::size_t>(name)), u".\\audio\\"))
-        : nullptr;
-}
-
-template <std::size_t N>
-void LoadAnimations(Enemy& enemy, const GameData& data,
-                    const std::array<int32_t, N>& names)
-{
-    for (std::size_t index = 0; index < names.size(); ++index) {
-        enemy.SetAnimationResource(static_cast<int32_t>(index),
-                                   names[index] < 0 ? nullptr : data.GetAnimationName(
-                                       static_cast<std::size_t>(names[index])));
-    }
-}
-
-template <std::size_t N>
-void LoadSounds(Enemy& enemy, const GameData& data, const std::array<int32_t, N>& names)
-{
-    for (std::size_t index = 0; index < names.size(); ++index) {
-        enemy.SetSoundResource(static_cast<int32_t>(index),
-                               names[index] <= 0 ? nullptr : data.GetSoundName(
-                                   static_cast<std::size_t>(names[index])));
-    }
-}
-
-soft3d::ObjectBounds Translate(const soft3d::ObjectBounds& bounds, const soft3d::Vec3& offset)
-{
-    return {soft3d::Add(bounds.minimum, offset), soft3d::Add(bounds.maximum, offset)};
-}
-
-bool Overlaps(const soft3d::ObjectBounds& left, const soft3d::ObjectBounds& right)
-{
-    return right.maximum.x >= left.minimum.x && right.maximum.y >= left.minimum.y &&
-           right.maximum.z >= left.minimum.z && right.minimum.x <= left.maximum.x &&
-           right.minimum.y <= left.maximum.y && right.minimum.z <= left.maximum.z;
-}
 
 } // namespace
 
 Maid::Maid(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 0);
+    ConfigureEnemy(*this, 0);
 }
 
 void Maid::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{87, 88, 89, 90, 91, 92});
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{87, 88, 89, 90, 91, 92});
 }
 
 void Maid::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 33, 34, 35, 36, 37});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 33, 34, 35, 36, 37});
 }
 
 Maid2::Maid2(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 7);
+    ConfigureEnemy(*this, 7);
 }
 
 void Maid2::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{130, 131, 132, 133, 134, 135});
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{130, 131, 132, 133, 134, 135});
 }
 
 void Maid2::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 71, 72, 73, 74, 75});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 71, 72, 73, 74, 75});
 }
 
 Maid3::Maid3(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 9);
+    ConfigureEnemy(*this, 9);
 }
 
 void Maid3::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{184, 185, 186, 187, 188, 189});
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{184, 185, 186, 187, 188, 189});
 }
 
 void Maid3::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 77, 78, 79, 80, 81});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 77, 78, 79, 80, 81});
 }
 
 void Maid3::Spawn(const soft3d::Vec3& value)
@@ -146,20 +85,20 @@ void Maid3::UpdateDeath()
 FatMaid::FatMaid(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 6);
+    ConfigureEnemy(*this, 6);
 }
 
 void FatMaid::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{122, 123, 124, 125, 128, 129});
-    throwAnimation = LoadAnimationResource(resourceManager, data, 126, cacheLevel);
-    projectileAnimation = LoadAnimationResource(resourceManager, data, 127, cacheLevel);
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{122, 123, 124, 125, 128, 129});
+    throwAnimation = LoadEnemyAnimationResource(resourceManager, data, 126, cacheLevel);
+    projectileAnimation = LoadEnemyAnimationResource(resourceManager, data, 127, cacheLevel);
 }
 
 void FatMaid::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 64, 65, 66, 67, 68});
-    projectileSound = LoadSound(resourceManager, data, 69, cacheLevel);
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 64, 65, 66, 67, 68});
+    projectileSound = LoadEnemySoundResource(resourceManager, data, 69, cacheLevel);
 }
 
 void FatMaid::LoadResources(const char16_t* modelName,
@@ -414,17 +353,17 @@ void FatMaid::UpdateProjectile()
 Bully::Bully(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 1);
+    ConfigureEnemy(*this, 1);
 }
 
 void Bully::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{93, 94, 95, 96, 97, 98});
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{93, 94, 95, 96, 97, 98});
 }
 
 void Bully::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 39, 40, 41, 42, 43});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 39, 40, 41, 42, 43});
 }
 
 bool Bully::TestAttackHit()
@@ -436,26 +375,26 @@ bool Bully::TestAttackHit()
 BullyDay3::BullyDay3(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 2);
+    ConfigureEnemy(*this, 2);
     cacheLevel = 3;
     SetPositionalAudio(false);
 }
 
 void BullyDay3::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{93, 94, 95, 96, 97, 98});
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{93, 94, 95, 96, 97, 98});
     static constexpr std::array<int32_t, 11> names{99, 100, 101, 102, 103, 104,
                                                    105, 106, 107, 108, 109};
     for (std::size_t index = 0; index < names.size(); ++index) {
-        extraAnimations[index] = LoadAnimationResource(resourceManager, data, names[index], cacheLevel);
+        extraAnimations[index] = LoadEnemyAnimationResource(resourceManager, data, names[index], cacheLevel);
     }
 }
 
 void BullyDay3::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 39, 40, 41, 42, 43});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 39, 40, 41, 42, 43});
     for (std::size_t index = 0; index < extraSounds.size(); ++index) {
-        extraSounds[index] = LoadSound(resourceManager, data, 119 + static_cast<int32_t>(index),
+        extraSounds[index] = LoadEnemySoundResource(resourceManager, data, 119 + static_cast<int32_t>(index),
                                        cacheLevel);
     }
 }
@@ -1023,7 +962,7 @@ void BullySaw::InitializeAnimations()
     static constexpr std::array<int32_t, 11> names{223, 224, 224, 225, 226, 227,
                                                    228, 229, 230, 231, 232};
     for (std::size_t index = 0; index < names.size(); ++index) {
-        animations[index] = LoadAnimationResource(resourceManager, data, names[index], cacheLevel);
+        animations[index] = LoadEnemyAnimationResource(resourceManager, data, names[index], cacheLevel);
     }
 }
 
@@ -1042,7 +981,7 @@ const soft3d::Animation* BullySaw::GetAnimationResource(std::size_t index) const
 BullyDay5::BullyDay5(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 13);
+    ConfigureEnemy(*this, 13);
     cacheLevel = 3;
     SetPositionalAudio(false);
     saw = std::make_unique<BullySaw>(context, data);
@@ -1050,19 +989,19 @@ BullyDay5::BullyDay5(const soft3d::UnitManagerContext& context, const GameData& 
 
 void BullyDay5::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{213, 214, 214, 216, 217, 218});
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{213, 214, 214, 216, 217, 218});
     static constexpr std::array<int32_t, 4> names{219, 220, 222, 221};
     for (std::size_t index = 0; index < names.size(); ++index) {
-        extraAnimations[index] = LoadAnimationResource(resourceManager, data, names[index], cacheLevel);
+        extraAnimations[index] = LoadEnemyAnimationResource(resourceManager, data, names[index], cacheLevel);
     }
 }
 
 void BullyDay5::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{128, 129, 130, 131, 132, 133});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{128, 129, 130, 131, 132, 133});
     static constexpr std::array<int32_t, 9> names{134, 135, 121, 122, 136, 137, 138, 139, 140};
     for (std::size_t index = 0; index < names.size(); ++index) {
-        extraSounds[index] = LoadSound(resourceManager, data, names[index], cacheLevel);
+        extraSounds[index] = LoadEnemySoundResource(resourceManager, data, names[index], cacheLevel);
     }
 }
 

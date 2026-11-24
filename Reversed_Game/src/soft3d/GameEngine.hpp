@@ -61,6 +61,7 @@ public:
     virtual void PostUpdate() {}
     virtual void PrepareRender() {}
     virtual void SubmitRenderables() {}
+    virtual void PostRender() {}
 };
 
 class GameEngine : public Engine {

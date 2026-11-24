@@ -1,5 +1,6 @@
 #include "soft3d/PresentationShaders.hpp"
 
+#include "soft3d/Color.hpp"
 #include "soft3d/Engine.hpp"
 #include "soft3d/Fixed.hpp"
 #include "soft3d/Renderer.hpp"
@@ -9,14 +10,6 @@
 
 namespace soft3d {
 namespace {
-
-uint16_t PackRgb565(uint32_t red, uint32_t green, uint32_t blue)
-{
-    red &= 0xff;
-    green &= 0xff;
-    blue &= 0xff;
-    return static_cast<uint16_t>(((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3));
-}
 
 uint32_t SubtractInk(uint32_t pixel, uint16_t ink)
 {

@@ -1,6 +1,7 @@
 #include "game/License.hpp"
 
 #include "platform/linux/LinuxServices.hpp"
+#include "soft3d/Endian.hpp"
 
 #include <algorithm>
 #include <cstring>
@@ -11,28 +12,10 @@ namespace {
 
 constexpr char serviceName[] = "com.dingoo.server.VerifyService";
 
-uint16_t Read16BE(const uint8_t* data)
-{
-    return static_cast<uint16_t>((static_cast<uint16_t>(data[0]) << 8) | data[1]);
-}
-
-uint32_t Read32BE(const uint8_t* data)
-{
-    return (static_cast<uint32_t>(data[0]) << 24) | (static_cast<uint32_t>(data[1]) << 16) |
-        (static_cast<uint32_t>(data[2]) << 8) | data[3];
-}
-
-uint32_t Read32LE(const uint8_t* data)
-{
-    return static_cast<uint32_t>(data[0]) | (static_cast<uint32_t>(data[1]) << 8) |
-        (static_cast<uint32_t>(data[2]) << 16) | (static_cast<uint32_t>(data[3]) << 24);
-}
-
-void Append16BE(std::vector<uint8_t>& output, uint16_t value)
-{
-    output.push_back(static_cast<uint8_t>(value >> 8));
-    output.push_back(static_cast<uint8_t>(value));
-}
+using soft3d::Append16BE;
+using soft3d::Read16BE;
+using soft3d::Read32BE;
+using soft3d::Read32LE;
 
 uint32_t RotateLeft(uint32_t value, unsigned bits)
 {

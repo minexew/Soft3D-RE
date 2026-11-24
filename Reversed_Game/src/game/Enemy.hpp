@@ -257,4 +257,30 @@ protected:
     soft3d::Vec3 moveTarget;
 };
 
+void ConfigureEnemy(Enemy& enemy, int32_t type);
+const soft3d::Animation* LoadEnemyAnimationResource(soft3d::s3dResManager* resources,
+    const GameData& data, int32_t name, int32_t cacheLevel = 3);
+soft3d::AudioData* LoadEnemySoundResource(soft3d::s3dResManager* resources,
+    const GameData& data, int32_t name, int32_t cacheLevel = 3);
+
+template <std::size_t N>
+void LoadEnemyAnimationResources(Enemy& enemy, const GameData& data,
+                                 const std::array<int32_t, N>& names)
+{
+    for (std::size_t index = 0; index < names.size(); ++index) {
+        enemy.SetAnimationResource(static_cast<int32_t>(index),
+            names[index] < 0 ? nullptr : data.GetAnimationName(static_cast<std::size_t>(names[index])));
+    }
+}
+
+template <std::size_t N>
+void LoadEnemySoundResources(Enemy& enemy, const GameData& data,
+                             const std::array<int32_t, N>& names)
+{
+    for (std::size_t index = 0; index < names.size(); ++index) {
+        enemy.SetSoundResource(static_cast<int32_t>(index),
+            names[index] <= 0 ? nullptr : data.GetSoundName(static_cast<std::size_t>(names[index])));
+    }
+}
+
 } // namespace game

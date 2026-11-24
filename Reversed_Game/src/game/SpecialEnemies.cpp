@@ -5,66 +5,27 @@
 #include "soft3d/AudioData.hpp"
 #include "soft3d/s3dResManager.hpp"
 
-#include <algorithm>
 #include <climits>
 
 namespace game {
 namespace {
-
-void Configure(Enemy& enemy, int32_t type)
-{
-    enemy.SetEnemyType(type);
-    enemy.ConfigureCommonDefaults(GetEnemyCommonConfig(type));
-    enemy.SetPositionalAudio(GetEnemyCommonConfig(type).positionalAudio);
-}
-
-template <std::size_t N>
-void LoadAnimations(Enemy& enemy, const GameData& data,
-                    const std::array<int32_t, N>& names)
-{
-    for (std::size_t index = 0; index < names.size(); ++index) {
-        enemy.SetAnimationResource(static_cast<int32_t>(index),
-                                   names[index] < 0 ? nullptr : data.GetAnimationName(
-                                       static_cast<std::size_t>(names[index])));
-    }
-}
-
-template <std::size_t N>
-void LoadSounds(Enemy& enemy, const GameData& data, const std::array<int32_t, N>& names)
-{
-    for (std::size_t index = 0; index < names.size(); ++index) {
-        enemy.SetSoundResource(static_cast<int32_t>(index),
-                               names[index] <= 0 ? nullptr : data.GetSoundName(
-                                   static_cast<std::size_t>(names[index])));
-    }
-}
-
-void ExpandBounds(soft3d::ObjectBounds& bounds, const soft3d::Vec3& point)
-{
-    bounds.minimum.x = std::min(bounds.minimum.x, point.x);
-    bounds.minimum.y = std::min(bounds.minimum.y, point.y);
-    bounds.minimum.z = std::min(bounds.minimum.z, point.z);
-    bounds.maximum.x = std::max(bounds.maximum.x, point.x);
-    bounds.maximum.y = std::max(bounds.maximum.y, point.y);
-    bounds.maximum.z = std::max(bounds.maximum.z, point.z);
-}
 
 } // namespace
 
 Worm::Worm(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 10);
+    ConfigureEnemy(*this, 10);
 }
 
 void Worm::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{190, 191, 192, 193, 194, 195});
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{190, 191, 192, 193, 194, 195});
 }
 
 void Worm::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 83, 84, 85, 86, 87});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 83, 84, 85, 86, 87});
 }
 
 void Worm::Spawn(const soft3d::Vec3& value)
@@ -122,8 +83,8 @@ void Worm::Update()
         soft3d::AddFixed(enemyHalfWidth, playerHalfWidth), soft3d::fixedOne);
     const soft3d::Vec3 behind = soft3d::Subtract(player->GetPosition(),
         soft3d::Scale(GetForward(), behindDistance));
-    ExpandBounds(bounds, soft3d::Add(playerBounds.minimum, behind));
-    ExpandBounds(bounds, soft3d::Add(playerBounds.maximum, behind));
+    soft3d::Expand(bounds, soft3d::Add(playerBounds.minimum, behind));
+    soft3d::Expand(bounds, soft3d::Add(playerBounds.maximum, behind));
     if (unitManager != nullptr) {
         if (unitManager->QueryBounds(bounds, 0, this).count > 0 ||
             unitManager->QueryBounds(bounds, 2, this).count > 0) {
@@ -231,12 +192,12 @@ void Worm::UpdateDeath()
 Ghost::Ghost(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 3);
+    ConfigureEnemy(*this, 3);
 }
 
 void Ghost::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 45, 46, 47, 48, 49});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 45, 46, 47, 48, 49});
     proximitySound = resourceManager != nullptr
         ? dynamic_cast<soft3d::AudioData*>(resourceManager->GetResource(
               soft3d::ResourceAudio, cacheLevel, data.GetSoundName(50), u".\\audio\\"))
@@ -334,17 +295,17 @@ void Ghost::UpdateAttack()
 Lamper::Lamper(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 4);
+    ConfigureEnemy(*this, 4);
 }
 
 void Lamper::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{110, 111, 112, 113, 114, 115});
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{110, 111, 112, 113, 114, 115});
 }
 
 void Lamper::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 52, 53, 54, 55, 56});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 52, 53, 54, 55, 56});
 }
 
 void Lamper::Spawn(const soft3d::Vec3& value)
@@ -466,17 +427,17 @@ void Lamper::Damage(int32_t amount)
 Weed::Weed(const soft3d::UnitManagerContext& context, const GameData& gameData)
     : Enemy(context.resources, context.renderer, context.audio, context.bsp), data(gameData)
 {
-    Configure(*this, 5);
+    ConfigureEnemy(*this, 5);
 }
 
 void Weed::InitializeAnimations(const soft3d::Animation* const*)
 {
-    LoadAnimations(*this, data, std::array<int32_t, 6>{116, 117, 118, 119, 120, 121});
+    LoadEnemyAnimationResources(*this, data, std::array<int32_t, 6>{116, 117, 118, 119, 120, 121});
 }
 
 void Weed::InitializeSounds(soft3d::AudioData* const*)
 {
-    LoadSounds(*this, data, std::array<int32_t, 6>{0, 58, 59, 60, 61, 62});
+    LoadEnemySoundResources(*this, data, std::array<int32_t, 6>{0, 58, 59, 60, 61, 62});
 }
 
 bool Weed::UpdatePerception()

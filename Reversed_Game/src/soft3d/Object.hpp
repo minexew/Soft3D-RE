@@ -1,6 +1,7 @@
 #pragma once
 
 #include "soft3d/Animation.hpp"
+#include "soft3d/Geometry.hpp"
 #include "soft3d/ObjectRes.hpp"
 #include "soft3d/Renderable.hpp"
 #include "soft3d/Renderer.hpp"
@@ -9,11 +10,6 @@
 namespace soft3d {
 
 class s3dResManager;
-
-struct ObjectBounds {
-    Vec3 minimum;
-    Vec3 maximum;
-};
 
 enum class ObjectRenderMode {
     Normal,

@@ -1,6 +1,7 @@
 #include "game/Scene.hpp"
 
 #include "soft3d/AudioData.hpp"
+#include "soft3d/Endian.hpp"
 #include "soft3d/GameUIDlg.hpp"
 #include "soft3d/Stream.hpp"
 
@@ -95,8 +96,7 @@ std::size_t Remaining(const soft3d::InputStream& stream)
 
 uint32_t DecodeLe32(const uint8_t* bytes)
 {
-    return static_cast<uint32_t>(bytes[0]) | static_cast<uint32_t>(bytes[1]) << 8 |
-           static_cast<uint32_t>(bytes[2]) << 16 | static_cast<uint32_t>(bytes[3]) << 24;
+    return soft3d::Read32LE(bytes);
 }
 
 bool ReadHeader(soft3d::GameEngine& engine, int slot, soft3d::SaveSlotInfo& header)

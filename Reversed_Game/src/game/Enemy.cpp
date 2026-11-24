@@ -49,6 +49,33 @@ const EnemyCommonConfig& GetEnemyCommonConfig(int32_t enemyType)
     return commonConfigs[static_cast<std::size_t>(enemyType)];
 }
 
+void ConfigureEnemy(Enemy& enemy, int32_t type)
+{
+    enemy.SetEnemyType(type);
+    enemy.ConfigureCommonDefaults(GetEnemyCommonConfig(type));
+    enemy.SetPositionalAudio(GetEnemyCommonConfig(type).positionalAudio);
+}
+
+const soft3d::Animation* LoadEnemyAnimationResource(soft3d::s3dResManager* resources,
+    const GameData& data, int32_t name, int32_t cacheLevel)
+{
+    return resources != nullptr && name >= 0
+        ? dynamic_cast<const soft3d::Animation*>(resources->GetResource(
+              soft3d::ResourceAnimation, cacheLevel,
+              data.GetAnimationName(static_cast<std::size_t>(name))))
+        : nullptr;
+}
+
+soft3d::AudioData* LoadEnemySoundResource(soft3d::s3dResManager* resources,
+    const GameData& data, int32_t name, int32_t cacheLevel)
+{
+    return resources != nullptr && name > 0
+        ? dynamic_cast<soft3d::AudioData*>(resources->GetResource(
+              soft3d::ResourceAudio, cacheLevel,
+              data.GetSoundName(static_cast<std::size_t>(name)), u".\\audio\\"))
+        : nullptr;
+}
+
 bool IsSingletonEnemyType(int32_t enemyType)
 {
     switch (enemyType) {

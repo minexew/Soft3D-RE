@@ -92,6 +92,7 @@ endif()
 add_library(seven_days_game STATIC
     src/game/CameraController.cpp
     src/game/Boss.cpp
+    src/game/DebugConsole.cpp
     src/game/Enemy.cpp
     src/game/GameData.cpp
     src/game/GameSI.cpp
@@ -456,25 +457,30 @@ if(BUILD_TESTING)
         set_tests_properties(soft3d_sdl_video PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy")
 
+        set(SOFT3D_TEST_APPLICATION_ARCHIVE "${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk")
         add_test(NAME seven_days_smoke
-            COMMAND seven_days --frames 3 --renderer software --no-audio)
+            COMMAND seven_days --frames 3 --renderer software --no-audio
+                --resources "${SOFT3D_TEST_APPLICATION_ARCHIVE}")
         set_tests_properties(seven_days_smoke PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy")
         add_test(NAME seven_days_landscape_smoke
-            COMMAND seven_days --frames 3 --renderer software --no-audio --orientation landscape)
+            COMMAND seven_days --frames 3 --renderer software --no-audio --orientation landscape
+                --resources "${SOFT3D_TEST_APPLICATION_ARCHIVE}")
         set_tests_properties(seven_days_landscape_smoke PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy")
         add_test(NAME seven_days_portrait_smoke
-            COMMAND seven_days --frames 3 --renderer software --no-audio --orientation portrait)
+            COMMAND seven_days --frames 3 --renderer software --no-audio --orientation portrait
+                --resources "${SOFT3D_TEST_APPLICATION_ARCHIVE}")
         set_tests_properties(seven_days_portrait_smoke PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy")
         add_test(NAME seven_days_audio_smoke
-            COMMAND seven_days --frames 3 --renderer software)
+            COMMAND seven_days --frames 3 --renderer software
+                --resources "${SOFT3D_TEST_APPLICATION_ARCHIVE}")
         set_tests_properties(seven_days_audio_smoke PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy;SDL_AUDIODRIVER=dummy")
         add_test(NAME seven_days_new_game_smoke
             COMMAND seven_days --new-game --frames 83 --renderer software --no-audio
-                --orientation landscape)
+                --orientation landscape --resources "${SOFT3D_TEST_APPLICATION_ARCHIVE}")
         set_tests_properties(seven_days_new_game_smoke PROPERTIES
             ENVIRONMENT "SDL_VIDEODRIVER=dummy"
             PASS_REGULAR_EXPRESSION "New game: day 1, map 2008, progress 100")

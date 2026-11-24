@@ -8,22 +8,6 @@
 namespace game {
 namespace {
 
-void ResetBounds(soft3d::ObjectBounds& bounds)
-{
-    bounds.minimum = {INT32_MAX, INT32_MAX, INT32_MAX};
-    bounds.maximum = {INT32_MIN, INT32_MIN, INT32_MIN};
-}
-
-void Expand(soft3d::ObjectBounds& bounds, const soft3d::Vec3& point)
-{
-    bounds.minimum.x = std::min(bounds.minimum.x, point.x);
-    bounds.minimum.y = std::min(bounds.minimum.y, point.y);
-    bounds.minimum.z = std::min(bounds.minimum.z, point.z);
-    bounds.maximum.x = std::max(bounds.maximum.x, point.x);
-    bounds.maximum.y = std::max(bounds.maximum.y, point.y);
-    bounds.maximum.z = std::max(bounds.maximum.z, point.z);
-}
-
 bool Equal(const soft3d::Vec3& left, const soft3d::Vec3& right)
 {
     return left.x == right.x && left.y == right.y && left.z == right.z;

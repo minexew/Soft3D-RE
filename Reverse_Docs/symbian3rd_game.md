@@ -1,4 +1,4 @@
-# Symbian3rd game-specific architecture and remaining inventory
+# Symbian3rd game-specific architecture and completion inventory
 
 ## Scope and evidence rules
 
@@ -10,7 +10,7 @@ This document inventories the 7 Days game layer that remains after the reusable 
 
 ## Current portable boundary
 
-Stages 1–15 are implemented in `seven_days_game`. Stage 15 completes all GameSI callbacks and adds the archive-derived episode/map integration matrix in `gamesi_matrix.md`. Stage 13 adds complete deterministic scene/slot and script-sidecar persistence in `SaveGame.cpp`; see `symbian3rd_savegame.md`. Stage 14 adds recovered license/DES/MD5 protocol, device/network/SMS interfaces, default-cracked gating, menu/scene authorization, and vibration backends in `License.*` and `src/platform`; see `symbian3rd_license.md`. Stage 9 supplies common enemy AI/pools and commands; stage 10 adds the concrete Maid/Bully families in `MaidBully.*`, including their native projectile, charge, QTE, saw, death, and reward behavior. Stage 11 adds Worm, Ghost, Lamper, and Weed in `SpecialEnemies.*`. Stage 12 completes Victor, Sam, Prisoner, Kate, DarkKen, Lord, and the separate Boss in `NamedEnemies.*`, `Lord.*`, and `Boss.*`, removes the common adapter, and preserves Lord's full encounter and Boss's original empty sequence hook. See `symbian3rd_enemy.md`, `symbian3rd_maidbully.md`, `symbian3rd_specialenemies.md`, and `symbian3rd_namedenemies.md`.
+Stages 1–16 are implemented in `seven_days_game`. Stage 15 completes all GameSI callbacks and adds the archive-derived episode/map integration matrix in `gamesi_matrix.md`. Stage 16 audits every remaining function and vtable, recovers the dormant debug console in `DebugConsole.*`, adds per-day save/load continuation coverage, and extracts shared generic utilities without moving episode rules into the engine; see `stage16_audit.md` and `symbian3rd_debug.md`. Stage 13 adds complete deterministic scene/slot and script-sidecar persistence in `SaveGame.cpp`; see `symbian3rd_savegame.md`. Stage 14 adds recovered license/DES/MD5 protocol, device/network/SMS interfaces, default-cracked gating, menu/scene authorization, and vibration backends in `License.*` and `src/platform`; see `symbian3rd_license.md`. Stage 9 supplies common enemy AI/pools and commands; stage 10 adds the concrete Maid/Bully families in `MaidBully.*`, including their native projectile, charge, QTE, saw, death, and reward behavior. Stage 11 adds Worm, Ghost, Lamper, and Weed in `SpecialEnemies.*`. Stage 12 completes Victor, Sam, Prisoner, Kate, DarkKen, Lord, and the separate Boss in `NamedEnemies.*`, `Lord.*`, and `Boss.*`, removes the common adapter, and preserves Lord's full encounter and Boss's original empty sequence hook. See `symbian3rd_enemy.md`, `symbian3rd_maidbully.md`, `symbian3rd_specialenemies.md`, and `symbian3rd_namedenemies.md`.
 
 - `src/app/Application.cpp` constructs and installs concrete `game::Scene` and `game::GameSI` objects, the full script context, and the new-game/load/return hooks. `GameEngine` owns the scene; the application owns the non-owning script interface and clears it before engine destruction.
 - Starting a new game loads day 1, reloads the player model after the cache-level-2 clear, displays the 56-frame day intro, selects `day1/ep0`, and incrementally loads map 2008 through the real SBP factory. The SDL new-game smoke test proves that this path reaches progress 100 and executes the stage-3 camera/audio commands.
@@ -19,7 +19,7 @@ Stages 1–15 are implemented in `seven_days_game`. Stage 15 completes all GameS
 - The SBP factory creates concrete `BspUnit` renderable entities for types -1/0, real camera/light triggers for types 10/11, type-102 header state, and manager-owned type-202 lensflares. Other game-owned non-renderable records return null and are skipped by the generic loader, as in ARM. All 151 day maps plus the menu load through the production path. See `symbian3rd_mapunits.md` for the stage-5 classes and command behavior.
 - Stage 13 implements complete scene/slot persistence and script sidecars in `game::Scene`/`SaveGame.cpp`; `LoadDlg` still uses only the 44-byte header for display. See `symbian3rd_savegame.md`. Stage 14 implements license gating, protocol and authorization screens; the application installs the concrete license host and SDL vibration backend.
 
-The remaining completion work is stage 16's final RTTI/feature-parity audit and full-game validation. The application has a concrete scene and complete bound script host; it does not use empty gameplay or scene hooks.
+The application has a concrete scene and complete bound script host; it does not use empty gameplay or scene hooks. The dormant debug console remains deliberately disabled unless the host opts in, and native Symbian application/document/UI boilerplate remains outside portable scope. The stage-16 audit's validation limits are recorded explicitly rather than treating automated episode execution as a human full playthrough or blanket pixel-parity proof.
 
 ## Scene and engine wiring
 
@@ -111,7 +111,7 @@ A direct parse of all 217 shipped Mobile SST files found:
 - 162 of the 215 game IDs used, with 53 game IDs unused;
 - no use of IDs 258–260.
 
-Every callback still needs a directed test; the 53 unused game IDs and three final slots cannot be covered merely by loading all shipped scripts.
+Every callback now has directed coverage. The 53 unused game IDs and three final slots are exercised with synthetic scripts because loading shipped scripts alone cannot reach them.
 
 Confirmed ARM-derived examples illustrate why the stale tables must not be used:
 
@@ -145,7 +145,7 @@ The primary vtable's slots 28–34 implement the `CameraSpot` getters/setters: `
 - `CHurt`, `CHurt2`, `CHurt3`, `CHurt4`, `CDie`;
 - `CPush`, `CQTE`, `CHide`, `CFPS`.
 
-`PlayerStateSet_InitializeStates` (`0x00032c50`) registers them in slots 0–19. Stage 4 implements every enter/exit/update/registration body and its chain transitions. The concrete `Player` owns `Sword` and `GunFire`, uses the real control map and camera, and connects death to scene game-over. Player commands 117–148 and 255–257 are implemented. Native layouts, animation actions, combat tables, QTE/hide rules, save order, and exact frame tests are in `symbian3rd_player.md`. Concrete enemy and pushable descendants remain in their assigned stages behind the documented narrow interfaces.
+`PlayerStateSet_InitializeStates` (`0x00032c50`) registers them in slots 0–19. Stage 4 implements every enter/exit/update/registration body and its chain transitions. The concrete `Player` owns `Sword` and `GunFire`, uses the real control map and camera, and connects death to scene game-over. Player commands 117–148 and 255–257 are implemented. Native layouts, animation actions, combat tables, QTE/hide rules, save order, and exact frame tests are in `symbian3rd_player.md`. Stages 5 and 9–12 subsequently completed the concrete pushable and enemy descendants and connected them to the same combat interfaces.
 
 ## Unit manager, things, and map entities
 
@@ -259,3 +259,5 @@ Stage 13 adds `SaveSlotHeader` (0x2c), the timer type now named `ScriptTimerReco
 Stage 14 adds recovered client/session, DES/MD5, verification-bitmap, menu/scene authorization, registration-data, and SMS helper names with typed signatures and behavioral comments. The plate at `License_CheckVerificationWord_Cracked` (`0x0001552c`) records the unused slot argument and hard-coded `cmp index,#9` at native `0x0000d590` (Ghidra `0x00015590`), including a decompiled snippet and the distinction between observed crack behavior and inferred parameterized behavior. Bookmarks and `game,license,stage14` tags cover the gate, protocol, and presentation consumers; a `Stage14Status` completion property is saved. See `symbian3rd_license.md`.
 
 Stage 15 adds all remaining callback/helper names and typed signatures, 43 behavioral plates plus two call-site notes, 46 stage-tagged functions, `ScriptTimerRecord` with `{start,current}`, `BspPathPair` with `{nextNode,weight}`, five bookmarks, and a saved stage-15 completion property. The readback verifies native control-mask polarity, the camera-listener field, timer arithmetic, path sentinels, and nonfatal camera-SPL loading. See `gamesi_matrix.md`.
+
+Stage 16 completes the function and vtable inventory: 153 vtables and 1,734 slots were checked, all 70 remaining `vfunc_*` names were resolved, and neither `FUN_*` nor `vfunc_*` names remain among 3,940 functions. Secondary Bsp/InkShader/Sword/Player thunks are explicit. Three false interior function splits were repaired. The 890 apparent functions from `0x00166866` through `0x001ba69a` were data records, not ARM methods, and their false function records were deleted; bookmarks document the code/data boundary after `Runtime_RunConstructors` at `0x00139c67`. The dormant debug console now has a 0x68-byte `DebugConsoleLayout`, typed constructors/update/render/reset/map-spawn methods, behavioral plates, and `stage16` tags. `Stage16Status` records the final inventory and validation counts and is saved with `unsaved_changes=false`. All 39 default/STDIO/math/WAR tests, all 32 core/sanitizer tests, all 18 applicable English-layout tests, and all 6+8 Python tests pass. See `stage16_audit.md` and `symbian3rd_debug.md`.

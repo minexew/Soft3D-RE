@@ -1,5 +1,6 @@
 #include "soft3d/BasicShader.hpp"
 
+#include "soft3d/Color.hpp"
 #include "soft3d/Fixed.hpp"
 
 #include <cstddef>
@@ -15,9 +16,7 @@ BasicShader::BasicShader(int shaderWidth, int shaderHeight)
 
 uint32_t BasicShader::ExpandRgb565(uint16_t pixel)
 {
-    return (static_cast<uint32_t>(pixel & 0xf800) << 8) |
-           (static_cast<uint32_t>(pixel & 0x07e0) << 5) |
-           (static_cast<uint32_t>(pixel & 0x001f) << 3);
+    return soft3d::ExpandRgb565(pixel);
 }
 
 void BasicShader::Render(const void* source, uint32_t* destination)

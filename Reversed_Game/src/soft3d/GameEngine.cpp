@@ -178,6 +178,9 @@ void GameEngine::PrepareRender()
 
 void GameEngine::PostRender()
 {
+    if (inGame) {
+        scene->PostRender();
+    }
 }
 
 void GameEngine::DrawFPS()

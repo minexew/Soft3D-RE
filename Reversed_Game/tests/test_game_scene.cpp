@@ -1,3 +1,4 @@
+#include "game/DebugConsole.hpp"
 #include "game/GameSI.hpp"
 #include "game/Scene.hpp"
 #include "platform/dummy/DummyVideoBackend.hpp"
@@ -701,6 +702,162 @@ void TestDayTitlesAndGameOver()
     }
 }
 
+void Click(GameFixture& fixture, soft3d::Key key)
+{
+    fixture.engine.GetInput().KeyDown(key);
+    fixture.engine.GetInput().KeyUp(key);
+    fixture.RunFrames(1);
+}
+
+void EnterDebugText(GameFixture& fixture, const std::string& text)
+{
+    game::DebugConsole* console = fixture.scene->GetDebugConsole();
+    if (!console->IsActive()) Click(fixture, soft3d::Key::Hash);
+    for (const char value : text) {
+        CHECK(value == ' ' || (value >= '0' && value <= '9'));
+        const int selection = value == ' ' ? 0 : value - '0' + 1;
+        for (int index = 0; index < selection; ++index) Click(fixture, soft3d::Key::Down);
+        CHECK(console->GetSelection() == selection);
+        Click(fixture, soft3d::Key::Right);
+    }
+    Click(fixture, soft3d::Key::Accept);
+}
+
+void TestDebugConsole()
+{
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        fixture.scene->SetDebugConsoleEnabled(true);
+        game::DebugConsole* console = fixture.scene->GetDebugConsole();
+        CHECK(!console->IsActive());
+        Click(fixture, soft3d::Key::Hash);
+        CHECK(console->IsActive());
+        CHECK(console->GetSelection() == 0);
+        Click(fixture, soft3d::Key::Up);
+        CHECK(console->GetSelection() == 10);
+        Click(fixture, soft3d::Key::Down);
+        CHECK(console->GetSelection() == 0);
+        Click(fixture, soft3d::Key::Down);
+        CHECK(console->GetSelection() == 1);
+        Click(fixture, soft3d::Key::Hash);
+        CHECK(!console->IsActive());
+        Click(fixture, soft3d::Key::Hash);
+        CHECK(console->IsActive());
+        CHECK(console->GetSelection() == 0);
+        for (int index = 0; index < 8; ++index) {
+            Click(fixture, soft3d::Key::Down);
+            Click(fixture, soft3d::Key::Right);
+        }
+        CHECK(console->GetEnteredCount() == 7);
+        fixture.engine.GetRenderer().SelectShader(&fixture.engine.GetRenderer().GetRaster().GetBasicShader());
+        fixture.RunFrames(1);
+        const uint32_t first = HashFrame(fixture.engine.GetVideo().GetBackBufferPtr());
+        fixture.RunFrames(1);
+        CHECK(console->GetFrameCounter() > 0);
+        Click(fixture, soft3d::Key::Left);
+        CHECK(console->GetEnteredCount() == 6);
+        EnterDebugText(fixture, " ");
+        CHECK(!console->IsActive());
+        const uint32_t closed = HashFrame(fixture.engine.GetVideo().GetBackBufferPtr());
+        CHECK(first != closed);
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        fixture.scene->SetDebugConsoleEnabled(true);
+        fixture.scene->GetPlayer()->SetHealth(1);
+        EnterDebugText(fixture, " ");
+        CHECK(fixture.scene->GetPlayer()->GetHealth() == fixture.scene->GetPlayer()->GetMaxHealth());
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        fixture.scene->SetDebugConsoleEnabled(true);
+        EnterDebugText(fixture, "  ");
+        CHECK(fixture.scene->GetPlayer()->GetHealth() == 1);
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        fixture.scene->SetDebugConsoleEnabled(true);
+        EnterDebugText(fixture, "03");
+        CHECK(fixture.scene->GetPlayer()->GetWeapon() == 3);
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        fixture.scene->SetDebugConsoleEnabled(true);
+        const bool old = fixture.scene->GetPlayer()->IsUsedItemHealing();
+        EnterDebugText(fixture, "   ");
+        CHECK(fixture.scene->GetPlayer()->IsUsedItemHealing() != old);
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        fixture.scene->SetDebugConsoleEnabled(true);
+        EnterDebugText(fixture, " 5");
+        CHECK(fixture.scene->GetPlayer()->HasItem(5));
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        fixture.scene->SetDebugConsoleEnabled(true);
+        game::DebugConsole* console = fixture.scene->GetDebugConsole();
+        EnterDebugText(fixture, "2008");
+        CHECK(console->GetSpawnPosition().x == fixture.scene->GetSpawnPosition().x);
+        CHECK(console->GetSpawnPosition().y == fixture.scene->GetSpawnPosition().y);
+        CHECK(console->GetSpawnPosition().z == fixture.scene->GetSpawnPosition().z);
+        CHECK(console->GetSpawnDirection().x == fixture.scene->GetSpawnDirection().x);
+        CHECK(console->GetSpawnDirection().y == fixture.scene->GetSpawnDirection().y);
+        CHECK(console->GetSpawnDirection().z == fixture.scene->GetSpawnDirection().z);
+        CHECK(fixture.scene->GetNextMapId() == 2008);
+        CHECK(fixture.scene->GetNextEpisodeId() == 2008);
+        CHECK(!fixture.scene->IsNextLevelPending());
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        fixture.scene->SetDebugConsoleEnabled(true);
+        fixture.scene->SetEventFlag(42);
+        fixture.scene->SetEventFlag(1000);
+        fixture.scene->SetEventFlag(1001);
+        fixture.scene->SetEventFlag(1002);
+        EnterDebugText(fixture, "  1");
+        CHECK(fixture.scene->GetDay() == 1);
+        CHECK(!fixture.scene->GetEventFlag(42));
+        CHECK(fixture.scene->GetEventFlag(1000));
+        CHECK(fixture.scene->GetEventFlag(1001));
+        CHECK(fixture.scene->GetEventFlag(1002));
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        fixture.scene->SetDebugConsoleEnabled(true);
+        EnterDebugText(fixture, "  2");
+        CHECK(fixture.scene->GetDay() == 2);
+        CHECK(fixture.scene->IsDayIntroPending());
+    }
+    {
+        GameFixture fixture;
+        fixture.engine.StartNewGame();
+        fixture.RunFrames(83);
+        game::DebugConsole* console = fixture.scene->GetDebugConsole();
+        Click(fixture, soft3d::Key::Hash);
+        CHECK(!console->IsActive());
+        CHECK(fixture.scene->GetPlayer()->GetHealth() > 1);
+    }
+}
+
 } // namespace
 
 int main()
@@ -714,6 +871,7 @@ int main()
         TestStage3Commands();
         TestDoorTransitionFrames();
         TestDayTitlesAndGameOver();
+        TestDebugConsole();
         std::cout << "game scene tests passed\n";
         return 0;
     } catch (const std::exception& error) {

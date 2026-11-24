@@ -1,9 +1,11 @@
 #include "game/Scene.hpp"
 
+#include "game/DebugConsole.hpp"
 #include "game/GameUiController.hpp"
 #include "game/MapUnits.hpp"
 #include "game/Triggers.hpp"
 #include "soft3d/AudioData.hpp"
+#include "soft3d/Color.hpp"
 #include "soft3d/GameUIDlg.hpp"
 #include "soft3d/TextureRes.hpp"
 
@@ -18,18 +20,6 @@ void RequireStatus(soft3d::result status, const char* operation)
         throw std::runtime_error(std::string(operation) + " failed with Soft3D result " +
                                  std::to_string(status));
     }
-}
-
-uint16_t PackRgb565(int32_t red, int32_t green, int32_t blue)
-{
-    return static_cast<uint16_t>(((red & 0xff) >> 3) << 11 |
-                                 ((green & 0xff) >> 2) << 5 | ((blue & 0xff) >> 3));
-}
-
-soft3d::ObjectBounds TranslateBounds(const soft3d::ObjectBounds& bounds,
-                                     const soft3d::Vec3& position)
-{
-    return {soft3d::Add(bounds.minimum, position), soft3d::Add(bounds.maximum, position)};
 }
 
 } // namespace
@@ -74,6 +64,7 @@ Scene::Scene(soft3d::GameEngine& owner)
     , blindShader(owner.GetWidth(), owner.GetHeight())
     , twistShader(owner.GetWidth(), owner.GetHeight())
     , motionBlurShader(owner.GetWidth(), owner.GetHeight())
+    , debugConsole(std::make_unique<DebugConsole>(*this))
 {
     ResetEnvironmentAudio();
     license->SetSceneResultHandler([this](int result) { authorizationStage = result; });
@@ -243,7 +234,7 @@ soft3d::result Scene::LoadDay(int value)
     engine.GetScriptEngine().ClearSharedVariables();
     dayStartSnapshot = eventFlags;
     if (fadeShader.IsCompleted()) {
-        fadeShader.StartFade(0, PackRgb565(0, 0, 0), 8, 1);
+        fadeShader.StartFade(0, soft3d::PackRgb565(0, 0, 0), 8, 1);
     }
     return soft3d::S3D_OK;
 }
@@ -262,6 +253,17 @@ int Scene::LoadMap(int value)
     engine.GetRenderer().Clear(0);
     engine.GetInput().ClearKey();
     return 0;
+}
+
+void Scene::ResetTransitionForDebugJump()
+{
+    transitionStage = 0;
+    transitionTimer = 0;
+    restoreSavedState = 0;
+    if (doorModel != nullptr) {
+        doorModel->SetAnimation(nullptr);
+    }
+    engine.GetRenderQueues().Clear();
 }
 
 void Scene::LoadNextLevel(int nextMap, int nextEpisode)
@@ -592,7 +594,7 @@ void Scene::UpdateTransition()
                 player->SetPosition(spawnPosition);
                 player->SetDirection(spawnDirection);
                 playerSpot.SetForward(spawnDirection);
-                player->SetCollisionBounds(TranslateBounds(player->GetLocalBounds(), spawnPosition));
+                player->SetCollisionBounds(soft3d::Translate(player->GetLocalBounds(), spawnPosition));
             }
             specialDoorIndex = -1;
             engine.GetGameUi()->SetSubtitle(false, -1);
@@ -658,11 +660,14 @@ void Scene::Update()
     if (!initialized || !AllowsScenePhase(7)) {
         return;
     }
+    if (debugConsoleEnabled && debugConsole->Update() != 0) {
+        return;
+    }
     if (dayIntroPending != 0) {
         engine.GetRenderer().Clear(0);
         ++transitionTimer;
         if (transitionTimer == 56) {
-            SetLoadMapParams(0, {}, {0, 0, soft3d::fixedOne}, PackRgb565(0, 0, 0));
+            SetLoadMapParams(0, {}, {0, 0, soft3d::fixedOne}, soft3d::PackRgb565(0, 0, 0));
             LoadNextLevel(0, 0);
             dayIntroPending = 0;
             transitionTimer = 0;
@@ -851,6 +856,13 @@ void Scene::SubmitRenderables()
     }
 }
 
+void Scene::PostRender()
+{
+    if (debugConsoleEnabled) {
+        debugConsole->Render();
+    }
+}
+
 void Scene::DrawAuthorization()
 {
     engine.GetScreenBlitter().Clear(0, 0, 0);
@@ -969,6 +981,11 @@ void Scene::SetEventFlag(int32_t index)
         throw std::out_of_range("Scene event flag index " + std::to_string(index));
     }
     eventFlags[static_cast<std::size_t>(index)] = 1;
+}
+
+void Scene::ClearEventFlags()
+{
+    eventFlags.fill(0);
 }
 
 bool Scene::GetEventFlag(int32_t index) const

@@ -262,7 +262,10 @@ inline Vec3 Transform(const Matrix4& matrix, const Vec3& value)
     };
 }
 
+Matrix4 LookAt(const Vec3& position, const Vec3& target, const Vec3& up);
+Matrix4 RotateXMatrix(uint16_t angle);
 Matrix4 RotateYMatrix(uint16_t angle);
+void TranslateMatrix(Matrix4& matrix, Fixed x, Fixed y, Fixed z);
 Matrix4 Transpose(const Matrix4& value);
 
 } // namespace soft3d
