@@ -240,6 +240,21 @@ Soft3D keeps the `BasicShader`/`FadeShader` names and software-fade responsibili
 
 The S2D fade fields and `GetPow2(fadeSpeed)` algorithm must **not** be imported into this Soft3D class. The recovered Soft3D frame/completion state and exact packed interpolation are documented in `symbian3rd_shaders.md` and implemented in `PresentationShaders.*`.
 
+## Color4: exact unused Soft2D leftovers
+
+The Session-29 inventory found four ARM Color4 families whose field counts, constants, and operation order independently match the S2D inline implementation:
+
+| Address | Soft3D native function | Matching S2D operation |
+|---:|---|---|
+| `0x00125914` | `Color4_Clamp` | Clamp each component to `[0,1]`; duplicate at `0x001261f4`. |
+| `0x00125bb8` | `Color4_Negate` | Unary color negation `(1-r,1-g,1-b,1-a)`; duplicate at `0x001263f4`. |
+| `0x00125cc4` | `Color4_AdjustContrast` | `0.5 + (input-0.5)*contrast`, alpha preserved, then clamp; three more compiled bodies at `0x00125e70`, `0x001264c4`, and `0x00126658`. |
+| `0x00126060` | `Color4_Lerp` | `a + (b-a)*fraction`, then clamp; duplicate at `0x00126830`. |
+
+These are unused but useful reusable APIs, now recorded in `soft3d_sdk_inventory.md` for Session 30. They are not generic quaternion/Vec4 operations and must retain Color4 clamping. No ARM `Color4AdjustSaturation` body was found, so the S2D declaration alone does not justify recovering it.
+
+The native quaternion family at `0x0012ade8`–`0x0012c47c` was identified directly from ARM conjugate/inverse, axis-angle, Euler, matrix-conversion, and shortest-path linear interpolation arithmetic. S2D has no matching declarations in the reviewed math headers, so no Soft2D lineage is claimed for it. Likewise, the `Fixed64_*` cluster at `0x0009b44c`–`0x0009eb64` is eight-byte integer/64-bit support, not a Soft3D fixed-point SDK family.
+
 ## What should not be inferred from the SDK
 
 - **Resource management**: S2D only forward-declares `TexManager` in the reviewed engine header and uses Dingoo DL resource routines. It does not establish Soft3D's four-level `ResManager`, SPK FilePak, SAU/SOJ/SAI/STX class hierarchy, or cache-node layout. Those remain ARM-derived.

@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This roadmap follows the completed stage-16 reconstruction. Its purpose is to turn the broad automated coverage into demonstrated gameplay correctness, complete the useful reusable Soft3D surface, make the source maintainable, and only then add developer and remake-oriented features.
+This roadmap follows the completed stage-16 reconstruction. Its purpose is to turn the broad automated coverage into demonstrated gameplay correctness, complete the useful reusable Soft3D surface and remaining game-object APIs, make the source maintainable, and only then add developer and remake-oriented features.
 
-The immediate priority is the reported first-room progression failure. A full human playthrough is not a substitute for auditing the portable implementation against ARM, and refactoring before that audit would make regressions difficult to attribute.
+The current scheduling priority is to finish the native SDK and game-object inventories and recover their confirmed missing APIs before extensive revalidation. The reported first-room progression failure remains the first correctness scenario when behavioral validation resumes. A full human playthrough is not a substitute for auditing the portable implementation against ARM, and refactoring before that audit would make regressions difficult to attribute.
 
 The faithful configuration remains the compatibility baseline:
 
@@ -326,6 +326,14 @@ Re-run the inventory against source and Ghidra. Build a small external-style con
 
 **Exit:** all native candidates are dispositioned, all “missing useful” items are resolved, the full matrix passes, and the standalone engine consumer links and runs.
 
+### Session 34A — Game-object API completeness
+
+Use `Reverse_Docs/game_object_inventory.md` to recover game-owned methods and non-RTTI helpers excluded from the reusable Soft3D SDK. Complete the missing ControlMap/Input query, event, and gate APIs; player/camera wrappers and trigger lifecycle; and the distinct alternate DarkKen comparator. Resolve the PlayDlg option fields and `GameUI_GetNative80` from native field consumers before implementing them; leave unresolved reserved setters out.
+
+Preserve native ActionUp behavior for primary-only and both-bindings-up cases, and cover it through real QTE frames. Do not move game policy into `soft3d` to share code, merge behaviorally distinct comparators, or give reserved fields invented semantics.
+
+**Exit:** every game-object inventory row is implemented or explicitly excluded with evidence, focused input/player/camera/menu/enemy tests and real engine frames pass, and the full matrix passes.
+
 ---
 
 ## Phase E — Structural cleanup and type safety
@@ -510,10 +518,10 @@ Add an opt-in loose-file/resource-override provider or mount layer above SPK loo
 
 ## Recommended execution order and review checkpoints
 
-1. **Sessions 01–03 immediately:** make the first-room failure reproducible and fix it before broad work.
-2. **Sessions 04–21:** complete the ARM revalidation. Human exploratory reports may reprioritize a subsystem, but do not declare completion early.
-3. **Sessions 22–28:** prove completability and all content with humans; fix nonblocking correctness issues before structural churn.
-4. **Sessions 29–34:** close the useful uncalled Soft3D API surface while native evidence is fresh.
+1. **Sessions 29–34 and 34A first:** close the useful uncalled Soft3D and game-object API surfaces before extensive revalidation, so newly recovered code is audited only once. This maintainer-directed ordering supersedes the original Phase-D placement; it does not waive any phase gate.
+2. **Sessions 01–03 next:** make the first-room failure reproducible and fix it before broad behavioral work.
+3. **Sessions 04–21:** complete the ARM revalidation, including the APIs recovered in Phase D. Human exploratory reports may reprioritize a subsystem, but do not declare completion early.
+4. **Sessions 22–28:** prove completability and all content with humans; fix nonblocking correctness issues before structural churn.
 5. **Sessions 35–42:** perform behavior-preserving cleanup against the strengthened regression suite.
 6. **Sessions 43–49:** comment and reconcile all artifacts; continue small documentation corrections in every earlier session as well.
 7. **Sessions 50–51:** formalize the developer build after normal behavior is stable.

@@ -62,3 +62,9 @@ Variant suites are built separately and run serially because several tests use f
 - The bundled audio is SAU. The WAR build validates the alternate nibble order with its applicable fixtures, not the bundled SAU data decoded under the wrong order.
 - Live Symbian device identity, network, SMS, and haptic hardware are not exercised. Portable tests use recovered protocol fixtures and explicit dummy/Linux/SDL policies; `OfflineAuthorized` remains test/host-only rather than the application default.
 - The recovered debug console is dead code in this build and stays opt-in. No new cheat shortcut is exposed in normal application controls.
+
+## Session-29 completeness correction
+
+The stage-16 function/vtable audit established that native bodies were named and reachable game behavior was reconstructed; it did not establish completeness of unused public SDK or game-object APIs. Session 29 found missing useful Color4, vector/quaternion, matrix/geometry, resource/renderer, input/dialog, and game-owned methods. These are inventoried with addresses and recovery tests in `soft3d_sdk_inventory.md` and `game_object_inventory.md`.
+
+Several approximate stage-16 behavioral names were corrected from field counts and arithmetic: four-component routines formerly labeled Vec3 are Vec4, `FixedVec2_Dot`/`Cross` are matrix transforms, `FixedVec4_Slerp` is quaternion-from-matrix, `Matrix4_SetTransform` is reflection construction, and `PointCloud_FromBounds` constructs a plane quad. Ghidra names and selected prototypes have been updated and saved. The stage-16 validation counts remain historical results, not coverage of these uncalled APIs.
