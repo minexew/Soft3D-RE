@@ -39,6 +39,34 @@ inline Fixed NegateFixed(Fixed value)
     return static_cast<Fixed>(0U - static_cast<uint32_t>(value));
 }
 
+int32_t IntPow(int32_t base, int32_t exponent);
+
+inline Fixed FixedToInt(Fixed value)
+{
+    return value >> 16;
+}
+
+inline Fixed FixedToIntCeil(Fixed value)
+{
+    return AddFixed(value, 0xffff) >> 16;
+}
+
+inline uint32_t FixedToUnsignedByte(Fixed value)
+{
+    return static_cast<uint32_t>(value >> 16) & 0xff;
+}
+
+inline int16_t FixedToAngle(Fixed value)
+{
+    return static_cast<int16_t>(static_cast<uint32_t>(value) >> 16);
+}
+
+Fixed FixedReciprocalQuarter(Fixed value);
+Fixed FixedReciprocalUnsigned16(uint32_t value);
+Fixed FixedReciprocalSigned16(Fixed value);
+Fixed FixedReciprocalUnsigned17(uint32_t value);
+Fixed FixedReciprocalSigned17(Fixed value);
+
 inline Fixed AbsFixed(Fixed value)
 {
     return value < 0 ? NegateFixed(value) : value;
@@ -122,6 +150,33 @@ struct Vec4 {
     Fixed z = 0;
     Fixed w = 0;
 };
+
+inline Fixed Dot(const Vec2& left, const Vec2& right)
+{
+    return AddFixed(FixedMultiply(left.x, right.x), FixedMultiply(left.y, right.y));
+}
+
+inline Fixed SquaredLength(const Vec2& value)
+{
+    return Dot(value, value);
+}
+
+inline Fixed Length(const Vec2& value)
+{
+    return FixedSqrt(SquaredLength(value));
+}
+
+inline Vec2 Normalize(const Vec2& value)
+{
+    const Fixed inverseLength = FixedInverseSqrt(SquaredLength(value));
+    return {FixedMultiply(value.x, inverseLength), FixedMultiply(value.y, inverseLength)};
+}
+
+Vec3 LerpVec3(const Vec3& start, const Vec3& end, Fixed fraction);
+Vec3 MultiplyComponents(const Vec3& input, Fixed x, Fixed y, Fixed z);
+Vec3 AddComponents(const Vec3& input, Fixed x, Fixed y, Fixed z);
+Fixed SquaredDistance(const Vec3& first, const Vec3& second);
+int16_t Vec3AngleXZ(const Vec3& value);
 
 inline Vec3 Add(const Vec3& left, const Vec3& right)
 {
@@ -212,6 +267,7 @@ Fixed FixedSin(uint16_t angle);
 Fixed FixedCos(int16_t angle);
 Fixed FixedTan(uint16_t angle);
 uint16_t FixedArcTangent(Fixed value);
+uint16_t FixedArcSine(Fixed value);
 uint16_t FixedArcCosine(Fixed value);
 Vec3 RotateX(const Vec3& value, uint16_t angle);
 Vec3 RotateY(const Vec3& value, uint16_t angle);
@@ -261,6 +317,43 @@ inline Vec3 Transform(const Matrix4& matrix, const Vec3& value)
                  matrix.values[14])
     };
 }
+
+Vec2 Transform(const Matrix4& matrix, const Vec2& value);
+Vec2 TransformPerspective(const Matrix4& matrix, const Vec2& value);
+Vec2 TransformDirection(const Matrix4& matrix, const Vec2& value);
+Vec3 TransformPerspective(const Matrix4& matrix, const Vec3& value);
+Vec3 TransformDirection(const Matrix4& matrix, const Vec3& value);
+
+inline Fixed Dot(const Vec4& left, const Vec4& right)
+{
+    return AddFixed(AddFixed(FixedMultiply(left.x, right.x), FixedMultiply(left.y, right.y)),
+                    AddFixed(FixedMultiply(left.z, right.z), FixedMultiply(left.w, right.w)));
+}
+
+inline Fixed SquaredLength(const Vec4& value)
+{
+    return Dot(value, value);
+}
+
+inline Fixed Length(const Vec4& value)
+{
+    return FixedSqrt(SquaredLength(value));
+}
+
+Vec4 NormalizeVec4(const Vec4& value);
+Vec4 NormalizeRobust(const Vec4& value);
+Vec4& DivideVec4ByW(Vec4& output, const Vec4& input);
+Vec4 Cross3(const Vec4& first, const Vec4& second, const Vec4& third);
+Vec4 LerpVec4(const Vec4& start, const Vec4& end, Fixed fraction);
+
+Vec4 QuaternionIdentity();
+Vec4 QuaternionConjugate(const Vec4& value);
+Vec4 QuaternionInverse(const Vec4& value);
+Vec4 QuaternionFromAxisAngle(const Vec3& axis, int16_t angle);
+Vec4 QuaternionFromMatrix(const Matrix4& matrix);
+Vec4 QuaternionFromEuler(int16_t xAngle, int16_t yAngle, int16_t zAngle);
+Vec4 QuaternionLerp(const Vec4& start, const Vec4& end, Fixed fraction);
+void QuaternionToAxisAngle(const Vec4& value, Vec3& axis, int16_t& angle);
 
 Matrix4 LookAt(const Vec3& position, const Vec3& target, const Vec3& up);
 Matrix4 RotateXMatrix(uint16_t angle);

@@ -56,9 +56,9 @@ These entries prevent already recovered behavior from being mistaken for missing
 
 | Native address(es) and function family | Portable equivalent | Disposition / test |
 |---|---|---|
-| `0x00010d60`–`0x0001dfdc`, `0x00061ac4`–`0x00061dcc`, `0x000e7a88`, `0x00124244`–`0x001258e0`: 16.16 copy/set/arithmetic/comparison/shift/sqrt/inverse-sqrt/trigonometry/arc tangent/arc cosine | `Fixed.hpp` scalar operations, `FixedSin/Cos/Tan`, `FixedArcTangent`, and `FixedArcCosine` | **implemented**; **E**. `FixedArcSine` and conversion helpers are separate gaps below. |
+| `0x00010d60`–`0x0001dfdc`, `0x00061ac4`–`0x00061dcc`, `0x000e7a88`, `0x00124244`–`0x001258e0`: 16.16 copy/set/arithmetic/comparison/shift/sqrt/inverse-sqrt/trigonometry/arc tangent/arc sine/arc cosine | `Fixed.hpp` scalar operations, `FixedSin/Cos/Tan`, `FixedArcTangent`, `FixedArcSine`, and `FixedArcCosine` | **implemented**; **E** plus Session-30 directed fixtures. |
 | `0x00010f08`–`0x00013c7c`, `0x00127a04`–`0x0012912c`: Vec3 copy/set/zero/add/subtract/scale/dot/cross/length/normalize/rotation/affine transform | `Add`, `Subtract`, `Scale`, `Dot`, `Cross`, `Length`, `Normalize`, `Rotate*`, `Transform` | **implemented**; **E**. Distinct unused variants are listed below. |
-| `0x00061a8c`, `0x00061bf8`, `0x00061ca0`, `0x000d74c0`: Vec2 zero/length/dot/copy | Native-derived arithmetic is available, but there is no coherent public Vec2 helper surface | **implemented arithmetic / missing useful API organization**; recover publicly in **30B**, without changing current game calculations. |
+| `0x00061a8c`, `0x00061bf8`, `0x00061ca0`, `0x000d74c0`: Vec2 zero/length/dot/copy | `Vec2` value zero/copy plus public `Length`, `Dot`, `SquaredLength`, and `Normalize` | **implemented**; **30B**, without changing current game calculations. |
 | `0x0011ac98`, `0x0011b110`, `0x0011b874`, `0x0011d62c`, `0x0011e1bc`, `0x0011dc28`, `0x0011ff7c`, `0x0012116c`, `0x001214b8` | `Matrix4::Identity`, `Multiply`, `Transpose`, `TranslateMatrix`, `RotateXMatrix`, `RotateYMatrix`, `LookAt` | **implemented**; **E**. Missing factories/inversion are below. |
 | `0x00011278`, `0x000139cc`, `0x00013b30`, `0x00013c44`, `0x0002205c`, `0x000223a0`, `0x0006df60`, `0x00126968`–`0x00126b6c`, `0x0012a564` | `Geometry.hpp`: copy/reset/translate/contains/overlaps/expand/center/segment-bounds | **implemented**; **E**. The native segment-bounds function was renamed `Segment_IntersectsBounds`. |
 | `0x000838e0`–`0x000883fc` | `BezierCurve3.*`: degree elevation, evaluation/derivatives, collection editing, transforms, timing, SPL load | **implemented**; **E** (`test_spl.cpp`). Ctor/dtor/copy/identity duplicates are not separate APIs. |
@@ -135,6 +135,48 @@ The common four-component storage is `Vec4`; the quaternion-specific ownership i
 | `0x0012bf1c` `Quaternion_Lerp` | Linear interpolation that negates the second quaternion when dot < 0; no spherical interpolation. | **missing useful API** | **30B**: positive/negative dot and no post-normalization assumption. |
 | `0x0012c2a4` `Quaternion_ToAxisAngle` | Axis from xyz / sqrt(1-w²), fallback `(0,1,0)` below `0x28f`, angle = `2*acos(w)`. | **missing useful API** | **30B**: fallback threshold, clamping, exact angle. |
 | `0x0012c47c` `Quaternion_ToMatrix` | Quaternion products to a 4x4 rotation matrix with homogeneous final row/column. | **missing useful API** | **31A**: identity, basis rotations, comparison with `Matrix4_SetReflection`. |
+
+## Session 30 completion ledger
+
+All **30A/30B** candidates above are now public portable APIs. The tables above retain the Session-29 candidate dispositions that directed recovery; this ledger is the current implementation status. Implementations are in `Reversed_Game/src/soft3d/Fixed.*` and `Color.hpp`, with directed public-consumer tests in `Reversed_Game/tests/test_math.cpp`. Duplicate native bodies map to one portable implementation and are not duplicated in source.
+
+| Native address(es) | Portable API | Disposition and native-derived verification |
+|---|---|---|
+| `0x0009a170` | `IntPow` | **matches**. Repeated 32-bit multiplication, exponent zero, negative integer exponents, explicit zero base, and wrapped products. If a wrapped nonzero base produces a zero denominator for a negative exponent, the portable guard returns zero instead of entering the external runtime's division-by-zero path; this is an **intentional portable safety difference**. |
+| `0x000b5750`, `0x000b58ec`, `0x000cf168`, `0x00112054` | `FixedToInt` | **matches**. Arithmetic high-16 floor conversion, including negative fractions and both signed extremes. |
+| `0x000d7588`, `0x000d75ac` | `FixedToIntCeil` | **matches**. Wrapped `value + 0xffff` before the arithmetic shift, including `INT32_MAX -> -32768`. |
+| `0x000afcb8` | `FixedToUnsignedByte` | **matches**. High-word byte mask and sign cases. |
+| `0x000afce8` | `FixedReciprocalQuarter` | **matches** for nonzero `(value >> 2)`, including signed extremes. A zero shifted denominator returns zero as an **intentional portable safety difference** from calling the imported `__aeabi_idivmod` division-by-zero path. |
+| `0x001069f8`, `0x001069a8` | `FixedReciprocalUnsigned16`, `FixedReciprocalSigned16` | **matches**. Every range boundary, table-index truncation, zero sentinel, sign wrapping, and `INT32_MIN`; unsigned zero produces `-4`, signed zero produces `4`. |
+| `0x00106b90`, `0x00106d64` | `FixedReciprocalUnsigned17`, `FixedReciprocalSigned17` | **matches**. The distinct 17-bit range ladder and signed wrapper; unsigned zero produces `-2`, signed zero produces `2`. |
+| `0x00125050`, `0x001258e0`, `0x00125454` | `FixedArcSine`, `FixedToAngle`, `FixedArcCosine` | **matches**. Clamped polynomial, coefficient sequence, signed high-word extraction, negative-angle adjustment, and arc-cosine delegation. Existing arc-cosine results are unchanged. |
+| `0x00125914`, `0x001261f4` | `Color4Clamp` | **matches**. Ordered per-component clamp of all four components and in-place return. |
+| `0x00125bb8`, `0x001263f4` | `Color4Negate` | **matches**. `1-component` for RGBA without clamping. |
+| `0x00125cc4`, `0x00125e70`, `0x001264c4`, `0x00126658` | `Color4AdjustContrast` | **matches**. RGB contrast about `0x8000`, alpha copy, then all-component clamp. |
+| `0x00126060`, `0x00126830` | `Color4Lerp` | **matches**. Four-component interpolation followed by clamp, including extrapolation and value-assignment aliasing. |
+| `0x00061a8c`, `0x000d74c0` | `Vec2` default zero/copy | **implemented** by the value type; no unnecessary duplicate algorithm. |
+| `0x00061bf8`, `0x00061ca0`, `0x0012968c`, `0x00129200` | `Length(Vec2)`, `Dot(Vec2)`, `SquaredLength(Vec2)`, `Normalize(Vec2)` | **matches**. Separate fixed multiplies/adds, zero normalization, ordinary and overflow-prone values. |
+| `0x001292a0`, `0x001293c0`, `0x0012959c` | `Transform(Matrix4,Vec2)`, `TransformPerspective(Matrix4,Vec2)`, `TransformDirection(Matrix4,Vec2)` | **matches**. Native row order, translation behavior, reciprocal-before-output order, and zero/unit/nonunit `w`. |
+| `0x00127ffc` | `LerpVec3` | **matches**. Wrapped deltas, one 64-bit product shift per component, negative fractions, and truncation. |
+| `0x00128074`, `0x00128114` | `MultiplyComponents`, `AddComponents` | **matches**, including the original repeated-`input.x` behavior for all three outputs. |
+| `0x00128d5c`, `0x00128a1c` | `TransformDirection(Matrix4,Vec3)`, `TransformPerspective(Matrix4,Vec3)` | **matches**. Translation independence and exact projective arithmetic for zero/unit/nonunit `w`. |
+| `0x001296f4` | `SquaredDistance` | **matches**. Wrapped signed deltas and component squares. |
+| `0x0012a1f8` | `Vec3AngleXZ` | **matches**. All four quadrants, axes, strict dominant-component comparisons, and tie handling through arc sine. |
+| `0x00126c40`/`0x0012afa8`, `0x00126e54`/`0x0012b0a0`, `0x00126f30`/`0x0012b17c`, `0x00127418`/`0x0012b24c` | `NormalizeVec4`, `Length(Vec4)`, `SquaredLength(Vec4)`, `Dot(Vec4)` | **matches**; duplicate bodies documented. Exact RGBA components, zero, and the native square-root approximation. |
+| `0x00126d38` | `DivideVec4ByW` | **matches**. Leaves a preinitialized output completely untouched for `w == 1`; otherwise divides xyz and writes `w=1`, including aliasing and zero `w`. |
+| `0x00127000` | `Cross3` | **matches**. Native minor order and output signs, basis result `(0,0,0,-1)`, and orthogonality. |
+| `0x001274ec` | `LerpVec4` | **matches**. No quaternion negative-dot sign correction. |
+| `0x001300cc` | `NormalizeRobust` | **matches**. Range reduction uses only xyz magnitude but scales all four outputs. Directed fixtures preserve small-input `0x1fffc` inverse-square-root behavior, large shifts, zero, and `w` handling. |
+| `0x0012ad38`, `0x0012ade8`, `0x0012ae8c` | `QuaternionIdentity`, `QuaternionConjugate`, `QuaternionInverse` | **matches**. Identity, xyz-only conjugation, normalized-conjugate inverse for unit/nonunit/zero values. |
+| `0x0012b320` | `QuaternionFromAxisAngle` | **matches**. Native half-angle units and unnormalized axes. |
+| `0x0012b40c` | `QuaternionFromMatrix` | **matches**. Trace and all three diagonal branches, exact off-diagonal signs, and the `0x28f` guard on both sides using wrapped diagonal fixtures. |
+| `0x0012bbe0` | `QuaternionFromEuler` | **matches**. Native xyz assignment/sign order and exact half-angle products. Host-math-only expectation differences are separately conditional in the test. |
+| `0x0012bf1c` | `QuaternionLerp` | **matches**. Negative-dot second-quaternion negation with no post-normalization. |
+| `0x0012c2a4` | `QuaternionToAxisAngle` | **matches**. `0x28f` scale threshold, `(0,1,0)` fallback, clamped arc cosine, and doubled native angle. |
+
+Session-30 handoff: no unresolved scalar/vector candidate remains. The new APIs have no existing callers, so reachable gameplay behavior was not rerouted through them. `FixedArcCosine` now delegates to the recovered arc sine while preserving its exact outputs. One file-local BSP direction helper was renamed to avoid a public-overload collision, and the recovered Vec3/Vec4 lerp and Vec4 normalize APIs use type-specific names; arithmetic and call order are unchanged. The next scoped work is Session 31's matrix/projection/geometry surface, not additional scalar invention.
+
+Session-30 validation passed the complete serial matrix: **40/40 default**, **33/33 SDL-independent core**, **40/40 STDIO logging**, **40/40 host trigonometry**, **40/40 WAR**, **33/33 ASan/UBSan**, and **19/19 applicable English-layout** tests, plus **6/6 SOJ** and **8/8 S3DTEX** Python tests. Host-math expectations distinguish the explicit nonfaithful sine/cosine variant from the native lookup-table values.
 
 ## Session 31: matrix, plane, frustum, and point-cloud gaps
 
@@ -229,11 +271,11 @@ This section closes the remaining zero-direct-reference candidates. Each row's a
 
 ## Handoff to sessions 30–34A
 
-1. **Session 30:** implement the scalar/conversion, Color4, vector, and quaternion rows in `Fixed.*` or a narrowly owned math header. Do not rewrite working consumers merely to use the new APIs. Preserve repeated-x component helpers and all native truncation.
+1. **Session 30 — complete:** scalar/conversion, Color4, vector, and quaternion rows are implemented in `Fixed.*`/`Color.hpp`, with native-derived `test_math.cpp` coverage and the completion ledger above. Existing consumers were not rerouted; repeated-x helpers and native truncation are preserved.
 2. **Session 31:** implement matrix factories/inversion, project/unproject, Plane/frustum, and PointCloud with explicit ownership. Native allocation/copy bugs must be documented separately from any portable bounds/lifetime hardening.
 3. **Session 32:** recover TextureTarget, sprite submission, 16-bit span fill, and dynamic-light ownership. Do not expose native scanline/runtime support as portable public API.
 4. **Session 33:** recover the input/sound/dialog builders and ScreenRect/S3dPoint helpers. Keep original no-ops empty.
 5. **Session 34:** rerun this inventory, add an external consumer linking only `soft3d`, and require every “missing useful API” row to become implemented or receive a documented exclusion with native evidence.
 6. **Session 34A:** process `game_object_inventory.md` separately, recovering missing game-owned APIs and correcting the documented ActionUp edge without moving game policy into reusable Soft3D.
 
-Ghidra now carries corrected names/prototypes for the high-confidence Color4, Vec2/Vec3/Vec4, quaternion, projection, reflection, plane, and point-cloud bodies. `stage29`/`sdk-candidate` tags and bookmarks identify the reviewed candidates and original quirks. No portable source behavior was changed during this inventory session.
+Ghidra carries corrected names/prototypes for the high-confidence Color4, Vec2/Vec3/Vec4, quaternion, projection, reflection, plane, and point-cloud bodies. `stage29`/`sdk-candidate` tags identify reviewed candidates. Session 30 added distinct signed/unsigned 16/17 reciprocal names, `Quaternion_Identity`, 47 cleaned prototypes, `stage30`/`sdk-recovered` tags on all 61 recovered/duplicate bodies, and eight bookmarks for native quirks; the program was saved and read back with no unsaved changes.

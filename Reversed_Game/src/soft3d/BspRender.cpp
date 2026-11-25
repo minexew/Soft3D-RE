@@ -30,7 +30,7 @@ Fixed PlaneDistance(const BspPlane& plane, const Vec3& point)
     return AddFixed(Dot(plane.normal, point), plane.distance);
 }
 
-Vec3 TransformDirection(const Matrix4& matrix, const Vec3& value)
+Vec3 RotateDirection(const Matrix4& matrix, const Vec3& value)
 {
     return {
         static_cast<Fixed>(static_cast<uint32_t>(FixedMultiply(matrix.values[0], value.x)) +
@@ -565,8 +565,8 @@ Bsp::LightmapMapping Bsp::BuildLightmapMapping(const BspFace& face) const
     const BspTexInfo& info = texInfo[static_cast<std::size_t>(face.texInfoIndex)];
     const Vec3 uAxis = {info.textureMapping[0], info.textureMapping[1], info.textureMapping[2]};
     const Vec3 vAxis = {info.textureMapping[4], info.textureMapping[5], info.textureMapping[6]};
-    const Vec3 rotatedU = TransformDirection(renderState.worldToCamera, uAxis);
-    const Vec3 rotatedV = TransformDirection(renderState.worldToCamera, vAxis);
+    const Vec3 rotatedU = RotateDirection(renderState.worldToCamera, uAxis);
+    const Vec3 rotatedV = RotateDirection(renderState.worldToCamera, vAxis);
     LightmapMapping mapping;
     mapping.rayUX = FixedMultiply(rotatedU.x, renderState.inverseScreenScaleX);
     mapping.rayUY = FixedMultiply(-rotatedU.y, renderState.inverseScreenScaleY);
@@ -737,7 +737,7 @@ void Bsp::RasterizeFace(const BspFace& face, const LightmapMapping& mapping,
     const int height = static_cast<int>(frameTexture->GetHeight());
     uint32_t* output = reinterpret_cast<uint32_t*>(frameTexture->GetPixels());
     const BspPlane& plane = planes[face.planeIndex];
-    const Vec3 rotatedNormal = TransformDirection(renderState.worldToCamera, plane.normal);
+    const Vec3 rotatedNormal = RotateDirection(renderState.worldToCamera, plane.normal);
     const Fixed reciprocal = static_cast<Fixed>(
         static_cast<uint32_t>(ReciprocalSigned(-PlaneDistance(plane, renderState.cameraPosition))) << 8);
     Fixed depthX = FixedMultiply(FixedMultiply(rotatedNormal.x, reciprocal),
