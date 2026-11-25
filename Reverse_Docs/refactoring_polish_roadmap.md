@@ -306,6 +306,8 @@ Test identity, composition order, singular/degenerate inputs, clipping/bounds, a
 
 **Exit:** the math/geometry/camera inventory is closed with useful APIs callable by external hosts through real tests.
 
+**Status:** Complete. The evidence ledger is in `soft3d_sdk_inventory.md` and `soft3d_geometry.md`; recovered public APIs live in `Fixed.*`/`Geometry.*`, with directed coverage in `test_math.cpp` and `test_geometry.cpp`. Existing Bezier/SPL/camera-path storage required no additions. Native type/name corrections and broken allocating-clip exclusions are explicit. The complete default/core/STDIO/host-math/WAR/ASan-UBSan/applicable-English/Python validation matrix passes.
+
 ### Session 32 — Recover unused resource, model, texture, and renderer APIs
 
 Audit and recover useful uncalled methods for resource/cache control, Object/material/animation manipulation, texture/image operations, render-state setup, and render submission. Avoid platform-specific scanline/runtime support and avoid merging intentionally duplicate native bodies.

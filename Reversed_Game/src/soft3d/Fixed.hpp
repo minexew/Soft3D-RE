@@ -358,7 +358,56 @@ void QuaternionToAxisAngle(const Vec4& value, Vec3& axis, int16_t& angle);
 Matrix4 LookAt(const Vec3& position, const Vec3& target, const Vec3& up);
 Matrix4 RotateXMatrix(uint16_t angle);
 Matrix4 RotateYMatrix(uint16_t angle);
+Matrix4 RotateZMatrix(uint16_t angle);
+Matrix4 EulerMatrix(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle);
+Matrix4 AxisRotationMatrix(const Vec3& axis, uint16_t angle);
 void TranslateMatrix(Matrix4& matrix, Fixed x, Fixed y, Fixed z);
+Matrix4 TranslationMatrix(Fixed x, Fixed y, Fixed z);
+Matrix4& ScaleMatrix(Matrix4& matrix, Fixed x, Fixed y, Fixed z);
+Matrix4 ScaleMatrix(Fixed x, Fixed y, Fixed z);
+Matrix4& RotateX(Matrix4& matrix, uint16_t angle);
+Matrix4& RotateY(Matrix4& matrix, uint16_t angle);
+Matrix4& RotateZ(Matrix4& matrix, uint16_t angle);
+Matrix4& RotateEuler(Matrix4& matrix, uint16_t xAngle, uint16_t yAngle, uint16_t zAngle);
+Matrix4& RotateAxis(Matrix4& matrix, const Vec3& axis, uint16_t angle);
 Matrix4 Transpose(const Matrix4& value);
+Fixed Determinant2x2(Fixed a, Fixed b, Fixed c, Fixed d);
+Fixed Determinant3x3(Fixed a, Fixed b, Fixed c, Fixed d, Fixed e, Fixed f,
+                     Fixed g, Fixed h, Fixed i);
+Fixed Determinant(const Matrix4& matrix);
+Matrix4 Inverse(const Matrix4& matrix);
+Matrix4 Inverse3x3(const Matrix4& matrix);
+Matrix4 OrthographicMatrix(Fixed width, Fixed height, Fixed nearDistance, Fixed farDistance);
+Matrix4 OrthographicMatrixNegativeDepth(Fixed width, Fixed height, Fixed nearDistance,
+                                        Fixed farDistance);
+Matrix4 OrthographicBoundsMatrix(Fixed left, Fixed right, Fixed bottom, Fixed top,
+                                 Fixed nearDistance, Fixed farDistance);
+Matrix4 OrthographicBoundsMatrixNegativeDepth(Fixed left, Fixed right, Fixed bottom, Fixed top,
+                                              Fixed nearDistance, Fixed farDistance);
+Matrix4 PerspectiveTanMatrix(int16_t angle, Fixed aspectRatio, Fixed nearDistance,
+                             Fixed farDistance);
+Matrix4 PerspectiveMatrix(Fixed width, Fixed height, Fixed nearDistance, Fixed farDistance);
+Matrix4 PerspectiveMatrixNegativeDepth(Fixed width, Fixed height, Fixed nearDistance,
+                                       Fixed farDistance);
+Matrix4 FrustumMatrix(Fixed left, Fixed right, Fixed bottom, Fixed top,
+                      Fixed nearDistance, Fixed farDistance);
+Matrix4 FrustumMatrixNegativeDepth(Fixed left, Fixed right, Fixed bottom, Fixed top,
+                                   Fixed nearDistance, Fixed farDistance);
+Matrix4 ViewportMatrix(int32_t left, int32_t top, uint32_t width, uint32_t height,
+                       Fixed nearDistance, Fixed farDistance);
+Matrix4 ReflectionMatrix(const Vec4& plane);
+Matrix4 PlaneProjectionMatrix(const Vec3& normal, const Vec4& coefficients);
+Matrix4 AxesMatrix(const Vec3& x, const Vec3& y, const Vec3& z);
+Matrix4 MatrixFromValues(Fixed m0, Fixed m1, Fixed m2, Fixed m3,
+                         Fixed m4, Fixed m5, Fixed m6, Fixed m7,
+                         Fixed m8, Fixed m9, Fixed m10, Fixed m11,
+                         Fixed m12, Fixed m13, Fixed m14, Fixed m15);
+Vec4 TransformVec4(const Matrix4& matrix, const Vec4& value);
+Vec4 TransformInverse(const Matrix4& matrix, const Vec4& value);
+Vec3 Project(const Vec3& input, const Matrix4& world, const Matrix4& view,
+             const Matrix4& projection, const Matrix4& viewport);
+Vec3 Unproject(const Vec3& input, const Matrix4& world, const Matrix4& view,
+               const Matrix4& projection, const Matrix4& viewport);
+Matrix4 QuaternionToMatrix(const Vec4& quaternion);
 
 } // namespace soft3d

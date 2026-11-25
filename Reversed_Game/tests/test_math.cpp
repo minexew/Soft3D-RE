@@ -209,6 +209,175 @@ void TestVec2AndVec3()
     CHECK(static_cast<uint16_t>(soft3d::Vec3AngleXZ({one, 0, 0x8000})) == 0xea);
 }
 
+void CheckMatrix(const soft3d::Matrix4& actual,
+                 const std::array<soft3d::Fixed, 16>& expected, int line)
+{
+    for (std::size_t index = 0; index < expected.size(); ++index) {
+        if (actual.values[index] != expected[index]) {
+            throw std::runtime_error("matrix check failed at line " + std::to_string(line) +
+                                     ", index " + std::to_string(index) + ": actual " +
+                                     std::to_string(actual.values[index]) + ", expected " +
+                                     std::to_string(expected[index]));
+        }
+    }
+}
+
+#define CHECK_MATRIX(actual, ...) \
+    CheckMatrix((actual), std::array<soft3d::Fixed, 16> __VA_ARGS__, __LINE__)
+
+void TestMatrixCore()
+{
+    CHECK(soft3d::Determinant2x2(2 * one, 3 * one, 4 * one, 5 * one) == -2 * one);
+    CHECK(soft3d::Determinant3x3(one, 0, 0, 0, one, 0, 0, 0, one) == one);
+    CHECK(soft3d::Determinant3x3(2 * one, 0, 0, 0, 3 * one, 0, 0, 0, 4 * one) ==
+          24 * one);
+
+    const soft3d::Matrix4 values = soft3d::MatrixFromValues(
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16);
+    CHECK_MATRIX(values, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16});
+    CHECK_MATRIX(soft3d::AxesMatrix({1, 2, 3}, {4, 5, 6}, {7, 8, 9}),
+                 {1, 4, 7, 0, 2, 5, 8, 0, 3, 6, 9, 0, 0, 0, 0, one});
+    CHECK_MATRIX(soft3d::TranslationMatrix(one, 2 * one, 3 * one),
+                 {one, 0, 0, 0, 0, one, 0, 0, 0, 0, one, 0,
+                  one, 2 * one, 3 * one, one});
+    CHECK_MATRIX(soft3d::ScaleMatrix(2 * one, 3 * one, 4 * one),
+                 {2 * one, 0, 0, 0, 0, 3 * one, 0, 0, 0, 0, 4 * one, 0, 0, 0, 0, one});
+
+    soft3d::Matrix4 matrix = values;
+    CHECK(&soft3d::ScaleMatrix(matrix, 2 * one, 3 * one, 4 * one) == &matrix);
+    CHECK_MATRIX(matrix, {2, 6, 12, 4, 10, 18, 28, 8, 18, 30, 44, 12, 26, 42, 60, 16});
+
+#ifdef SOFT3D_TRIG_USE_MATH
+    constexpr soft3d::Fixed trigOne = one;
+    constexpr soft3d::Fixed trigOneSquared = one;
+#else
+    constexpr soft3d::Fixed trigOne = 65535;
+    constexpr soft3d::Fixed trigOneSquared = 65534;
+#endif
+    CHECK_MATRIX(soft3d::RotateXMatrix(0x800),
+                 {one, 0, 0, 0, 0, 0, trigOne, 0, 0, -trigOne, 0, 0, 0, 0, 0, one});
+    CHECK_MATRIX(soft3d::RotateYMatrix(0x800),
+                 {0, 0, -trigOne, 0, 0, one, 0, 0, trigOne, 0, 0, 0, 0, 0, 0, one});
+    CHECK_MATRIX(soft3d::RotateZMatrix(0x800),
+                 {0, trigOne, 0, 0, -trigOne, 0, 0, 0, 0, 0, one, 0, 0, 0, 0, one});
+    matrix = values;
+    soft3d::RotateZ(matrix, 0x800);
+    CHECK_MATRIX(matrix, {-soft3d::FixedMultiply(2, trigOne), soft3d::FixedMultiply(1, trigOne), 3, 4,
+                          -soft3d::FixedMultiply(6, trigOne), soft3d::FixedMultiply(5, trigOne), 7, 8,
+                          -soft3d::FixedMultiply(10, trigOne), soft3d::FixedMultiply(9, trigOne), 11, 12,
+                          -soft3d::FixedMultiply(14, trigOne), soft3d::FixedMultiply(13, trigOne), 15, 16});
+    matrix = soft3d::Matrix4::Identity();
+    soft3d::RotateX(matrix, 0x800);
+    CHECK(matrix.values == soft3d::RotateXMatrix(0x800).values);
+    matrix = soft3d::Matrix4::Identity();
+    soft3d::RotateY(matrix, 0x800);
+    CHECK(matrix.values == soft3d::RotateYMatrix(0x800).values);
+
+    const soft3d::Matrix4 euler = soft3d::EulerMatrix(0x800, 0, 0);
+    CHECK_MATRIX(euler, {0, 0, -trigOneSquared, 0, 0, trigOneSquared, 0, 0,
+                         trigOneSquared, 0, 0, 0, 0, 0, 0, one});
+    matrix = soft3d::Matrix4::Identity();
+    CHECK(&soft3d::RotateEuler(matrix, 0x800, 0, 0) == &matrix);
+    CHECK(matrix.values == euler.values);
+    const soft3d::Matrix4 axis = soft3d::AxisRotationMatrix({one, 0, 0}, 0x800);
+    CHECK_MATRIX(axis, {one, 0, 0, 0, 0, 0, -trigOne, 0, 0, trigOne, 0, 0, 0, 0, 0, one});
+    matrix = soft3d::Matrix4::Identity();
+    soft3d::RotateAxis(matrix, {one, 0, 0}, 0x800);
+    CHECK(matrix.values == axis.values);
+
+    const soft3d::Matrix4 translatedScale = soft3d::Multiply(
+        soft3d::TranslationMatrix(one, 0, 0), soft3d::ScaleMatrix(2 * one, 2 * one, 2 * one));
+    const soft3d::Matrix4 scaledTranslation = soft3d::Multiply(
+        soft3d::ScaleMatrix(2 * one, 2 * one, 2 * one), soft3d::TranslationMatrix(one, 0, 0));
+    CHECK_VEC3(soft3d::Transform(translatedScale, soft3d::Vec3{one, 0, 0}), {4 * one, 0, 0});
+    CHECK_VEC3(soft3d::Transform(scaledTranslation, soft3d::Vec3{one, 0, 0}), {3 * one, 0, 0});
+
+    soft3d::Matrix4 general;
+    general.values = {2 * one, 0, 0, 0, one, 3 * one, 0, 0,
+                      0, one, 4 * one, 0, 5 * one, 6 * one, 7 * one, one};
+    CHECK(soft3d::Determinant(general) == 0x180000);
+    CHECK_MATRIX(soft3d::Inverse(general),
+                 {32760, 0, 0, 0, -10920, 21840, 0, 0, 2730, -5460, 16380, 0,
+                  -117390, -92820, -114660, 65520});
+    CHECK_MATRIX(soft3d::Inverse(soft3d::Matrix4{}),
+                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0});
+    CHECK_MATRIX(soft3d::Inverse3x3(soft3d::ScaleMatrix(2 * one, 4 * one, 8 * one)),
+                 {0x8000, 0, 0, 0, 0, 0x4000, 0, 0, 0, 0, 0x2000, 0, 0, 0, 0, 0});
+    const soft3d::Matrix4 singular = soft3d::ScaleMatrix(0, 2 * one, 3 * one);
+    CHECK(soft3d::Inverse3x3(singular).values == singular.values);
+
+    CHECK_MATRIX(soft3d::ReflectionMatrix({0, one, 0, -2 * one}),
+                 {one, 0, 0, 0, 0, -one, 0, 0, 0, 0, one, 0, 0, 4 * one, 0, one});
+    CHECK_MATRIX(soft3d::PlaneProjectionMatrix({0, one, 0}, {0, one, 0, -2 * one}),
+                 {one, 0, 0, 0, 0, 0, 0, 0, 0, 0, one, 0, 0, 2 * one, 0, one});
+    CHECK_MATRIX(soft3d::QuaternionToMatrix({one, 0, 0, 0}),
+                 {one, 0, 0, 0, 0, -one, 0, 0, 0, 0, -one, 0, 0, 0, 0, one});
+}
+
+void TestProjectionMatrices()
+{
+    CHECK_MATRIX(soft3d::OrthographicMatrix(4 * one, 2 * one, one, 5 * one),
+                 {0x8000, 0, 0, 0, 0, one, 0, 0, 0, 0, 0x4000, 0, 0, 0, -0x4000, one});
+    CHECK_MATRIX(soft3d::OrthographicMatrixNegativeDepth(4 * one, 2 * one, one, 5 * one),
+                 {0x8000, 0, 0, 0, 0, one, 0, 0, 0, 0, -0x4000, 0, 0, 0, -0x4000, one});
+    CHECK_MATRIX(soft3d::OrthographicMatrix(0, 0, one, one),
+                 {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, one});
+    CHECK_MATRIX(soft3d::OrthographicBoundsMatrix(-2 * one, 2 * one, -one, 3 * one, one, 5 * one),
+                 {0x8000, 0, 0, 0, 0, 0x8000, 0, 0, 0, 0, 0x4000, 0,
+                  0, -0x8000, -0x4000, one});
+    CHECK_MATRIX(soft3d::OrthographicBoundsMatrixNegativeDepth(
+                     -2 * one, 2 * one, -one, 3 * one, one, 5 * one),
+                 {0x8000, 0, 0, 0, 0, 0x8000, 0, 0, 0, 0, -0x4000, 0,
+                  0, -0x8000, -0x4000, one});
+    CHECK_MATRIX(soft3d::PerspectiveTanMatrix(0x800, 2 * one, one, 5 * one),
+                 {0x8000, 0, 0, 0, 0, one, 0, 0, 0, 0, -0x14000, -one,
+                  0, 0, -0x14000, 0});
+    CHECK_MATRIX(soft3d::PerspectiveMatrix(4 * one, 2 * one, one, 5 * one),
+                 {0x8000, 0, 0, 0, 0, one, 0, 0, 0, 0, 0x14000, one,
+                  0, 0, -0x14000, 0});
+    CHECK_MATRIX(soft3d::PerspectiveMatrixNegativeDepth(4 * one, 2 * one, one, 5 * one),
+                 {0x8000, 0, 0, 0, 0, one, 0, 0, 0, 0, -0x14000, -one,
+                  0, 0, -0x14000, 0});
+    CHECK_MATRIX(soft3d::FrustumMatrix(-2 * one, 2 * one, -one, 3 * one, one, 5 * one),
+                 {0x8000, 0, 0, 0, 0, 0x8000, 0, 0, 0, -0x8000, 0x14000, one,
+                  0, 0, -0x14000, 0});
+    CHECK_MATRIX(soft3d::FrustumMatrixNegativeDepth(
+                     -2 * one, 2 * one, -one, 3 * one, one, 5 * one),
+                 {0x8000, 0, 0, 0, 0, 0x8000, 0, 0, 0, 0x8000, -0x14000, -one,
+                  0, 0, -0x14000, 0});
+    CHECK_MATRIX(soft3d::ViewportMatrix(3, 5, 7, 9, 0x4000, 0x140000),
+                 {0x30000, 0, 0, 0, 0, -0x40000, 0, 0, 0, 0, 0x13c000, 0,
+                  0x60000, 0x90000, 0x4000, one});
+}
+
+void TestProjectionTransforms()
+{
+    const soft3d::Matrix4 identity = soft3d::Matrix4::Identity();
+    const soft3d::Matrix4 translation = soft3d::TranslationMatrix(one, 2 * one, 3 * one);
+    CHECK_VEC4(soft3d::TransformVec4(translation, {one, 2 * one, 3 * one, 2 * one}),
+               {3 * one, 6 * one, 9 * one, 2 * one});
+    CHECK_VEC4(soft3d::TransformInverse(translation, {one, 2 * one, 3 * one, one}),
+               {0, 0, 0, one});
+    CHECK_VEC3(soft3d::Project({one, 2 * one, 3 * one}, identity, identity, identity, identity),
+               {one, 2 * one, 3 * one});
+    CHECK_VEC3(soft3d::Project({0, 0, 0}, translation, translation, identity, identity),
+               {2 * one, 4 * one, 6 * one});
+    CHECK_VEC3(soft3d::Unproject(soft3d::Project({one, 2 * one, 3 * one},
+                                                 translation, translation, identity, identity),
+                                 translation, translation, identity, identity),
+               {one, 2 * one, 3 * one});
+    soft3d::Matrix4 zero;
+    CHECK_VEC3(soft3d::Project({one, 2 * one, 3 * one}, zero, identity, identity, identity),
+               {0, 0, 0});
+    CHECK_VEC3(soft3d::Unproject({one, 2 * one, 3 * one}, zero, identity, identity, identity),
+               {0, 0, 0});
+
+    const soft3d::Matrix4 projection = soft3d::PerspectiveMatrix(2 * one, 2 * one, one, 5 * one);
+    const soft3d::Matrix4 viewport = soft3d::ViewportMatrix(0, 0, 320, 240, 0, one);
+    CHECK_VEC3(soft3d::Project({0, 0, 2 * one}, identity, identity, projection, viewport),
+               {0xa00000, 0x780000, 0xa000});
+}
+
 void TestVec4()
 {
     const soft3d::Vec4 value{one, 2 * one, 3 * one, 4 * one};
@@ -325,6 +494,9 @@ int main()
         TestScalars();
         TestColors();
         TestVec2AndVec3();
+        TestMatrixCore();
+        TestProjectionMatrices();
+        TestProjectionTransforms();
         TestVec4();
         TestQuaternions();
     } catch (const std::exception& error) {

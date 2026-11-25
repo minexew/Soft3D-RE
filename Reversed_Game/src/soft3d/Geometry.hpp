@@ -3,7 +3,10 @@
 #include "soft3d/Fixed.hpp"
 
 #include <algorithm>
+#include <array>
+#include <cstddef>
 #include <cstdint>
+#include <vector>
 
 namespace soft3d {
 
@@ -83,5 +86,73 @@ inline Vec3 Center(const ObjectBounds& bounds)
 {
     return ShiftRight(Add(bounds.minimum, bounds.maximum), 1);
 }
+
+struct Plane {
+    Vec3 normal;
+    Fixed distance = 0;
+};
+
+struct Ray {
+    Vec3 origin;
+    Vec3 direction;
+};
+
+Fixed PlaneDistance(const Plane& plane, const Vec3& point);
+Plane PlaneFromPointNormal(const Vec3& point, const Vec3& normal);
+Ray NormalizeRay(const Ray& ray);
+Ray TransformRay(const Matrix4& matrix, const Ray& ray);
+Fixed DotDirection(const Ray& ray, const Vec3& value);
+Fixed DistanceToRay(const Vec3& point, const Ray& ray, Vec3* closestPoint = nullptr);
+Fixed DistanceToLine(const Vec3& point, const Ray& ray, Vec3* closestPoint = nullptr);
+Fixed PlaneDistanceAndProject(const Vec3& point, const Plane& plane, Vec3* projected = nullptr);
+Fixed PlaneIntersectRay(const Ray& ray, const Plane& plane, Vec3* intersection = nullptr);
+Fixed SegmentIntersectionDistance(const Ray& first, const Ray& second,
+                                  Vec3* intersection = nullptr);
+Vec3 Slide(const Vec3& value, const Vec3& normal);
+bool OutsideFrustum(const std::array<Plane, 5>& planes, const Vec4& point);
+
+enum class PlaneClassification : int32_t {
+    Positive = 1,
+    Negative = 2,
+    Spanning = 3,
+    OnPlane = 4,
+};
+
+enum class PointCloudValidation : int32_t {
+    Valid = 0,
+    TooFewPoints = 1,
+    SmallArea = 2,
+    CoordinateTooLarge = 3,
+    ShortEdge = 4,
+    NonPlanar = 5,
+    Concave = 6,
+};
+
+class PointCloud {
+public:
+    PointCloud() = default;
+    explicit PointCloud(const std::vector<Vec3>& inputPoints);
+
+    static PointCloud FromPlane(const Plane& plane);
+
+    void Allocate(std::size_t count);
+    PointCloud Reversed() const;
+    Plane GetPlane() const;
+    Fixed Area() const;
+    ObjectBounds Bounds() const;
+    Vec3 Center() const;
+    void Optimize();
+    PlaneClassification Classify(const Plane& plane, Fixed epsilon) const;
+    void ClipPositiveInPlace(const Plane& plane, Fixed epsilon);
+    PointCloud ClippedPositive(const Plane& plane, Fixed epsilon) const;
+    PointCloudValidation Validate() const;
+
+    std::size_t GetPointCount() const;
+    const std::vector<Vec3>& GetPoints() const;
+    std::vector<Vec3>& GetPoints();
+
+private:
+    std::vector<Vec3> points;
+};
 
 } // namespace soft3d

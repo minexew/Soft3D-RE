@@ -655,4 +655,543 @@ Matrix4 Transpose(const Matrix4& value)
     return result;
 }
 
+Matrix4 RotateZMatrix(uint16_t angle)
+{
+    Matrix4 result = Matrix4::Identity();
+    const Fixed sine = FixedSin(angle);
+    const Fixed cosine = FixedCos(static_cast<int16_t>(angle));
+    result.values[0] = cosine;
+    result.values[1] = sine;
+    result.values[4] = NegateFixed(sine);
+    result.values[5] = cosine;
+    return result;
+}
+
+Matrix4 EulerMatrix(uint16_t xAngle, uint16_t yAngle, uint16_t zAngle)
+{
+    const Fixed sx = FixedSin(xAngle);
+    const Fixed cx = FixedCos(static_cast<int16_t>(xAngle));
+    const Fixed sy = FixedSin(yAngle);
+    const Fixed cy = FixedCos(static_cast<int16_t>(yAngle));
+    const Fixed sz = FixedSin(zAngle);
+    const Fixed cz = FixedCos(static_cast<int16_t>(zAngle));
+    const Fixed sysx = FixedMultiply(sy, sx);
+    const Fixed sycx = FixedMultiply(sy, cx);
+    Matrix4 result = Matrix4::Identity();
+    result.values[0] = AddFixed(FixedMultiply(sysx, sz), FixedMultiply(cx, cz));
+    result.values[1] = FixedMultiply(cy, sz);
+    result.values[2] = SubtractFixed(FixedMultiply(sycx, sz), FixedMultiply(sx, cz));
+    result.values[4] = SubtractFixed(FixedMultiply(sysx, cz), FixedMultiply(cx, sz));
+    result.values[5] = FixedMultiply(cy, cz);
+    result.values[6] = AddFixed(FixedMultiply(sycx, cz), FixedMultiply(sx, sz));
+    result.values[8] = FixedMultiply(cy, sx);
+    result.values[9] = NegateFixed(sy);
+    result.values[10] = FixedMultiply(cy, cx);
+    return result;
+}
+
+Matrix4 AxisRotationMatrix(const Vec3& axis, uint16_t angle)
+{
+    const Fixed sine = FixedSin(angle);
+    const Fixed cosine = FixedCos(static_cast<int16_t>(angle));
+    const Fixed oneMinusCosine = SubtractFixed(fixedOne, cosine);
+    const Fixed xy = FixedMultiply(FixedMultiply(oneMinusCosine, axis.y), axis.x);
+    const Fixed xz = FixedMultiply(FixedMultiply(oneMinusCosine, axis.z), axis.x);
+    const Fixed xs = FixedMultiply(axis.x, sine);
+    const Fixed ys = FixedMultiply(axis.y, sine);
+    const Fixed zs = FixedMultiply(axis.z, sine);
+    Matrix4 result = Matrix4::Identity();
+    result.values[0] = AddFixed(
+        FixedMultiply(FixedMultiply(oneMinusCosine, axis.x), axis.x), cosine);
+    result.values[1] = SubtractFixed(xy, zs);
+    result.values[2] = AddFixed(xz, ys);
+    result.values[4] = AddFixed(xy, zs);
+    result.values[5] = AddFixed(
+        FixedMultiply(FixedMultiply(oneMinusCosine, axis.y), axis.y), cosine);
+    result.values[6] = SubtractFixed(xz, xs);
+    result.values[8] = SubtractFixed(xz, ys);
+    result.values[9] = AddFixed(FixedMultiply(FixedMultiply(oneMinusCosine, axis.z), axis.y), xs);
+    result.values[10] = AddFixed(
+        FixedMultiply(FixedMultiply(oneMinusCosine, axis.z), axis.z), cosine);
+    return result;
+}
+
+Matrix4 TranslationMatrix(Fixed x, Fixed y, Fixed z)
+{
+    Matrix4 result = Matrix4::Identity();
+    result.values[12] = x;
+    result.values[13] = y;
+    result.values[14] = z;
+    return result;
+}
+
+Matrix4& ScaleMatrix(Matrix4& matrix, Fixed x, Fixed y, Fixed z)
+{
+    for (unsigned column = 0; column < 4; ++column) {
+        const unsigned offset = column * 4;
+        matrix.values[offset] = FixedMultiply(matrix.values[offset], x);
+        matrix.values[offset + 1] = FixedMultiply(matrix.values[offset + 1], y);
+        matrix.values[offset + 2] = FixedMultiply(matrix.values[offset + 2], z);
+    }
+    return matrix;
+}
+
+Matrix4 ScaleMatrix(Fixed x, Fixed y, Fixed z)
+{
+    Matrix4 result;
+    result.values = {x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, fixedOne};
+    return result;
+}
+
+Matrix4& RotateX(Matrix4& matrix, uint16_t angle)
+{
+    const Fixed sine = FixedSin(angle);
+    const Fixed cosine = FixedCos(static_cast<int16_t>(angle));
+    for (unsigned column = 0; column < 4; ++column) {
+        const unsigned offset = column * 4;
+        const Fixed first = matrix.values[offset + 1];
+        const Fixed second = matrix.values[offset + 2];
+        matrix.values[offset + 1] = SubtractFixed(FixedMultiply(first, cosine),
+                                                  FixedMultiply(second, sine));
+        matrix.values[offset + 2] = AddFixed(FixedMultiply(first, sine),
+                                             FixedMultiply(second, cosine));
+    }
+    return matrix;
+}
+
+Matrix4& RotateY(Matrix4& matrix, uint16_t angle)
+{
+    const Fixed sine = FixedSin(angle);
+    const Fixed cosine = FixedCos(static_cast<int16_t>(angle));
+    for (unsigned column = 0; column < 4; ++column) {
+        const unsigned offset = column * 4;
+        const Fixed first = matrix.values[offset];
+        const Fixed second = matrix.values[offset + 2];
+        matrix.values[offset] = AddFixed(FixedMultiply(first, cosine),
+                                         FixedMultiply(second, sine));
+        matrix.values[offset + 2] = SubtractFixed(FixedMultiply(second, cosine),
+                                                  FixedMultiply(first, sine));
+    }
+    return matrix;
+}
+
+Matrix4& RotateZ(Matrix4& matrix, uint16_t angle)
+{
+    const Fixed sine = FixedSin(angle);
+    const Fixed cosine = FixedCos(static_cast<int16_t>(angle));
+    for (unsigned column = 0; column < 4; ++column) {
+        const unsigned offset = column * 4;
+        const Fixed first = matrix.values[offset];
+        const Fixed second = matrix.values[offset + 1];
+        matrix.values[offset] = SubtractFixed(FixedMultiply(first, cosine),
+                                              FixedMultiply(second, sine));
+        matrix.values[offset + 1] = AddFixed(FixedMultiply(first, sine),
+                                             FixedMultiply(second, cosine));
+    }
+    return matrix;
+}
+
+Matrix4& RotateEuler(Matrix4& matrix, uint16_t xAngle, uint16_t yAngle, uint16_t zAngle)
+{
+    const Matrix4 rotation = EulerMatrix(xAngle, yAngle, zAngle);
+    for (unsigned column = 0; column < 4; ++column) {
+        const unsigned offset = column * 4;
+        const Fixed x = matrix.values[offset];
+        const Fixed y = matrix.values[offset + 1];
+        const Fixed z = matrix.values[offset + 2];
+        matrix.values[offset] = AddFixed(AddFixed(FixedMultiply(x, rotation.values[0]),
+                                                  FixedMultiply(y, rotation.values[4])),
+                                         FixedMultiply(z, rotation.values[8]));
+        matrix.values[offset + 1] = AddFixed(AddFixed(FixedMultiply(x, rotation.values[1]),
+                                                      FixedMultiply(y, rotation.values[5])),
+                                             FixedMultiply(z, rotation.values[9]));
+        matrix.values[offset + 2] = AddFixed(AddFixed(FixedMultiply(x, rotation.values[2]),
+                                                      FixedMultiply(y, rotation.values[6])),
+                                             FixedMultiply(z, rotation.values[10]));
+    }
+    return matrix;
+}
+
+Matrix4& RotateAxis(Matrix4& matrix, const Vec3& axis, uint16_t angle)
+{
+    const Matrix4 rotation = AxisRotationMatrix(axis, angle);
+    for (unsigned column = 0; column < 4; ++column) {
+        const unsigned offset = column * 4;
+        const Fixed x = matrix.values[offset];
+        const Fixed y = matrix.values[offset + 1];
+        const Fixed z = matrix.values[offset + 2];
+        matrix.values[offset] = AddFixed(AddFixed(FixedMultiply(x, rotation.values[0]),
+                                                  FixedMultiply(y, rotation.values[4])),
+                                         FixedMultiply(z, rotation.values[8]));
+        matrix.values[offset + 1] = AddFixed(AddFixed(FixedMultiply(x, rotation.values[1]),
+                                                      FixedMultiply(y, rotation.values[5])),
+                                             FixedMultiply(z, rotation.values[9]));
+        matrix.values[offset + 2] = AddFixed(AddFixed(FixedMultiply(x, rotation.values[2]),
+                                                      FixedMultiply(y, rotation.values[6])),
+                                             FixedMultiply(z, rotation.values[10]));
+    }
+    return matrix;
+}
+
+Fixed Determinant2x2(Fixed a, Fixed b, Fixed c, Fixed d)
+{
+    return SubtractFixed(FixedMultiply(a, d), FixedMultiply(b, c));
+}
+
+Fixed Determinant3x3(Fixed a, Fixed b, Fixed c, Fixed d, Fixed e, Fixed f,
+                     Fixed g, Fixed h, Fixed i)
+{
+    return AddFixed(SubtractFixed(FixedMultiply(a, Determinant2x2(e, f, h, i)),
+                                  FixedMultiply(d, Determinant2x2(b, c, h, i))),
+                    FixedMultiply(g, Determinant2x2(b, c, e, f)));
+}
+
+Fixed Determinant(const Matrix4& m)
+{
+    const auto& v = m.values;
+    return SubtractFixed(
+        AddFixed(SubtractFixed(
+            FixedMultiply(v[0], Determinant3x3(v[5], v[9], v[13], v[6], v[10], v[14],
+                                               v[7], v[11], v[15])),
+            FixedMultiply(v[1], Determinant3x3(v[4], v[8], v[12], v[6], v[10], v[14],
+                                               v[7], v[11], v[15]))),
+            FixedMultiply(v[2], Determinant3x3(v[4], v[8], v[12], v[5], v[9], v[13],
+                                               v[7], v[11], v[15]))),
+        FixedMultiply(v[3], Determinant3x3(v[4], v[8], v[12], v[5], v[9], v[13],
+                                           v[6], v[10], v[14])));
+}
+
+Matrix4 Inverse(const Matrix4& matrix)
+{
+    const auto& v = matrix.values;
+    const Fixed inverseDeterminant = FixedDivide(fixedOne, Determinant(matrix));
+    Matrix4 result;
+    result.values[0] = FixedMultiply(Determinant3x3(v[5], v[9], v[13], v[6], v[10], v[14],
+                                                    v[7], v[11], v[15]), inverseDeterminant);
+    result.values[4] = FixedMultiply(NegateFixed(Determinant3x3(
+        v[4], v[8], v[12], v[6], v[10], v[14], v[7], v[11], v[15])), inverseDeterminant);
+    result.values[8] = FixedMultiply(Determinant3x3(v[4], v[8], v[12], v[5], v[9], v[13],
+                                                    v[7], v[11], v[15]), inverseDeterminant);
+    result.values[12] = FixedMultiply(NegateFixed(Determinant3x3(
+        v[4], v[8], v[12], v[5], v[9], v[13], v[6], v[10], v[14])), inverseDeterminant);
+    result.values[1] = FixedMultiply(NegateFixed(Determinant3x3(
+        v[1], v[9], v[13], v[2], v[10], v[14], v[3], v[11], v[15])), inverseDeterminant);
+    result.values[5] = FixedMultiply(Determinant3x3(v[0], v[8], v[12], v[2], v[10], v[14],
+                                                    v[3], v[11], v[15]), inverseDeterminant);
+    result.values[9] = FixedMultiply(NegateFixed(Determinant3x3(
+        v[0], v[8], v[12], v[1], v[9], v[13], v[3], v[11], v[15])), inverseDeterminant);
+    result.values[13] = FixedMultiply(Determinant3x3(v[0], v[8], v[12], v[1], v[9], v[13],
+                                                     v[2], v[10], v[14]), inverseDeterminant);
+    result.values[2] = FixedMultiply(Determinant3x3(v[1], v[5], v[13], v[2], v[6], v[14],
+                                                    v[3], v[7], v[15]), inverseDeterminant);
+    result.values[6] = FixedMultiply(NegateFixed(Determinant3x3(
+        v[0], v[4], v[12], v[2], v[6], v[14], v[3], v[7], v[15])), inverseDeterminant);
+    result.values[10] = FixedMultiply(Determinant3x3(v[0], v[4], v[12], v[1], v[5], v[13],
+                                                     v[3], v[7], v[15]), inverseDeterminant);
+    result.values[14] = FixedMultiply(NegateFixed(Determinant3x3(
+        v[0], v[4], v[12], v[1], v[5], v[13], v[2], v[6], v[14])), inverseDeterminant);
+    result.values[3] = FixedMultiply(NegateFixed(Determinant3x3(
+        v[1], v[5], v[9], v[2], v[6], v[10], v[3], v[7], v[11])), inverseDeterminant);
+    result.values[7] = FixedMultiply(Determinant3x3(v[0], v[4], v[8], v[2], v[6], v[10],
+                                                    v[3], v[7], v[11]), inverseDeterminant);
+    result.values[11] = FixedMultiply(NegateFixed(Determinant3x3(
+        v[0], v[4], v[8], v[1], v[5], v[9], v[3], v[7], v[11])), inverseDeterminant);
+    result.values[15] = FixedMultiply(Determinant3x3(v[0], v[4], v[8], v[1], v[5], v[9],
+                                                     v[2], v[6], v[10]), inverseDeterminant);
+    return result;
+}
+
+Matrix4 Inverse3x3(const Matrix4& matrix)
+{
+    const auto& v = matrix.values;
+    const Fixed c00 = SubtractFixed(FixedMultiply(v[5], v[10]), FixedMultiply(v[6], v[9]));
+    const Fixed c10 = SubtractFixed(FixedMultiply(v[6], v[8]), FixedMultiply(v[4], v[10]));
+    const Fixed c20 = SubtractFixed(FixedMultiply(v[4], v[9]), FixedMultiply(v[5], v[8]));
+    const Fixed determinant = AddFixed(AddFixed(FixedMultiply(v[0], c00),
+                                                FixedMultiply(v[1], c10)),
+                                       FixedMultiply(v[2], c20));
+    if (AbsFixed(determinant) < 0x28f) {
+        return matrix;
+    }
+    const Fixed inverseDeterminant = FixedDivide(fixedOne, determinant);
+    Matrix4 result;
+    result.values[0] = FixedMultiply(c00, inverseDeterminant);
+    result.values[1] = FixedMultiply(SubtractFixed(FixedMultiply(v[2], v[9]),
+                                                   FixedMultiply(v[1], v[10])), inverseDeterminant);
+    result.values[2] = FixedMultiply(SubtractFixed(FixedMultiply(v[1], v[6]),
+                                                   FixedMultiply(v[2], v[5])), inverseDeterminant);
+    result.values[4] = FixedMultiply(c10, inverseDeterminant);
+    result.values[5] = FixedMultiply(SubtractFixed(FixedMultiply(v[0], v[10]),
+                                                   FixedMultiply(v[2], v[8])), inverseDeterminant);
+    result.values[6] = FixedMultiply(SubtractFixed(FixedMultiply(v[2], v[4]),
+                                                   FixedMultiply(v[0], v[6])), inverseDeterminant);
+    result.values[8] = FixedMultiply(c20, inverseDeterminant);
+    result.values[9] = FixedMultiply(SubtractFixed(FixedMultiply(v[1], v[8]),
+                                                   FixedMultiply(v[0], v[9])), inverseDeterminant);
+    result.values[10] = FixedMultiply(SubtractFixed(FixedMultiply(v[0], v[5]),
+                                                    FixedMultiply(v[1], v[4])), inverseDeterminant);
+    return result;
+}
+
+Matrix4 OrthographicMatrix(Fixed width, Fixed height, Fixed nearDistance, Fixed farDistance)
+{
+    const Fixed depth = FixedDivide(fixedOne, SubtractFixed(farDistance, nearDistance));
+    Matrix4 result;
+    result.values = {FixedDivide(0x20000, width), 0, 0, 0,
+                     0, FixedDivide(0x20000, height), 0, 0,
+                     0, 0, depth, 0,
+                     0, 0, FixedMultiply(NegateFixed(depth), nearDistance), fixedOne};
+    return result;
+}
+
+Matrix4 OrthographicMatrixNegativeDepth(Fixed width, Fixed height, Fixed nearDistance,
+                                        Fixed farDistance)
+{
+    const Fixed depth = FixedDivide(fixedOne, SubtractFixed(nearDistance, farDistance));
+    Matrix4 result;
+    result.values = {FixedDivide(0x20000, width), 0, 0, 0,
+                     0, FixedDivide(0x20000, height), 0, 0,
+                     0, 0, depth, 0,
+                     0, 0, FixedMultiply(depth, nearDistance), fixedOne};
+    return result;
+}
+
+Matrix4 OrthographicBoundsMatrix(Fixed left, Fixed right, Fixed bottom, Fixed top,
+                                 Fixed nearDistance, Fixed farDistance)
+{
+    const Fixed inverseWidth = FixedDivide(fixedOne, SubtractFixed(left, right));
+    const Fixed inverseHeight = FixedDivide(fixedOne, SubtractFixed(bottom, top));
+    const Fixed depth = FixedDivide(fixedOne, SubtractFixed(farDistance, nearDistance));
+    Matrix4 result;
+    result.values = {FixedMultiply(0xfffe0000, inverseWidth), 0, 0, 0,
+                     0, FixedMultiply(0xfffe0000, inverseHeight), 0, 0,
+                     0, 0, depth, 0,
+                     FixedMultiply(AddFixed(left, right), inverseWidth),
+                     FixedMultiply(AddFixed(bottom, top), inverseHeight),
+                     FixedMultiply(NegateFixed(depth), nearDistance), fixedOne};
+    return result;
+}
+
+Matrix4 OrthographicBoundsMatrixNegativeDepth(Fixed left, Fixed right, Fixed bottom, Fixed top,
+                                              Fixed nearDistance, Fixed farDistance)
+{
+    Matrix4 result = OrthographicBoundsMatrix(left, right, bottom, top, nearDistance, farDistance);
+    const Fixed depth = FixedDivide(fixedOne, SubtractFixed(nearDistance, farDistance));
+    result.values[10] = depth;
+    result.values[14] = FixedMultiply(depth, nearDistance);
+    return result;
+}
+
+Matrix4 PerspectiveTanMatrix(int16_t angle, Fixed aspectRatio, Fixed nearDistance,
+                             Fixed farDistance)
+{
+    const Fixed scaleY = FixedDivide(fixedOne, FixedTan(static_cast<uint16_t>(angle >> 1)));
+    const Fixed depth = FixedDivide(farDistance, SubtractFixed(nearDistance, farDistance));
+    Matrix4 result;
+    result.values = {FixedDivide(scaleY, aspectRatio), 0, 0, 0,
+                     0, scaleY, 0, 0,
+                     0, 0, depth, NegateFixed(fixedOne),
+                     0, 0, FixedMultiply(nearDistance, depth), 0};
+    return result;
+}
+
+Matrix4 PerspectiveMatrix(Fixed width, Fixed height, Fixed nearDistance, Fixed farDistance)
+{
+    const Fixed doubleNear = FixedMultiply(0x20000, nearDistance);
+    const Fixed depth = FixedDivide(farDistance, SubtractFixed(farDistance, nearDistance));
+    Matrix4 result;
+    result.values = {FixedDivide(doubleNear, width), 0, 0, 0,
+                     0, FixedDivide(doubleNear, height), 0, 0,
+                     0, 0, depth, fixedOne,
+                     0, 0, FixedMultiply(NegateFixed(nearDistance), depth), 0};
+    return result;
+}
+
+Matrix4 PerspectiveMatrixNegativeDepth(Fixed width, Fixed height, Fixed nearDistance,
+                                       Fixed farDistance)
+{
+    const Fixed doubleNear = FixedMultiply(0x20000, nearDistance);
+    const Fixed depth = FixedDivide(farDistance, SubtractFixed(nearDistance, farDistance));
+    Matrix4 result;
+    result.values = {FixedDivide(doubleNear, width), 0, 0, 0,
+                     0, FixedDivide(doubleNear, height), 0, 0,
+                     0, 0, depth, NegateFixed(fixedOne),
+                     0, 0, FixedMultiply(nearDistance, depth), 0};
+    return result;
+}
+
+Matrix4 FrustumMatrix(Fixed left, Fixed right, Fixed bottom, Fixed top,
+                      Fixed nearDistance, Fixed farDistance)
+{
+    const Fixed doubleNear = FixedMultiply(0xfffe0000, nearDistance);
+    const Fixed inverseWidth = FixedDivide(fixedOne, SubtractFixed(left, right));
+    const Fixed inverseHeight = FixedDivide(fixedOne, SubtractFixed(bottom, top));
+    const Fixed depth = FixedDivide(farDistance, SubtractFixed(farDistance, nearDistance));
+    Matrix4 result;
+    result.values = {FixedMultiply(doubleNear, inverseWidth), 0, 0, 0,
+                     0, FixedMultiply(doubleNear, inverseHeight), 0, 0,
+                     FixedMultiply(AddFixed(left, right), inverseWidth),
+                     FixedMultiply(AddFixed(bottom, top), inverseHeight),
+                     depth, fixedOne,
+                     0, 0, FixedMultiply(NegateFixed(nearDistance), depth), 0};
+    return result;
+}
+
+Matrix4 FrustumMatrixNegativeDepth(Fixed left, Fixed right, Fixed bottom, Fixed top,
+                                   Fixed nearDistance, Fixed farDistance)
+{
+    const Fixed doubleNear = FixedMultiply(0x20000, nearDistance);
+    const Fixed inverseWidth = FixedDivide(fixedOne, SubtractFixed(right, left));
+    const Fixed inverseHeight = FixedDivide(fixedOne, SubtractFixed(top, bottom));
+    const Fixed depth = FixedDivide(farDistance, SubtractFixed(nearDistance, farDistance));
+    Matrix4 result;
+    result.values = {FixedMultiply(doubleNear, inverseWidth), 0, 0, 0,
+                     0, FixedMultiply(doubleNear, inverseHeight), 0, 0,
+                     FixedMultiply(AddFixed(left, right), inverseWidth),
+                     FixedMultiply(AddFixed(bottom, top), inverseHeight),
+                     depth, NegateFixed(fixedOne),
+                     0, 0, FixedMultiply(nearDistance, depth), 0};
+    return result;
+}
+
+Matrix4 ViewportMatrix(int32_t left, int32_t top, uint32_t width, uint32_t height,
+                       Fixed nearDistance, Fixed farDistance)
+{
+    const Fixed halfWidth = static_cast<Fixed>(((width >> 1) & 0xffffU) << 16);
+    const Fixed halfHeight = static_cast<Fixed>(((height >> 1) & 0xffffU) << 16);
+    Matrix4 result;
+    result.values = {halfWidth, 0, 0, 0,
+                     0, NegateFixed(halfHeight), 0, 0,
+                     0, 0, SubtractFixed(farDistance, nearDistance), 0,
+                     AddFixed(ShiftLeftFixed(left, 16), halfWidth),
+                     AddFixed(ShiftLeftFixed(top, 16), halfHeight),
+                     nearDistance, fixedOne};
+    return result;
+}
+
+Matrix4 ReflectionMatrix(const Vec4& plane)
+{
+    const Fixed nx = FixedMultiply(0xfffe0000, plane.x);
+    const Fixed ny = FixedMultiply(0xfffe0000, plane.y);
+    const Fixed nw = FixedMultiply(0xfffe0000, plane.w);
+    const Fixed xy = FixedMultiply(nx, plane.y);
+    const Fixed xz = FixedMultiply(nx, plane.z);
+    const Fixed yz = FixedMultiply(ny, plane.z);
+    Matrix4 result;
+    result.values = {AddFixed(FixedMultiply(nx, plane.x), fixedOne), xy, xz, 0,
+                     xy, AddFixed(FixedMultiply(ny, plane.y), fixedOne), yz, 0,
+                     xz, yz, AddFixed(FixedMultiply(FixedMultiply(0xfffe0000, plane.z), plane.z),
+                                      fixedOne), 0,
+                     FixedMultiply(nw, plane.x), FixedMultiply(nw, plane.y),
+                     FixedMultiply(nw, plane.z), fixedOne};
+    return result;
+}
+
+Matrix4 PlaneProjectionMatrix(const Vec3& normal, const Vec4& coefficients)
+{
+    Matrix4 result;
+    result.values = {
+        AddFixed(FixedMultiply(NegateFixed(coefficients.x), normal.x), fixedOne),
+        FixedMultiply(NegateFixed(coefficients.x), normal.y),
+        FixedMultiply(NegateFixed(coefficients.x), normal.z), 0,
+        FixedMultiply(NegateFixed(coefficients.y), normal.x),
+        AddFixed(FixedMultiply(NegateFixed(coefficients.y), normal.y), fixedOne),
+        FixedMultiply(NegateFixed(coefficients.y), normal.z), 0,
+        FixedMultiply(NegateFixed(coefficients.z), normal.x),
+        FixedMultiply(NegateFixed(coefficients.z), normal.y),
+        AddFixed(FixedMultiply(NegateFixed(coefficients.z), normal.z), fixedOne), 0,
+        FixedMultiply(NegateFixed(coefficients.w), normal.x),
+        FixedMultiply(NegateFixed(coefficients.w), normal.y),
+        FixedMultiply(NegateFixed(coefficients.w), normal.z), fixedOne
+    };
+    return result;
+}
+
+Matrix4 AxesMatrix(const Vec3& x, const Vec3& y, const Vec3& z)
+{
+    Matrix4 result;
+    result.values = {x.x, y.x, z.x, 0, x.y, y.y, z.y, 0,
+                     x.z, y.z, z.z, 0, 0, 0, 0, fixedOne};
+    return result;
+}
+
+Matrix4 MatrixFromValues(Fixed m0, Fixed m1, Fixed m2, Fixed m3,
+                         Fixed m4, Fixed m5, Fixed m6, Fixed m7,
+                         Fixed m8, Fixed m9, Fixed m10, Fixed m11,
+                         Fixed m12, Fixed m13, Fixed m14, Fixed m15)
+{
+    Matrix4 result;
+    result.values = {m0, m1, m2, m3, m4, m5, m6, m7,
+                     m8, m9, m10, m11, m12, m13, m14, m15};
+    return result;
+}
+
+Vec4 TransformVec4(const Matrix4& matrix, const Vec4& value)
+{
+    const auto transformRow = [&matrix, &value](unsigned row) {
+        return AddFixed(AddFixed(AddFixed(FixedMultiply(matrix.values[row], value.x),
+                                          FixedMultiply(matrix.values[row + 4], value.y)),
+                                 FixedMultiply(matrix.values[row + 8], value.z)),
+                        FixedMultiply(matrix.values[row + 12], value.w));
+    };
+    return {transformRow(0), transformRow(1), transformRow(2), transformRow(3)};
+}
+
+Vec4 TransformInverse(const Matrix4& matrix, const Vec4& value)
+{
+    return TransformVec4(Inverse(matrix), value);
+}
+
+Vec3 Project(const Vec3& input, const Matrix4& world, const Matrix4& view,
+             const Matrix4& projection, const Matrix4& viewport)
+{
+    Vec4 current{input.x, input.y, input.z, fixedOne};
+    current = TransformVec4(world, current);
+    current = TransformVec4(view, current);
+    current = TransformVec4(projection, current);
+    const Fixed inverseW = FixedDivide(fixedOne, current.w);
+    return Transform(viewport, Vec3{FixedMultiply(current.x, inverseW),
+                                    FixedMultiply(current.y, inverseW),
+                                    FixedMultiply(current.z, inverseW)});
+}
+
+Vec3 Unproject(const Vec3& input, const Matrix4& world, const Matrix4& view,
+               const Matrix4& projection, const Matrix4& viewport)
+{
+    Vec3 result = Transform(Inverse(viewport), input);
+    result = Transform(Inverse(projection), result);
+    result = Transform(Inverse(view), result);
+    return Transform(Inverse(world), result);
+}
+
+Matrix4 QuaternionToMatrix(const Vec4& q)
+{
+    const Fixed x2 = FixedMultiply(0x20000, q.x);
+    const Fixed y2 = FixedMultiply(0x20000, q.y);
+    const Fixed z2 = FixedMultiply(0x20000, q.z);
+    const Fixed wx = FixedMultiply(q.w, x2);
+    const Fixed wy = FixedMultiply(q.w, y2);
+    const Fixed wz = FixedMultiply(q.w, z2);
+    const Fixed xx = FixedMultiply(q.x, x2);
+    const Fixed xy = FixedMultiply(q.x, y2);
+    const Fixed xz = FixedMultiply(q.x, z2);
+    const Fixed yy = FixedMultiply(q.y, y2);
+    const Fixed yz = FixedMultiply(q.y, z2);
+    const Fixed zz = FixedMultiply(q.z, z2);
+    Matrix4 result;
+    result.values = {
+        SubtractFixed(fixedOne, AddFixed(yy, zz)),
+        AddFixed(xy, wz),
+        SubtractFixed(xz, wy), 0,
+        SubtractFixed(xy, wz),
+        SubtractFixed(fixedOne, AddFixed(xx, zz)),
+        AddFixed(yz, wx), 0,
+        AddFixed(xz, wy),
+        SubtractFixed(yz, wx),
+        SubtractFixed(fixedOne, AddFixed(xx, yy)), 0,
+        0, 0, 0, fixedOne
+    };
+    return result;
+}
+
 } // namespace soft3d

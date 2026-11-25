@@ -178,44 +178,47 @@ Session-30 handoff: no unresolved scalar/vector candidate remains. The new APIs 
 
 Session-30 validation passed the complete serial matrix: **40/40 default**, **33/33 SDL-independent core**, **40/40 STDIO logging**, **40/40 host trigonometry**, **40/40 WAR**, **33/33 ASan/UBSan**, and **19/19 applicable English-layout** tests, plus **6/6 SOJ** and **8/8 S3DTEX** Python tests. Host-math expectations distinguish the explicit nonfaithful sine/cosine variant from the native lookup-table values.
 
-## Session 31: matrix, plane, frustum, and point-cloud gaps
+## Session 31: matrix, projection, ray, plane, and point-cloud completion ledger
 
-| Native address / owner | Native evidence | Disposition | Planned test |
-|---|---|---|---|
-| `0x0011be64`, `0x0011cc90`, `0x001291c8` | Full cofactor matrix inversion with `1/determinant`; wrapper zero-initializes output. | **missing useful API**; second body is **duplicate compiled body** | **31A**: identity, affine, general, singular determinant (native `FixedDivide` result). |
-| `0x0011bbac` | Matrix assignment copy of 16 entries. | **missing useful API** | **31A**. |
-| `0x0011d2d4`, `0x0011d3f0` | In-place scale and scale-matrix factory. | **missing useful API** | **31A**: all columns including translation behavior. |
-| `0x0011d698` | Identity with explicit translation; uncalled variant of the identity family. | **missing useful API** | **31A**. |
-| `0x0011d8d4`, `0x0011de74`, `0x0011e408`, `0x0011e750`, `0x0011e99c`, `0x0011f2a8` | Uncalled rotate-X/Y/Z factory/setter variants and duplicates. | **missing useful API**; duplicates documented | **31A**: exact entries against existing reachable rotation routines. |
-| `0x0011f6e0`, `0x0011ff7c` | Euler rotation factories/setters; the setter has callers, the uncalled body is still a useful public operation. | **implemented arithmetic / missing useful API variant** | **31A**: composition order and all 16 entries. |
-| `0x00120344`, `0x00120c50` | Uncalled multiply variants using the same storage order as the reachable multiplier. | **duplicate compiled body / intentionally omitted as separate portable APIs** | **X**; retain `Multiply`, **E**. |
-| `0x001214b8` | Uncalled LookAt duplicate with the same basis rules as `FixedMat4_LookAt`. | **implemented** | **E**. |
-| `0x00121738`, `0x00121a08` | Orthographic matrix with `2/width`, `2/height`, `1/(far-near)`, and native translation. | **missing useful API**; duplicate documented | **31A**: exact matrix and zero-span behavior. |
-| `0x00121cc8`, `0x00122040` | Frustum factory with signed `-2` terms and native near/far placement. | **missing useful API**; duplicate documented | **31A**: asymmetric bounds and exact entries. |
-| `0x00122674` | Perspective from tangent half-angle, with `m[11]=-1` and positive far*scale term. | **missing useful API** | **31A**: distinguish sign/layout from active Camera projection. |
-| `0x00122930`, `0x00122bf0` | Perspective from width/height/near/far with `m[11]=+1` and negative near*scale term. | **missing useful API**; duplicate documented | **31A**: compare active Camera defaults. |
-| `0x00122ea4`, `0x00123208` | Viewport matrix combining NDC scale/offset and depth mapping. | **missing useful API**; duplicate documented | **31A**: exact entries and reversed bounds. |
-| `0x00123564` | Shear/offset matrix using half-width/height shifts and near/far subtraction. | **missing useful API** | **31A**: odd integer truncation and all entries. |
-| `0x00123bf4` `Matrix4_SetReflection` | Reflection from plane `(a,b,c,d)`: `I-2*n*n^T`, translation `-2*d*n`. | **missing useful API** | **31A**: axis and oblique planes. |
-| `0x000ec4a4`, `0x00123820`, `0x00123f80` | Matrix construction from axes, rotation axes, and raw 16-value assignment. | **missing useful API** | **31A**: storage order, normalization assumptions, exact values. |
-| `0x0008132c`, `0x000cfee8`, `0x00081298` | Plane zero/set constructors and `dot(normal,point)+distance`. | **missing useful API as public Plane type**; arithmetic already exists privately | **31B**. |
-| `0x00124118`, `0x00124164`, `0x001241bc` | Plane normal normalization with `d` copied unchanged, point+normal transform using the same matrix, and normal dot. | **missing useful API** | **31B**: verify native non-inverse-transpose behavior. |
-| `0x0012ac38` `Plane_FromPointNormal` | Builds `(normal, -dot(point,normal))`; not Vec3 unprojection. | **missing useful API** | **31B**. |
-| `0x00129ba4`, `0x00129f3c` | Plane signed distance with optional projected point, and ray intersection with `0x28f` parallelism threshold. | **missing useful API** | **31B**: parallel, behind, threshold, optional output. |
-| `0x000cf8ec` | Tests five clip planes and rejects when distance < `-point.w` (the input is treated as Vec3 plus following `w` storage). | **missing useful API** | **31B**: each plane, exact boundary, input layout. |
-| `0x0012c9d8`, `0x0012cdd0` `PointCloud_FromPlane` | Allocates four points on a plane from `(normal,d)`, choosing a basis from the dominant normal axis. Not bounds construction. | **missing useful API**; duplicate documented | **31B**: each dominant axis, sign ties, exact winding/center. |
-| `0x0012d1c8`, `0x0012d304`, `0x0012fefc`, `0x0012ffc8` | PointCloud deep assignment, reversed copy, allocation, and deep copy. | **missing useful API** | **31B**: independent ownership, empty, repeated assignment. |
-| `0x0012d3bc`, `0x0012d470` | First-three-point normalized plane and fan triangulation area. | **missing useful API** | **31B**: winding, area, degenerates. |
-| `0x0012d5cc`, `0x0012d648` | Bounds via native invalid sentinel and average center. | **missing useful API** | **31B**: empty count behavior and exact division. |
-| `0x0012d75c` | Removes vertices when adjacent normalized edge dot >= `0xffbe`; includes native cleanup quirks. | **missing useful API** | **31B**: collinear/corner cases, count zero, repeated optimize. |
-| `0x0012da7c` | Plane classification with epsilon; returns 1 positive, 2 negative, 3 spanning, 4 on-plane. | **missing useful API** | **31B**: all four results and epsilon boundaries. |
-| `0x0012dbd4` | In-place positive/on-plane split with edge intersections and axis-plane special cases. | **missing useful API** | **31B**: mixed winding, axis planes, no-positive case, allocation safety. |
-| `0x0012e56c`, `0x0012ef20` | Allocating positive/on-plane clip, returning a copy when wholly inside; duplicate compiled body. | **missing useful API**; duplicate documented | **31B**: inside/outside/spanning, ownership, empty result. |
-| `0x0012fb18` | Polygon validation/build-plane result codes 0..6 for valid, too few points, small area, large coordinate, short edge, nonplanar, concave. | **missing useful API** | **31B**: one directed fixture per result and thresholds `1.0`, `0x1999`, `0x28f`, `0x20000000`. |
+Session 31 closed all **31A/31B** candidates. Detailed contracts and native quirks are recorded in `soft3d_geometry.md`; implementations are in `Fixed.*` and `Geometry.*`, with public-consumer coverage in `test_math.cpp` and `test_geometry.cpp`. The investigation corrected several Session-29 body-level classifications rather than preserving inaccurate duplicate labels.
 
-### Native geometry names corrected in this pass
+| Native address(es) | Portable API and current disposition | Native-derived verification |
+|---|---|---|
+| `0x0011b804`, `0x0011b708`, `0x0011b370` | `Determinant2x2`, nine-scalar `Determinant3x3`, `Determinant`: **matches** | Exact fixed minors, expansion order, signed results, and general determinant. |
+| `0x0011be64`, `0x001291c8` | `Inverse`: **matches** | Exact 16 cofactor entries for a general matrix, identity/affine behavior through transform tests, and all-zero singular result. |
+| `0x0011cc90` | `Inverse3x3`: **intentional portable safety difference** | Separate 3x3 inverse and `0x28f` singular copy threshold match. The value return zero-initializes the seven non-3x3 entries that the native non-singular body leaves untouched. |
+| `0x0011bbac` | Existing `Transpose`: **implemented / corrected** | This is an in-place-capable transpose, not matrix assignment. No second portable transpose was added. |
+| `0x0011d2d4`, `0x0011d3f0`, `0x0011d698` | `ScaleMatrix` mutation/factory and `TranslationMatrix`: **matches** | Every entry, translation-column scaling, identity, and native argument order. |
+| `0x0011d8d4`, `0x0011de74`, `0x0011e408`, `0x0011e750` | `RotateX`, `RotateY`, `RotateZ` and `RotateZMatrix`: **matches** | Exact table-driven entries and in-place cached-pair mutation. `0x0011e408`/`0x0011e750` are Z rotation, not Y duplicates. |
+| `0x0011e99c`, `0x0011f2a8` | `RotateEuler`, `EulerMatrix`: **matches / corrected** | Three-angle coefficient order and exact `0xffff` table products. These are Euler routines. |
+| `0x0011f6e0`, `0x0011ff7c` | `RotateAxis`, `AxisRotationMatrix`: **matches / corrected** | Axis-angle coefficient/sign order and in-place application, separately from Euler rotation. |
+| `0x00120344`, `0x00120c50`, `0x001214b8` | Existing `Multiply` and `LookAt`: **implemented / intentionally omitted as duplicate entrypoints** | Composition order is tested through the existing multiplier; no duplicate portable bodies or additional LookAt wrapper were added. |
+| `0x00121738`, `0x00121a08` | `OrthographicMatrix`, `OrthographicMatrixNegativeDepth`: **matches / corrected** | Exact matrices and zero spans. The bodies have distinct depth/translation signs and are not duplicates. |
+| `0x00121cc8`, `0x00122040` | `OrthographicBoundsMatrix`, `OrthographicBoundsMatrixNegativeDepth`: **matches / corrected** | Asymmetric bounds, all entries, and distinct negative-depth behavior. These are bounded orthographic factories, not perspective frusta. |
+| `0x00122674` | `PerspectiveTanMatrix`: **matches** | Tangent half-angle, aspect, negative `w`, and near/far terms. |
+| `0x00122930`, `0x00122bf0` | `PerspectiveMatrix`, `PerspectiveMatrixNegativeDepth`: **matches / corrected** | Exact width/height matrices and distinct depth/w signs. |
+| `0x00122ea4`, `0x00123208` | `FrustumMatrix`, `FrustumMatrixNegativeDepth`: **matches / corrected** | Asymmetric perspective bounds and both sign conventions. These are frustum factories, not viewport matrices or duplicates. |
+| `0x00123564` | `ViewportMatrix`: **matches / corrected** | Actual viewport mapping, odd integer half-extents, raw far-minus-near depth, offsets, and reversed-range arithmetic. |
+| `0x00123bf4` | `ReflectionMatrix`: **matches** | Axis and oblique-plane formula coverage. |
+| `0x000ec4a4`, `0x00123820`, `0x00123f80` | `AxesMatrix`, `PlaneProjectionMatrix`, `MatrixFromValues`: **matches / corrected** | Native component order and raw values. `0x00123820` is the `I-coefficients*normal` plane projection, not rotation axes. |
+| `0x00127678`, `0x00130414`, `0x0012c47c` | `TransformVec4`, `TransformInverse`, `QuaternionToMatrix`: **matches** | All homogeneous components, inverse transform, and basis quaternion matrices. Type-specific Vec4 naming avoids changing braced Vec3 call sites. |
+| `0x00128f50`, `0x0012907c` | `Project`, `Unproject`: **matches** | Identity, affine round trip, directed perspective projection, zero `w`, and singular behavior. Native unprojection performs no final homogeneous divide. |
+| `0x0008132c`, `0x000cfee8`, `0x00081298`, `0x0012ac38` | Public `Plane`, `PlaneDistance`, `PlaneFromPointNormal`: **matches** | Zero/value layout, signed distance, and point/normal construction. |
+| `0x00124118`, `0x00124164`, `0x001241bc` | Public `Ray`, `NormalizeRay`, `TransformRay`, `DotDirection`: **matches / corrected** | These are 24-byte origin/direction ray operations, not plane normalization. Direction receives affine translation in `TransformRay`. |
+| `0x00129a0c`, `0x0012acb4`, `0x00129ba4`, `0x00129f3c`, `0x00129ce8` | `DistanceToRay`, `DistanceToLine`, `PlaneDistanceAndProject`, `PlaneIntersectRay`, `SegmentIntersectionDistance`: **matches** | Perpendicular/closest point, nested-root result, signed `0x28f` projection branch, parallel/behind rays, and native segment arithmetic. |
+| `0x0012ab14`, `0x000cf8ec` | `Slide`, `OutsideFrustum`: **matches** | Exact `0x1028f` projection and each of five planes, including `-w` equality boundaries. |
+| `0x0012c9d8`, `0x0012cdd0` | `PointCloud::FromPlane`: **matches** | Each dominant axis, winding, `0x20000000` extent, and original `normal*d` center sign. |
+| `0x0012d1c8`, `0x0012d304`, `0x0012fefc`, `0x0012ffc8` | PointCloud deep copy/assignment, `Reversed`, `Allocate`: **matches with ownership-safe value storage** | Independent copies, reversed order, zero allocation, empty input, and repeated operations without native leaks. |
+| `0x0012d3bc`, `0x0012d470`, `0x0012d5cc`, `0x0012d648` | `GetPlane`, `Area`, `Bounds`, `Center`: **matches** for valid nonempty input | Exact approximate normalization, fan area, invalid bounds sentinel, and fixed average. Empty plane/center guards are **intentional portable safety differences**. |
+| `0x0012d75c`, `0x0012da7c` | `Optimize`, `Classify`: **matches** for valid input | `0xffbe` collinear threshold, corners, repeated calls, all four classifications, and epsilon boundaries. Empty optimize is a safety no-op; vector ownership fixes the unchanged-case native leak. |
+| `0x0012dbd4`, `0x0012e56c` | `ClipPositiveInPlace`, `ClippedPositive`: **intentional portable safety difference** | Intended native classification, traversal, axis-plane intersection, and interpolation arithmetic are tested for inside/outside/spanning/on-plane input. Safe vector ownership replaces native invalid counts, freed-memory copies, lost outputs, and leaks. |
+| `0x0012ef20` | **intentionally omitted / corrected** | This is a broken two-sided allocating variant, not a duplicate usable clip. It loses both outputs and leaks them; no invented portable output semantics were assigned. |
+| `0x0012fb18` | `Validate` and `PointCloudValidation`: **matches** | One directed fixture for every result 0..6 and native thresholds/check order. |
+| `0x000838e0`–`0x000883fc`, existing Camera/CameraSpot/CameraPathController surface | Existing Bezier degree/edit/transform/bounds/timing/SPL and camera-path storage/controller APIs: **implemented** | `test_spl.cpp` and existing real camera/engine frames remain the coverage; Session 31 found no additional useful gap to implement. |
 
-`FixedVec3_Unproject` at `0x0012ac38` was actually `Plane_FromPointNormal`; real unprojection is `0x0012907c`. `FixedVec3_Perpendicular` at `0x0012a564` is the already portable segment/AABB test and is now `Segment_IntersectsBounds`. `Matrix4_SetTransform` at `0x00123bf4` is `Matrix4_SetReflection`. `PointCloud_FromBounds` at `0x0012c9d8` is `PointCloud_FromPlane`. These are evidence corrections, not portable behavior changes.
+The Session-29 names `Matrix4_Assign`, `Matrix4_InvertDuplicate`, `Matrix4_SetViewport`, `Plane_Normalize`, `Plane_Transform`, and `Plane_DotNormal` were therefore inaccurate for their respective bodies. Ghidra now carries corrected semantic names, 49 cleaned prototypes, explicit `Plane`/`Ray`/`PointCloud` structures, evidence comments, and Stage-31 tags. It was saved and read back with no unsaved changes.
+
+Session-31 validation passed the complete serial matrix: **41/41 default**, **34/34 SDL-independent core**, **41/41 STDIO logging**, **41/41 host trigonometry**, **41/41 WAR**, **34/34 ASan/UBSan**, and **20/20 applicable English-layout** tests, plus **6/6 SOJ** and **8/8 S3DTEX** Python tests. The sanitizer run included the complete 353-second real `game_integration` sweep. The English set retains the documented 14 Chinese-only exclusions rather than claiming English-archive coverage without a matching fixture.
 
 ## Session 32: resource, texture, renderer, and BSP gaps
 
@@ -272,10 +275,10 @@ This section closes the remaining zero-direct-reference candidates. Each row's a
 ## Handoff to sessions 30–34A
 
 1. **Session 30 — complete:** scalar/conversion, Color4, vector, and quaternion rows are implemented in `Fixed.*`/`Color.hpp`, with native-derived `test_math.cpp` coverage and the completion ledger above. Existing consumers were not rerouted; repeated-x helpers and native truncation are preserved.
-2. **Session 31:** implement matrix factories/inversion, project/unproject, Plane/frustum, and PointCloud with explicit ownership. Native allocation/copy bugs must be documented separately from any portable bounds/lifetime hardening.
+2. **Session 31 — complete:** matrix determinants/inversion/factories, all distinct projection conventions, project/unproject, Plane/Ray/frustum/slide, and owning PointCloud operations are implemented in `Fixed.*`/`Geometry.*`. `test_math.cpp` and `test_geometry.cpp` cover the recovered public surface; camera/Bezier/SPL storage was confirmed already complete. Native classification mistakes and broken allocation bodies are explicitly corrected or excluded in the Session-31 ledger and `soft3d_geometry.md`.
 3. **Session 32:** recover TextureTarget, sprite submission, 16-bit span fill, and dynamic-light ownership. Do not expose native scanline/runtime support as portable public API.
 4. **Session 33:** recover the input/sound/dialog builders and ScreenRect/S3dPoint helpers. Keep original no-ops empty.
 5. **Session 34:** rerun this inventory, add an external consumer linking only `soft3d`, and require every “missing useful API” row to become implemented or receive a documented exclusion with native evidence.
 6. **Session 34A:** process `game_object_inventory.md` separately, recovering missing game-owned APIs and correcting the documented ActionUp edge without moving game policy into reusable Soft3D.
 
-Ghidra carries corrected names/prototypes for the high-confidence Color4, Vec2/Vec3/Vec4, quaternion, projection, reflection, plane, and point-cloud bodies. `stage29`/`sdk-candidate` tags identify reviewed candidates. Session 30 added distinct signed/unsigned 16/17 reciprocal names, `Quaternion_Identity`, 47 cleaned prototypes, `stage30`/`sdk-recovered` tags on all 61 recovered/duplicate bodies, and eight bookmarks for native quirks; the program was saved and read back with no unsaved changes.
+Ghidra carries corrected names/prototypes for the high-confidence Color4, Vec2/Vec3/Vec4, quaternion, projection, reflection, plane, and point-cloud bodies. `stage29`/`sdk-candidate` tags identify reviewed candidates. Session 30 added distinct signed/unsigned 16/17 reciprocal names, `Quaternion_Identity`, 47 cleaned prototypes, `stage30`/`sdk-recovered` tags on all 61 recovered/duplicate bodies, and eight bookmarks for native quirks. Session 31 corrected 27 semantic names, applied 49 typed prototypes, added 16-byte `Plane`, 24-byte `Ray`, and 8-byte `PointCloud` structures, wrote 18 evidence comments, and tagged 66 recovered bodies plus the excluded two-sided clip. The program was saved and read back with no unsaved changes.

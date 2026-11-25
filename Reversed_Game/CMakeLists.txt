@@ -36,6 +36,7 @@ add_library(soft3d
     src/soft3d/GameConfig.cpp
     src/soft3d/GameEngine.cpp
     src/soft3d/GameUIDlg.cpp
+    src/soft3d/Geometry.cpp
     src/soft3d/Input.cpp
     src/soft3d/MenuBackdrop.cpp
     src/soft3d/MenuDialogs.cpp
@@ -232,6 +233,13 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_math_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_math COMMAND soft3d_math_tests)
+
+    add_executable(soft3d_geometry_tests tests/test_geometry.cpp)
+    target_link_libraries(soft3d_geometry_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_geometry_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_geometry COMMAND soft3d_geometry_tests)
 
     add_executable(soft3d_raster_tests tests/test_raster.cpp)
     target_link_libraries(soft3d_raster_tests PRIVATE soft3d)
