@@ -424,6 +424,9 @@ void TestRealMenu()
     for (const soft3d::BspModel& model : bsp.GetModels()) {
         CHECK(model.object != nullptr && model.object->GetModel() != nullptr);
         CHECK(model.animation != nullptr);
+        if (model.vertexLights.dataByteSize != 0) {
+            CHECK(model.object->GetRenderMode() == soft3d::ObjectRenderMode::SecondaryStreams);
+        }
     }
     CHECK(bsp.GetModels()[0].transform[0].x == static_cast<soft3d::Fixed>(0xffc4c50b));
     const soft3d::BspFace& face = bsp.GetFaces()[0];

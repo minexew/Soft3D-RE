@@ -130,39 +130,6 @@ SourceVertex ReadSecondaryVertex(const SojVertices& vertices, uint32_t index, So
     return result;
 }
 
-Matrix4 InverseNormalMatrix(const Matrix4& matrix)
-{
-    const Fixed a = SubtractFixed(FixedMultiply(matrix.values[5], matrix.values[10]),
-                                  FixedMultiply(matrix.values[6], matrix.values[9]));
-    const Fixed b = SubtractFixed(FixedMultiply(matrix.values[2], matrix.values[9]),
-                                  FixedMultiply(matrix.values[1], matrix.values[10]));
-    const Fixed c = SubtractFixed(FixedMultiply(matrix.values[1], matrix.values[6]),
-                                  FixedMultiply(matrix.values[2], matrix.values[5]));
-    const Fixed determinant = AddFixed(AddFixed(FixedMultiply(matrix.values[0], a),
-        FixedMultiply(matrix.values[1], b)), FixedMultiply(matrix.values[2], c));
-    if (AbsFixed(determinant) < 0x28f) {
-        return matrix;
-    }
-    const Fixed reciprocal = FixedDivide(fixedOne, determinant);
-    Matrix4 result = Matrix4::Identity();
-    result.values[0] = FixedMultiply(a, reciprocal);
-    result.values[1] = FixedMultiply(b, reciprocal);
-    result.values[2] = FixedMultiply(c, reciprocal);
-    result.values[4] = FixedMultiply(SubtractFixed(FixedMultiply(matrix.values[6], matrix.values[8]),
-        FixedMultiply(matrix.values[4], matrix.values[10])), reciprocal);
-    result.values[5] = FixedMultiply(SubtractFixed(FixedMultiply(matrix.values[0], matrix.values[10]),
-        FixedMultiply(matrix.values[2], matrix.values[8])), reciprocal);
-    result.values[6] = FixedMultiply(SubtractFixed(FixedMultiply(matrix.values[2], matrix.values[4]),
-        FixedMultiply(matrix.values[0], matrix.values[6])), reciprocal);
-    result.values[8] = FixedMultiply(SubtractFixed(FixedMultiply(matrix.values[4], matrix.values[9]),
-        FixedMultiply(matrix.values[5], matrix.values[8])), reciprocal);
-    result.values[9] = FixedMultiply(SubtractFixed(FixedMultiply(matrix.values[1], matrix.values[8]),
-        FixedMultiply(matrix.values[0], matrix.values[9])), reciprocal);
-    result.values[10] = FixedMultiply(SubtractFixed(FixedMultiply(matrix.values[0], matrix.values[5]),
-        FixedMultiply(matrix.values[1], matrix.values[4])), reciprocal);
-    return result;
-}
-
 int32_t TriangleArea(const Renderer::Vertex& first, const Renderer::Vertex& second,
                      const Renderer::Vertex& third)
 {
@@ -412,8 +379,10 @@ void Renderer::PrepareDrawState(uint32_t vertexFormat)
         if (ambientLightOnly) {
             lightDirection = {0, 0, -fixedOne};
         } else {
-            const Matrix4 normalMatrix = InverseNormalMatrix(modelMatrix);
-            lightDirection = Normalize(Transform(normalMatrix, globalLightDirection));
+            const Matrix4 normalMatrix = Inverse3x3(modelMatrix);
+            const Vec3 transformed = TransformDirection(normalMatrix, globalLightDirection);
+            lightDirection = Normalize({NegateFixed(transformed.x), NegateFixed(transformed.y),
+                                        NegateFixed(transformed.z)});
         }
         raster.SetShadingEnabled(true);
     } else {

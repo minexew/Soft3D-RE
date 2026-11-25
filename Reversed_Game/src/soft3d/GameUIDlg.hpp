@@ -147,7 +147,7 @@ private:
     void RenderSaveMenu();
     void DrawItemText(int slot, bool description);
     int32_t DrawSmallNumber(int32_t value, int32_t x, int32_t y);
-    void BeginDialog(int32_t kind, int32_t textId, int32_t width);
+    void BeginDialog(int32_t kind, int32_t textId, int32_t width, bool pause = true);
     void SynchronizeContent();
     void SetPaused(bool paused);
 

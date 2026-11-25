@@ -86,7 +86,10 @@ Automatic orientation presents handedness selection in portrait with direct phon
 ### Controls
 
 - Arrow keys or WASD: navigate/change selection.
-- Space or Enter: accept/activate.
+- Space or Enter: accept/activate and interact.
+- Q / E: phone left/right soft keys; E opens the in-game menu when allowed.
+- M, Shift+8 (`*`), or keypad `*`: phone asterisk; opens the in-game map when allowed.
+- Number keys retain their phone-key bindings (3 is the native secondary menu binding; 0 is used by native back paths).
 - Escape: quit the application shell.
 
 Choosing **Exit Game** and confirming writes `config.sdt` in the process working directory. The configuration contains sound, vibration, control, and unlock-related state and remains separate from slot progression. In-game saves write `slot%d.sav` plus `spt\\slot%d.sav`; loading reconstructs the full scene, concrete units, player, content, and script task/local state rather than only reading the display header.

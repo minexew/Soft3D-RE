@@ -41,6 +41,9 @@ int main()
         CHECK(TranslateSdlKey(SDLK_DOWN) == Key::Down);
         CHECK(TranslateSdlKey(SDLK_S) == Key::Down);
         CHECK(TranslateSdlKey(SDLK_0) == Key::Number0);
+        CHECK(TranslateSdlKey(SDLK_ASTERISK) == Key::Asterisk);
+        CHECK(TranslateSdlKey(SDLK_KP_MULTIPLY) == Key::Asterisk);
+        CHECK(TranslateSdlKey(SDLK_M) == Key::Asterisk);
         CHECK(TranslateSdlKey(SDLK_9) == Key::Number9);
         CHECK(TranslateSdlKey(SDLK_Q) == Key::SoftLeft);
         CHECK(TranslateSdlKey(SDLK_E) == Key::SoftRight);
@@ -79,6 +82,14 @@ int main()
         soft3d::platform::ProcessSdlKeyEvent(input, event);
         CHECK(input.IsKeyClick(Key::Left));
         CHECK(input.IsKeyDown(Key::Number1));
+        event = KeyEvent(SDL_EVENT_KEY_DOWN, SDLK_8);
+        event.key.mod = SDL_KMOD_SHIFT;
+        soft3d::platform::ProcessSdlKeyEvent(input, event);
+        CHECK(input.IsKeyFirstDown(Key::Asterisk));
+        event = KeyEvent(SDL_EVENT_KEY_UP, SDLK_8);
+        event.key.mod = SDL_KMOD_SHIFT;
+        soft3d::platform::ProcessSdlKeyEvent(input, event);
+        CHECK(input.IsKeyClick(Key::Asterisk));
         event = KeyEvent(SDL_EVENT_KEY_DOWN, SDLK_ESCAPE);
         soft3d::platform::ProcessSdlKeyEvent(input, event);
         CHECK(!input.IsKeyDown(Key::Accept));

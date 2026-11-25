@@ -654,6 +654,7 @@ void TestDoorTransitionFrames()
     CHECK(fixture.scene->GetTransitionTimer() == 8);
     CHECK(fixture.scene->GetDoorModel()->GetObjectCount() == 1);
     CHECK(fixture.scene->GetDoorModel()->GetAnimation() != nullptr);
+    CHECK(fixture.scene->GetDoorModel()->GetObject(0)->GetMaterialTexture(0) != nullptr);
     fixture.RunFrames(16);
     CHECK(fixture.scene->GetTransitionStage() == 3);
     CHECK(fixture.scene->GetTransitionTimer() == 24);

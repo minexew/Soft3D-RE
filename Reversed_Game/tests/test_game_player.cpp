@@ -595,11 +595,11 @@ void TestEngineInputAndFrames()
     player->BeginQTE(1, 10, 1);
     const uint32_t qte = fixture.FrameHash();
     CHECK(player->GetCurrentStateId() == game::PlayerQTE);
-    CHECK(stand == 0xf2a51c5dU);
-    CHECK(run == 0x6d6dfde5U);
-    CHECK(attack == 0x3240a1c5U);
-    CHECK(hurt == 0xd8f2ec35U);
-    CHECK(qte == 0x83da4c65U);
+    CHECK(stand == 0xe1deedfdU);
+    CHECK(run == 0x44975ebdU);
+    CHECK(attack == 0x7c0f924dU);
+    CHECK(hurt == 0xb0f2585dU);
+    CHECK(qte == 0x9d488425U);
 }
 
 } // namespace

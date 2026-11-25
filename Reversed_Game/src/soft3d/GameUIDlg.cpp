@@ -811,7 +811,7 @@ void GameUIDlg::RenderOptions()
     }
 }
 
-void GameUIDlg::BeginDialog(int32_t kind, int32_t textId, int32_t width)
+void GameUIDlg::BeginDialog(int32_t kind, int32_t textId, int32_t width, bool pause)
 {
     dialogActive = 0;
     dialogSecondaryTextId = -1;
@@ -822,7 +822,7 @@ void GameUIDlg::BeginDialog(int32_t kind, int32_t textId, int32_t width)
     VisString* text = engine.GetBaseFont()->GetString(static_cast<uint32_t>(textId));
     dialogLineCount = text == nullptr ? 0 : static_cast<int32_t>(
         engine.GetBaseFont()->CountTextLines(text, 0, static_cast<uint32_t>(std::max(0, width))));
-    SetPaused(true);
+    if (pause) SetPaused(true);
 }
 
 void GameUIDlg::CloseDialog()
@@ -855,14 +855,14 @@ void GameUIDlg::ShowSimpleMessage(int32_t textId)
 void GameUIDlg::ShowTimedMessage(int32_t textId, int32_t frames)
 {
     if (menuOpen || dialogActive) return;
-    BeginDialog(2, textId, simpleTextWidth);
+    BeginDialog(2, textId, simpleTextWidth, false);
     dialogTimer = frames;
 }
 
 void GameUIDlg::ShowTimedResultMessage(int32_t textId, int32_t frames)
 {
     if (menuOpen || dialogActive) return;
-    BeginDialog(4, textId, simpleTextWidth);
+    BeginDialog(4, textId, simpleTextWidth, false);
     dialogTimer = frames;
     dialogResult = -1;
 }

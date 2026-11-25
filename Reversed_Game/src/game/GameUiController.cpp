@@ -166,7 +166,7 @@ bool GameUiController::SaveGame(int32_t slot)
 bool GameUiController::CanOpenMenu() const
 {
     return !scene.IsDayIntroPending() && !scene.IsNextLevelPending() &&
-           scene.GetTransitionStage() == 0 && scene.GetMapProgress() >= 0 &&
+           scene.GetTransitionStage() == 0 && scene.GetMapProgress() < 0 &&
            scene.GetGameOverStage() == 0 && !scene.IsHideMaskActive();
 }
 
@@ -375,7 +375,7 @@ void GameUiController::RenderDialog()
     }
     if (kind == 2) {
         if (--ui->dialogTimer == 0) {
-            if (scene.GetPlayer()->IsHiddenOrFPS()) scene.GetUnitManager()->SetPaused(false);
+            if (scene.GetPlayer()->IsNavigationEnabled()) scene.GetUnitManager()->SetPaused(false);
             ui->dialogActive = 0;
         }
         soft3d::TextureRes* background = ui->GetGameplayTexture(UiStoryTimed);

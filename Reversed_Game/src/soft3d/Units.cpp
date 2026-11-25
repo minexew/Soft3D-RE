@@ -743,7 +743,7 @@ void PhysicUnit::MoveSlide()
     if (IsVelocityNearlyZero()) {
         return;
     }
-    const Vec3 originalVelocity = velocity;
+    Vec3 referenceVelocity = velocity;
     const Fixed originalLength = Length(velocity);
     if (unitManager != nullptr) {
         std::array<bool, 3> hits{};
@@ -752,12 +752,13 @@ void PhysicUnit::MoveSlide()
                 continue;
             }
             Vec3 candidate = position;
-            (&candidate.x)[axis] = AddFixed((&candidate.x)[axis], (&velocity.x)[axis]);
-            unitQueryResult = unitManager->QueryBounds(Translate(collisionBounds, candidate), -1, this);
+            (&candidate.x)[axis] = AddFixed((&candidate.x)[axis], (&referenceVelocity.x)[axis]);
+            collisionBounds = Translate(localBounds, candidate);
+            unitQueryResult = unitManager->QueryBounds(collisionBounds, -1, this);
             unitCollision = unitQueryResult.count > 0;
             hits[axis] = unitCollision;
-            (&velocity.x)[axis] = 0;
         }
+        velocity = referenceVelocity;
         axisCollision = hits;
         const bool all = (physicsFlags & PhysicSeparateAxisCollision) != 0
             ? hits[0] && hits[1] && hits[2]
@@ -767,11 +768,18 @@ void PhysicUnit::MoveSlide()
             return;
         }
         if (hits[0] || hits[1] || hits[2]) {
+            for (unsigned axis = 0; axis < 3; ++axis) {
+                if (hits[axis]) {
+                    (&velocity.x)[axis] = 0;
+                }
+            }
             if (AbsFixed(velocity.x) < 0x65 && AbsFixed(velocity.y) < 0x65 &&
                 AbsFixed(velocity.z) < 0x65) {
                 return;
             }
+            velocity = Scale(velocity, 0x640000);
             velocity = Scale(Normalize(velocity), originalLength);
+            referenceVelocity = velocity;
         }
     }
 
@@ -780,12 +788,13 @@ void PhysicUnit::MoveSlide()
     std::size_t normalCount = 0;
     for (int iteration = 0; iteration < 5; ++iteration) {
         const Vec3 target = Add(position, Scale(velocity, remaining));
-        BspTraceResult trace;
         if (bsp != nullptr) {
-            trace = bsp->Trace(position, target, localBounds);
+            *groundTrace = bsp->Trace(position, target, localBounds);
         } else {
-            trace.endPosition = target;
+            *groundTrace = BspTraceResult{};
+            groundTrace->endPosition = target;
         }
+        const BspTraceResult& trace = *groundTrace;
         if (trace.allSolid) {
             velocity.y = 0;
             return;
@@ -796,7 +805,7 @@ void PhysicUnit::MoveSlide()
         if (trace.fraction == fixedOne) {
             return;
         }
-        remaining = FixedMultiply(remaining, trace.fraction);
+        remaining = SubtractFixed(remaining, trace.fraction);
         if (normalCount < normals.size()) {
             normals[normalCount++] = trace.planeNormal;
         }
@@ -809,7 +818,7 @@ void PhysicUnit::MoveSlide()
                 velocity = Scale(Normalize(velocity), originalLength);
             }
         }
-        if (Dot(velocity, originalVelocity) <= 0) {
+        if (Dot(velocity, referenceVelocity) <= 0) {
             return;
         }
     }
@@ -841,7 +850,10 @@ void PhysicUnit::UpdateShadow()
         shadowTrace->planeNormal.z != 0) {
         Vec3 direction{0, fixedOne, 0};
         if (shadowObject != nullptr) {
-            direction = {bsp->GetHeaderValues()[0] >> 1, 0, bsp->GetHeaderValues()[1] >> 1};
+            direction = renderer->GetGlobalLightDirection();
+            direction = {NegateFixed(direction.x), NegateFixed(direction.y), NegateFixed(direction.z)};
+            direction.x >>= 1;
+            direction.z >>= 1;
             direction = Normalize(direction);
         }
         UpdateShadowTransform(ShadowMatrix(direction, shadowTrace->planeNormal,
@@ -903,7 +915,12 @@ void PhysicUnit::Update()
                 Vec3 end = position;
                 end.y = SubtractFixed(end.y, 0x8000);
                 if (bsp != nullptr) {
-                    const BspTraceResult trace = bsp->Trace(position, end, localBounds);
+                    soft3d::ObjectBounds stepBounds = localBounds;
+                    stepBounds.minimum.x = AddFixed(stepBounds.minimum.x, 0x28f);
+                    stepBounds.minimum.z = AddFixed(stepBounds.minimum.z, 0x28f);
+                    stepBounds.maximum.x = SubtractFixed(stepBounds.maximum.x, 0x28f);
+                    stepBounds.maximum.z = SubtractFixed(stepBounds.maximum.z, 0x28f);
+                    const BspTraceResult trace = bsp->Trace(position, end, stepBounds);
                     if (trace.startSolid) {
                         position = trace.endPosition;
                     }
@@ -1313,9 +1330,9 @@ void Creature::SnapToGround()
     if (bsp != nullptr) {
         Vec3 end = position;
         end.y = SubtractFixed(end.y, 0xa0000);
-        const BspTraceResult trace = bsp->Trace(position, end, localBounds);
-        if (trace.startSolid) {
-            position = trace.endPosition;
+        *groundTrace = bsp->Trace(position, end, localBounds);
+        if (groundTrace->startSolid) {
+            position = groundTrace->endPosition;
         }
     }
     previousPosition = position;

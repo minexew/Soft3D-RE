@@ -454,6 +454,35 @@ void TestSelectedPathMatrix()
     }
 }
 
+void TestGlobalLightDirectionSign()
+{
+    Renderer renderer(6, 6);
+    soft3d::SojVertices vertices;
+    vertices.format = 3;
+    vertices.strideBytes = 24;
+    vertices.vertexCount = 3;
+    vertices.dataByteSize = 72;
+    const soft3d::Vec3 positions[] = {{0, 0, 0x30000}, {0x10000, 0, 0x30000},
+                                      {0, 0x10000, 0x30000}};
+    for (const soft3d::Vec3& position : positions) {
+        Append32(vertices.data, static_cast<uint32_t>(position.x));
+        Append32(vertices.data, static_cast<uint32_t>(position.y));
+        Append32(vertices.data, static_cast<uint32_t>(position.z));
+        Append32(vertices.data, 0);
+        Append32(vertices.data, 0);
+        Append32(vertices.data, soft3d::fixedOne);
+    }
+    soft3d::SojIndices indices;
+    indices.data = {0, 0, 1, 0, 2, 0};
+    renderer.SetGlobalLightDirection({0, 0, soft3d::fixedOne});
+    renderer.DrawIndexed(vertices, indices, 4, 0, 1);
+    CHECK(renderer.GetLightDirection().z == -soft3d::fixedOne);
+    renderer.SetGlobalLightDirection({soft3d::fixedOne, 0, 0});
+    renderer.DrawIndexed(vertices, indices, 4, 0, 1);
+    CHECK(renderer.GetLightDirection().x == -soft3d::fixedOne);
+    CHECK(renderer.GetLightDirection().z == 0);
+}
+
 void TestOffscreenSpanClipping()
 {
     Renderer renderer(6, 6);
@@ -489,6 +518,7 @@ int main()
         TestClippingAndCulling();
         TestVerticalScreenClipping();
         TestSelectedPathMatrix();
+        TestGlobalLightDirectionSign();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';
         return 1;

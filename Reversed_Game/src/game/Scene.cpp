@@ -551,9 +551,7 @@ void Scene::UpdateTransition()
                     static_cast<std::size_t>(doorResourceIndex));
                 RequireStatus(doorModel->LoadObjects(resource.modelName.data(), nullptr, 1),
                               "Scene transition door model");
-                if (doorModel->GetObject(0) != nullptr) {
-                    doorModel->GetObject(0)->SetAnimationPaused(false);
-                }
+                RequireStatus(doorModel->LoadMaterials(), "Scene transition door materials");
                 RequireStatus(doorModel->LoadAnimation(
                     unitManager->GetData().GetAnimationName(238 + doorResourceIndex), nullptr),
                     "Scene transition door animation");

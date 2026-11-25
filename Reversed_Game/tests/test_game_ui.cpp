@@ -338,6 +338,29 @@ void TestInventoryMapAndUnlocks()
     CHECK(soft3d::FixedArcCosine(-soft3d::fixedOne) == 0xf17);
 }
 
+void TestGameplayMenuInput()
+{
+    GameFixture fixture;
+    fixture.Start();
+    auto* ui = fixture.scene->GetGameUi();
+    for (int frame = 0; frame < 50 && fixture.scene->GetTransitionStage() != 0; ++frame) {
+        fixture.RunFrames(1);
+    }
+    CHECK(fixture.scene->GetTransitionStage() == 0);
+    CHECK(fixture.scene->GetMapProgress() == -1);
+    CHECK(!ui->IsMenuOpen());
+    fixture.Click(soft3d::Key::SoftRight);
+    CHECK(ui->IsMenuOpen() && fixture.scene->GetUnitManager()->IsPaused());
+    fixture.RunFrames(11);
+    fixture.Click(soft3d::Key::SoftRight);
+    fixture.RunFrames(11);
+    CHECK(!ui->IsMenuOpen() && !fixture.scene->GetUnitManager()->IsPaused());
+    fixture.Click(soft3d::Key::Asterisk);
+    CHECK(ui->IsMenuOpen() && ui->IsDirectMap() && ui->GetMode() == 3);
+    fixture.Click(soft3d::Key::Asterisk);
+    CHECK(!ui->IsMenuOpen() && !fixture.scene->GetUnitManager()->IsPaused());
+}
+
 void TestExactRendering()
 {
     GameFixture fixture;
@@ -408,16 +431,16 @@ void TestExactRendering()
     const uint32_t about = fixture.FrameHash();
     CHECK(index == hashes.size());
     constexpr std::array<uint32_t, 13> expected = {
-        0x9ef3185dU, 0x6bf63cc5U, 0xa70acd85U, 0xd10f2ad5U,
-        0x24a71b05U, 0x8fa0e5ddU, 0x81a48ad5U, 0x62f6354dU,
-        0x5d6e1fedU, 0x839fe2bdU, 0xac5fcb4dU, 0x08f9a64dU, 0x29718445U,
+        0xf0cc850dU, 0x6bbfe04dU, 0x14c8dd85U, 0xdd20f75dU,
+        0xa4f908ddU, 0xd787fb25U, 0x6c7337ddU, 0xbfa62de5U,
+        0x0fcefc15U, 0xbd0cd14dU, 0xf0801085U, 0x403fa5cdU, 0x375e0015U,
     };
     for (std::size_t index = 0; index < hashes.size(); ++index) {
         CHECK(hashes[index].second == expected[index]);
     }
     CHECK(map == 0xac605735U);
     CHECK(mapOtherOrientation == 0x96792195U);
-    CHECK(about == 0x40cddb75U);
+    CHECK(about == 0xd21cc8ddU);
 }
 
 } // namespace
@@ -427,6 +450,7 @@ int main()
     try {
         TestCommandsAndStatistics();
         TestInventoryMapAndUnlocks();
+        TestGameplayMenuInput();
         TestExactRendering();
         std::cout << "game UI tests passed\n";
         return 0;

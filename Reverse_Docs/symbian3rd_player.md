@@ -201,7 +201,7 @@ All handlers use the standard `(arguments, argumentCount, output)` convention. I
 | ID | Handler | Behavior |
 |---:|---|---|
 | 117 | `0x679a4` `GameSI_SetPlayerDirection` | Three fixed direction components. |
-| 116 | `0x67948` `GameSI_SetPlayerVisible` | Despite the recovered handler name, primary-vtable slot `0x5c` is `Player_SetNavigationEnabled`; it does not clear `presentationVisible` or submit visibility. |
+| 116 | `0x67948` `GameSI_SetPlayerNavigationEnabled` | Primary-vtable slot `0x5c` is `Player_SetNavigationEnabled`; it does not clear `presentationVisible` or submit visibility. |
 | 118 | `0x67a60` `GameSI_SetPlayerClipping` | Bool true selects normal render mode; false selects secondary streams. |
 | 119 | `0x67ab8` `GameSI_SetPlayerAnimation` | Loads an animation from `common`, direction 1, scripted loop flag. |
 | 120 | `0x67b60` `GameSI_IsPlayerAnimationFinished` | Returns the visual completion flag. |
@@ -252,11 +252,11 @@ All handlers use the standard `(arguments, argumentCount, output)` convention. I
 Exact default dummy-presented FNV-1a hashes over 320×240 XRGB pixels are:
 
 ```text
-stand  0xf2a51c5d
-run    0x6d6dfde5
-attack 0x3240a1c5
-hurt   0xd8f2ec35
-QTE    0x83da4c65
+stand  0xe1deedfd
+run    0x44975ebd
+attack 0x7c0f924d
+hurt   0xb0f2585d
+QTE    0x9d488425
 ```
 
-At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. After stage 9, all 36 default, logging, host-math, and WAR tests and all 29 core and ASan/UBSan tests pass serially. The frame hashes above include the stage-8 HUD and remain unchanged. The real `day1/ep0` application path executes input command 47 and continues through the running script; real map-2008 engine frames also exercise ItemTrigger registration, `Player_UseItem`, and common enemy combat. Stage 15 provides directed synthetic coverage for every player command and every other callback.
+At stage-4 completion, all **32 default** tests and all **25 SDL-independent core**, logging, host-math, WAR, and ASan/UBSan tests passed. After stage 9, all 36 default, logging, host-math, and WAR tests and all 29 core and ASan/UBSan tests pass serially. The frame hashes above include the stage-8 HUD and were rebased after the ARM-confirmed global-light negation fix; map-only UI hashes remained unchanged. The real `day1/ep0` application path executes input command 47 and continues through the running script; real map-2008 engine frames also exercise ItemTrigger registration, `Player_UseItem`, and common enemy combat. Stage 15 provides directed synthetic coverage for every player command and every other callback.

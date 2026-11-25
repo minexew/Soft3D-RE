@@ -109,6 +109,7 @@ public:
     void RestoreAnimationState(int32_t paused, int32_t time, int32_t direction,
                                int32_t loop, int32_t speed);
     uint32_t GetMaterialBlendMode(uint32_t material) const;
+    const Texture* GetMaterialTexture(uint32_t material) const;
     std::array<Fixed, 4> GetMaterialTextureState(uint32_t material) const;
     ObjectRenderMode GetRenderMode() const;
 

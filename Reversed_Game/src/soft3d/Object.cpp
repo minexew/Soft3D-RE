@@ -137,6 +137,11 @@ void Object::SetSecondaryTransform(const Matrix4& matrix)
 void Object::SetTransformMode(int mode)
 {
     transformMode = mode;
+    if (mode == 0) {
+        renderMode = ObjectRenderMode::Normal;
+    } else if (mode == 1) {
+        renderMode = ObjectRenderMode::SecondaryStreams;
+    }
 }
 
 void Object::SetPosition(const Vec3& newPosition)
@@ -665,8 +670,7 @@ void Object::RenderSecondaryStreams()
             renderer->DrawIndexedTextured(surface.vertices, *secondaryVertices, surface.indices,
                 surface.primitiveType, 0, surface.primitiveCount, 0, matrixPalette);
         } else {
-            renderer->DrawIndexed(surface.vertices, surface.indices, surface.primitiveType, 0,
-                                  surface.primitiveCount);
+            renderer->DrawIndexedSurface(surface, nullptr, nullptr, nullptr, matrixPalette);
         }
     }
     renderer->SetTexture(nullptr);
@@ -782,6 +786,10 @@ std::array<Fixed, 4> Object::GetMaterialIntensityState(uint32_t material) const
 uint32_t Object::GetMaterialBlendMode(uint32_t material) const
 {
     return material < materialStates.size() ? materialStates[material].blendMode : 0;
+}
+const Texture* Object::GetMaterialTexture(uint32_t material) const
+{
+    return material < textures.size() ? textures[material] : nullptr;
 }
 std::array<Fixed, 4> Object::GetMaterialTextureState(uint32_t material) const
 {

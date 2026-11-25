@@ -400,10 +400,10 @@ void Bsp::MarkVisibleLeaves()
         return;
     }
     for (BspLeaf& leaf : leaves) {
-        if (leaf.contents == 0xffff) {
+        if (leaf.cluster < 0) {
             continue;
         }
-        const uint32_t cluster = leaf.contents;
+        const uint32_t cluster = leaf.cluster;
         if (cluster / 8 >= decompressedPVS.size() ||
             ((decompressedPVS[cluster / 8] >> (cluster & 7)) & 1) == 0) {
             continue;
@@ -527,7 +527,7 @@ void Bsp::PrepareRender(const BspRenderState& state)
     }
     ++frameCounter;
     const int32_t leafIndex = FindLeaf(renderState.cameraPosition);
-    currentCluster = leafIndex < 0 ? -1 : static_cast<int16_t>(leaves[leafIndex].contents);
+    currentCluster = leafIndex < 0 ? -1 : leaves[leafIndex].cluster;
     MarkVisibleLeaves();
     TraverseVisibleNode(0, 0x1f);
     for (const BspVisBrush& brush : visBrushes) {

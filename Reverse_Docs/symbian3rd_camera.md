@@ -128,7 +128,7 @@ The 22 model/sound records from `Scene_InitializeDoorResources` (`0x0002b554`) a
 
 | Timer | Recovered action |
 |---:|---|
-| 8 | Load door model and animation entries 238+index; position model at target + forward×20; fade out over 4; stop sounds; choose door-specific camera; play open sound; enter stage 2. |
+| 8 | Load door model, **materials**, and animation entries 238+index; position model at target + forward×20; fade out over 4; stop sounds; choose door-specific camera; play open sound; enter stage 2. |
 | 24 | Apply spawn position/direction when not restoring; clear special-door UI state; fade in over 4; enter stage 3. |
 | 28 | Hide player and rebind the player spot. |
 | 31 | Fade out over 8; enter stage 4; play close sound when positive. |

@@ -53,6 +53,7 @@ public:
     void SetAmbientIntensity(Fixed intensity);
     Fixed GetAmbientIntensity() const;
     const Vec3& GetGlobalLightDirection() const;
+    const Vec3& GetLightDirection() const { return lightDirection; }
     void SetFogEnabled(bool enabled);
     void SetFog(Fixed start, Fixed end, uint16_t color);
     BasicShader* GetActiveShader() const;

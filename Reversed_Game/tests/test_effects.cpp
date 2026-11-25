@@ -396,8 +396,8 @@ void TestRealLamp()
     object.Render();
     CHECK(!std::equal(firstFrame.begin(), firstFrame.end(), pixels));
     const uint32_t secondHash = hash();
-    CHECK(firstHash == 0x85d115c5);
-    CHECK(secondHash == 0xf347549f);
+    CHECK(firstHash == 0xc6cfa92b);
+    CHECK(secondHash == 0xe82e7658);
 #endif
 }
 
@@ -430,6 +430,11 @@ void TestRealObject()
         renderer.GetCurrentTexture()->GetPixels());
     CHECK(std::any_of(pixels, pixels + 64 * 64,
                       [](uint32_t pixel) { return pixel != 0x1111; }));
+    const std::vector<uint32_t> normalFrame(pixels, pixels + 64 * 64);
+    object.SetTransformMode(1);
+    renderer.Clear(0x1111);
+    object.Render();
+    CHECK(std::equal(normalFrame.begin(), normalFrame.end(), pixels));
     const int32_t time = object.GetAnimationTime();
     object.AdvanceAnimation();
     CHECK(object.GetAnimationTime() != time);

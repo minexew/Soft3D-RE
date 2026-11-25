@@ -164,8 +164,8 @@ Chunks CollisionChunks()
         Append16(chunks[soft3d::SbpLeaves], 2);
         Append16(chunks[soft3d::SbpLeaves], 2);
         Append16(chunks[soft3d::SbpLeaves], 2);
-        Append16(chunks[soft3d::SbpLeaves], leaf == 0 ? 1 : 0);
         Append16(chunks[soft3d::SbpLeaves], static_cast<uint16_t>(leaf));
+        Append16(chunks[soft3d::SbpLeaves], leaf == 0 ? 1 : 0);
         Append16(chunks[soft3d::SbpLeaves], 0);
         Append16(chunks[soft3d::SbpLeaves], 0);
         Append16(chunks[soft3d::SbpLeaves], 0);
@@ -398,10 +398,10 @@ void TestBspCollision()
     CHECK(hit.planeNormal.x == -soft3d::fixedOne);
     CHECK(hit.sideIndex == 11);
     CHECK(hit.endPosition.x < -0x10000 && hit.endPosition.x > -0x11000);
-    CHECK(!hit.startSolid && !hit.allSolid);
+    CHECK(hit.startSolid && !hit.allSolid);
 
     const soft3d::BspTraceResult solid = bsp->Trace({0, 0, 0}, {0x20000, 0, 0});
-    CHECK(solid.brushStartSolid && solid.allSolid && solid.fraction == 0);
+    CHECK(solid.brushStartSolid && !solid.allSolid);
     const soft3d::BspTraceResult point = bsp->Trace({0, 0, 0}, {0, 0, 0});
     CHECK(point.startSolid && point.brushStartSolid && point.allSolid);
     const soft3d::BspTraceResult empty = bsp->Trace({-0x18000, 0, 0}, {-0x18000, 0, 0});

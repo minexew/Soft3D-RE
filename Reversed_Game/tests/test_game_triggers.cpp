@@ -782,6 +782,43 @@ void TestStage7EngineIntegration()
     CHECK(fixture.scene->GetPlayer()->GetUsedItem() == 5);
 }
 
+void TestRealStartupControlAndPickup()
+{
+    GameFixture fixture;
+    fixture.engine.StartNewGame({2, 1});
+    bool sawTimedMessage = false;
+    int framesAfterMessage = 0;
+    for (int frame = 0; frame < 1200; ++frame) {
+        auto* ui = fixture.scene->GetGameUi();
+        if (ui->IsDialogActive() && (ui->GetDialogKind() == 0 || ui->GetDialogKind() == 3)) {
+            fixture.Click();
+        }
+        fixture.RunFrames(1);
+        if (ui->IsDialogActive() && ui->GetDialogKind() == 2 && ui->GetDialogTextId() == 47) {
+            sawTimedMessage = true;
+        }
+        if (sawTimedMessage && !ui->IsDialogActive() && ++framesAfterMessage == 3) {
+            break;
+        }
+    }
+    CHECK(sawTimedMessage);
+    CHECK(!fixture.scene->GetUnitManager()->IsPaused());
+    CHECK(fixture.scene->GetPlayer()->GetGroundTrace().startSolid);
+    CHECK(fixture.Ui().GetInteractionPrompt() == 0);
+    fixture.Click();
+    fixture.RunFrames(3);
+    CHECK(fixture.scene->GetPlayer()->HasItem(1005));
+
+    const soft3d::Vec3 initial = fixture.scene->GetPlayer()->GetPosition();
+    fixture.engine.GetInput().KeyDown(soft3d::Key::Left);
+    fixture.RunFrames(12);
+    fixture.engine.GetInput().KeyUp(soft3d::Key::Left);
+    fixture.RunFrames(2);
+    const soft3d::Vec3 moved = fixture.scene->GetPlayer()->GetPosition();
+    CHECK((moved.x != initial.x || moved.z != initial.z));
+    CHECK(soft3d::AbsFixed(soft3d::SubtractFixed(moved.y, initial.y)) <= 0x4000);
+}
+
 void TestRealStartupBoundary()
 {
     GameFixture fixture;
@@ -812,6 +849,7 @@ int main()
         TestCameraAndLightPersistence();
         TestRealMapItems();
         TestStage7EngineIntegration();
+        TestRealStartupControlAndPickup();
         TestRealStartupBoundary();
         std::cout << "game trigger tests passed\n";
         return 0;

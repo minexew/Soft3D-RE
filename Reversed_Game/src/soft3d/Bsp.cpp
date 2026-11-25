@@ -660,6 +660,7 @@ result Bsp::LoadModels(const SbpChunkDescriptor& chunk)
                 Append32(model.vertexLights.data,
                          static_cast<uint32_t>(vertexLights[model.firstVertexLight + index]));
             }
+            model.object->SetTransformMode(1);
         }
         if (model.mode == 0) {
             model.object->SetLightingEnabled(false);
@@ -908,8 +909,8 @@ result Bsp::LoadLeaves(const SbpChunkDescriptor& chunk)
             leaf.mins[axis] = ReadSigned16(input + axis * 2);
             leaf.maxs[axis] = ReadSigned16(input + 6 + axis * 2);
         }
-        leaf.contents = Read16(input + 12);
-        leaf.cluster = ReadSigned16(input + 14);
+        leaf.cluster = ReadSigned16(input + 12);
+        leaf.contents = ReadSigned16(input + 14);
         if (!visFaces.empty()) {
             leaf.firstVisibleFace = Read16(input + 16);
             leaf.visibleFaceCount = Read16(input + 18);

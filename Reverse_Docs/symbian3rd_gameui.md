@@ -67,7 +67,7 @@ Hide masks use `fengmian_bj` and `fengmian_bj2` from `ui`, selected by the hide 
 |---:|---|---|
 | 0 | `juqing_01` plus `touxiang_02` | Event text; action 5 advances one wrapped line and closes after the final line. |
 | 1 | `juqing_02` | Choice; left/right clamp at the ends, action 5 records a zero-based result. Portrait mode closes and clears the four options. |
-| 2 | `juqing_03` | Timed tutorial/text; closes at timer zero and conditionally unpauses for hide/FPS. |
+| 2 | `juqing_03` | Timed tutorial/text; setup does not change manager pause. Closes at timer zero and unpauses only when player navigation is enabled. |
 | 3 | `juqing_01` | Simple message; action 5 advances lines, stores result 0, and closes. |
 | 4 | `juqing_01` | Timed result; at zero stores result 0 and becomes inactive without an extra implicit close. |
 
@@ -168,19 +168,19 @@ The real `day1/ep0` path passes command 102 and executes input query ID 47 (`0x0
 
 ## Verification and Ghidra state
 
-`test_game_ui.cpp` covers every command above, dialog state/result behavior, empty/invalid item operations, health and directional combination through engine input, real map-2008 pickup and unlocks, statistics/secrets, map bounds/door state, arc-cosine boundaries, and configuration output in a temporary directory.
+`test_game_ui.cpp` covers every command above, dialog state/result behavior, empty/invalid item operations, health and directional combination through engine input, real map-2008 pickup and unlocks, statistics/secrets, map bounds/door state, arc-cosine boundaries, and configuration output in a temporary directory. Live soft-right and asterisk clicks open/close the gameplay menu and direct map through `RunFrame`; opening requires the native idle condition `mapProgress < 0`, not the former portable `>= 0`. `test_game_triggers.cpp` also drives shipped `day1/ep0` through the introductory messages and timed text, verifies ground movement, and presses Enter to acquire the real map-2008 papers.
 
 Exact FNV-1a dummy-presented frame baselines are:
 
 ```text
-HUD            9ef3185d    event          6bf63cc5
-simple         a70acd85    choice         d10f2ad5
-timed          24a71b05    QTE            8fa0e5dd
-QTE failure    81a48ad5    subtitle       62f6354d
-hide mask      5d6e1fed    menu           839fe2bd
-inventory      ac5fcb4d    item actions   08f9a64d
-item examine   29718445    map            ac605735
-map/other hand 96792195     About model    40cddb75
+HUD            f0cc850d    event          6bbfe04d
+simple         14c8dd85    choice         dd20f75d
+timed          a4f908dd    QTE            d787fb25
+QTE failure    6c7337dd    subtitle       bfa62de5
+hide mask      0fcefc15    menu           bd0cd14d
+inventory      f0801085    item actions   403fa5cd
+item examine   375e0015    map            ac605735
+map/other hand 96792195     About model    d21cc8dd
 ```
 
 The event baseline includes visible dialogue text after correcting localized day-font loading and the accept/number-6 action bindings. HUD checks also assert that the danger animation remains at time zero at full health and advances at 10 HP.

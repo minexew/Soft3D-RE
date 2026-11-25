@@ -129,7 +129,7 @@ void ClipBrush(TraceContext& context, uint32_t brushIndex, bool pointOnly)
 
     if (!startsOut) {
         context.result.brushStartSolid = true;
-        if (!allOut) {
+        if (allOut) {
             context.result.allSolid = true;
         }
         return;
@@ -222,14 +222,14 @@ void TraceNode(TraceContext& context, int32_t nodeIndex, Fixed firstFraction,
     enter = ClampFraction(enter);
     leave = ClampFraction(leave);
 
-    const Vec3 enterPoint = Lerp(start, end, enter);
+    const Vec3 enterPoint = Lerp(start, end, leave);
     const Fixed enterFraction = AddFixed(firstFraction,
-        FixedMultiply(SubtractFixed(lastFraction, firstFraction), enter));
+        FixedMultiply(SubtractFixed(lastFraction, firstFraction), leave));
     TraceNode(context, node.children[side], firstFraction, enterFraction, start, enterPoint);
 
-    const Vec3 leavePoint = Lerp(start, end, leave);
+    const Vec3 leavePoint = Lerp(start, end, enter);
     const Fixed leaveFraction = AddFixed(firstFraction,
-        FixedMultiply(SubtractFixed(lastFraction, firstFraction), leave));
+        FixedMultiply(SubtractFixed(lastFraction, firstFraction), enter));
     TraceNode(context, node.children[side ^ 1], leaveFraction, lastFraction, leavePoint, end);
 }
 
@@ -394,6 +394,7 @@ BspTraceResult Bsp::Trace(const Vec3& startPosition, const Vec3& endPosition,
         context.result.fraction = 0;
     }
     if (context.result.fraction < fixedOne) {
+        context.result.startSolid = true;
         context.result.endPosition = Add(Lerp(startPosition, endPosition, context.result.fraction),
                                          Scale(context.result.planeNormal, 0x51e));
     }

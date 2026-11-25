@@ -52,6 +52,11 @@ Key TranslateSdlKey(SDL_Keycode key, int controlOrientation)
     case SDLK_0:
         translated = Key::Number0;
         break;
+    case SDLK_ASTERISK:
+    case SDLK_KP_MULTIPLY:
+    case SDLK_M:
+        translated = Key::Asterisk;
+        break;
     case SDLK_Q:
         translated = Key::SoftLeft;
         break;
@@ -102,7 +107,8 @@ void ProcessSdlKeyEvent(Input& input, const SDL_Event& event, int controlOrienta
     if (event.type != SDL_EVENT_KEY_DOWN && event.type != SDL_EVENT_KEY_UP) {
         return;
     }
-    const Key key = TranslateSdlKey(event.key.key, controlOrientation);
+    const Key key = event.key.key == SDLK_8 && (event.key.mod & SDL_KMOD_SHIFT) != 0
+        ? Key::Asterisk : TranslateSdlKey(event.key.key, controlOrientation);
     if (event.type == SDL_EVENT_KEY_DOWN) {
         input.KeyDown(key, true);
     } else {

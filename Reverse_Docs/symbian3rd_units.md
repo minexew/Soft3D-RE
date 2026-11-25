@@ -91,9 +91,9 @@ Flag meanings confirmed from `PhysicUnit_Update` (`0x000e64b8`) are:
 
 Update order is significant: clear axis-collision flags; save previous position; apply friction; update direction/yaw; move or integrate; restore selected axes; perform step/ground traces; update visuals and LOD; sample BSP light; update shadow; translate collision bounds. The light value minus `0x4ccc` is written to **object intensity at `Object + 0x5c`**, not depth bias at `+0x60`.
 
-`MoveSimple` (`0x000e74b4`) rejects a unit-overlap result, otherwise performs one BSP trace. `MoveSlide` (`0x000e6b78`) first tests X/Z and optionally Y against the unit manager, zeroes blocked components, then performs at most five BSP slide iterations. It projects velocity with multiplier `0x1028f` (approximately 1.01), restores original speed, and multiplies the remaining scale by the hit fraction exactly as in ARM.
+`MoveSimple` (`0x000e74b4`) rejects a unit-overlap result, otherwise performs one BSP trace. `MoveSlide` (`0x000e6b78`) first builds per-axis candidates from `localBounds + candidatePosition`, restores the original velocity after the queries, then zeroes blocked X/Z and optionally Y components. If any axis is blocked, it applies the native scale-by-100 normalization before restoring original speed. BSP sliding performs at most five iterations, projects velocity with multiplier `0x1028f` (approximately 1.01), restores original speed, and **subtracts** each hit fraction from the remaining scale. Portable code previously double-translated collision bounds, cleared unblocked velocity components, and multiplied the remaining fraction.
 
-Ground checks trace down `0x8000`. Shadow tracing runs from +`0x20000` to -`0x140000` in Y. Its matrix is `I - direction * plane`, where direction is `(0,1,0)` for `FakeShadow` or a normalized header-derived XZ vector for shadow objects.
+Ground checks trace down `0x8000`. Step-down uses X/Z bounds shrunk by `0x28f`. `Creature_SnapToGround` stores its down-`0xa0000` trace in the ground-trace member before using it. Shadow tracing runs from +`0x20000` to -`0x140000` in Y. Its matrix is `I - direction * plane`, where direction is `(0,1,0)` for `FakeShadow`; for a shadow object it is the **negated renderer global/fog direction**, with X/Z halved and the full XYZ vector normalized. Dropping Y or using SBP header words produces oversized, incorrectly oriented shadows.
 
 After movement, `GameUnit.collisionBounds = localBounds + position`, while `secondaryCollisionBounds = secondaryLocalBounds + position`. These are separate assignments.
 
@@ -144,7 +144,7 @@ The portable templates reproduce these rules and also expose direct enter-chain/
 | `0x28` | Fraction |
 | `0x2c` | Brush side index |
 
-`Bsp_Trace` (`0x00011378`) dispatches equal endpoints to point-solid traversal and other endpoints to swept-bounds tracing. The equal-endpoint path unusually classifies `start + end`; this is retained. Swept tracing projects local bounds onto node planes, uses a `0x50000` margin for non-axis planes, splits at fixed-point enter/leave fractions, and clips solid leaf brushes once per trace. A successful hit adds plane normal * `0x51e` to the interpolated endpoint.
+`Bsp_Trace` (`0x00011378`) dispatches equal endpoints to point-solid traversal and other endpoints to swept-bounds tracing. The equal-endpoint path unusually classifies `start + end`; this is retained. Swept tracing projects local bounds onto node planes, uses a `0x50000` margin for non-axis planes, and clips solid leaf brushes once per trace. At each split, ARM's `local_9c` fraction is used for the near child and `local_a0` for the far child; reversing them skips solid leaves on short traces. A fraction below one sets `startSolid`, and a successful hit adds plane normal * `0x51e` to the interpolated endpoint. Brush `allSolid` is set only when the start is inside and **no** plane has the endpoint outside.
 
 Trace reciprocals use the same table as the renderer: `0x40000000 / index`, with index zero returning `0x7fffffff`, followed by range-dependent shifts. Portable arithmetic does not substitute an exact floating-point division.
 
