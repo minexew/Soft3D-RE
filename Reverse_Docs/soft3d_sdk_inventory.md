@@ -222,14 +222,34 @@ Session-31 validation passed the complete serial matrix: **41/41 default**, **34
 
 ## Session 32: resource, texture, renderer, and BSP gaps
 
-| Native address / owner | Native evidence | Disposition | Planned test |
-|---|---|---|---|
-| `0x000e1a00`, `0x000e1aa0`, `0x000e1b40` `TextureTarget` | Engine-neutral texture-target constructor owns screen dimensions/stride/tiling buffer; uncalled STX file loader tiles into a different target width and resets the source texture. | **missing useful API**; constructor duplicate documented | **32A**: real STX, matching/different width, repeated load, failure and teardown. |
-| `0x000b446c` `Renderer_RenderTriangle` | Uncalled sprite-style submission: projects one Vec3, configures an optional source rectangle and color, then prepares a scaled quad. It is not the ordinary indexed-triangle entrypoint. | **missing useful API** | **32A**: default/custom source rect, near/far rejection, exact pixels and color. |
-| `0x000ce6b8`, `0x000ce804` | Packed 16-bit and full 32-bit horizontal color-span writers. Only the 32-bit body has a caller. | **missing useful API** for the 16-bit variant; 32-bit arithmetic **implemented** | **32A**: exact pixel values, clipping, zero count. |
-| `0x000fe03c` `Bsp_AddDynamicLight` | Allocates a 0x18-byte plane/link record, links it at the list head, assigns the previous count as ID, and returns null above 32 entries. | **missing useful API** | **32A**: 0/1/32/33 allocations, IDs, linked traversal, repeated teardown. |
-| `0x000ce8a4` | Uncalled internal clipping/pointer setup for texture-target scaled drawing. Portable `ScreenBlitter` and renderer setup already own the corresponding behavior. | **intentionally omitted as public API** | **X**; retain raster/blitter **E**. |
-| `0x00102e50`, `0x00102fdc` | Uncalled BSP span fill/texture routines tied to native scanline layout. | **intentionally omitted as separate SDK entrypoints** | **X**; rendering behavior remains covered by `test_bsprender.cpp`, **E**. |
+The original Session-29 candidate rows directed recovery. Two descriptions required correction during Session 32: the sprite body is named `Renderer_RenderSprite`, and dynamic-light records contain no numeric ID. The source rectangle is a four-int `ScreenRect`; the dynamic-light's list index is used only later as a visibility bit.
+
+| Native address / owner | Native evidence | Original disposition / test |
+|---|---|---|
+| `0x000e1a00`, `0x000e1aa0`, `0x000e1b40` `TextureTarget` | Engine-neutral texture-target constructor owns screen dimensions/stride/tiling buffer; uncalled STX file loader tiles into a different target width and resets the source texture. | **missing useful API**; constructor duplicate documented; **32A**. |
+| `0x000b446c` `Renderer_RenderSprite` | Uncalled sprite-style submission: projects one Vec3, configures an optional source rectangle and color, then prepares a scaled quad. It is not the ordinary indexed-triangle entrypoint. | **missing useful API**; **32A**. |
+| `0x000ce6b8`, `0x000ce804` | Packed 16-bit and full 32-bit horizontal color-span writers. Only the 32-bit body has a caller. | **missing useful API** for the 16-bit variant; 32-bit arithmetic **implemented**; **32A**. |
+| `0x000fe03c` `Bsp_AddDynamicLight` | Allocates a 0x18-byte plane/previous/next record, links it at the head, and returns null above 32 entries. It does not store an ID. | **missing useful API**; **32A**. |
+| `0x000ce8a4` | Uncalled internal clipping/pointer setup for texture-target scaled drawing. Portable `ScreenBlitter` and renderer setup already own the corresponding behavior. | **intentionally omitted as public API**; **X / E**. |
+| `0x00102e50`, `0x00102fdc` | Uncalled BSP span fill/texture routines tied to native scanline layout. | **intentionally omitted as separate SDK entrypoints**; **X / E**. |
+
+## Session 32 completion ledger
+
+All **32A** candidates are public APIs covered by `Reversed_Game/tests/test_sdk_resource.cpp`. Detailed layouts and algorithms are in `resource_parsing_api.md`, `symbian3rd_raster.md`, and `sbp_format.md`. No useful uncalled resource/model/renderer row remains unknown.
+
+| Native address(es) | Portable API and disposition | Native-derived verification |
+|---|---|---|
+| `0x000d85d4`, `0x000e1a00`, `0x000e1aa0`, `0x000e1b40` | `Texture::LoadStxFile`, `TextureTarget` constructor/load/accessors: **matches**, with **intentional portable safety differences** | Exact stride/height/offset state, native stride-versus-width condition, persistent source-X and greater-than-width wrapping, matching/tiled ownership, repeated load, failed load preserving the old tiled buffer, real `aj_zhiwu_a.stx`, and teardown. Vector ownership, closed error paths, source-exhaustion checks, and clearing the stale reset pixel pointer/size are portable guards. The two constructor bodies map to one implementation. |
+| `0x000b446c`, `0x000cec48` | `Renderer::RenderSprite`, `Raster::DrawScaled`: **matches** for projection/setup/scaled consumption, with guarded invalid inputs | Full/custom source rectangles, separate fixed-multiply transform order, near/far equality rejection, exact destination coverage, left clipping, palette intensities 0/15, nearest-neighbor colors, and `0x55550000` depth at Z=3. Null/empty/source-bound guards are portable safety additions. |
+| `0x000ce6b8`, `0x000ce804` | `Raster::FillColor16`, `FillColor32`: **matches** for valid spans; **intentional portable safety difference** for clipping and nonpositive counts | Low-half RGB565 writes preserve high/depth data, full 32-bit replacement, horizontal clipping, zero count, and invalid rows. Native do/while and unchecked addressing are documented but not reproduced for invalid calls. |
+| `0x000fe03c`, `0x000fe248`, `0x000fe2cc` | `BspDynamicLight`, `AddDynamicLight`, `ClearDynamicLights`, list accessors, and dynamic contribution in `GetLightIntensity`: **matches / corrected** | Zero plane initialization, no ID field, newest-first previous/next topology, 0/1/32/33 allocations, repeated clear/free/reuse, no-lightmap early return, and `0x20000 -> 0x200` through a loaded BSP. Stable `unique_ptr` ownership replaces manual deletion without changing list semantics. |
+| `0x000ce8a4`, `0x00102e50`, `0x00102fdc` | Internal clipped setup and scanline-specific BSP routines: **intentionally omitted** | Existing blitter/raster/BSP rendering tests remain the coverage; no duplicate public entrypoints were invented. |
+
+Session-32 handoff: `TextureTarget` owns its embedded texture and optional tiled bytes; failed loads preserve the previous tiled buffer as native. `RenderSprite` uses `color >> 8` as palette intensity and strict near/far rejection. Span functions add safety clipping rather than reproducing invalid native writes. Dynamic lights have no ID and are released on level teardown. No existing call sites were rerouted through the recovered APIs. The next scoped work is Session 33's input/sound/dialog/ScreenRect surface.
+
+Ghidra now carries explicit `Texture`, `TextureTarget`, `ScreenRect`, and `BspDynamicLight` structures, typed prototypes for all recovered bodies and dynamic-light cleanup, eight evidence comments, and `stage32`/`sdk-recovered` tags. The program was saved and read back with no unsaved changes.
+
+Session-32 validation passed the complete serial matrix: **42/42 default**, **35/35 SDL-independent core**, **42/42 STDIO logging**, **42/42 host trigonometry**, **42/42 WAR**, **35/35 ASan/UBSan**, and **21/21 applicable English-layout** tests, plus **6/6 SOJ** and **8/8 S3DTEX** Python tests. The English set keeps the same 14 Chinese-only exclusions; the new test retains synthetic checks and skips only its real Chinese STX case.
 
 ## Session 33: input, sound, dialog, and screen geometry gaps
 
@@ -276,7 +296,7 @@ This section closes the remaining zero-direct-reference candidates. Each row's a
 
 1. **Session 30 — complete:** scalar/conversion, Color4, vector, and quaternion rows are implemented in `Fixed.*`/`Color.hpp`, with native-derived `test_math.cpp` coverage and the completion ledger above. Existing consumers were not rerouted; repeated-x helpers and native truncation are preserved.
 2. **Session 31 — complete:** matrix determinants/inversion/factories, all distinct projection conventions, project/unproject, Plane/Ray/frustum/slide, and owning PointCloud operations are implemented in `Fixed.*`/`Geometry.*`. `test_math.cpp` and `test_geometry.cpp` cover the recovered public surface; camera/Bezier/SPL storage was confirmed already complete. Native classification mistakes and broken allocation bodies are explicitly corrected or excluded in the Session-31 ledger and `soft3d_geometry.md`.
-3. **Session 32:** recover TextureTarget, sprite submission, 16-bit span fill, and dynamic-light ownership. Do not expose native scanline/runtime support as portable public API.
+3. **Session 32 — complete:** `TextureTarget`/standalone STX, sprite submission/scaled drawing, 16/32-bit span fills, and dynamic-light ownership/intensity are implemented and covered by `test_sdk_resource.cpp`. Native scanline/runtime support remains excluded; the no-ID correction and safety differences are explicit in the completion ledger.
 4. **Session 33:** recover the input/sound/dialog builders and ScreenRect/S3dPoint helpers. Keep original no-ops empty.
 5. **Session 34:** rerun this inventory, add an external consumer linking only `soft3d`, and require every “missing useful API” row to become implemented or receive a documented exclusion with native evidence.
 6. **Session 34A:** process `game_object_inventory.md` separately, recovering missing game-owned APIs and correcting the documented ActionUp edge without moving game policy into reusable Soft3D.

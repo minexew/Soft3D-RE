@@ -3,7 +3,7 @@
 #include "soft3d/BasicShader.hpp"
 #include "soft3d/Fixed.hpp"
 #include "soft3d/ObjectRes.hpp"
-#include "soft3d/Texture.hpp"
+#include "soft3d/ScreenBlitter.hpp"
 
 #include <cstdint>
 #include <vector>
@@ -42,6 +42,10 @@ public:
 
     void RasterizeTriangle(const RasterVertex& first, const RasterVertex& second,
                            const RasterVertex& third);
+    void DrawScaled(ScreenRect destination, ScreenRect source, Fixed inverseDepth,
+                    uint32_t paletteIntensity);
+    void FillColor16(int32_t x, int32_t y, int32_t count, uint16_t color);
+    void FillColor32(int32_t x, int32_t y, int32_t count, uint32_t color);
     void Present();
 
     BasicShader& GetBasicShader();

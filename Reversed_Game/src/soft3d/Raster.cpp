@@ -427,6 +427,122 @@ void Raster::RasterizeTriangle(const RasterVertex& first, const RasterVertex& se
     }
 }
 
+void Raster::DrawScaled(ScreenRect destination, ScreenRect source, Fixed inverseDepth,
+                        uint32_t paletteIntensity)
+{
+    if (currentTexture == nullptr || currentTexture->GetPixels() == nullptr || texture == nullptr ||
+        texture->GetPixels() == nullptr || texture->GetPalette() == nullptr) {
+        return;
+    }
+    const int32_t destinationWidth = WrapSubtract(destination.right, destination.left);
+    const int32_t destinationHeight = WrapSubtract(destination.bottom, destination.top);
+    const int32_t sourceWidth = WrapSubtract(source.right, source.left);
+    const int32_t sourceHeight = WrapSubtract(source.bottom, source.top);
+    if (destinationWidth <= 0 || destinationHeight <= 0 || sourceWidth <= 0 || sourceHeight <= 0 ||
+        destination.left >= width || destination.right <= 0 ||
+        destination.top >= height || destination.bottom <= 0) {
+        return;
+    }
+
+    const Fixed scaleX = FixedDivide(ShiftLeftFixed(sourceWidth, 16),
+                                     ShiftLeftFixed(destinationWidth, 16));
+    const Fixed scaleY = FixedDivide(ShiftLeftFixed(sourceHeight, 16),
+                                     ShiftLeftFixed(destinationHeight, 16));
+    if (destination.left < 0) {
+        source.left = WrapSubtract(source.left, FixedToInt(FixedMultiply(
+            ShiftLeftFixed(destination.left, 16), scaleX)));
+        destination.left = 0;
+    }
+    if (destination.right > width) {
+        source.right = WrapSubtract(source.right, FixedToInt(FixedMultiply(
+            ShiftLeftFixed(WrapSubtract(destination.right, width), 16), scaleX)));
+        destination.right = width;
+    }
+    if (destination.top < 0) {
+        source.top = WrapSubtract(source.top, FixedToInt(FixedMultiply(
+            ShiftLeftFixed(destination.top, 16), scaleY)));
+        destination.top = 0;
+    }
+    if (destination.bottom > height) {
+        source.bottom = WrapSubtract(source.bottom, FixedToInt(FixedMultiply(
+            ShiftLeftFixed(WrapSubtract(destination.bottom, height), 16), scaleY)));
+        destination.bottom = height;
+    }
+    if (destination.right <= destination.left || destination.bottom <= destination.top) {
+        return;
+    }
+
+    const uint32_t depthWord = static_cast<uint32_t>(ShiftLeftFixed(inverseDepth, 16));
+    Fixed fixedY = ShiftLeftFixed(source.top, 16);
+    for (int32_t y = destination.top; y < destination.bottom; ++y) {
+        Fixed fixedX = 0;
+        const int32_t sourceY = fixedY >> 16;
+        for (int32_t x = destination.left; x < destination.right; ++x) {
+            const int32_t sourceX = source.left + (fixedX >> 16);
+            uint32_t* output = reinterpret_cast<uint32_t*>(currentTexture->GetPixels()) +
+                               static_cast<std::size_t>(y) * width + x;
+            if (sourceX >= 0 && sourceX < static_cast<int32_t>(texture->GetWidth()) &&
+                sourceY >= 0 && sourceY < static_cast<int32_t>(texture->GetHeight()) &&
+                (!depthTest || *output <= depthWord)) {
+                const uint8_t index = texture->GetPixels()[
+                    static_cast<std::size_t>(sourceY) * texture->GetWidth() + sourceX];
+                const bool transparent = texture->HasTransparentColor() &&
+                                         index == texture->GetTransparentColor();
+                if (!transparent) {
+                    const uint32_t paletteIndex = (static_cast<uint32_t>(index) << 5) |
+                                                  paletteIntensity;
+                    uint16_t color;
+                    std::memcpy(&color, texture->GetPalette() + paletteIndex * 2, 2);
+                    if (detailTexture != nullptr) {
+                        const uint8_t alpha = detailTexture->GetPixels()[
+                            static_cast<std::size_t>(sourceY) * texture->GetWidth() + sourceX];
+                        color = BlendSecondary(static_cast<uint16_t>(*output), color, alpha);
+                    } else if (blendMode == 1) {
+                        color = Blend25Destination(static_cast<uint16_t>(*output), color);
+                    } else if (blendMode == 2) {
+                        color = Blend50(static_cast<uint16_t>(*output), color);
+                    } else if (blendMode == 3) {
+                        color = Blend75Destination(static_cast<uint16_t>(*output), color);
+                    }
+                    *output = depthWrite ? depthWord | color
+                                         : (*output & 0xffff0000U) | color;
+                }
+            }
+            fixedX = WrapAdd(fixedX, scaleX);
+        }
+        fixedY = WrapAdd(fixedY, scaleY);
+    }
+}
+
+void Raster::FillColor16(int32_t x, int32_t y, int32_t count, uint16_t color)
+{
+    if (currentTexture == nullptr || currentTexture->GetPixels() == nullptr || count <= 0 ||
+        y < 0 || y >= height) {
+        return;
+    }
+    const int64_t first = std::max<int64_t>(x, 0);
+    const int64_t end = std::min<int64_t>(static_cast<int64_t>(x) + count, width);
+    for (int64_t column = first; column < end; ++column) {
+        uint32_t* output = reinterpret_cast<uint32_t*>(currentTexture->GetPixels()) +
+                           static_cast<std::size_t>(y) * width + column;
+        *output = (*output & 0xffff0000U) | color;
+    }
+}
+
+void Raster::FillColor32(int32_t x, int32_t y, int32_t count, uint32_t color)
+{
+    if (currentTexture == nullptr || currentTexture->GetPixels() == nullptr || count <= 0 ||
+        y < 0 || y >= height) {
+        return;
+    }
+    const int64_t first = std::max<int64_t>(x, 0);
+    const int64_t end = std::min<int64_t>(static_cast<int64_t>(x) + count, width);
+    uint32_t* output = reinterpret_cast<uint32_t*>(currentTexture->GetPixels());
+    for (int64_t column = first; column < end; ++column) {
+        output[static_cast<std::size_t>(y) * width + column] = color;
+    }
+}
+
 void Raster::Present()
 {
     if (activeShader != nullptr && currentTexture != nullptr && backBuffer != nullptr) {

@@ -76,6 +76,7 @@ public:
                             const std::vector<Matrix4>& matrixPalette = {},
                             Fixed textureOffsetU = 0, Fixed textureOffsetV = 0,
                             Fixed materialIntensity = 0, bool cullingDisabled = false);
+    void RenderSprite(const Vec3& position, const ScreenRect* sourceRect, uint16_t color);
     void Clear(uint16_t color);
     void SelectShader(BasicShader* shader);
     void Present();

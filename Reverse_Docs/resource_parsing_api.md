@@ -83,6 +83,27 @@ If type bits 6–7 are nonzero, palette data precedes pixels. Bits equal to `0x4
 
 `Texture_Reset` (`0x000d8744`) frees pixel and palette allocations and resets selected dimension fields. It does not clear every field.
 
+### Session-32 standalone STX and `TextureTarget`
+
+`Texture_LoadStxFile` (`0x000d85d4`) is the standalone-file counterpart of the archive loader. It resets the texture, opens a wide path in binary-read mode, reads the complete file, and shares `ParseStxTexture`. The portable `Texture::LoadStxFile` exposes the same operation and closes the host file on every return path.
+
+The uncalled RTTI-less `TextureTarget` is 0x74 bytes. Its duplicate constructors at `0x000e1a00` and `0x000e1aa0` establish:
+
+| Offset | Type | Meaning |
+|---:|---|---|
+| `+0x00`, `+0x04` | `int32_t` | Target width and height. |
+| `+0x08` | `int32_t` | Destination stride in bytes, `width * 4`. |
+| `+0x0c` | `int32_t` | Tiled row count, `height + (height >> 1)`. |
+| `+0x10` | `Vec2` | Zero-initialized target offset. |
+| `+0x18` | `Texture` | Embedded 0x58-byte source texture. |
+| `+0x70` | pointer | Optional owned tiling buffer. |
+
+`TextureTarget_LoadStx` (`0x000e1b40`) first loads the embedded texture. A failed load returns immediately and leaves any previous tiled allocation intact. Success releases that allocation. If `strideBytes == texture.width`, the source remains the visible pixel store. Otherwise the target allocates `strideBytes * tiledHeight` bytes, copies from the source, and resets the embedded texture. The source-height getter is called but its value is unused.
+
+Tiling compares the **four-byte stride directly with the source width**, not with source row bytes or target width. Source X persists across output rows and wraps only when it becomes greater than source width, so width itself is read once before wrapping. This is intentional native behavior, not a conventional independent-row modulo. `TextureTarget::GetPixels` selects the tiled allocation when present and the embedded texture otherwise.
+
+Portable `TextureTarget` uses value ownership for the embedded texture and a `std::vector<uint8_t>` for the tiled store. Null/invalid dimensions, allocation failure, and source exhaustion return errors rather than reproducing native null dereferences or out-of-bounds reads. `Texture::Reset` additionally clears the aligned pixel pointer and pixel size, avoiding stale native pointers. These are intentional portable safety differences. `test_sdk_resource.cpp` covers exact synthetic sequences, matching/different stride, repeated success, failure preserving the old tiled store, insufficient source data, teardown, and real `aj_zhiwu_a.stx` pixels.
+
 ## SOJ: `ObjectRes`
 
 `ObjectRes` is 0x15c bytes. `LoadSojResource` is `0x000e8198`; `ParseSojModel` is `0x000e829c`. The parser allocates 0x34-byte material records and 0x30-byte surfaces, checks material errors, ignores surface parser return values, and frees both arrays when surface count is zero.

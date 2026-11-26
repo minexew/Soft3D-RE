@@ -196,8 +196,36 @@ void Bsp::SetTextureDirectory(const char16_t* value)
     useTextureDirectory = true;
 }
 
+BspDynamicLight* Bsp::AddDynamicLight()
+{
+    if (dynamicLightStorage.size() >= 32) {
+        return nullptr;
+    }
+    auto light = std::make_unique<BspDynamicLight>();
+    light->next = dynamicLights;
+    if (dynamicLights != nullptr) {
+        dynamicLights->previous = light.get();
+    }
+    dynamicLights = light.get();
+    dynamicLightStorage.push_back(std::move(light));
+    return dynamicLights;
+}
+
+void Bsp::ClearDynamicLights()
+{
+    dynamicLights = nullptr;
+    dynamicLightStorage.clear();
+}
+
+BspDynamicLight* Bsp::GetDynamicLights() const { return dynamicLights; }
+uint32_t Bsp::GetDynamicLightCount() const
+{
+    return static_cast<uint32_t>(dynamicLightStorage.size());
+}
+
 void Bsp::FreeLastLevel()
 {
+    ClearDynamicLights();
     entities.clear();
     models.clear();
     vertices.clear();

@@ -435,10 +435,17 @@ Fixed Bsp::GetLightIntensity(const Vec3& position) const
     Vec3 end = position;
     end.y = SubtractFixed(end.y, 0x640000);
     uint8_t sample = 0;
-    if (nodes.empty() || SampleLightFace(*this, 0, position, end, sample) < 0) {
-        return 0;
+    Fixed intensity = 0;
+    if (!nodes.empty() && SampleLightFace(*this, 0, position, end, sample) >= 0) {
+        intensity = sample;
     }
-    Fixed intensity = sample;
+    for (const BspDynamicLight* light = dynamicLights; light != nullptr; light = light->next) {
+        const Vec3 delta = Subtract(position, light->plane.normal);
+        const Fixed contribution = SubtractFixed(light->plane.distance, Length(delta));
+        if (contribution > 0) {
+            intensity = AddFixed(intensity, contribution);
+        }
+    }
     return intensity >= 0xff0000 ? fixedOne : intensity >> 8;
 }
 

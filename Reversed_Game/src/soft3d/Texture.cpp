@@ -5,6 +5,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <new>
+#include <vector>
 
 namespace soft3d {
 namespace {
@@ -83,6 +85,35 @@ result Texture::LoadStx(const char16_t* entryName, s3dFilePak* filePak)
     status = ParseStx(data);
     std::free(data);
     return status;
+}
+
+result Texture::LoadStxFile(const char16_t* path)
+{
+    Reset();
+    if (path == nullptr || !io.Open(path, u"rb")) {
+        S3D_LOG(log, u"Texture::CreateFromFile %s: can't find!\n", path);
+        return S3D_FILE;
+    }
+    io.Seek(0, SEEK_END);
+    const uint32_t bytes = io.Tell();
+    if (bytes == static_cast<uint32_t>(S3D_EOF)) {
+        S3D_LOG(log, u"Texture::CreateFromFile %s: ftell return EOF!\n", path);
+        io.Close();
+        return S3D_UNKNOWN;
+    }
+
+    std::vector<uint8_t> data;
+    try {
+        data.resize(bytes);
+    } catch (const std::bad_alloc&) {
+        S3D_LOG(log, u"Texture::CreateFromFile %s: memory out!\n", path);
+        io.Close();
+        return S3D_MEMORY;
+    }
+    io.Seek(0, SEEK_SET);
+    io.Read(data.data(), bytes);
+    io.Close();
+    return ParseStx(data.data());
 }
 
 result Texture::ParseStx(const void* data)
@@ -169,6 +200,8 @@ void Texture::Reset()
     bytesPerPixel = 0;
     fixedWidth = 0;
     fixedHeight = 0;
+    pixelSize = 0;
+    pixels = nullptr;
 }
 
 uint32_t Texture::GetWidth() const { return width; }

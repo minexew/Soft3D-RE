@@ -316,6 +316,8 @@ Exercise each API through public headers and real or synthetic resources, includ
 
 **Exit:** no useful uncalled resource/model/renderer candidate remains as “unknown”; API ownership and lifetime are documented and tested.
 
+**Status:** Complete. The evidence ledger is in `soft3d_sdk_inventory.md`, with subsystem details in `resource_parsing_api.md`, `symbian3rd_raster.md`, and `sbp_format.md`. Recovered public APIs comprise `TextureTarget` and standalone STX loading, `Renderer::RenderSprite`/`Raster::DrawScaled`, clipped 16/32-bit span fills, and owned 32-entry BSP dynamic lights. `test_sdk_resource.cpp` covers exact native-derived tiling, sprite pixels, clipping, light list topology, intensity, repeated calls, and teardown. The no-ID light correction and portable allocation/bounds/clipping guards are explicit. Ghidra structures, prototypes, comments, and tags were saved and read back. The complete default/core/STDIO/host-math/WAR/ASan-UBSan/applicable-English/Python validation matrix passes.
+
 ### Session 33 — Recover remaining streams, text, UI, audio, effects, and utility APIs
 
 Process the remaining confirmed reusable candidates by family: streams/IO/formatting, font/string/dialog accessors, audio controls, renderable effects, memory diagnostics, and small utility methods. Skip a family with no candidates rather than inventing work.

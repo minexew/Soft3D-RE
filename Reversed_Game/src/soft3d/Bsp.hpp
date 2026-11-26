@@ -1,6 +1,7 @@
 #pragma once
 
 #include "soft3d/Fixed.hpp"
+#include "soft3d/Geometry.hpp"
 #include "soft3d/Object.hpp"
 #include "soft3d/Renderable.hpp"
 #include "soft3d/s3dBase.hpp"
@@ -223,6 +224,12 @@ struct BspLightStyle {
     std::vector<uint8_t> frames;
 };
 
+struct BspDynamicLight {
+    Plane plane;
+    BspDynamicLight* previous = nullptr;
+    BspDynamicLight* next = nullptr;
+};
+
 struct BspRenderState {
     Vec3 cameraPosition;
     Matrix4 worldToCamera = Matrix4::Identity();
@@ -265,6 +272,10 @@ public:
                                            const BspPathNode* excluded = nullptr) const;
     const BspPathNode* GetPathNode(uint16_t index) const;
     Fixed GetLightIntensity(const Vec3& position) const;
+    BspDynamicLight* AddDynamicLight();
+    void ClearDynamicLights();
+    BspDynamicLight* GetDynamicLights() const;
+    uint32_t GetDynamicLightCount() const;
     void BlendLightmapSplat(const Texture* texture, const Vec3& start, const Vec3& end,
                             bool flipU, bool flipV);
 
@@ -409,6 +420,8 @@ private:
     std::vector<BspNode> nodes;
     std::vector<uint8_t> pvs;
     std::vector<uint8_t> lightmapData;
+    std::vector<std::unique_ptr<BspDynamicLight>> dynamicLightStorage;
+    BspDynamicLight* dynamicLights = nullptr;
     std::array<BspLightStyle, 256> lightStyles{};
     std::array<Vec3, 2> scriptVectors{};
     BspRenderState renderState;

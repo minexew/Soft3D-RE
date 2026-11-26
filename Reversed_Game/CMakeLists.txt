@@ -52,6 +52,7 @@ add_library(soft3d
     src/soft3d/SoundInstance.cpp
     src/soft3d/Stream.cpp
     src/soft3d/Texture.cpp
+    src/soft3d/TextureTarget.cpp
     src/soft3d/TextureRes.cpp
     src/soft3d/UiManager.cpp
     src/soft3d/Units.cpp
@@ -240,6 +241,16 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_geometry_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_geometry COMMAND soft3d_geometry_tests)
+
+    add_executable(soft3d_sdk_resource_tests tests/test_sdk_resource.cpp)
+    target_link_libraries(soft3d_sdk_resource_tests PRIVATE soft3d)
+    target_compile_definitions(soft3d_sdk_resource_tests PRIVATE
+        SOFT3D_TEST_ARCHIVE=u"${CMAKE_CURRENT_SOURCE_DIR}/src/resources/res.spk"
+    )
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_sdk_resource_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_sdk_resource COMMAND soft3d_sdk_resource_tests)
 
     add_executable(soft3d_raster_tests tests/test_raster.cpp)
     target_link_libraries(soft3d_raster_tests PRIVATE soft3d)

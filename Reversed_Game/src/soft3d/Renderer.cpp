@@ -719,6 +719,48 @@ void Renderer::DrawIndexedSurface(const SojSurface& surface, const SojObject* ma
     }
 }
 
+void Renderer::RenderSprite(const Vec3& position, const ScreenRect* sourceRect, uint16_t color)
+{
+    if (texture == nullptr) {
+        return;
+    }
+    ScreenRect source = sourceRect != nullptr
+        ? *sourceRect
+        : ScreenRect{0, 0, static_cast<int32_t>(texture->GetWidth()),
+                     static_cast<int32_t>(texture->GetHeight())};
+    const Matrix4 transform = Multiply(modelMatrix, viewProjectionMatrix);
+    const auto transformRow = [&transform, &position](std::size_t row) {
+        return AddFixed(AddFixed(AddFixed(
+            FixedMultiply(transform.values[row], position.x),
+            FixedMultiply(transform.values[row + 4], position.y)),
+            FixedMultiply(transform.values[row + 8], position.z)), transform.values[row + 12]);
+    };
+    const Vec3 camera = {transformRow(0), transformRow(1), transformRow(2)};
+    if (camera.z <= fixedOne || camera.z >= 0x8c0000) {
+        return;
+    }
+
+    Vec3 projected;
+    const Fixed reciprocal = FixedDivide(0x1000000, camera.z);
+    projected.x = AddFixed(viewport.centerXFixed,
+        FixedMultiply(FixedMultiply(camera.x, reciprocal) >> 8, viewport.halfWidthFixed));
+    projected.y = SubtractFixed(viewport.centerYFixed,
+        FixedMultiply(FixedMultiply(camera.y, reciprocal) >> 8, viewport.halfHeightFixed));
+    projected.z = reciprocal >> 8;
+
+    const Fixed halfWidth = ShiftLeftFixed(
+        WrapSubtract(source.right, source.left), 16) >> 1;
+    const Fixed halfHeight = ShiftLeftFixed(
+        WrapSubtract(source.bottom, source.top), 16) >> 1;
+    const ScreenRect destination = {
+        FixedToInt(SubtractFixed(projected.x, halfWidth)),
+        FixedToInt(SubtractFixed(projected.y, halfHeight)),
+        FixedToInt(AddFixed(projected.x, halfWidth)),
+        FixedToInt(AddFixed(projected.y, halfHeight))
+    };
+    raster.DrawScaled(destination, source, projected.z, color >> 8);
+}
+
 void Renderer::Clear(uint16_t color)
 {
     raster.Clear(color);

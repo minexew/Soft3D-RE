@@ -17,6 +17,7 @@ public:
     ~Texture() override;
 
     result LoadStx(const char16_t* entryName, s3dFilePak* filePak);
+    result LoadStxFile(const char16_t* path);
     result ParseStx(const void* data);
     result Resize(uint32_t newWidth, uint32_t newHeight, uint16_t newType);
     void Reset();
