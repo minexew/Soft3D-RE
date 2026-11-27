@@ -72,6 +72,16 @@ Fixed CalculateFixedPointDistance(const Vec3& first, const Vec3& second)
 
 SoundInstance::SoundInstance() = default;
 
+void SoundInstance::Reset()
+{
+    volume = 0;
+    voice = -1;
+    looping = 0;
+    data = nullptr;
+    distance = 0;
+    listIndex = -1;
+}
+
 int SoundInstance::Initialize(AudioManager* manager, AudioData* soundData, bool repeat, bool isOwned)
 {
     owner = manager;

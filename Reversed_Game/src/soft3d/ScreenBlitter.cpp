@@ -1,9 +1,170 @@
 #include "soft3d/ScreenBlitter.hpp"
 
+#include "soft3d/Dialog.hpp"
+
 #include <algorithm>
 #include <cstring>
 
 namespace soft3d {
+
+void S3dPoint::Set(int32_t newX, int32_t newY)
+{
+    x = newX;
+    y = newY;
+}
+
+ScreenRect::ScreenRect(int32_t newLeft, int32_t newTop, int32_t newRight, int32_t newBottom)
+{
+    Set(newLeft, newTop, newRight, newBottom);
+}
+
+ScreenRect::ScreenRect(const S3dPoint& position, const S3dPoint& size)
+{
+    Set(position.x, position.y, AddFixed(position.x, size.x), AddFixed(position.y, size.y));
+}
+
+void ScreenRect::Zero()
+{
+    Set(0, 0, 0, 0);
+}
+
+void ScreenRect::Set(int32_t newLeft, int32_t newTop, int32_t newRight, int32_t newBottom)
+{
+    left = newLeft;
+    top = newTop;
+    right = newRight;
+    bottom = newBottom;
+}
+
+void ScreenRect::AssignPosition(const S3dPoint& position)
+{
+    left = position.x;
+    top = position.y;
+}
+
+void ScreenRect::AssignSdtPosition(const SdtAnimationKey& key)
+{
+    left = key.y;
+    top = key.width;
+}
+
+void ScreenRect::Offset(int32_t x, int32_t y)
+{
+    left = AddFixed(left, x);
+    right = AddFixed(right, x);
+    top = AddFixed(top, y);
+    bottom = AddFixed(bottom, y);
+}
+
+void ScreenRect::OffsetMirrored(int32_t x, int32_t y)
+{
+    left = AddFixed(left, x);
+    right = SubtractFixed(right, x);
+    top = AddFixed(top, y);
+    bottom = SubtractFixed(bottom, y);
+}
+
+void ScreenRect::OffsetMirroredBoth(int32_t newLeft, int32_t newTop,
+                                    int32_t newRight, int32_t newBottom)
+{
+    left = AddFixed(left, newLeft);
+    top = AddFixed(top, newTop);
+    right = SubtractFixed(right, newRight);
+    bottom = SubtractFixed(bottom, newBottom);
+}
+
+void ScreenRect::OffsetReverse(int32_t x, int32_t y)
+{
+    left = SubtractFixed(left, x);
+    right = AddFixed(right, x);
+    top = SubtractFixed(top, y);
+    bottom = AddFixed(bottom, y);
+}
+
+void ScreenRect::OffsetReverseBoth(int32_t newLeft, int32_t newTop,
+                                   int32_t newRight, int32_t newBottom)
+{
+    left = SubtractFixed(left, newLeft);
+    right = AddFixed(right, newRight);
+    top = SubtractFixed(top, newTop);
+    bottom = AddFixed(bottom, newBottom);
+}
+
+void ScreenRect::SetLeft(int32_t value)
+{
+    const int32_t width = GetWidth();
+    left = value;
+    right = AddFixed(value, width);
+}
+
+void ScreenRect::SetTop(int32_t value)
+{
+    const int32_t height = GetHeight();
+    top = value;
+    bottom = AddFixed(value, height);
+}
+
+void ScreenRect::SetPosition(int32_t x, int32_t y)
+{
+    const int32_t width = GetWidth();
+    const int32_t height = GetHeight();
+    left = x;
+    right = AddFixed(x, width);
+    top = y;
+    bottom = AddFixed(y, height);
+}
+
+bool ScreenRect::IsEmpty() const
+{
+    return GetWidth() <= 0 || GetHeight() <= 0;
+}
+
+bool ScreenRect::IsZero() const
+{
+    return left == 0 && top == 0 && right == 0 && bottom == 0;
+}
+
+bool ScreenRect::Contains(const S3dPoint& point) const
+{
+    return left <= point.x && point.x <= right && top <= point.y && point.y <= bottom;
+}
+
+int32_t ScreenRect::GetWidth() const
+{
+    return SubtractFixed(right, left);
+}
+
+int32_t ScreenRect::GetHeight() const
+{
+    return SubtractFixed(bottom, top);
+}
+
+void ScreenRect::Include(const ScreenRect& other)
+{
+    left = std::min(left, other.left);
+    right = std::max(right, other.right);
+    top = std::min(top, other.top);
+    bottom = std::max(bottom, other.bottom);
+}
+
+void ScreenRect::Clamp(const ScreenRect& other)
+{
+    left = std::max(left, other.left);
+    right = std::min(right, other.right);
+    top = std::max(top, other.top);
+    bottom = std::min(bottom, other.bottom);
+}
+
+bool ScreenRect::operator==(const ScreenRect& other) const
+{
+    return left == other.left && right == other.right && top == other.top && bottom == other.bottom;
+}
+
+bool ScreenRect::operator!=(const ScreenRect& other) const
+{
+    return !(*this == other);
+}
+
 namespace {
 
 constexpr uint32_t PixelHigh = 0x7fff0000;

@@ -650,6 +650,153 @@ const SdtDialog& Dialog::GetData() const
     return data;
 }
 
+int32_t Dialog::GetElementX(int32_t stateIndex, int32_t elementIndex, int32_t time)
+{
+    int32_t result = static_cast<int16_t>(GetElementFieldAtTime(stateIndex, elementIndex, time, 1));
+    if (stateIndex >= 0 && static_cast<size_t>(stateIndex) < data.states.size() &&
+        elementIndex >= 0 &&
+        static_cast<size_t>(elementIndex) < data.states[stateIndex].elements.size()) {
+        const SdtVisual* visual = GetVisual(data.states[stateIndex].elements[elementIndex].visualIndex);
+        if (visual != nullptr && visual->hidden) {
+            result = -9999;
+        }
+    }
+    return result;
+}
+
+int32_t Dialog::GetElementY(int32_t stateIndex, int32_t elementIndex, int32_t time)
+{
+    int32_t result = static_cast<int16_t>(GetElementFieldAtTime(stateIndex, elementIndex, time, 2));
+    if (stateIndex >= 0 && static_cast<size_t>(stateIndex) < data.states.size() &&
+        elementIndex >= 0 &&
+        static_cast<size_t>(elementIndex) < data.states[stateIndex].elements.size()) {
+        const SdtVisual* visual = GetVisual(data.states[stateIndex].elements[elementIndex].visualIndex);
+        if (visual != nullptr && visual->hidden) {
+            result = -9999;
+        }
+    }
+    return result;
+}
+
+void Dialog::SetKeyBlitMode(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex,
+                            int32_t value)
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
+        elementIndex < 0 || keyIndex < 0) {
+        return;
+    }
+    SdtState& state = data.states[stateIndex];
+    if (static_cast<size_t>(elementIndex) >= state.elements.size()) {
+        return;
+    }
+    SdtElement& element = state.elements[elementIndex];
+    if (static_cast<size_t>(keyIndex) < element.keys.size()) {
+        element.keys[keyIndex].mode = value;
+    }
+}
+
+void Dialog::SetKeyAndRender(int32_t x, int32_t y, int32_t stateIndex, int32_t elementIndex,
+                             int32_t keyIndex, int32_t blitMode)
+{
+    SetKeyX(stateIndex, elementIndex, keyIndex, x);
+    SetKeyY(stateIndex, elementIndex, keyIndex, y);
+    SetKeyBlitMode(stateIndex, elementIndex, keyIndex, blitMode);
+    RenderElementAtTime(stateIndex, elementIndex, keyIndex);
+}
+
+void Dialog::SetStateKeyFromElement(int32_t stateIndex, int32_t targetElementIndex, int32_t targetKeyIndex,
+                                    int32_t sourceElementIndex, int32_t time)
+{
+    const int32_t x = GetElementX(stateIndex, sourceElementIndex, time);
+    const int32_t y = GetElementY(stateIndex, sourceElementIndex, time);
+    SetKeyAndRender(x, y, stateIndex, targetElementIndex, targetKeyIndex, 0);
+}
+
+bool Dialog::ApplyInterpolatedState(int32_t stateIndex, int32_t targetElementIndex,
+                                    int32_t targetKeyIndex, int32_t sourceElementIndex)
+{
+    if (stateIndex < 0 || static_cast<size_t>(stateIndex) >= data.states.size() ||
+        static_cast<size_t>(stateIndex) >= elementTimes.size() || sourceElementIndex < 0 ||
+        static_cast<size_t>(sourceElementIndex) >= elementTimes[stateIndex].size()) {
+        return true;
+    }
+    int16_t time = KeyValue(GetElementCurrentTime(stateIndex, sourceElementIndex));
+    const int32_t x = GetElementX(stateIndex, sourceElementIndex, time);
+    const int32_t y = GetElementY(stateIndex, sourceElementIndex, time);
+    SetKeyAndRender(x, y, stateIndex, targetElementIndex, targetKeyIndex, 0);
+
+    const SdtElement& source = data.states[stateIndex].elements[sourceElementIndex];
+    const int32_t endTime = source.keys.empty() ? 0 : KeyValue(source.keys.back().time);
+    time = static_cast<int16_t>(time + 1);
+    if (time <= endTime) {
+        SetElementCurrentTime(stateIndex, sourceElementIndex, time);
+        return false;
+    }
+    SetElementCurrentTime(stateIndex, sourceElementIndex, 0);
+    return true;
+}
+
+void Dialog::SetCurrentVisual(const SdtVisual& visual)
+{
+    if (currentVisual == nullptr) {
+        currentVisual = std::make_unique<SdtVisual>();
+    }
+    *currentVisual = visual;
+}
+
+const SdtVisual* Dialog::GetCurrentVisual() const
+{
+    return currentVisual.get();
+}
+
+void Dialog::SetLinkedDialog(Dialog* dialog)
+{
+    Dialog* linked = dialog != nullptr ? dialog : this;
+    nextDialog = linked;
+    linked->previousDialog = this;
+}
+
+Dialog* Dialog::GetNextDialog() const
+{
+    return nextDialog != nullptr ? nextDialog : const_cast<Dialog*>(this);
+}
+
+Dialog* Dialog::GetPreviousDialog() const
+{
+    return previousDialog != nullptr ? previousDialog : const_cast<Dialog*>(this);
+}
+
+void Dialog::AddElement(int32_t value0, int32_t id, int32_t value2,
+                        int32_t value3, int32_t value4, int32_t value5)
+{
+    for (DialogElementTemplate& element : elementTemplates) {
+        if (element.id < 0) {
+            element.value0 = value0;
+            element.id = id;
+            element.value2 = value2;
+            element.value3 = value3;
+            element.value4 = value4;
+            element.value5 = value5;
+            return;
+        }
+    }
+}
+
+const DialogElementTemplate* Dialog::GetElementTemplate(std::size_t elementIndex) const
+{
+    return elementIndex < elementTemplates.size() ? &elementTemplates[elementIndex] : nullptr;
+}
+
+void Dialog::SetBlendMode(uint32_t mode)
+{
+    blendMode = mode;
+}
+
+uint32_t Dialog::GetBlendMode() const
+{
+    return blendMode;
+}
+
 UiManager* Dialog::GetManager() const
 {
     return manager;

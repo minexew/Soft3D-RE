@@ -48,6 +48,7 @@ public:
 
     void ClearKey();
     void Update();
+    void SetAnyKeyDown(uint8_t value);
     void KeyDown(Key key, bool hardwareEvent = false);
     void KeyPress(Key key, bool hardwareEvent = false);
     void KeyUp(Key key, bool hardwareEvent = false);
@@ -58,8 +59,12 @@ public:
     bool IsKeyUp(Key key) const;
     bool IsKeyClick(Key key) const;
     bool IsKeyDownOrClick(Key key) const;
+    bool IsAnyKeyFirstDown() const;
     bool IsAnyKeyDown() const;
+    bool IsAnyKeyPress() const;
+    bool IsAnyKeyUp() const;
     bool IsAnyKeyClick() const;
+    bool IsAnyKeyDownOrClick() const;
     uint8_t GetKeyState(Key key) const;
     uint8_t GetRepeatCount(Key key) const;
 
@@ -67,7 +72,7 @@ private:
     static bool IsValid(Key key);
     bool AcceptsEvent(Key key, bool hardwareEvent) const;
 
-    bool anyKeyDown = false;
+    uint8_t anyKeyDown = 0;
     std::array<uint8_t, keySlotCount> keyStates{};
     std::array<uint8_t, keySlotCount> repeatCounts{};
 };

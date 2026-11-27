@@ -76,6 +76,14 @@ void Input::Update()
     }
 }
 
+void Input::SetAnyKeyDown(uint8_t value)
+{
+    if (anyKeyDown != value) {
+        ClearKey();
+    }
+    anyKeyDown = value;
+}
+
 bool Input::IsValid(Key key)
 {
     const auto index = static_cast<uint8_t>(key);
@@ -153,10 +161,40 @@ bool Input::IsKeyDownOrClick(Key key) const
     return IsKeyDown(key) || IsKeyClick(key);
 }
 
+bool Input::IsAnyKeyFirstDown() const
+{
+    for (std::size_t key = 1; key < keySlotCount; ++key) {
+        if (IsKeyFirstDown(static_cast<Key>(key))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 bool Input::IsAnyKeyDown() const
 {
     for (std::size_t key = 1; key < keySlotCount; ++key) {
-        if ((keyStates[key] & keyDown) != 0) {
+        if (IsKeyDown(static_cast<Key>(key))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Input::IsAnyKeyPress() const
+{
+    for (std::size_t key = 1; key < keySlotCount; ++key) {
+        if (IsKeyPress(static_cast<Key>(key))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Input::IsAnyKeyUp() const
+{
+    for (std::size_t key = 1; key < keySlotCount; ++key) {
+        if (IsKeyUp(static_cast<Key>(key))) {
             return true;
         }
     }
@@ -166,7 +204,17 @@ bool Input::IsAnyKeyDown() const
 bool Input::IsAnyKeyClick() const
 {
     for (std::size_t key = 1; key < keySlotCount; ++key) {
-        if ((keyStates[key] & keyClick) != 0) {
+        if (IsKeyClick(static_cast<Key>(key))) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool Input::IsAnyKeyDownOrClick() const
+{
+    for (std::size_t key = 1; key < keySlotCount; ++key) {
+        if (IsKeyDownOrClick(static_cast<Key>(key))) {
             return true;
         }
     }

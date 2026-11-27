@@ -252,6 +252,13 @@ if(BUILD_TESTING)
     endif()
     add_test(NAME soft3d_sdk_resource COMMAND soft3d_sdk_resource_tests)
 
+    add_executable(soft3d_sdk_utility_tests tests/test_sdk_utility.cpp)
+    target_link_libraries(soft3d_sdk_utility_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_sdk_utility_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_sdk_utility COMMAND soft3d_sdk_utility_tests)
+
     add_executable(soft3d_raster_tests tests/test_raster.cpp)
     target_link_libraries(soft3d_raster_tests PRIVATE soft3d)
     if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")

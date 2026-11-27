@@ -2,8 +2,10 @@
 
 #include "soft3d/ScreenBlitter.hpp"
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <vector>
 
 namespace soft3d {
@@ -62,6 +64,15 @@ struct SdtDialog {
     std::vector<SdtState> states;
 };
 
+struct DialogElementTemplate {
+    int32_t value0 = 0;
+    int32_t id = -1;
+    int32_t value2 = -1;
+    int32_t value3 = -1;
+    int32_t value4 = -1;
+    int32_t value5 = -9999;
+};
+
 class Dialog {
 public:
     Dialog(UiManager* manager, uint16_t index, bool active = false);
@@ -89,16 +100,27 @@ public:
     void SetKeyY(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
     void SetKeyWidth(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
     void SetKeyHeight(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
+    void SetKeyBlitMode(int32_t stateIndex, int32_t elementIndex, int32_t keyIndex, int32_t value);
+    void SetKeyAndRender(int32_t x, int32_t y, int32_t stateIndex, int32_t elementIndex,
+                         int32_t keyIndex, int32_t blitMode);
+    int32_t GetElementX(int32_t stateIndex, int32_t elementIndex, int32_t time);
+    int32_t GetElementY(int32_t stateIndex, int32_t elementIndex, int32_t time);
     int32_t GetElementWidth(int32_t stateIndex, int32_t elementIndex, int32_t time);
     int32_t GetElementHeight(int32_t stateIndex, int32_t elementIndex, int32_t time);
     int32_t GetElementBlitMode(int32_t stateIndex, int32_t elementIndex, int32_t time);
     void SetElementCurrentTime(int32_t stateIndex, int32_t elementIndex, int32_t time);
     int32_t GetElementCurrentTime(int32_t stateIndex, int32_t elementIndex) const;
+    void SetStateKeyFromElement(int32_t stateIndex, int32_t targetElementIndex, int32_t targetKeyIndex,
+                                int32_t sourceElementIndex, int32_t time);
+    bool ApplyInterpolatedState(int32_t stateIndex, int32_t targetElementIndex,
+                                int32_t targetKeyIndex, int32_t sourceElementIndex);
     ScreenRect GetKeyDestinationRect(int32_t stateIndex, int32_t elementIndex,
                                      int32_t keyIndex) const;
     bool BlitVisualInRect(uint32_t visualIndex, ScreenRect destination);
     bool BlitVisualAtPoint(uint32_t visualIndex, int32_t x, int32_t y);
     bool SetVisualResource(uint32_t visualIndex, const char16_t* name);
+    void SetCurrentVisual(const SdtVisual& visual);
+    const SdtVisual* GetCurrentVisual() const;
     void SetOrigin(int32_t x, int32_t y);
     int RenderNumber(uint32_t value, int32_t x, int32_t y,
                      int32_t stateIndex, int32_t elementIndex);
@@ -113,6 +135,14 @@ public:
     void SetIndex(uint16_t index);
     uint16_t GetIndex() const;
     int32_t GetStateTime() const;
+    void SetLinkedDialog(Dialog* dialog);
+    Dialog* GetNextDialog() const;
+    Dialog* GetPreviousDialog() const;
+    void AddElement(int32_t value0, int32_t id, int32_t value2,
+                    int32_t value3, int32_t value4, int32_t value5);
+    const DialogElementTemplate* GetElementTemplate(std::size_t index) const;
+    void SetBlendMode(uint32_t mode);
+    uint32_t GetBlendMode() const;
     SdtVisual* GetVisual(uint32_t index);
     const SdtVisual* GetVisual(uint32_t index) const;
     SdtDialog& GetData();
@@ -132,6 +162,11 @@ private:
     bool active;
     int32_t originX = 0;
     int32_t originY = 0;
+    uint32_t blendMode = 0;
+    std::unique_ptr<SdtVisual> currentVisual;
+    Dialog* nextDialog = nullptr;
+    Dialog* previousDialog = nullptr;
+    std::array<DialogElementTemplate, 20> elementTemplates{};
 };
 
 } // namespace soft3d

@@ -324,6 +324,8 @@ Process the remaining confirmed reusable candidates by family: streams/IO/format
 
 **Exit:** every useful API has a consumer-style synthetic test and public declaration; original no-ops remain empty and documented.
 
+**Status:** Complete. The evidence ledger is in `soft3d_sdk_inventory.md`, with subsystem details in `symbian3rd_input.md`, `symbian3rd_audio.md`, and `sdt_format.md`. Recovered public APIs comprise raw any-key reset and all six scans, `SoundInstance::Reset`, non-owning dialog links, the 20-entry element-template builder, dialog blend/current-visual state, source-to-target state-key/interpolated rendering helpers, and the complete `S3dPoint`/`ScreenRect` value surface. `test_sdk_utility.cpp` covers all key slots, reset/reuse, dialog capacity and deep copies, exact interpolation and rendered pixels, rectangle signs/inclusive edges/wrapping, and repeated calls. Native read-back corrected the inventory: sound ownership is preserved, and the SDT position helper reads key `y`/`width`. The original empty dialog hook remains empty.
+
 ### Session 34 — SDK completeness gate and external-consumer validation
 
 Re-run the inventory against source and Ghidra. Build a small external-style consumer against `soft3d` without linking `seven_days_game`, proving include hygiene, ownership, and availability of the recovered unused APIs. Update `Reversed_Game/README.md` and the format/API docs without claiming support for another engine game solely from shared lineage.

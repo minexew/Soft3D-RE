@@ -14,6 +14,7 @@ public:
     SoundInstance();
 
     int Initialize(AudioManager* manager, AudioData* data, bool looping, bool owned);
+    void Reset();
     void UpdateVolume();
     void Activate();
     void Stop();

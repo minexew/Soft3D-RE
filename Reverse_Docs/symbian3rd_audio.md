@@ -263,6 +263,8 @@ volume = Clamp(volume, 0, 255)
 
 Each manager update clears the 16-slot schedule and reinserts instances. `AudioManager_ScheduleSoundInstance` (`0x0011338c`) uses the first empty slot for nonzero-volume instances. A closer instance replaces a more distant occupant and recursively reschedules the displaced instance if it was active. Instances that cannot be scheduled are stopped but remain in the manager list. `ActivateSoundInstance` (`0x00116ec4`) acquires an effect voice when necessary, while `StopSoundInstance` (`0x00116f94`) releases the voice and sets both voice and list index to `-1`.
 
+`SoundInstance_Reset` (`0x00117108`) is public in Session 33. It clears volume, voice, loop flag, data pointer, distance, and list index, setting voice/list index to `-1`. It does **not** write the owner, source position, listener position, or ownership flag at `+0x30`, and does not stop a previously assigned voice. The Session-29 candidate text incorrectly included ownership among the cleared fields; disassembly and typed read-back confirm that ownership is preserved. `test_sdk_utility.cpp` covers exact public state, preserved position-derived distance, stop/reset/reuse, and reset of a manager-owned instance followed by normal owning cleanup.
+
 ## Portable reconstruction and SDL3 boundary
 
 The reconstruction now implements the recovered pipeline in:
