@@ -133,7 +133,7 @@ s16 pairCount
 s32 entityBrushIndex           // -1 means none
 ```
 
-If a target array is absent, the ARM reader clears the corresponding runtime link instead of resolving it. Otherwise it forms native pointers into link, pair, brush, and model arrays. It then invokes the callback at `Bsp + 0x2aae0` with the runtime record, callback context at `+0x2aae4`, and the record-array base.
+If a target array is absent, the ARM reader clears the corresponding runtime link instead of resolving it. Otherwise it forms native pointers into link, pair, brush, and model arrays. It then invokes the callback at `Bsp + 0x2aae0` with the runtime record, callback context at `+0x2aae4`, and the record-array base. `Bsp_SetEntityFactory` (`0x00031708`, formerly misnamed `ControlMap_SetEngineContext`) stores that callback; `Scene_BindEngineServices` installs `Bsp_CreateGameEntity`. Portable `Bsp::SetEntityFactory` stores both callback and context.
 
 The native runtime `SbpEntityRecord` is 0x1c bytes: type at 0, link count at 6, resolved links at 8, pairs at 12, brush at 16, model at 20, and pair count at 24. `Bsp_CreateGameEntity` (`0x000528ec`, relocation cell `0x0002bd68`) creates/loads a 0x68-byte `BspUnit` for types -1 and 0; other types dispatch to `MyGameUnitMgr` virtual slot 5. That game factory handles camera triggers (10), light triggers (11), six fog/header words (102), and lensflares (202) without returning a renderable entity.
 

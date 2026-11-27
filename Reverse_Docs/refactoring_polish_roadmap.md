@@ -336,11 +336,13 @@ Re-run the inventory against source and Ghidra. Build a small external-style con
 
 ### Session 34A — Game-object API completeness
 
-Use `Reverse_Docs/game_object_inventory.md` to recover game-owned methods and non-RTTI helpers excluded from the reusable Soft3D SDK. Complete the missing ControlMap/Input query, event, and gate APIs; player/camera wrappers and trigger lifecycle; and the distinct alternate DarkKen comparator. Resolve the PlayDlg option fields and `GameUI_GetNative80` from native field consumers before implementing them; leave unresolved reserved setters out.
+Use `Reverse_Docs/game_object_inventory.md` to recover game-owned methods and non-RTTI helpers excluded from the reusable Soft3D SDK. Complete the missing ControlMap/Input query, event, and gate APIs; player/camera wrappers and trigger lifecycle; and the distinct alternate DarkKen comparator. Resolve the PlayDlg point fields and `GameUI_GetDialogTemplate1Value3` from native field consumers before implementing them; leave unresolved reserved setters out.
 
 Preserve native ActionUp behavior for primary-only and both-bindings-up cases, and cover it through real QTE frames. Do not move game policy into `soft3d` to share code, merge behaviorally distinct comparators, or give reserved fields invented semantics.
 
 **Exit:** every game-object inventory row is implemented or explicitly excluded with evidence, focused input/player/camera/menu/enemy tests and real engine frames pass, and the full matrix passes.
+
+**Status:** Complete. The second native/source pass dispositioned every inventory row and corrected ControlMap/BSP/FadeShader ownership, QTE primary binding, PlayDlg reserved point, GameUI inherited template storage, camera saved-state fields, Player bounds arithmetic, and PickTrigger link setters. Public recovery covers ControlMap queries/events/gates, player/camera wrappers and trigger lifecycle, FadeShader renderer binding, and the distinct DarkKen descending comparator. Orbit center/target/rotation/repetition and ActionUp primary-only behavior were corrected from ARM; reserved setters remain excluded. Directed tests and real QTE/gun/player frames pass. The complete serial matrix passes 44/44 default, STDIO, host-math, and WAR tests; 37/37 core and ASan/UBSan tests; 23/23 applicable English-layout tests with the same 14 Chinese-archive exclusions; and 6/6 SOJ plus 8/8 S3DTEX Python tests. Ghidra names, prototypes, comments, tags, and the same-size camera history layout were saved and read back with no unsaved changes. The evidence ledger is `game_object_inventory.md`.
 
 ---
 

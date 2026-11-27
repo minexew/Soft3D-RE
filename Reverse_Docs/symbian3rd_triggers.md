@@ -54,6 +54,8 @@ Persistence at `0x00071f34`/`0x00071f98` appends `int16 count`, `int32 textId`, 
 | `0x6c` | Control map pointer |
 | `0x70` | GameUI pointer |
 
+Session 34A corrected two setter names from their callers and field consumers: `0x000498f8` is `PickTrigger_SetPickable` (`+0x64`), and `0x000498cc` is `PickTrigger_SetPlayer` (`+0x68`), not a native-64/linked-thing-ID pair. `MyGameUnitMgr_AddPickTrigger` resolves the bucket-2 Pickable and installs the manager Player. Portable `PickTrigger::Configure` already establishes both links; no behavior change or extra public setter was needed.
+
 `PickTrigger_IsAvailable` (`0x0003f514`) requires enabled, a linked Pickable, and item ID != -1. `PickTrigger_Update` (`0x0003ef90`) displays prompt 0 while available and nearby. Action 5 behaves as follows:
 
 1. For item IDs below 1000, `Player_IsInventoryFull` (`0x0003c168`) rejects pickup with simple message 5 when all nine slots are occupied. An empty slot or an existing health-pack slot permits pickup.

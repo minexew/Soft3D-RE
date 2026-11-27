@@ -279,6 +279,38 @@ soft3d::ObjectBounds Player::GetInteractionBounds() const
             soft3d::Add(pushLocalBounds.maximum, position)};
 }
 
+soft3d::ObjectBounds Player::GetObjectBounds() const
+{
+    soft3d::ObjectBounds bounds = localBounds;
+    if (const soft3d::Object* object = GetObject(0)) {
+        bounds.minimum = soft3d::Subtract(object->GetWorldBounds().minimum, position);
+        bounds.maximum = soft3d::Subtract(object->GetWorldBounds().maximum, position);
+    }
+    bounds.minimum.y = localBounds.minimum.y;
+    bounds.maximum.y = localBounds.maximum.y;
+    return bounds;
+}
+
+bool Player::IsFacingPoint(const soft3d::Vec3& point) const
+{
+    soft3d::Vec3 facing = GetForward();
+    soft3d::Vec3 delta = soft3d::Subtract(point, position);
+    facing.y = 0;
+    delta.y = 0;
+    return soft3d::Dot(facing, delta) >= 0;
+}
+
+void Player::ConfigureOrbitCamera(int32_t frames, const soft3d::Vec3* center,
+                                  const soft3d::Vec3* target, bool vertical, bool clockwise)
+{
+    scene->GetCameraController()->ConfigureOrbit(frames, center, target, vertical, clockwise);
+}
+
+void Player::SetOrbitRotationEnabled(bool enabled)
+{
+    scene->GetCameraController()->SetOrbitRotationEnabled(enabled);
+}
+
 bool Player::NavigateTo(const soft3d::Vec3& target, soft3d::Fixed radius)
 {
     if (navigating == 0) {

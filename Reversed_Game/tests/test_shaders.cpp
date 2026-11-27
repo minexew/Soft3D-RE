@@ -236,6 +236,13 @@ void TestFade()
     *reinterpret_cast<uint32_t*>(renderer.GetCurrentTexture()->GetPixels()) = 0x0000f800;
     renderer.Present();
     CHECK(presented == Expand(0xf800));
+
+    soft3d::FadeShader lateBound(1, 1);
+    lateBound.SetRenderer(&renderer);
+    lateBound.StartFade(1, 0, 1, 1);
+    CHECK(renderer.GetActiveShader() == &lateBound);
+    lateBound.Complete();
+    renderer.SelectShader(nullptr);
 }
 
 void TestInk()

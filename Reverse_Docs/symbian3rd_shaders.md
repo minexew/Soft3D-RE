@@ -90,13 +90,14 @@ The original allocation is `0x34` bytes:
 | Address | Function |
 |---:|---|
 | `0x000e32f0`, `0x000e3270` | `FadeShader_Ctor`, duplicate |
+| `0x0003173c` | `FadeShader_SetRenderer` (formerly misnamed `ControlMap_SetInput`) |
 | `0x000e3370` | `FadeShader_StartFade` |
 | `0x000e3414` / `0x000e3448` | `FadeShader_IsCompleted` / `FadeShader_IsActive` |
 | `0x000e347c` | `FadeShader_Complete` |
 | `0x000e34d0` | `FadeShader_Render` |
 | `0x000e4a88`, `0x000e4ae0` | Destructor and deleting destructor |
 
-`StartFade(fadeOut,color,frameCount,mode)` stores the arguments, sets frame and completed to zero, activates the effect, and selects it through the renderer. The original constructor does not initialize the renderer pointer; portable construction accepts it explicitly and guards a null pointer rather than reproducing an invalid call.
+`StartFade(fadeOut,color,frameCount,mode)` stores the arguments, sets frame and completed to zero, activates the effect, and selects it through the renderer. The original constructor does not initialize the renderer pointer; `Scene_BindEngineServices` sets it through `0x0003173c`. Portable construction accepts it explicitly, Session 34A exposes the same late binding as `FadeShader::SetRenderer`, and null is guarded rather than reproducing an invalid call. `test_shaders.cpp` verifies that a shader constructed without a renderer selects itself after late binding.
 
 An inactive render leaves the destination untouched. Otherwise, if frame differs from frameCount, frame is incremented. If they are already equal, mode zero sets completed while remaining active; nonzero mode calls `Complete`. `Complete` sets completed, clears active, and restores the default shader only for fade-in (`fadeOut == 0`). The current call still draws after this state change. Consequently, reaching the final frame and observing completion require separate render calls.
 

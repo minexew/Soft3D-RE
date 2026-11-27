@@ -497,6 +497,15 @@ DarkKen::DarkKen(const soft3d::UnitManagerContext& context, const GameData& game
     collisionEnabled = false;
 }
 
+int CompareDarkKenRegionDistanceDescending(const Enemy* const* left, const Enemy* const* right)
+{
+    const soft3d::Fixed leftDistance = (*left)->GetPlayerDistance();
+    const soft3d::Fixed rightDistance = (*right)->GetPlayerDistance();
+    if (leftDistance > rightDistance) return 1;
+    if (leftDistance < rightDistance) return -1;
+    return 0;
+}
+
 void DarkKen::InitializeAnimations(const soft3d::Animation* const*)
 {
     cacheLevel = 2;

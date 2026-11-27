@@ -1,5 +1,6 @@
 #include "platform/dummy/DummyVideoBackend.hpp"
 #include "soft3d/EngineClock.hpp"
+#include "soft3d/GameConfig.hpp"
 #include "soft3d/GameEngine.hpp"
 #include "soft3d/Input.hpp"
 
@@ -120,6 +121,93 @@ void TestTransitions()
     CHECK(input.GetRepeatCount(Key::Left) == 0);
 }
 
+void TestControlMapRecovery()
+{
+    using soft3d::Key;
+    soft3d::GameConfiguration configuration;
+    soft3d::Input input;
+    soft3d::ControlMap controls(configuration);
+
+    CHECK(controls.AnyKeyUp(input));
+    CHECK(!controls.AnyKeyFirstDown(input) && !controls.AnyKeyDown(input));
+    CHECK(!controls.AnyKeyPress(input) && !controls.AnyKeyClick(input));
+    CHECK(!controls.AnyKeyDownOrClick(input));
+    for (std::size_t slot = 1; slot < soft3d::Input::keySlotCount; ++slot) {
+        const Key key = static_cast<Key>(slot);
+        input.ClearKey();
+        input.KeyDown(key);
+        CHECK(controls.AnyKeyFirstDown(input) && controls.AnyKeyDown(input));
+        CHECK(controls.AnyKeyDownOrClick(input));
+        input.ClearKey();
+        input.KeyPress(key);
+        CHECK(controls.AnyKeyPress(input));
+        input.ClearKey();
+        input.KeyDown(key);
+        input.KeyUp(key);
+        CHECK(controls.AnyKeyClick(input) && controls.AnyKeyDownOrClick(input));
+    }
+
+    const Key primary = static_cast<Key>(controls.GetPrimaryBinding(1));
+    const Key secondary = static_cast<Key>(controls.GetBinding(1));
+    input.ClearKey();
+    controls.ActionKeyDown(input, 1);
+    CHECK(input.IsKeyFirstDown(primary) && input.IsKeyFirstDown(secondary));
+    controls.ActionKeyPress(input, 1);
+    CHECK(input.IsKeyPress(primary) && input.IsKeyPress(secondary));
+    controls.ActionKeyUp(input, 1);
+    CHECK(input.IsKeyClick(primary) && input.IsKeyClick(secondary));
+
+    input.ClearKey();
+    controls.SetEnabled(false);
+    controls.ActionKeyDown(input, 1);
+    CHECK(!input.IsAnyKeyDown());
+    controls.SetEnabled(true);
+    controls.SetActionEnabled(1, false);
+    controls.ActionKeyDown(input, 1);
+    CHECK(!input.IsAnyKeyDown());
+    controls.ActionKeyPress(input, 1);
+    CHECK(!input.IsAnyKeyPress());
+    controls.ActionKeyUp(input, 1);
+    CHECK(!input.IsAnyKeyClick());
+
+    input.KeyDown(primary);
+    CHECK(!controls.ActionFirstDown(input, 1, false, true));
+    CHECK(controls.ActionFirstDown(input, 1, false, false));
+    CHECK(!controls.ActionDown(input, 1, false, true));
+    CHECK(controls.ActionDown(input, 1, false, false));
+    CHECK(!controls.ActionDownOrClick(input, 1, false, true));
+    CHECK(controls.ActionDownOrClick(input, 1, false, false));
+    input.KeyPress(primary);
+    CHECK(!controls.ActionPress(input, 1, false, true));
+    CHECK(controls.ActionPress(input, 1, false, false));
+    input.KeyUp(primary);
+    CHECK(!controls.ActionClick(input, 1, false, true));
+    CHECK(controls.ActionClick(input, 1, false, false));
+    CHECK(!controls.ActionUp(input, 1, false, true));
+    CHECK(controls.ActionUp(input, 1, false, false));
+    controls.SetActionEnabled(1, true);
+
+    input.ClearKey();
+    CHECK(!controls.ActionUp(input, 1, true));
+    CHECK(controls.ActionUp(input, 1, false));
+    input.KeyDown(secondary);
+    CHECK(!controls.ActionUp(input, 1, false));
+    CHECK(!controls.ActionUp(input, 1, true));
+    input.KeyUp(secondary);
+    CHECK(controls.ActionUp(input, 1, false));
+    input.KeyDown(primary);
+    CHECK(!controls.ActionUp(input, 1, false));
+    input.KeyUp(primary);
+    CHECK(controls.ActionUp(input, 1, false));
+
+    input.ClearKey();
+    input.KeyDown(secondary);
+    CHECK(!controls.ActionDown(input, 1, true));
+    CHECK(controls.ActionDown(input, 1, false));
+    controls.SetEnabled(false);
+    CHECK(!controls.ActionDown(input, 1, false, false));
+}
+
 void TestTimerLifecycleAndFps()
 {
     soft3d::EngineConfig config;
@@ -179,6 +267,7 @@ int main()
     try {
         TestTranslation();
         TestTransitions();
+        TestControlMapRecovery();
         TestTimerLifecycleAndFps();
     } catch (const std::exception& error) {
         std::cerr << error.what() << '\n';

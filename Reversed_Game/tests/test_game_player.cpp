@@ -561,6 +561,43 @@ void TestPlayerCommands()
     CHECK(fixture.Execute(256, {Argument::Short(2)}, true) == 0);
 }
 
+void TestRecoveredPlayerApis()
+{
+    GameFixture fixture;
+    fixture.engine.StartNewGame();
+    game::Player* player = fixture.scene->GetPlayer();
+    player->SetPosition({0x10000, 0x20000, 0x30000});
+    player->SetForward({0, 0, soft3d::fixedOne});
+    CHECK(player->IsFacingPoint({0x10000, 0x20000, 0x50000}));
+    CHECK(!player->IsFacingPoint({0x10000, 0x20000, 0x10000}));
+    CHECK(player->IsFacingPoint({0x30000, 0x20000, 0x30000}));
+    CHECK(player->IsFacingPoint({0x10000, 0x90000, 0x30000}));
+
+    player->PostUpdate();
+    const soft3d::Object* object = player->GetObject(0);
+    CHECK(object != nullptr);
+    const soft3d::ObjectBounds bounds = player->GetObjectBounds();
+    CHECK(bounds.minimum.x == object->GetWorldBounds().minimum.x - player->GetPosition().x);
+    CHECK(bounds.minimum.z == object->GetWorldBounds().minimum.z - player->GetPosition().z);
+    CHECK(bounds.maximum.x == object->GetWorldBounds().maximum.x - player->GetPosition().x);
+    CHECK(bounds.maximum.z == object->GetWorldBounds().maximum.z - player->GetPosition().z);
+    CHECK(bounds.minimum.y == player->GetLocalBounds().minimum.y);
+    CHECK(bounds.maximum.y == player->GetLocalBounds().maximum.y);
+
+    const soft3d::Vec3 center{0x10000, 0x20000, 0x30000};
+    const soft3d::Vec3 target{-0x20000, 0x40000, 0x60000};
+    player->ConfigureOrbitCamera(16, &center, &target, false, true);
+    CHECK(player->GetScene()->GetCameraController()->GetTarget().x == target.x);
+    CHECK(player->GetScene()->GetCameraController()->GetTarget().y == target.y);
+    CHECK(player->GetScene()->GetCameraController()->GetTarget().z == target.z);
+    const soft3d::Vec3 expectedPosition = soft3d::Subtract(target, center);
+    CHECK(player->GetScene()->GetCameraController()->GetPosition().x == expectedPosition.x);
+    CHECK(player->GetScene()->GetCameraController()->GetPosition().y == expectedPosition.y);
+    CHECK(player->GetScene()->GetCameraController()->GetPosition().z == expectedPosition.z);
+    player->SetOrbitRotationEnabled(false);
+    fixture.RunFrames(1);
+}
+
 void TestEngineInputAndFrames()
 {
     GameFixture fixture;
@@ -600,6 +637,36 @@ void TestEngineInputAndFrames()
     CHECK(attack == 0x7c0f924dU);
     CHECK(hurt == 0xb0f2585dU);
     CHECK(qte == 0x9d488425U);
+
+    auto& controls = fixture.engine.GetControlMap();
+    auto& input = fixture.engine.GetInput();
+    const int qteAction = player->GetQteKey();
+    input.ClearKey();
+    CHECK(!controls.ActionUp(input, qteAction, true));
+    CHECK(controls.ActionUp(input, qteAction, false));
+    const soft3d::Key qteSecondary = static_cast<soft3d::Key>(controls.GetBinding(qteAction));
+    input.KeyDown(qteSecondary);
+    CHECK(!controls.ActionUp(input, qteAction, false));
+    CHECK(!controls.ActionUp(input, qteAction, true));
+    input.KeyUp(qteSecondary);
+    CHECK(controls.ActionUp(input, qteAction, false));
+
+    player->ChangeState(game::PlayerStand);
+    player->PrepareWeapon(fixture.scene->GetUnitManager()->GetData(), 3);
+    player->SetWeapon(3);
+    controls.SetBinding(5, static_cast<uint32_t>(soft3d::Key::Number6));
+    input.ClearKey();
+    input.KeyDown(soft3d::Key::Accept);
+    input.KeyDown(soft3d::Key::Number6);
+    player->StartHeavyAttack();
+    fixture.RunFrames(1);
+    CHECK(player->GetCurrentStateId() == game::PlayerAttackC1);
+    input.KeyUp(soft3d::Key::Accept);
+    fixture.RunFrames(1);
+    CHECK(player->GetCurrentStateId() == game::PlayerAttackC1);
+    input.KeyUp(soft3d::Key::Number6);
+    fixture.RunFrames(1);
+    CHECK(player->GetCurrentStateId() == game::PlayerStand);
 }
 
 } // namespace
@@ -612,6 +679,7 @@ int main()
         TestHurtDeathQteHideAndPush();
         TestInventoryAndPersistence();
         TestPlayerCommands();
+        TestRecoveredPlayerApis();
         TestEngineInputAndFrames();
         std::cout << "game player tests passed\n";
         return 0;

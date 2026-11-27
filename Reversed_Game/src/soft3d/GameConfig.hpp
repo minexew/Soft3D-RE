@@ -45,11 +45,27 @@ public:
     void SetEnabled(bool enabled, Input* input = nullptr);
     void SetActionEnabled(int action, bool enabled);
     bool IsEnabled() const;
-    bool ActionFirstDown(const Input& input, int action, bool primaryOnly = true) const;
-    bool ActionDown(const Input& input, int action, bool primaryOnly = true) const;
-    bool ActionPress(const Input& input, int action, bool primaryOnly = true) const;
-    bool ActionUp(const Input& input, int action, bool primaryOnly = true) const;
-    bool ActionClick(const Input& input, int action, bool primaryOnly = true) const;
+    bool AnyKeyFirstDown(const Input& input) const;
+    bool AnyKeyDown(const Input& input) const;
+    bool AnyKeyPress(const Input& input) const;
+    bool AnyKeyUp(const Input& input) const;
+    bool AnyKeyClick(const Input& input) const;
+    bool AnyKeyDownOrClick(const Input& input) const;
+    void ActionKeyDown(Input& input, int action) const;
+    void ActionKeyPress(Input& input, int action) const;
+    void ActionKeyUp(Input& input, int action) const;
+    bool ActionFirstDown(const Input& input, int action, bool primaryOnly = true,
+                         bool respectActionGate = true) const;
+    bool ActionDown(const Input& input, int action, bool primaryOnly = true,
+                    bool respectActionGate = true) const;
+    bool ActionPress(const Input& input, int action, bool primaryOnly = true,
+                     bool respectActionGate = true) const;
+    bool ActionUp(const Input& input, int action, bool primaryOnly = true,
+                  bool respectActionGate = true) const;
+    bool ActionClick(const Input& input, int action, bool primaryOnly = true,
+                     bool respectActionGate = true) const;
+    bool ActionDownOrClick(const Input& input, int action, bool primaryOnly = true,
+                           bool respectActionGate = true) const;
 
 private:
     GameConfiguration& configuration;

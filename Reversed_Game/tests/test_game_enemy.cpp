@@ -1651,6 +1651,18 @@ void TestKateAndDarkKen()
     dark.SetManager(manager);
     dark.SetPlayer(fixture.scene->GetPlayer());
     dark.Spawn({});
+    DarkKenProbe lower(manager->GetContext(), manager->GetData());
+    DarkKenProbe higher(manager->GetContext(), manager->GetData());
+    DarkKenProbe equal(manager->GetContext(), manager->GetData());
+    lower.ForceDistance(0x20000);
+    higher.ForceDistance(0x30000);
+    equal.ForceDistance(0x30000);
+    const game::Enemy* lowerPointer = &lower;
+    const game::Enemy* higherPointer = &higher;
+    const game::Enemy* equalPointer = &equal;
+    CHECK(game::CompareDarkKenRegionDistanceDescending(&higherPointer, &lowerPointer) == 1);
+    CHECK(game::CompareDarkKenRegionDistanceDescending(&lowerPointer, &higherPointer) == -1);
+    CHECK(game::CompareDarkKenRegionDistanceDescending(&higherPointer, &equalPointer) == 0);
     CHECK(dark.GetObject(0) != nullptr && dark.GetGunObject(0)->GetModel() != nullptr &&
           dark.GetGunObject(1)->GetModel() != nullptr);
     CHECK(dark.GetAnimationResource(0) != nullptr && dark.GetExtraAnimation(7) != nullptr &&

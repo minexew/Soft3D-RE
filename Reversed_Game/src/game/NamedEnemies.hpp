@@ -147,6 +147,8 @@ protected:
     int32_t tauntCooldown = 16;
 };
 
+int CompareDarkKenRegionDistanceDescending(const Enemy* const* left, const Enemy* const* right);
+
 std::unique_ptr<Enemy> CreateNamedPoolEnemy(const soft3d::UnitManagerContext& context,
                                             const GameData& data, int32_t enemyType);
 

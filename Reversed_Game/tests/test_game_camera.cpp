@@ -212,6 +212,102 @@ void TestTriggerStackAndFreeze()
     CHECK(first.IsOutside());
 }
 
+void TestRecoveredAccessorsAndOrbit()
+{
+    ControllerFixture fixture;
+    auto& controller = fixture.controller;
+    const soft3d::Vec3 fixedDirection{0, 0, soft3d::fixedOne};
+    controller.SetMode(game::CameraController::FixedMode, {}, fixedDirection,
+                       0, nullptr, 0, false, 0);
+    CHECK(controller.GetPreviousMode() == 0);
+    CHECK_VEC(controller.GetSavedDirection(), {});
+    CHECK(controller.GetSavedFollowDistance() == 0);
+    controller.SetMode(game::CameraController::FrontFollow, {}, fixedDirection,
+                       0x40000, nullptr, 0, false, 0);
+    CHECK(controller.GetPreviousMode() == game::CameraController::FixedMode);
+    CheckVec(controller.GetSavedDirection(), fixedDirection, __LINE__);
+    CHECK(controller.GetSavedFollowDistance() == 0xa0000);
+    CHECK_VEC(controller.GetUp(), {0, soft3d::fixedOne, 0});
+    CheckVec(controller.GetDirection(), fixedDirection, __LINE__);
+
+    int manager = 0;
+    controller.SetUnitManager(&manager);
+    CHECK(controller.GetUnitManager() == &manager);
+    controller.SetUnitManager(nullptr);
+    CHECK(controller.GetUnitManager() == nullptr);
+    controller.SetMode(game::CameraController::FixedMode, {}, fixedDirection,
+                       0, nullptr, 0, false, 0);
+    CHECK(controller.GetTargetDistance() == soft3d::fixedOne);
+    const soft3d::Vec3 target{0x30000, 0x40000, 0};
+    controller.SetOrbitTarget(&target);
+    CheckVec(controller.GetTarget(), target, __LINE__);
+    CHECK(controller.GetTargetDistance() == 0x50000);
+    controller.SetOrbitTarget(nullptr);
+    CHECK(controller.GetTriggerCount() == 0 && controller.GetTrigger(0) == nullptr);
+
+    ControllerFixture triggers;
+    soft3d::Creature player;
+    player.SetCollisionBounds({{-0x10000, -0x10000, -0x10000},
+                               {0x10000, 0x10000, 0x10000}});
+    game::CameraTrigger first(&triggers.controller, &player);
+    first.SetCollisionBounds({{-0x20000, -0x20000, -0x20000},
+                              {0x20000, 0x20000, 0x20000}});
+    first.SetMode(game::CameraController::FixedMode, {0x10000, 0, 0}, fixedDirection,
+                  0, nullptr, 0, false, 0);
+    game::CameraTrigger second(&triggers.controller, &player);
+    second.SetCollisionBounds(first.GetCollisionBounds());
+    second.SetMode(game::CameraController::FixedMode, {0x20000, 0, 0}, fixedDirection,
+                   0, nullptr, 0, false, 0);
+    CHECK(!triggers.controller.HasSavedState());
+    first.Update();
+    CHECK(triggers.controller.HasSavedState());
+    second.Update();
+    CHECK(triggers.controller.GetTriggerCount() == 2);
+    CHECK(triggers.controller.GetTrigger(0) == &first);
+    CHECK(triggers.controller.GetTrigger(1) == &second);
+    triggers.controller.UpdateTriggers();
+    CHECK(triggers.controller.GetTriggerCount() == 2);
+    CHECK_VEC(triggers.controller.GetPosition(), {0x20000, 0, 0});
+    triggers.controller.ClearSavedState();
+    CHECK(!triggers.controller.HasSavedState());
+
+    ControllerFixture rotating;
+    ControllerFixture stopped;
+    ControllerFixture repeated;
+    const soft3d::Vec3 center{0x10000, 0, 0};
+    const soft3d::Vec3 orbitTarget{};
+    auto prepare = [&](ControllerFixture& value, bool vertical) {
+        value.controller.SetMode(game::CameraController::FixedMode, {}, fixedDirection,
+                                 0, nullptr, 0, false, 0);
+        value.controller.ConfigureOrbit(16, &center, &orbitTarget, vertical, false);
+        CheckVec(value.controller.GetTarget(), orbitTarget, __LINE__);
+        CHECK_VEC(value.controller.GetPosition(), {-0x10000, 0, 0});
+    };
+    prepare(rotating, false);
+    prepare(stopped, false);
+    prepare(repeated, true);
+    stopped.controller.SetOrbitRotationEnabled(false);
+    bool rotationObserved = false;
+    bool repetitionObserved = false;
+    for (int frame = 0; frame < 48; ++frame) {
+        rotating.controller.Update();
+        stopped.controller.Update();
+        repeated.controller.Update();
+        if (frame < 8) {
+            CheckVec(rotating.controller.GetPosition(), stopped.controller.GetPosition(), __LINE__);
+        } else if (rotating.controller.GetPosition().x != stopped.controller.GetPosition().x ||
+                   rotating.controller.GetPosition().z != stopped.controller.GetPosition().z) {
+            rotationObserved = true;
+        }
+        if (rotating.controller.GetPosition().x != repeated.controller.GetPosition().x ||
+            rotating.controller.GetPosition().z != repeated.controller.GetPosition().z) {
+            repetitionObserved = true;
+        }
+    }
+    CHECK(rotationObserved);
+    CHECK(repetitionObserved);
+}
+
 } // namespace
 
 int main()
@@ -221,6 +317,7 @@ int main()
         TestFirstPersonAndFreeLook();
         TestPathsAndShake();
         TestTriggerStackAndFreeze();
+        TestRecoveredAccessorsAndOrbit();
         std::cout << "game camera tests passed\n";
         return 0;
     } catch (const std::exception& error) {

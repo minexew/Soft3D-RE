@@ -33,6 +33,7 @@ class FadeShader : public BasicShader {
 public:
     FadeShader(int width, int height, Renderer* renderer = nullptr);
 
+    void SetRenderer(Renderer* value) { renderer = value; }
     void Render(const void* source, uint32_t* destination) override;
     void StartFade(int fadeOut, uint16_t color, int frameCount, int mode);
     bool IsCompleted() const;

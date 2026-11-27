@@ -32,8 +32,8 @@ Ghidra contains the saved `GameCameraController` structure with 87 fields. Impor
 | `0x154`, `0x158` | Shake frames and amplitude. |
 | `0x15c` | Manager/random context. |
 | `0x160`–`0x18f` | Orbit timing, angle, radius, target, and position. |
-| `0x190`, `0x19c` | Previous direction and follow distance. |
-| `0x1a0`–`0x1b4` | Renderer, BSP, screen blitter, controls, camera, and manager pointers. |
+| `0x190`, `0x194`, `0x1a0` | Previous mode, saved direction, and saved follow distance. Ghidra represents these with same-size `CameraModeHistoryPrefix`, saved-direction Z, and fixed-point follow-distance fields. |
+| `0x1a4`–`0x1b4` | BSP, screen blitter, controls, camera, and manager pointers. |
 | `0x1b8`–`0x1bc` | Binding flag, direct-follow flag, and direct-follow speed. |
 | `0x1c0`–`0x1e4` | First-person/free-look axes, lock, reference, and angular limits. |
 | `0x1e8`–`0x1f4` | SPL collection, path time, path speed, and target mode. |
@@ -72,6 +72,14 @@ Each randomized environment channel is 0x4c bytes (`EnvironmentAudioChannel`):
 The original snap polarity is important: **snap zero selects the immediate pose** (also when the separate instant byte is set), while nonzero snap interpolates. Normal interpolation uses `0x1999`, approximately 0.1. Direct-follow mode can instead cap position motion by its configured fixed speed and scale target movement by `speed / distance`. `CameraController_MoveCamera` (`0x00080978`) performs independent component-wise position/target steps and returns true only after all position components arrive.
 
 `CameraController_Bind` (`0x00078fa4`) changes the spot and binding flag. Player and enemy/dummy-spot binding are separate `GameSI` commands. `CameraController_SetFrozen` (`0x00079d14`) records freeze state; unfreezing with a nonempty trigger stack resumes the last trigger. `SetInstant` controls the two-frame warmup used by scene startup.
+
+### Session-34A orbit and accessor corrections
+
+The uncalled player orbit wrappers at `0x0003b920`/`0x0003b97c` are now public. Their controller target required several ARM corrections. For `CameraController_ConfigureOrbit` (`0x00079e38`), non-null **target** selects current target and orbitTarget; non-null **center** sets `position=target-center` and `orbitVertical=center.y`. The initial angle is `Vec3AngleXZ(Normalize(flatTarget-flatPosition))`. Configuration always enables rotation; `vertical` sets the repeat flag instead. The previous portable code swapped center/target roles, used a partial arc tangent, and incorrectly mapped vertical to rotation enable. `CameraController_SetOrbitTarget` (`0x00079178`) independently implements null disable and non-null copy-to-both-targets behavior.
+
+The update branch also retains a native edge: with `orbitFrames <= 8`, the terminal interpolation branch has priority and the rotation phase is never reached. Longer sequences reach rotation at `orbitFrames == orbitEndFrames`. `test_game_camera.cpp` uses 16-frame orbits to verify enabled/disabled rotation and vertical repetition, plus immediate center/target forwarding through the real Player wrapper.
+
+The simple accessors at `0x00078c60`, `0x00078c88`, and `0x00078cc0` respectively return previous mode (`+0x190`), saved direction (`+0x194`), and saved follow distance (`+0x1a0`); earlier names describing previous-direction-X, follow target, and renderer were wrong. `GetUp`, `GetDirection`, target distance, saved-state query/clear, opaque unit-manager access, indexed trigger access, and `UpdateTriggers` (`0x00080f68`) complete the recovered public surface. Trigger updates capture count and use storage order. `Player_IsFacingPoint` and `Player_GetObjectBounds` are covered in `symbian3rd_player.md`; the latter subtracts rather than adds player position.
 
 Shake consumes three random values per update, each mapped from `0,1,2` to `-1,0,1`, multiplied independently by amplitude and added to target XYZ. `CameraController_ClipCamera` (`0x0007fad4`) traces target↔desired position with ±1 bounds, handles opposing planes and a sideways recovery candidate, and applies a follow-distance vertical correction.
 

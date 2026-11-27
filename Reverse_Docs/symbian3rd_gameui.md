@@ -45,6 +45,8 @@ The recovered native object is **0x524 bytes**. Ghidra stores `GameUIDlgLayout` 
 
 `GameUI_ResetLevelState` (`0x0005fc10`) clears transient level/modal state but does not clear the custom marker descriptors. Day resource loading at `0x000562dc` acquires `qiang_01`–`qiang_04` at cache level 2 only for day 5 and resets the gun-HUD enable word. `GameUI_ClearDayResources` (`0x000563fc`) is an original empty function.
 
+Session 34A resolved the uncalled getter at `0x0006e120`: `+0x80` is inherited Dialog element-template 1 `value3`, not an unknown GameUI gameplay field. It is now named `GameUI_GetDialogTemplate1Value3` in Ghidra. The portable generic `Dialog::GetElementTemplate` API exposes the same storage, so no duplicate GameUI wrapper was added.
+
 ## HUD and overlay order
 
 `GameUIDlg_Update` (`0x000566cc`) is the native dispatcher. Outside the menu, the portable controller preserves this order:

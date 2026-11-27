@@ -245,6 +245,12 @@ All handlers use the standard `(arguments, argumentCount, output)` convention. I
 - `CameraController` exposes its recovered right vector and direct first-person setup, including lock and angular limits.
 - `Scene` owns concrete `Player`, loads day weapon resources, snapshots inventory, enters FPS at map finalization, and connects completed death to the existing Ink/restart flow. Stage 8 consumes QTE/hide/tutorial state through the existing GameUI without adding a duplicate state machine. `killCount` is the recovered name for native `0x710`; gun upgrades check scene event 1002, and tutorials 41/42 are timed GameUI messages.
 
+### Session-34A player API completion
+
+`Player_ConfigureOrbitCamera` (`0x0003b920`) and `Player_SetOrbitRotationEnabled` (`0x0003b97c`) forward to the scene camera controller. `Player_IsFacingPoint` (`0x00077ab8`) flattens forward and target-position delta to X/Z and accepts dot >= 0, so perpendicular and vertical-only deltas are true. `Player_GetObjectBounds` (`0x000d9ee8`) computes object world bounds **minus** player position and then replaces min/max Y from local bounds `+0x1c/+0x28`; the earlier inventory's addition/translation description was incorrect. Portable null-object fallback to local bounds is an explicit safety difference.
+
+`ControlMap_GetPrimaryBinding` (`0x00054028`) is the QTE key lookup, not an action-disable query. `ControlMap_IsActionUp` belongs to gun `AttackC1`: both primary and secondary must be up and primaryOnly must be false. The primary-only expression always returns false. `test_game_player.cpp` checks facing, real-model bounds, orbit forwarding and a subsequent engine frame, ActionUp during a real QTE frame sequence, and distinct primary/secondary gun cancellation through real frames. Camera semantics are detailed in `symbian3rd_camera.md`.
+
 ## Verification
 
 `Reversed_Game/tests/test_game_player.cpp` covers registration and every virtual enter/update/exit path, all attack chains, hit windows and melee/gun damage, hurt/death variants, QTE success/failure/timeout, hide/FPS, push attach/detach, inventory/use/combine/snapshot/save round trips, every command above, and real `GameEngine::RunFrame` movement/combat input on map 2008.

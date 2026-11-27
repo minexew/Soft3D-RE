@@ -53,15 +53,25 @@ public:
     void ConfigureOrbit(int32_t frames, const soft3d::Vec3* center,
                         const soft3d::Vec3* target, bool vertical, bool clockwise);
     void SetOrbitRotationEnabled(bool enabled) { orbitRotationEnabled = enabled; }
+    void SetOrbitTarget(const soft3d::Vec3* target);
     void SetFirstPerson(const soft3d::Vec3& direction, bool snap, bool lock,
                         soft3d::Fixed horizontalLimit, soft3d::Fixed verticalLimit);
+    void UpdateTriggers();
 
     int32_t GetMode() const { return mode; }
+    int32_t GetPreviousMode() const { return previousMode; }
     const soft3d::Vec3& GetPosition() const { return position; }
     const soft3d::Vec3& GetTarget() const { return target; }
     const soft3d::Vec3& GetRight() const { return right; }
+    const soft3d::Vec3& GetUp() const { return up; }
+    const soft3d::Vec3& GetDirection() const { return direction; }
+    const soft3d::Vec3& GetSavedDirection() const { return savedDirection; }
     const soft3d::Vec3& GetDesiredPosition() const { return desiredPosition; }
     const soft3d::Vec3& GetDesiredTarget() const { return desiredTarget; }
+    soft3d::Fixed GetTargetDistance() const {
+        return soft3d::Length(soft3d::Subtract(target, position));
+    }
+    soft3d::Fixed GetSavedFollowDistance() const { return savedFollowDistance; }
     soft3d::Camera* GetCamera() const { return camera; }
     bool IsBound() const { return bound; }
     bool IsFrozen() const { return frozen; }
@@ -69,11 +79,18 @@ public:
     bool IsPathCompleted() const { return pathCompleted; }
     bool IsInputCancelled() const { return inputCancelled; }
     bool IsDirectFollow() const { return directFollow; }
+    bool HasSavedState() const { return hasSavedState; }
+    void ClearSavedState() { hasSavedState = false; }
+    void* GetUnitManager() const { return unitManager; }
+    void SetUnitManager(void* manager) { unitManager = manager; }
     int32_t GetShakeFrames() const { return shakeFrames; }
     soft3d::Fixed GetPathTime() const { return pathTime; }
     soft3d::Fixed GetPathSpeed() const { return pathSpeed; }
     soft3d::Fixed GetFollowDistance() const { return followDistance; }
     std::size_t GetTriggerCount() const { return triggers.size(); }
+    CameraTrigger* GetTrigger(std::size_t index) const {
+        return index < triggers.size() ? triggers[index] : nullptr;
+    }
 
 private:
     struct SavedState {

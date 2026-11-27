@@ -389,36 +389,44 @@ void CameraController::ConfigureOrbit(int32_t frames, const Vec3* center, const 
     if (clockwise) {
         orbitAngularVelocity = static_cast<int16_t>(-orbitAngularVelocity);
     }
-    if (center == nullptr) {
+    if (newTarget == nullptr) {
         orbitTargetEnabled = false;
     } else {
-        desiredTarget = *center;
-        orbitTarget = *center;
+        target = *newTarget;
+        orbitTarget = *newTarget;
         orbitTargetEnabled = true;
     }
-    if (newTarget != nullptr) {
-        target = soft3d::Subtract(desiredTarget, *newTarget);
-        orbitVertical = newTarget->y;
+    if (center != nullptr) {
+        position = soft3d::Subtract(target, *center);
+        orbitVertical = center->y;
     }
-    Vec3 flatTarget = desiredTarget;
-    flatTarget.y = 0;
-    Vec3 flatPosition = target;
+    Vec3 flatPosition = position;
     flatPosition.y = 0;
-    orbitRadius = Distance(flatTarget, flatPosition);
-    const Vec3 delta = soft3d::Normalize(soft3d::Subtract(flatPosition, flatTarget));
-    orbitAngle = static_cast<int16_t>(soft3d::FixedArcTangent(
-        soft3d::AbsFixed(delta.x) > soft3d::AbsFixed(delta.z)
-            ? soft3d::FixedDivide(delta.z, delta.x)
-            : soft3d::FixedDivide(delta.x, delta.z)));
-    orbitRotationEnabled = vertical;
-    orbitTargetEnabled = true;
+    Vec3 flatTarget = target;
+    flatTarget.y = 0;
+    orbitRadius = Distance(flatPosition, flatTarget);
+    const Vec3 delta = soft3d::Normalize(soft3d::Subtract(flatTarget, flatPosition));
+    orbitAngle = soft3d::Vec3AngleXZ(delta);
+    orbitFlags = vertical ? 1 : 0;
+    orbitRotationEnabled = true;
     orbitInitialFrames = orbitFrames;
     orbitEndFrames = static_cast<int16_t>(orbitFrames - 8);
     const Fixed x = soft3d::FixedMultiply(soft3d::FixedCos(orbitAngle), orbitRadius);
     const Fixed z = soft3d::FixedMultiply(soft3d::FixedSin(static_cast<uint16_t>(orbitAngle)), orbitRadius);
-    orbitPosition.x = soft3d::SubtractFixed(desiredTarget.x, x);
-    orbitPosition.z = soft3d::SubtractFixed(desiredTarget.z, z);
-    orbitPosition.y = soft3d::AddFixed(desiredTarget.y, orbitVertical);
+    orbitPosition.x = soft3d::SubtractFixed(target.x, x);
+    orbitPosition.y = soft3d::AddFixed(target.y, orbitVertical);
+    orbitPosition.z = soft3d::SubtractFixed(target.z, z);
+}
+
+void CameraController::SetOrbitTarget(const Vec3* newTarget)
+{
+    if (newTarget == nullptr) {
+        orbitTargetEnabled = false;
+        return;
+    }
+    target = *newTarget;
+    orbitTarget = *newTarget;
+    orbitTargetEnabled = true;
 }
 
 void CameraController::SaveForTrigger()
@@ -464,6 +472,14 @@ void CameraController::RemoveTrigger(CameraTrigger* trigger)
     const auto found = std::find(triggers.begin(), triggers.end(), trigger);
     if (found != triggers.end()) {
         triggers.erase(found);
+    }
+}
+
+void CameraController::UpdateTriggers()
+{
+    const std::size_t count = triggers.size();
+    for (std::size_t index = 0; index < count; ++index) {
+        triggers[index]->Update();
     }
 }
 

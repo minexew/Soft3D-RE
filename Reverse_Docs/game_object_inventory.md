@@ -1,93 +1,108 @@
 # 7 Days game-object recovery inventory
 
-## Scope and relationship to the Soft3D SDK inventory
+## Scope and Session-34A completion
 
-This inventory covers game-owned objects and non-RTTI helpers that are **not** reusable Soft3D APIs. It is the companion to `soft3d_sdk_inventory.md`; “game-specific” there means “does not belong in the `soft3d` library,” not “unreviewed” or “not worth recovering.”
+This inventory covers game-owned objects and non-RTTI helpers that are **not** reusable Soft3D APIs. It is the companion to `soft3d_sdk_inventory.md`; “game-specific” there does not mean unreviewed or unrecoverable.
 
-Evidence comes from the same native `out.bin` program and portable revision `9663d705619bdada2e3f1c49300a67a7c91c9f95`. All game RTTI classes and vtables were crosschecked, all zero-direct-reference game functions were dispositioned, and called families were checked where they exposed additional missing methods. No additional unnamed enemy, trigger, player-state, or menu class was found. The remaining work is chiefly uncalled methods, alternate helpers, and non-RTTI support objects.
+Session 34A rechecked portable revision `d2a94b88a6a570aacf162d3d2d9077167070b4cd` against the native `out.bin` database. The pass covered all 462 zero-direct-reference function records, the named owner families in the early game/engine range, the previously identified candidates and their callers, and source definitions under `src/game`, `src/soft3d/MenuDialogs.*`, `GameConfig.*`, and `GameUIDlg.*`. No additional unnamed enemy, trigger, player-state, menu, scene, or manager class was found. Constructor/destructor duplicates and internal inlined equivalents were not promoted to new portable classes.
 
-A dedicated **Session 34A — Game-object API completeness** is added to the roadmap. It must not move these objects into `soft3d` merely because some currently reside there for historical reasons. `ControlMap` is native game input policy despite its current portable header location.
+All candidate rows are now **matches**, **corrected**, **original empty**, **duplicate compiled body**, **reserved / intentionally omitted**, **platform-specific**, or **intentional portable safety difference**. No missing game API or unresolved gameplay field remains in this inventory.
 
-Dispositions are **implemented**, **missing game API**, **corrected behavior required**, **duplicate compiled body**, **original empty**, **platform-specific**, **reserved/unresolved**, or **intentionally omitted**. No unresolved field may be presented as a recovered feature.
+### Verification codes
 
-### Recovery test codes
-
-| Code | Planned native-derived verification |
+| Code | Verification |
 |---|---|
-| **E** | Existing game-focused and real engine-frame coverage; no additional API is needed. |
-| **G1** | ControlMap/Input tests for keys 1–23, primary/secondary bindings, global/action gates, gate-bypass argument, synthetic action events, disabled accessors, and exact binding bytes. |
-| **G2** | Player/camera tests for wrapper argument order, facing/bounds calculations, saved-state lifecycle, orbit target null/non-null, manager pointers, and trigger update order through real frames. |
-| **G3** | Menu/GameUI tests for two-word option assignment and any resolved native field semantics; no test may assign meaning to reserved data without a consumer. |
-| **G4** | DarkKen alternate comparator tests for descending, ascending, and equality without merging it with the active comparator. |
-| **X** | Exclusion or already covered behavior; no new consumer-style test. |
+| **G1** | `test_input.cpp`: keys 1–23, all six ControlMap any-key wrappers, primary/secondary action queries, global/action gates, gate bypass, synthetic events, and exact ActionUp edges. |
+| **G2** | `test_game_camera.cpp` and `test_game_player.cpp`: mode/saved-state accessors, trigger storage/update lifecycle, unit-manager pointer, orbit arguments/rotation/repetition, facing and bounds calculations, and real engine frames. |
+| **G3** | Existing menu/configuration and generic dialog coverage; reserved fields are excluded without invented semantics. |
+| **G4** | `test_game_enemy.cpp`: alternate DarkKen descending/equality results and existing ascending region-neighbor checks. |
+| **E** | Existing game-focused and real engine-frame coverage. |
+| **X** | Explicit exclusion; no consumer-style implementation is warranted. |
+
+## Native ownership and naming corrections
+
+The second pass corrected these earlier misclassifications. Ghidra names, signatures, plate comments, and tags were updated accordingly.
+
+| Native address | Earlier interpretation | Correct native meaning and portable disposition |
+|---|---|---|
+| `0x00031708` | `ControlMap_SetEngineContext` | **Corrected ownership:** `Bsp_SetEntityFactory`, storing the callback at Bsp `+0x2aae0`. `Scene_BindEngineServices` passes `Bsp_CreateGameEntity`. Portable `Bsp::SetEntityFactory` **matches**, with context stored by the same public call. |
+| `0x0003173c` | `ControlMap_SetInput` | **Corrected ownership:** `FadeShader_SetRenderer`, storing renderer at `+0x14`. Public `FadeShader::SetRenderer` was added and tested. |
+| `0x00054028` | `ControlMap_IsActionDisabled` | **Corrected:** `ControlMap_GetPrimaryBinding`, reading primary bindings at `+0x48`. Its QTE caller feeds the result to `Input_IsKeyClick`. Existing `ControlMap::GetPrimaryBinding` **matches**. |
+| `0x0004e6b8` | `PlayDlg_SetNewGameOptions` | **Corrected:** writes the reserved `S3dPoint` at PlayDlg `+0x248/+0x24c`. No native caller or point consumer exists. **Reserved / intentionally omitted**; weapon/outfit options belong to MainUIDlg `+0x290/+0x294`, not this body. |
+| `0x0006e120` | unknown GameUI field `+0x80` | **Corrected:** returns inherited Dialog element-template 1 `value3`. `Dialog::GetElementTemplate` already exposes that storage. No GameUI-specific wrapper is needed; **intentionally omitted**. |
+| `0x00078c60` | previous-direction X | **Corrected:** `CameraController_GetPreviousMode`, reading the mode snapshot at `+0x190`. Public `GetPreviousMode` **matches**. |
+| `0x00078c88` | fixed follow target | **Corrected:** `CameraController_GetSavedDirection`, copying the direction saved at `+0x194` by mode setup. Public `GetSavedDirection` **matches**. Path `fixedTarget` remains the distinct field at `+0x1fc`. |
+| `0x00078cc0` | renderer pointer | **Corrected:** `CameraController_GetSavedFollowDistance`, reading the fixed-point snapshot at `+0x1a0`. Public `GetSavedFollowDistance` **matches**. BSP/screen/control/camera/manager pointers are at `+0x1a4` through `+0x1b4`. |
+| `0x000d9ee8` | object bounds translated by player position | **Corrected arithmetic:** object world bounds **minus** player position, followed by local-bounds Y replacement. `Player::GetObjectBounds` implements the subtraction. |
+
+The camera accessors are pinned by mode-transition tests, not by structure-field names alone. After discarding an unsafe shifting edit, the final Ghidra layout uses same-size types: `CameraModeHistoryPrefix` at `+0x190` contains previous mode and saved-direction X/Y, `+0x19c` is saved-direction Z, and `+0x1a0` is saved follow distance. The 0x208-byte structure size and all later service-pointer offsets remain unchanged; typed decompilation was read back.
 
 ## ControlMap and input policy
 
-The native object stores an input pointer, eight secondary bindings at `+0x28`, eight primary bindings at `+0x48`, global/action disable words where zero means enabled, and an engine context pointer. Portable `ControlMap` implements the principal action queries with inverse Boolean gates and explicit `Input&` arguments. That implementation difference is acceptable only where native behavior is preserved.
+The native object stores global disable at `+0`, input at `+0x04`, eight action-disable words at `+0x08`, eight secondary bindings at `+0x28`, and eight primary bindings at `+0x48`. Zero means enabled. Portable `ControlMap` retains inverse Boolean gates and explicit `Input&` arguments; no stale stored input pointer is introduced.
 
-| Native address / owner | Native evidence and portable crosswalk | Disposition | Test |
+| Native address / owner | Portable crosswalk | Disposition | Test |
 |---|---|---|---|
-| `0x00031708` `ControlMap_SetEngineContext`, `0x0003173c` `ControlMap_SetInput` | Native service-binding setters called by `Scene_BindEngineServices`. Portable services inject input at query time instead of storing it. | **implemented differently / missing game API** for input-backed native-style wrappers | **G1**: choose API shape without duplicating ownership or making stale input pointers. |
-| `0x00053108`, `0x00053168`, `0x00053198`, `0x000531f8` | Any-key FIRST_DOWN/PRESS/UP/DOWN_OR_CLICK wrappers through the stored input. DOWN and CLICK wrappers at `0x00053138`/`0x000531c8` already have portable behavior through `Input`. | **missing game API** | **G1**: each query, no keys, each key slot, and mixed key states. |
-| `0x00053754`, `0x00053808`, `0x000538bc` | Synthetic action KeyDown/KeyPress/KeyUp sends hardware-event=true to both primary and secondary bindings only when global and action gates are enabled. | **missing game API** | **G1**: enabled, globally disabled, action-disabled, and both resulting key states. |
-| `0x00053ed4` `ControlMap_IsActionDownOrClick` | Tests primary, then secondary when primaryOnly=false; honors global gate and optional action gate. | **missing game API** | **G1**: DOWN, CLICK, neither, both bindings, and gate bypass. |
-| `0x00053970`, `0x00053a84`, `0x00053b98`, `0x00053cac`, `0x00053dc0` | Native action queries have a fourth `respectActionGate` parameter in addition to action and primaryOnly. Portable methods always honor actionEnabled and expose no bypass. | **missing game API** for gate-bypass semantics | **G1**: respectActionGate true/false for every query. |
-| `0x00053cac` `ControlMap_IsActionUp` | Native requires primary UP and, when primaryOnly=false, secondary UP as used by QTE cancellation. When primaryOnly=true the native expression always yields false; portable currently returns primary UP in that case. | **corrected behavior required** for the primaryOnly=true edge; the QTE both-bindings-up path already matches | **G1**: explicitly preserve the native primaryOnly=true result and the QTE false path through real player frames. |
-| `0x00054028` `ControlMap_IsActionDisabled` | Returns the raw action-disable word and has a real QTE caller. Portable only has the setter and inline gate checks. | **missing game API** | **G1**: set/clear and independent slots. |
-| `0x000536bc` | Uncalled action-disable setter variant returning 1. The called setter and portable `SetActionEnabled` implement the state change. | **duplicate compiled body** | **X / E**. |
-| `0x00054068`, `0x000540a0` | Save writes exactly 0x20 bytes of secondary bindings; load copies 0x20 and advances the input pointer. Portable configuration serialization already preserves those bytes. | **implemented**; no second serialization implementation | **E** (`test_menu.cpp` configuration round trips). |
-| `0x000ef0f0`, `0x000ef1c8`, `0x000ef234`, `0x000ef30c` | Generic `Input` any-key FIRST_DOWN/PRESS/UP/DOWN_OR_CLICK scans keys 1–23. These are reusable engine APIs and are also listed in the Soft3D session-33 ledger. | **missing useful API** in `soft3d::Input` | **G1** and SDK **33A**. |
-| `0x000ef15c`, `0x000ef2a0`, `0x000ef4dc` | Any-key DOWN/CLICK and per-key DOWN_OR_CLICK scans/bit tests. | **implemented** | **E** (`test_input.cpp`). |
+| `0x00053108`, `0x00053138`, `0x00053168`, `0x00053198`, `0x000531c8`, `0x000531f8` | `AnyKeyFirstDown`, `AnyKeyDown`, `AnyKeyPress`, `AnyKeyUp`, `AnyKeyClick`, `AnyKeyDownOrClick` forward to `Input`. Gates do not apply. | **matches** | **G1**. |
+| `0x00053754`, `0x00053808`, `0x000538bc` | `ActionKeyDown`, `ActionKeyPress`, `ActionKeyUp` send hardware-event=true to primary then secondary only when global and action gates are enabled. | **matches** | **G1**: enabled, globally disabled, action-disabled, and both key states. |
+| `0x00053970`, `0x00053a84`, `0x00053b98`, `0x00053dc0` | `ActionFirstDown`, `ActionDown`, `ActionPress`, `ActionClick` expose action, primaryOnly, and respectActionGate. Primary succeeds first; secondary is allowed only when primaryOnly=false. | **matches** | **G1**, including bypass true/false. |
+| `0x00053cac` `ControlMap_IsActionUp` | Requires primary UP, secondary UP, and `!primaryOnly`; primaryOnly=true always returns false. The concrete player caller is gun `AttackC1` cancellation, not QTE. | **corrected** from portable primary-only UP behavior | **G1/G2**: primary-only and both-bindings-up cases through real player/QTE frames and gun cancellation frames. |
+| `0x00053ed4` | `ActionDownOrClick` implements the same primary/secondary and gate rules using DOWN_OR_CLICK. | **matches** | **G1**. |
+| `0x00054028` | `GetPrimaryBinding`; used by QTE independently of the action-disable gate. | **matches** | **G1/G2**. |
+| `0x000536bc` | Uncalled action-disable setter variant returning 1. `SetActionEnabled` represents the called setter. | **duplicate compiled body** | **X / E**. |
+| `0x00054068`, `0x000540a0` | Configuration serialization preserves exactly 0x20 bytes of secondary bindings. | **matches** | **E** (`test_menu.cpp`). |
+| `0x000ef0f0`, `0x000ef1c8`, `0x000ef234`, `0x000ef30c` | Generic Input FIRST_DOWN/PRESS/UP/DOWN_OR_CLICK scans keys 1–23; recovered in Session 33. DOWN/CLICK and per-key scans were already present. | **matches** | **G1/E** (`test_input.cpp`, `test_sdk_utility.cpp`). |
+
+Portable invalid-action checks remain an intentional safety guard; valid native action behavior is unchanged.
 
 ## Player and game camera
 
-| Native address / owner | Native evidence and portable crosswalk | Disposition | Test |
+| Native address / owner | Portable crosswalk | Disposition | Test |
 |---|---|---|---|
-| `0x0003b920` `Player_ConfigureOrbitCamera` | Forwards frames, optional center/target pointers, vertical, and clockwise flags to the controller at Player `+0x708`. | **missing game API** | **G2**: exact forwarding and subsequent orbit frames. |
-| `0x0003b97c` `Player_SetOrbitRotationEnabled` | Forwards the Boolean to the same controller. The controller-level setter exists. | **missing game API** | **G2**. |
-| `0x00077ab8` `Player_IsFacingPoint` | Copies forward and target-position delta, zeros both Y components, and returns dot >= 0. | **missing game API** | **G2**: ahead, behind, perpendicular, vertical-only delta. |
-| `0x000d9ee8` `Player_GetObjectBounds` | Starts with primary-object world bounds translated by player position, then overwrites min/max Y from native player fields `+0x1c`/`+0x28`. Distinct from `GetInteractionBounds`. | **missing game API** | **G2**: real model bounds and Y override. |
-| `0x00078c60` | Returns previous-direction X only. | **missing game API** | **G2**: direction update then accessor. |
-| `0x00078c88` | Returns the fixed follow-target vector at controller `+0x194`. | **missing game API** | **G2**. |
-| `0x00078cc0` | Returns the renderer pointer at `+0x1a0`. | **missing game API** | **G2**. |
-| `0x00078cf0`, `0x00078d18` | Reads and clears the saved-state byte at `+0x10a`. Portable has `hasSavedState` privately but no public lifecycle. | **missing game API** | **G2**: initial, trigger save, clear, nested restoration. |
-| `0x00078df4` | Returns the controller up vector. | **missing game API** | **G2**. |
-| `0x00078e7c` | Computes `Length(target-position)` on demand. | **missing game API** | **G2**: exact fixed-point distance. |
-| `0x00078ecc` | Returns the controller direction vector. | **missing game API** | **G2**. |
-| `0x00079178` `CameraController_SetOrbitTarget` | Null disables orbit-target mode; non-null copies into both current target and orbitTarget and enables it. | **missing game API** | **G2**: null, non-null, subsequent orbit update. |
-| `0x000792d8`, `0x00079300` | Gets/sets the opaque unit-manager pointer. Portable already stores `unitManager` privately. | **missing game API** | **G2**: round trip without assuming concrete type. |
-| `0x00080f68` `CameraController_UpdateTriggers` | Iterates triggers in storage order and invokes virtual slot `+0x20` (Update) on each. | **missing game API** | **G2**: zero/one/multiple triggers and exact order through real frames. |
-| `0x00078d40`, `0x00078f04`, `0x00078f34`, `0x00079238`, `0x00079260` | Collision setter, follow distance/right, bound and input-cancelled queries. | **implemented** | **E** (`test_game_camera.cpp`). |
+| `0x0003b920`, `0x0003b97c` | `Player::ConfigureOrbitCamera` and `SetOrbitRotationEnabled` forward to the scene-owned controller. | **matches** | **G2**, including subsequent real frames. |
+| `0x00079e38` `CameraController_ConfigureOrbit` | Non-null target selects current/orbit target; non-null center sets `position=target-center` and `orbitVertical=center.y`; angle uses `Vec3AngleXZ`. Rotation is always enabled. `vertical` sets the repeat flag, not rotation. | **corrected** center/target, angle, rotation, and repeat behavior | **G2**: argument order, enabled/disabled trajectories, and repetition. Frames <=8 retain the native fade-branch priority. |
+| `0x00077ab8` | `Player::IsFacingPoint` zeros both Y components and returns dot >= 0. | **matches** | **G2**: ahead, behind, perpendicular, vertical-only. |
+| `0x000d9ee8` | `Player::GetObjectBounds` subtracts player position from object world X/Y/Z, then overwrites min/max Y from `localBounds`. | **corrected** | **G2** with the real player model. Null object returns local bounds as an **intentional portable safety difference**. |
+| `0x00078c60`, `0x00078c88`, `0x00078cc0` | `GetPreviousMode`, `GetSavedDirection`, `GetSavedFollowDistance`. | **corrected names / matches** | **G2** across two mode transitions. |
+| `0x00078cf0`, `0x00078d18` | `HasSavedState`, `ClearSavedState`; clear affects only the flag. | **matches** | **G2**: initial, trigger save, clear, nested trigger coverage. |
+| `0x00078df4`, `0x00078e7c`, `0x00078ecc` | `GetUp`, on-demand `Length(target-position)`, and `GetDirection`. | **matches** | **G2**. |
+| `0x00079178` | `SetOrbitTarget`: null disables; non-null copies to current target and orbitTarget and enables. | **matches** | **G2**. |
+| `0x000792d8`, `0x00079300` | Opaque unit-manager pointer get/set. | **matches** | **G2**. |
+| `0x00080f68` | `UpdateTriggers` captures count and calls Update in storage order. | **matches** | **G2**: zero/one/multiple and existing real-map trigger frames. |
+| `0x0008100c`, `0x00081034` | Trigger count and indexed accessor. | **matches** | **G2**. Out-of-range returns null as an **intentional portable safety difference**. |
+| `0x00078d40`, `0x00078f04`, `0x00078f34`, `0x00079238`, `0x00079260` | Collision setter, follow distance/right, bound and input-cancelled queries. | **matches** | **E** (`test_game_camera.cpp`). |
 
 ## Menu, GameUI, license, and enemy helpers
 
-| Native address / owner | Native evidence and portable crosswalk | Disposition | Test |
+| Native address / owner | Portable crosswalk | Disposition | Test |
 |---|---|---|---|
-| `0x0004e6b8` `PlayDlg_SetNewGameOptions` | Copies two consecutive 32-bit words from the argument to dialog fields `+0x248` and `+0x24c`. It has no native caller and no getter. | **missing game API**, semantics unresolved beyond exact storage | **G3**: recover layout first, then exact two-word assignment; do not claim unlock behavior without a consumer. |
-| `0x0006e120` `GameUI_GetNative80` | Returns the 32-bit field at GameUI `+0x80`; no direct caller and no semantic field evidence in this pass. | **reserved/unresolved** | **G3**: enumerate field readers/writers before deciding implementation or exclusion. |
-| `0x0000ea8c` `MyClientSession_SendVerificationRequest` | Writes type 2 and operation BE16, MD5(text), and MD5(0x100-byte identity), then encrypts. `License::SendVerification` implements the same protocol. | **implemented**, native MyClientSession transport object is **platform-specific** | **E** (`test_game_license.cpp` protocol fixtures). |
-| `0x0003fc04` `DarkKen_CompareRegionDistance` | Uncalled alternate comparator reads enemy `+0x704` and returns +1 when left > right, -1 when left < right, 0 equal. The active comparator at `0x0001fcd0` implements the opposite ordering on direct values. | **missing game API**, not a duplicate | **G4**: descending/equality and contrast with active ascending behavior. |
-| `0x00027138` `Sword_IsAnimationFinished` | Returns native completion flag == 1. | **implemented** | **E**. |
-| `0x0003cecc` `Player_HasAnyEnemy` | Portable checks enemy bucket count > 0. | **implemented** | **E**. |
-| `0x0003f7fc` `Pushable_GetPushSound` | Returns the push-sound pointer. | **implemented** | **E**. |
-| `0x00075d88`, `0x0008ab8c`, `0x00093758`, `0x00078064` | Door/Act/Talk/Camera trigger prompt/enabled/outside accessors. | **implemented** | **E**. |
+| `0x0004e6b8` `PlayDlg_SetReservedPoint` | No portable PlayDlg field or setter. MainUIDlg owns the actual new-game weapon/outfit options. | **reserved / intentionally omitted** | **G3 / X**. |
+| `0x0006e120` `GameUI_GetDialogTemplate1Value3` | Generic `Dialog::GetElementTemplate(1)->value3`; no GameUI-specific state. | **intentionally omitted duplicate wrapper** | **G3 / E**. |
+| `0x0000ea8c` `MyClientSession_SendVerificationRequest` | `License::SendVerification` implements the protocol. Native transport/session object is platform-specific. | **matches / platform-specific transport** | **E** (`test_game_license.cpp`). |
+| `0x0001fcd0` `DarkKen_CompareRegionDistanceAscending` | Active direct-distance comparator behavior is represented by ascending region-neighbor construction. | **matches** | **G4/E**. |
+| `0x0003fc04` `DarkKen_CompareRegionDistanceDescending` | `CompareDarkKenRegionDistanceDescending(const Enemy* const*, const Enemy* const*)` compares `GetPlayerDistance`; +1 greater, -1 smaller, 0 equal. | **matches as distinct helper** | **G4**. |
+| `0x00027138` `Sword_IsAnimationFinished` | Sword completion flag query. | **matches** | **E**. |
+| `0x0003cecc` `Player_HasAnyEnemy` | Enemy bucket count > 0. | **matches** | **E**. |
+| `0x0003f7fc` `Pushable_GetPushSound` | Push-sound pointer accessor. | **matches** | **E**. |
+| `0x00075d88`, `0x0008ab8c`, `0x00093758`, `0x00078064` | Door/Act/Talk/Camera trigger prompt/enabled/outside accessors. | **matches** | **E**. |
 | `0x0001edd4` `GameItemRuntime_InitEmpty` | Empty body. | **original empty** | **X**. |
 
-## Reserved, duplicate, empty, and platform exclusions
+## Reserved, duplicate, empty, internal, and platform exclusions
 
 | Native bodies | Disposition | Test |
 |---|---|---|
-| `0x0004ac80`, `0x0004b4a4`, `0x0004d2a8`, `0x0004dfa4`, `0x0004e6f8`, `0x0004e77c` | Simple writes to uncalled Option/Load/About/Help/Play dialog fields. **Reserved/unresolved**: no consumer-backed meaning or useful behavior was established. Session 34A may revisit them only with new field evidence. | **X / G3** if new evidence appears. |
-| `0x00049e5c`, `0x0004e7a8`, `0x0004e7c8`, `0x00050700` | Empty menu callbacks/hooks: **original empty**. | **X**. |
-| Game constructors/destructors listed in `soft3d_sdk_inventory.md` | **duplicate compiled body**; portable ownership already exists. No new game object is implied by an alternate constructor alone. | **X / E**. |
-| `0x0000d5f8` and other license/session/socket/phone methods not listed above | **platform-specific** transport or **duplicate compiled body**. Protocol outcomes belong to `License`; Symbian session objects are not recreated as game APIs. | **X / E**. |
-| `0x0003fc04` active-comparator confusion | The alternate is deliberately retained as a separate candidate. The active `0x0001fcd0` is **implemented** and must not be replaced by the alternate. | **G4 / E**. |
-| Remaining game zero-direct-reference methods not explicitly listed as missing in this document | **implemented**, **duplicate compiled body**, **original empty**, or **intentionally omitted reserved behavior**, as crosschecked against `src/game`, `src/soft3d/MenuDialogs.*`, and existing stage ledgers. | **X / E**. |
+| `0x0004ac80`, `0x0004b4a4`, `0x0004d2a8`, `0x0004dfa4`, `0x0004e6f8`, `0x0004e77c` | Simple writes to uncalled Option/Load/About/Help/Play fields. The consumer audit found no new evidence. **Reserved / intentionally omitted**. | **X**. |
+| `0x00049e5c`, `0x0004e7a8`, `0x0004e7c8`, `0x00050700` | Empty menu callbacks/hooks. | **original empty / X**. |
+| Game constructors/destructors listed in `soft3d_sdk_inventory.md` | **duplicate compiled body**; portable ownership already exists. No alternate constructor implies another game class. | **X / E**. |
+| `0x0000d5f8` and other license/session/socket/phone methods | **platform-specific** transport or duplicate compiled body. Protocol outcomes remain in `License`. | **X / E**. |
+| `0x0003fce4`, `0x0006505c`, `0x000829a0`, `0x00082ae0`, `0x00095a50`, `0x00096030` | MyGameUnitMgr/GameSI/Boss lifecycle and dormant debug update/render already have portable ownership and behavior. | **matches / E**. |
+| StayBox region scans, Things leaf predicate, manager/trigger vector parsers, Enemy looping/alert tests, Act camera-vector comparison, PickTrigger link setters | Called native helpers have inlined or consolidated portable equivalents: `OverlapsAny`, existing submission predicate, `ParseVector`, direct sound/state checks, `HasCameraOverride`, and `PickTrigger::Configure`. Session 34A also corrected `0x000498f8` to `PickTrigger_SetPickable` (`+0x64`) and `0x000498cc` to `PickTrigger_SetPlayer` (`+0x68`). They do not require duplicate public APIs. | **matches / E**. |
+| `GameItemRuntime`, `EnemyInfoGroup`, `EnemySpawnRecord`, `EnemyWaypoint`, `StayBoxRegion`, `StayBoxSpawnRecord`, `TalkLine`/`TalkLineVector`, DarkKen `RegionDistance` | Non-RTTI support records and their constructor/vector helpers map to `GameData` records, `EnemyWaypoint`, StayBox spawn/bounds storage, TalkTrigger lines, and the local region-neighbor records. Portable containers replace native linked-list/vector bookkeeping without adding another game class. | **matches / E**; DarkKen ordering also **G4**. |
+| `CompareIntNotEqual`, `VectorsNearlyEqual`, and similar tiny comparison predicates | Existing direct component/epsilon comparisons preserve their called behavior. They are internal compiled helpers, not additional game-owned policy APIs requiring duplicate public functions. | **matches / intentionally omitted / E**. |
+| `0x000530d4` `ComparePointerNotNull` | Uncalled trivial pointer predicate with no game-specific state or owning class. Existing null checks cover behavior; not elevated to a game API. | **intentionally omitted / X**. |
 
-## Session 34A handoff
+## Handoff
 
-1. Recover ControlMap's missing query/event/gate API and add generic Input any-key scans. Resolve the native ActionUp primary-only edge with directed and real QTE tests.
-2. Recover Player/CameraController wrappers and accessors, especially trigger update ordering and saved-state lifecycle.
-3. Resolve `GameUI_GetNative80` and the two PlayDlg option fields from all native readers/writers before implementing them. Leave reserved setters out if no meaning emerges.
-4. Recover the alternate DarkKen comparator as a distinct helper only if its native ownership can be represented without confusing it with the active comparator.
-5. Run focused input/player/camera/menu/enemy suites, real engine-frame tests, and the complete serial validation matrix. Update this ledger with matches/corrections and do not move game policy into reusable Soft3D APIs.
+Session 34A closes the game-owned inventory. ControlMap queries/events/gates, player/camera wrappers, camera saved-state and trigger lifecycle, FadeShader renderer binding, and the alternate DarkKen comparator are public and tested. Orbit behavior and ActionUp primary-only behavior were corrected from ARM. Reserved setters and generic dialog storage were explicitly excluded rather than assigned invented gameplay semantics.
+
+Focused input, camera, player, enemy, and presentation-shader tests pass, including real engine frames. The complete serial matrix passes **44/44 default**, **44/44 STDIO**, **44/44 host-math**, **44/44 WAR**, **37/37 core**, **37/37 ASan/UBSan**, and **23/23 applicable English-layout** tests, plus **6/6 SOJ** and **8/8 S3DTEX** Python tests. The English diagnostic reproduced only the same 14 Chinese-archive initialization exclusions. Ghidra is saved with no unsaved changes. The next roadmap work is Session 01's reproducible first-room correctness packet, not further invention of game APIs.

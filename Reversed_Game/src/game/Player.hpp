@@ -149,6 +149,9 @@ public:
     void SubmitRenderables(soft3d::RenderQueues& queues) override;
     void SaveState(soft3d::OutputStream& stream) const override;
     void LoadState(soft3d::InputStream& stream) override;
+    void ConfigureOrbitCamera(int32_t frames, const soft3d::Vec3* center,
+                              const soft3d::Vec3* target, bool vertical, bool clockwise);
+    void SetOrbitRotationEnabled(bool enabled);
 
     const soft3d::Vec3& GetPosition() const override { return position; }
     const soft3d::Vec3& GetRight() const override;
@@ -166,6 +169,8 @@ public:
     bool AreAttacksDisabled() const { return attacksDisabled != 0; }
     bool IsHurt4Requested() const { return hurt4Request != 0; }
     soft3d::ObjectBounds GetInteractionBounds() const;
+    soft3d::ObjectBounds GetObjectBounds() const;
+    bool IsFacingPoint(const soft3d::Vec3& point) const;
     bool IsDead() const { return deathState != 0; }
     bool IsDeathComplete() const { return deathState == 2; }
     bool IsYoung() const { return young != 0; }
