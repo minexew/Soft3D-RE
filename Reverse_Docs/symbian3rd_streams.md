@@ -142,7 +142,7 @@ Scope 0 is the separate array at native `SimpleScript +0x34b4`; it is not the cu
 
 - `OpenIoFileNarrow` (`0x000ab308`), `OpenIoFileNarrowWithFlags` (`0x000aacdc`), and `ReopenIoFileNarrow` (`0x000ab464`) now have public portable narrow-path overloads. Conversion widens each unsigned byte to one UTF-16 code unit through `ConvertAsciiToWide` (`0x000975a4`). The SDL application uses this shared helper instead of its own widening loop.
 - `WriteIoFile` (`0x000ab974`) writes a raw byte count and returns 0 on success and -1 on failure, not a byte count.
-- `NarrowStringLength` and `WideStringLength` are at `0x00097680` and `0x00098b7c`; `ResolveGamePath` is at `0x000ab068`; `FillMemory` is at `0x000a76dc`.
+- `NarrowStringLength` and `WideStringLength` are at `0x00097680` and `0x00098b7c`; `ResolveGamePath` is at `0x000ab068`; `FillMemory` is at `0x000a76dc`. Session-34 disassembly corrected the latter's parameter names/order to `FillMemory(destination, bytes, value)`, forwarding to `memset(destination, value, bytes)` and returning `destination`; it remains excluded as standard memory support.
 - `MemTotal` (`0x000a77ec`) and `MemRemain` (`0x000a7840`) remain standalone diagnostics, not methods of the empty `s3dMemInfo` shell. Linux uses `sysinfo` and returns total/free bytes or -1. The portable signature uses 64-bit values to avoid overflow on modern hosts; the original returns signed 32-bit values.
 
 ## Reconstruction and verification

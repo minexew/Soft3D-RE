@@ -182,6 +182,15 @@ char16_t* ConvertAsciiToWide(char16_t* output, const char* input)
     return output;
 }
 
+char* ConvertUtf16ToAscii(char* output, const char16_t* input)
+{
+    char* current = output;
+    do {
+        *current = static_cast<char>(*input++);
+    } while (*current++ != '\0');
+    return output;
+}
+
 s3dIO::s3dIO() = default;
 
 bool s3dIO::Open(const char16_t* path, const char16_t* mode)

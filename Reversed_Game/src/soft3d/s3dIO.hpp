@@ -34,6 +34,7 @@ private:
 };
 
 char16_t* ConvertAsciiToWide(char16_t* output, const char* input);
+char* ConvertUtf16ToAscii(char* output, const char16_t* input);
 int FormatWideString(char16_t* output, const char16_t* format, va_list arguments);
 int WideSprintf(char16_t* output, const char16_t* format, ...);
 

@@ -105,7 +105,9 @@ The SDK exports `GetPow2` and `ConvPow2` from `s2dmath_util.o`. Their algorithms
 | `0x0012a0e4` | `GetPow2` | Returns the exact base-2 exponent, `0` for 1, and `-1` for a non-power-of-two input. |
 | `0x0012a17c` | `ConvPow2` | Returns an existing power of two unchanged, otherwise returns the next higher power of two. |
 
-`GetPow2` is used by texture creation, STX parsing, and fade-speed calculations in S2D. Soft3D uses it for texture width shifts and other size calculations.
+`GetPow2` is used by texture creation, STX parsing, and fade-speed calculations in S2D. Soft3D uses it for texture width shifts and other size calculations. Both helpers became public portable APIs in Session 34; values above `0x80000000` receive explicit termination guards instead of reproducing the native infinite loops.
+
+The same S2D base-math header independently confirms `RandomGenerator` and the public callback `qsort`. ARM `Random_SetSeed`/`Random_Next` (`0x0009a270`/`0x0009a29c`) implement the four-byte state holder and wrapping LCG, and `Qsort` plus its width-specific bodies (`0x0009a0dc`–`0x0009b29c`) implement the native dispatcher, partition, small-range selection, and swaps. These are reusable Soft3D facilities, not game policy or vendor runtime. Session 34 recovers them as `RandomGenerator` and `Qsort` in `s3dBaseMath.*` with native-derived sequence, ordering, width, and boundary tests.
 
 ### Texture layout lineage
 

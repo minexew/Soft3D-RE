@@ -58,6 +58,7 @@ add_library(soft3d
     src/soft3d/Units.cpp
     src/soft3d/VID_impl.cpp
     src/soft3d/s3dBase.cpp
+    src/soft3d/s3dBaseMath.cpp
     src/soft3d/s3dFilePak.cpp
     src/soft3d/s3dIO.cpp
     src/soft3d/s3dImageLoader.cpp
@@ -258,6 +259,13 @@ if(BUILD_TESTING)
         target_compile_options(soft3d_sdk_utility_tests PRIVATE -Wall -Wextra -Wpedantic)
     endif()
     add_test(NAME soft3d_sdk_utility COMMAND soft3d_sdk_utility_tests)
+
+    add_executable(soft3d_sdk_consumer_tests tests/test_sdk_consumer.cpp)
+    target_link_libraries(soft3d_sdk_consumer_tests PRIVATE soft3d)
+    if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+        target_compile_options(soft3d_sdk_consumer_tests PRIVATE -Wall -Wextra -Wpedantic)
+    endif()
+    add_test(NAME soft3d_sdk_consumer COMMAND soft3d_sdk_consumer_tests)
 
     add_executable(soft3d_raster_tests tests/test_raster.cpp)
     target_link_libraries(soft3d_raster_tests PRIVATE soft3d)

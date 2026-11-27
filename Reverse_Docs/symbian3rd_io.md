@@ -39,7 +39,7 @@ Three additional routines form a narrow-character counterpart to wide open/reope
 
 The narrow conversion allocates `(length + 1) * 4` bytes even though the wide output uses two-byte characters. This over-allocation is present in the binary and is not evidence of 32-bit wide characters.
 
-The Linux reconstruction exposes both wide and narrow open/reopen overloads. `ConvertAsciiToWide` is also public and is shared by the formatter, narrow-path IO, and the SDL application's resource-path setup; the application no longer has a separate widening helper. `tests/test_stream.cpp` exercises narrow write/reopen/read and invalid-mode paths.
+The Linux reconstruction exposes both wide and narrow open/reopen overloads. `ConvertAsciiToWide` is public and is shared by the formatter, narrow-path IO, and the SDL application's resource-path setup; the application no longer has a separate widening helper. Session 34 also exposes the independently evidenced `ConvertUtf16ToAscii` (`0x00097614`), which copies the low byte of every UTF-16 code unit including the terminator and returns the output pointer. `tests/test_stream.cpp` exercises narrow write/reopen/read and invalid-mode paths; `test_sdk_consumer.cpp` covers both public conversion directions, including high-byte truncation.
 
 ## Formatted output
 

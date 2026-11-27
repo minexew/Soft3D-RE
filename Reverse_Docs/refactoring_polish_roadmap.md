@@ -332,6 +332,8 @@ Re-run the inventory against source and Ghidra. Build a small external-style con
 
 **Exit:** all native candidates are dispositioned, all “missing useful” items are resolved, the full matrix passes, and the standalone engine consumer links and runs.
 
+**Status:** Complete. The second native/source pass and evidence ledger are in `soft3d_sdk_inventory.md`. It recovered public `GetPow2`/`ConvPow2`, `RandomGenerator`, native `Qsort`, and `ConvertUtf16ToAscii`, corrected `FillMemory` parameter order, and documented the portable termination/index-safety differences. `test_sdk_consumer.cpp` links and runs against `soft3d` alone without SDL or game code. Ghidra types, prototypes, comments, ownership tags, save, and read-back are complete. The full default/core/STDIO/host-math/WAR/ASan-UBSan/applicable-English/Python validation matrix passes.
+
 ### Session 34A — Game-object API completeness
 
 Use `Reverse_Docs/game_object_inventory.md` to recover game-owned methods and non-RTTI helpers excluded from the reusable Soft3D SDK. Complete the missing ControlMap/Input query, event, and gate APIs; player/camera wrappers and trigger lifecycle; and the distinct alternate DarkKen comparator. Resolve the PlayDlg option fields and `GameUI_GetNative80` from native field consumers before implementing them; leave unresolved reserved setters out.
