@@ -30,7 +30,7 @@ public:
     void Reset();
     void FinishMapLoad(bool restoreSavedState);
     void SetMapId(int32_t value);
-    void SetPaused(bool value) { paused = value; }
+    void SetPaused(bool value);
     bool IsPaused() const { return paused; }
     bool IsMapReady() const { return mapReady; }
     int32_t GetDay() const { return day; }

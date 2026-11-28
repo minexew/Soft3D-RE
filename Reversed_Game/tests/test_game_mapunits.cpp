@@ -171,12 +171,22 @@ void TestAddVariantsAndBasicCommands()
 
     soft3d::Things& thing = dynamic_cast<soft3d::Things&>(*manager->FindUnit(2, 1));
     CHECK(thing.GetObject(0)->GetRenderMode() == soft3d::ObjectRenderMode::Normal);
+    const soft3d::Vec3 initialPosition = thing.GetPosition();
+    thing.Update();
+    CHECK(thing.GetPosition().x == initialPosition.x && thing.GetPosition().y == initialPosition.y &&
+          thing.GetPosition().z == initialPosition.z);
+    CHECK(thing.GetCollisionBounds().minimum.x == thing.GetObject(0)->GetWorldBounds().minimum.x &&
+          thing.GetCollisionBounds().maximum.z == thing.GetObject(0)->GetWorldBounds().maximum.z);
     std::vector<Argument> secondary = AddArguments(14, 0, -1);
     secondary.back() = Argument::Bool(false);
     fixture.Execute(221, secondary);
     CHECK(manager->FindUnit(2, 14)->GetUnitType() == 4);
-    CHECK(dynamic_cast<soft3d::Things*>(manager->FindUnit(2, 14))->GetObject(0)->GetRenderMode() ==
-          soft3d::ObjectRenderMode::SecondaryStreams);
+    auto& secondaryThing = dynamic_cast<soft3d::Things&>(*manager->FindUnit(2, 14));
+    CHECK(secondaryThing.GetObject(0)->GetRenderMode() == soft3d::ObjectRenderMode::SecondaryStreams);
+    secondaryThing.SetCurrentLeaf(0);
+    soft3d::RenderQueues secondaryQueues;
+    secondaryThing.SubmitRenderables(secondaryQueues);
+    CHECK(secondaryQueues.GetCount(3) + secondaryQueues.GetCount(4) == 1);
     fixture.Execute(246, {Argument::Short(14)});
     fixture.Execute(222, {Argument::Short(1), Argument::Fixed(0x10000), Argument::Fixed(0),
                           Argument::Fixed(0x10000)});
@@ -582,6 +592,28 @@ void TestRealMapEntities()
     }
 }
 
+void TestRealCameraTriggers()
+{
+    GameFixture fixture;
+    LoadRealMap(fixture, 2012);
+    for (int frame = 0; frame < 50 && fixture.scene->GetTransitionStage() != 0; ++frame) {
+        fixture.RunFrames(1);
+    }
+    CHECK(fixture.scene->GetTransitionStage() == 0);
+    int count = 0;
+    for (soft3d::GameUnit* unit = fixture.scene->GetUnitManager()->GetFirstUnit(6);
+         unit != nullptr; unit = unit->GetNextUnit()) {
+        auto* trigger = dynamic_cast<game::CameraTrigger*>(unit);
+        if (trigger == nullptr) continue;
+        fixture.scene->GetPlayer()->SetPosition(soft3d::Center(trigger->GetCollisionBounds()));
+        fixture.RunFrames(1);
+        CHECK(!trigger->IsOutside());
+        CHECK(fixture.scene->GetCameraController()->GetMode() == trigger->GetMode());
+        ++count;
+    }
+    CHECK(count == 2);
+}
+
 } // namespace
 
 int main()
@@ -593,6 +625,7 @@ int main()
         TestStayBox();
         TestStayBoxCommands();
         TestRealMapEntities();
+        TestRealCameraTriggers();
         std::cout << "game map-unit tests passed\n";
         return 0;
     } catch (const std::exception& error) {

@@ -81,7 +81,7 @@ if base < 0x10000: intensity = (0x10000 - base) * 0x1f00
 else:              intensity = 0
 ```
 
-This inverted value is interpolated as a palette selector. The raster edge setup converts intensity with `>> 16`, and the textured loop applies another `>> 8`; this double scaling is original behavior. Unshaded textured paths instead use palette level 15.
+This inverted value is interpolated as a palette selector. The raster edge setup converts intensity with `>> 16`, and the textured loop applies another `>> 8` only when the interpolated intensity is positive; zero and negative values select palette level 0. This double scaling and signed guard are original behavior. Unshaded textured paths instead use palette level 15. The portable path previously converted a negative shifted intensity to unsigned, causing an out-of-bounds palette read.
 
 Mode-3 coordinates use the model-transformed normal:
 

@@ -634,8 +634,8 @@ void TestEngineInputAndFrames()
     CHECK(player->GetCurrentStateId() == game::PlayerQTE);
     CHECK(stand == 0xe1deedfdU);
     CHECK(run == 0x44975ebdU);
-    CHECK(attack == 0x7c0f924dU);
-    CHECK(hurt == 0xb0f2585dU);
+    CHECK(attack == 0x53f96a45U);
+    CHECK(hurt == 0xc915d9f5U);
     CHECK(qte == 0x9d488425U);
 
     auto& controls = fixture.engine.GetControlMap();

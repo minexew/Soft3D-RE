@@ -381,6 +381,11 @@ bool Player::IsPushingUnit(int32_t id) const
     return pushing != 0 && pushTarget != nullptr && pushTarget->GetUnitId() == id;
 }
 
+bool Player::ActionFirstDown(int action) const
+{
+    return controls != nullptr && controls->ActionFirstDown(scene->GetEngine().GetInput(), action, false);
+}
+
 bool Player::ActionDown(int action) const
 {
     return controls != nullptr && controls->ActionDown(scene->GetEngine().GetInput(), action, false);
@@ -431,7 +436,8 @@ void Player::UpdateMovement(soft3d::Fixed speed)
         cachedForward = soft3d::Normalize(soft3d::Subtract(camera->GetTarget(), camera->GetPosition()));
         cachedRight = camera->GetRight();
     } else {
-        if (ActionDown(1) || ActionDown(2) || ActionDown(3) || ActionDown(4) || camera->IsInstant()) {
+        if (ActionFirstDown(1) || ActionFirstDown(2) || ActionFirstDown(3) ||
+            ActionFirstDown(4) || camera->IsInstant()) {
             cachedForward = soft3d::Normalize(soft3d::Subtract(camera->GetTarget(),
                                                                camera->GetPosition()));
             cachedRight = camera->GetRight();

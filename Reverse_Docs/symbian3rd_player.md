@@ -95,7 +95,7 @@ The usual interrupt priority is death, hurt 1, hurt 2, hurt 3, hurt 4. `CHurt2` 
 
 `Player_Update` (`0x0003b4a4`) handles healing and play time first. The play-time word advances every 16 player updates. Navigation-only mode zeros velocity and skips normal state/physics updates. Otherwise it polls the state machine, adds external velocity, runs `PhysicUnit_Update`, synchronizes the sword's position/right/up/forward, updates hit history, and refreshes gun targets.
 
-`Player_UpdateMovement` (`0x00039860`) uses camera forward/right and the real control map:
+`Player_UpdateMovement` (`0x00039860`) uses camera forward/right and the real control map. Outside FPS mode, cached camera axes refresh on action **first-down** edges or camera-instant state, not on every held-down frame:
 
 - Actions 1/2 move forward/backward; actions 3/4 strafe in non-FPS modes.
 - In first-person mode, actions 3/4 stop movement and leave camera look to the controller.
@@ -260,8 +260,8 @@ Exact default dummy-presented FNV-1a hashes over 320×240 XRGB pixels are:
 ```text
 stand  0xe1deedfd
 run    0x44975ebd
-attack 0x7c0f924d
-hurt   0xb0f2585d
+attack 0x53f96a45
+hurt   0xc915d9f5
 QTE    0x9d488425
 ```
 

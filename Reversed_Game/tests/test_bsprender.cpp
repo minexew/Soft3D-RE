@@ -479,6 +479,14 @@ void TestFaceVisibility()
     CHECK(bsp.GetVisibleFaces() == std::vector<uint32_t>({0}));
     CHECK(pixels[120 * 320] == 0x00010000);
     CHECK(pixels[120 * 320 + 319] == 0x00010000);
+    for (int x = 0; x < 320; ++x) {
+        CHECK(pixels[x] == 0x00010000);
+        CHECK(pixels[239 * 320 + x] == 0x00010000);
+    }
+    for (int y = 0; y < 240; ++y) {
+        CHECK(pixels[y * 320] == 0x00010000);
+        CHECK(pixels[y * 320 + 319] == 0x00010000);
+    }
 }
 
 void TestRealStyleResource()

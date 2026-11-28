@@ -8,6 +8,7 @@ namespace {
 
 uint32_t ReciprocalTable(uint32_t index)
 {
+    index = static_cast<uint16_t>(index);
     return index == 0 ? 0x7fffffffU : static_cast<uint32_t>(0x40000000ULL / index);
 }
 
@@ -138,7 +139,7 @@ void ClipBrush(TraceContext& context, uint32_t brushIndex, bool pointOnly)
         context.result.fraction = std::max<Fixed>(0, enter);
         context.result.planeNormal = enterPlane.normal;
         context.result.planeDistance = enterPlane.distance;
-        context.result.sideIndex = enterSide;
+        context.result.sideIndex = static_cast<int16_t>(enterSide);
     }
 }
 
@@ -367,7 +368,7 @@ BspTraceResult Bsp::Trace(const Vec3& startPosition, const Vec3& endPosition,
 
     if (startPosition.x == endPosition.x && startPosition.y == endPosition.y &&
         startPosition.z == endPosition.z) {
-        const Vec3 point = Add(startPosition, endPosition);
+        const Vec3 point = Add(startPosition, traceBounds.minimum);
         if (!nodes.empty()) {
             TracePointNode(context, 0, point);
         } else if (!leaves.empty() && (leaves[0].contents & 1) != 0) {

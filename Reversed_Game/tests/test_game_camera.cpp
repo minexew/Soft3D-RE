@@ -295,6 +295,8 @@ void TestRecoveredAccessorsAndOrbit()
         repeated.controller.Update();
         if (frame < 8) {
             CheckVec(rotating.controller.GetPosition(), stopped.controller.GetPosition(), __LINE__);
+            CHECK(rotating.controller.GetPosition().x >= -0x10000);
+            CHECK(rotating.controller.GetUp().y > 0);
         } else if (rotating.controller.GetPosition().x != stopped.controller.GetPosition().x ||
                    rotating.controller.GetPosition().z != stopped.controller.GetPosition().z) {
             rotationObserved = true;

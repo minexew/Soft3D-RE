@@ -9,7 +9,7 @@ The implementation is split without creating a second UI system:
 - `src/soft3d/GameUIDlg.*` retains the existing SDT dialog, menu/input state, native overlay state, and resource acquisition.
 - `src/game/GameUiController.*` supplies concrete gameplay drawing, player/content synchronization, item operations, map projection, and item-model submission.
 - `GameUiController` implements the existing `TriggerUiHost`; `Scene` owns it and installs it as the manager's real interaction UI. The old `InteractionState` remains useful as a standalone test/fallback host, but is not the application's production substitute.
-- `GameEngine::PrepareRender` preserves the existing scene/About ordering and calls the GameUI item-model preparation hook. Inventory and About use the same controller-owned `Object` array.
+- `Scene_SubmitRenderables` (`0x0002f088`) calls the GameUI item-model preparation hook before day-title drawing. `GameEngine_PrepareRender` does not call it. This native placement lets the later BSP preparation preserve the map during menu sliding instead of leaving it cleared behind the briefly visible models. Inventory and About use the same controller-owned `Object` array.
 - Stage 13 implements full scene save records and script sidecars. The stage-8 save menu invokes the real slot callback and `Scene::SaveSaveSlot` writes the complete scene; `LoadDlg` continues to use the 44-byte header only for display. See `symbian3rd_savegame.md`.
 
 ## Native `GameUIDlg` layout
@@ -175,11 +175,12 @@ The real `day1/ep0` path passes command 102 and executes input query ID 47 (`0x0
 Exact FNV-1a dummy-presented frame baselines are:
 
 ```text
-HUD            f0cc850d    event          6bbfe04d
-simple         14c8dd85    choice         dd20f75d
-timed          a4f908dd    QTE            d787fb25
-QTE failure    6c7337dd    subtitle       bfa62de5
-hide mask      0fcefc15    menu           bd0cd14d
+HUD            276e7625    event          0d5aa33d
+simple         bd1b5935    choice         44f34135
+menu sliding   87ea1e15
+timed          77ff721d    QTE            c0033efd
+QTE failure    01e6b495    subtitle       004063cd
+hide mask      c2af2b05    menu           bd0cd14d
 inventory      f0801085    item actions   403fa5cd
 item examine   375e0015    map            ac605735
 map/other hand 96792195     About model    d21cc8dd

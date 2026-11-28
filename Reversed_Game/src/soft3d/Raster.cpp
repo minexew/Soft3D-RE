@@ -342,7 +342,8 @@ void Raster::DrawSpan(int32_t y, const Edge& left, const Edge& right,
                               index == texture->GetTransparentColor();
                 if (!transparent) {
                     const uint32_t paletteIndex = (static_cast<uint32_t>(index) << 5) |
-                        (shading ? static_cast<uint32_t>(intensity >> 8) : 15U);
+                        (shading && intensity > 0 ? static_cast<uint32_t>(intensity >> 8)
+                                                 : (shading ? 0U : 15U));
                     std::memcpy(&color, texture->GetPalette() + paletteIndex * 2, 2);
                     if (detailTexture != nullptr) {
                         const uint8_t alpha = detailTexture->GetPixels()[sourceOffset];

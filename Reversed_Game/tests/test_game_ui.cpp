@@ -351,6 +351,8 @@ void TestGameplayMenuInput()
     CHECK(!ui->IsMenuOpen());
     fixture.Click(soft3d::Key::SoftRight);
     CHECK(ui->IsMenuOpen() && fixture.scene->GetUnitManager()->IsPaused());
+    const uint32_t slidingMenu = fixture.FrameHash();
+    CHECK(slidingMenu == 0x87ea1e15U);
     fixture.RunFrames(11);
     fixture.Click(soft3d::Key::SoftRight);
     fixture.RunFrames(11);
@@ -431,13 +433,19 @@ void TestExactRendering()
     const uint32_t about = fixture.FrameHash();
     CHECK(index == hashes.size());
     constexpr std::array<uint32_t, 13> expected = {
-        0xf0cc850dU, 0x6bbfe04dU, 0x14c8dd85U, 0xdd20f75dU,
-        0xa4f908ddU, 0xd787fb25U, 0x6c7337ddU, 0xbfa62de5U,
-        0x0fcefc15U, 0xbd0cd14dU, 0xf0801085U, 0x403fa5cdU, 0x375e0015U,
+        0x276e7625U, 0x0d5aa33dU, 0xbd1b5935U, 0x44f34135U,
+        0x77ff721dU, 0xc0033efdU, 0x01e6b495U, 0x004063cdU,
+        0xc2af2b05U, 0xbd0cd14dU, 0xf0801085U, 0x403fa5cdU, 0x375e0015U,
     };
+    bool hashesMatch = true;
     for (std::size_t index = 0; index < hashes.size(); ++index) {
-        CHECK(hashes[index].second == expected[index]);
+        if (hashes[index].second != expected[index]) {
+            std::cerr << hashes[index].first << " hash " << std::hex << hashes[index].second
+                      << " != " << expected[index] << std::dec << '\n';
+            hashesMatch = false;
+        }
     }
+    CHECK(hashesMatch);
     CHECK(map == 0xac605735U);
     CHECK(mapOtherOrientation == 0x96792195U);
     CHECK(about == 0xd21cc8ddU);

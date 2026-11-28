@@ -99,7 +99,7 @@ After movement, `GameUnit.collisionBounds = localBounds + position`, while `seco
 
 ## `Things`
 
-`Things` sets type 4 and physics flags `0x1e0`. Destruction disables all three collision queries. Normal rendering uses the visual base only for nonzero material-0 blend or a matching cached leaf cluster; destruction renders the alternate object.
+`Things` sets type 4 and physics flags `0x1e0`. Destruction disables all three collision queries. Normal rendering uses the visual base for nonzero render mode or a matching cached leaf cluster; destruction renders the alternate object. The field is the object's render mode, not material blend mode. At the end of `Things_Update`, collision bounds are copied from the primary object's world bounds; the unit position is not overwritten with the world-bounds minimum.
 
 Destruction (`0x000dbf3c`) stores a signed 16-bit duration and resets the timer. At duration-6, -4, and -2 updates, material 0 blend becomes 3, 2, and 1. At the exact duration the unit removes itself from bucket 2 with deletion. The signed thresholds are preserved, including their behavior for short durations. `Things_Update` also performs initial ground placement and synchronizes the alternate model transform.
 
@@ -144,9 +144,9 @@ The portable templates reproduce these rules and also expose direct enter-chain/
 | `0x28` | Fraction |
 | `0x2c` | Brush side index |
 
-`Bsp_Trace` (`0x00011378`) dispatches equal endpoints to point-solid traversal and other endpoints to swept-bounds tracing. The equal-endpoint path unusually classifies `start + end`; this is retained. Swept tracing projects local bounds onto node planes, uses a `0x50000` margin for non-axis planes, and clips solid leaf brushes once per trace. At each split, ARM's `local_9c` fraction is used for the near child and `local_a0` for the far child; reversing them skips solid leaves on short traces. A fraction below one sets `startSolid`, and a successful hit adds plane normal * `0x51e` to the interpolated endpoint. Brush `allSolid` is set only when the start is inside and **no** plane has the endpoint outside.
+`Bsp_Trace` (`0x00011378`) dispatches equal endpoints to point-solid traversal and other endpoints to swept-bounds tracing. The equal-endpoint path unusually classifies `start + bounds.minimum`, returns `start` as its end position, and sets all three solid flags for a solid leaf. Swept tracing projects local bounds onto node planes, uses a `0x50000` margin for non-axis planes, and clips solid leaf brushes once per trace. At each split, ARM's `local_9c` fraction is used for the near child and `local_a0` for the far child; reversing them skips solid leaves on short traces. A fraction below one sets `startSolid`, and a successful hit adds plane normal * `0x51e` to the interpolated endpoint. Brush `allSolid` is set only when the start is inside and **no** plane has the endpoint outside.
 
-Trace reciprocals use the same table as the renderer: `0x40000000 / index`, with index zero returning `0x7fffffff`, followed by range-dependent shifts. Portable arithmetic does not substitute an exact floating-point division.
+Trace reciprocals use the same table as the renderer: `0x40000000 / index`, with index zero returning `0x7fffffff`, followed by range-dependent shifts. Each range-reduced index is truncated to 16 bits before lookup. Portable arithmetic does not substitute an exact floating-point division.
 
 `Bsp_FindNearestPathNode` (`0x00106dd8`) selects the nearest nonnegative squared-distance node whose trace has `startSolid == 0`; `0xffff` is the null path-node index.
 

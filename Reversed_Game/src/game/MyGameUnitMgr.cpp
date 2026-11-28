@@ -159,6 +159,19 @@ void MyGameUnitMgr::FinishMapLoad(bool restoreSavedState)
     paused = false;
 }
 
+void MyGameUnitMgr::SetPaused(bool value)
+{
+    for (soft3d::GameUnit* unit = GetFirstUnit(0); unit != nullptr; unit = unit->GetNextUnit()) {
+        if (auto* enemy = dynamic_cast<Enemy*>(unit)) {
+            enemy->SetNavigationEnabled(value);
+        }
+    }
+    if (auto* scenePlayer = dynamic_cast<Player*>(player)) {
+        scenePlayer->SetNavigationEnabled(value);
+    }
+    paused = value;
+}
+
 void MyGameUnitMgr::ConfigureScene(CameraController* newCameraController,
                                    soft3d::Creature* newPlayer)
 {

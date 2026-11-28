@@ -171,6 +171,9 @@ void TestTextureKeyLightingAndDetail()
     lightRenderer.GetRaster().RasterizeTriangle(first, second, third);
     CHECK(Pixel(lightRenderer, 1, 2) == 0x001007e0);
     lightRenderer.GetRaster().SetDepthTestEnabled(false);
+    first.intensity = second.intensity = third.intensity = -0x1000000;
+    lightRenderer.GetRaster().RasterizeTriangle(first, second, third);
+    CHECK(Pixel(lightRenderer, 1, 2) == 0x001007e0);
     first.intensity = second.intensity = third.intensity = 0x1f000000;
     lightRenderer.GetRaster().RasterizeTriangle(first, second, third);
     CHECK(Pixel(lightRenderer, 1, 2) == 0x0010ffff);

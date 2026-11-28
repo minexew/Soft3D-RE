@@ -280,6 +280,8 @@ void TestPickTrigger()
     fixture.Click();
     manager->Update();
     CHECK(trigger->IsDialogActive() && manager->IsPaused());
+    CHECK(fixture.scene->GetPlayer()->IsNavigationEnabled());
+    CHECK(!fixture.engine.GetControlMap().ActionClick(fixture.engine.GetInput(), 5, false));
     CHECK(fixture.Ui().GetDialogKind() == 1 && fixture.Ui().GetDialogTextId() == 7);
     CHECK(fixture.Ui().GetDialogOptionCount() == 2);
     CHECK(fixture.Ui().GetDialogOption(0) == 3 && fixture.Ui().GetDialogOption(1) == 4);
@@ -807,7 +809,18 @@ void TestRealStartupControlAndPickup()
     CHECK(fixture.Ui().GetInteractionPrompt() == 0);
     fixture.Click();
     fixture.RunFrames(3);
+    CHECK(fixture.Ui().IsDialogActive() && !fixture.scene->GetPlayer()->HasItem(1005));
+    fixture.Click();
+    fixture.RunFrames(1);
+    CHECK(fixture.Ui().GetDialogResult() == 0);
+    CHECK(!fixture.scene->GetUnitManager()->IsPaused());
+    fixture.RunFrames(1);
     CHECK(fixture.scene->GetPlayer()->HasItem(1005));
+    if (fixture.Ui().IsMenuOpen()) {
+        fixture.Ui().CloseMenu();
+        fixture.RunFrames(12);
+    }
+    CHECK(!fixture.Ui().IsMenuOpen());
 
     const soft3d::Vec3 initial = fixture.scene->GetPlayer()->GetPosition();
     fixture.engine.GetInput().KeyDown(soft3d::Key::Left);

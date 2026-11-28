@@ -311,6 +311,8 @@ void TestManager()
     first.SetVisible(false);
     CHECK(manager.QueryPoint({0, 0, 0}).count == 1);
     CHECK(manager.QueryPoint({0, 0, 0}, 0).count == 1);
+    CHECK(manager.QueryBounds({{-1, -1, -1}, {1, 1, 1}}).count == 1);
+    CHECK(manager.QueryBounds({{-1, -1, -1}, {1, 1, 1}}, 0).count == 1);
     first.SetVisible(true);
     CHECK(manager.QuerySegment({-0x20000, 0, 0}, {0x20000, 0, 0}).count == 2);
     CHECK(manager.QueryBounds({{-1, -1, -1}, {1, 1, 1}}).count == 2);
@@ -406,6 +408,8 @@ void TestBspCollision()
     CHECK(point.startSolid && point.brushStartSolid && point.allSolid);
     const soft3d::BspTraceResult empty = bsp->Trace({-0x18000, 0, 0}, {-0x18000, 0, 0});
     CHECK(!empty.startSolid);
+    const soft3d::ObjectBounds offsetBounds{{0x20000, 0, 0}, {0x20000, 0, 0}};
+    CHECK(bsp->Trace({}, {}, offsetBounds).startSolid);
 
     const soft3d::BspPathNode* node = bsp->FindNearestPathNode({-0x30000, 0, 0}, {});
     CHECK(node != nullptr && node->position.x == -0x30000);

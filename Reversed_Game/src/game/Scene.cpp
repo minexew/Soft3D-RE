@@ -635,12 +635,14 @@ void Scene::UpdateWorld()
     }
     player->Update();
     unitManager->Update();
-    cameraController.Update();
-    if (cameraWarmupCounter == 2) {
-        cameraController.SetInstant(false);
-    }
-    if (cameraWarmupCounter < 2) {
-        ++cameraWarmupCounter;
+    if (!player->IsNavigationEnabled()) {
+        cameraController.Update();
+        if (cameraWarmupCounter == 2) {
+            cameraController.SetInstant(false);
+        }
+        if (cameraWarmupCounter < 2) {
+            ++cameraWarmupCounter;
+        }
     }
     engine.GetAudioManager().SetListenerPosition(useCameraListener == 0
         ? player->GetPosition() : cameraController.GetPosition());
@@ -848,6 +850,9 @@ void Scene::SubmitRenderables()
         return;
     }
     if (AllowsScenePhase(14)) {
+        if (GetGameUi() != nullptr) {
+            GetGameUi()->PrepareModels();
+        }
         if (showDayTitle != 0) {
             RenderDayTitle();
         }

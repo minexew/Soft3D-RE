@@ -349,17 +349,17 @@ bool CameraController::MoveCamera(const Vec3& newPosition, const Vec3& newTarget
         position = newPosition;
         reachedX = reachedY = reachedZ = true;
     }
-    delta = soft3d::Subtract(desiredTarget, newTarget);
+    delta = soft3d::Subtract(target, newTarget);
     if (soft3d::Length(delta) > 0x28f) {
         delta = soft3d::Scale(soft3d::Normalize(delta), speed);
         bool ignored = false;
-        MoveComponent(desiredTarget.x, newTarget.x, delta.x, ignored);
-        MoveComponent(desiredTarget.y, newTarget.y, delta.y, ignored);
-        MoveComponent(desiredTarget.z, newTarget.z, delta.z, ignored);
+        MoveComponent(target.x, newTarget.x, delta.x, ignored);
+        MoveComponent(target.y, newTarget.y, delta.y, ignored);
+        MoveComponent(target.z, newTarget.z, delta.z, ignored);
     } else {
-        desiredTarget = newTarget;
+        target = newTarget;
     }
-    LookAt(position, desiredTarget);
+    LookAt(position, target);
     return reachedX && reachedY && reachedZ;
 }
 
@@ -868,7 +868,7 @@ void CameraController::UpdateOrientation()
     if (alignment > 0xfae0) {
         right = soft3d::Subtract(right, soft3d::Scale(forward, soft3d::Dot(right, forward)));
         right = soft3d::Normalize(right);
-        up = soft3d::Normalize(soft3d::Cross(forward, right));
+        up = soft3d::Cross(forward, right);
         right = soft3d::Normalize(soft3d::Cross(up, forward));
     } else {
         right = soft3d::Cross(up, forward);
@@ -876,7 +876,7 @@ void CameraController::UpdateOrientation()
             right = soft3d::Scale(right, 0x640000);
         }
         right = soft3d::Normalize(right);
-        up = soft3d::Normalize(soft3d::Cross(forward, right));
+        up = soft3d::Cross(forward, right);
         right = soft3d::Normalize(soft3d::Cross(up, forward));
     }
 }
@@ -907,7 +907,7 @@ void CameraController::UpdateOrbit()
         return;
     }
     if (orbitEndFrames < orbitFrames) {
-        const Fixed alpha = soft3d::FixedDivide((orbitEndFrames - orbitFrames) * soft3d::fixedOne,
+        const Fixed alpha = soft3d::FixedDivide((orbitInitialFrames - orbitFrames) * soft3d::fixedOne,
                                                 0x80000);
         position = Lerp(position, orbitPosition, alpha);
         target = Lerp(target, orbitTarget, alpha);
@@ -984,8 +984,8 @@ void CameraController::Update(const Vec3* targetOverride, bool immediate)
         const Vec3 targetDelta = soft3d::Subtract(desiredTarget, target);
         Vec3 targetStep;
         if (directFollow) {
-            const Fixed distance = soft3d::Length(positionDelta);
-            if (distance > 0x28f) {
+            if (soft3d::SquaredLength(positionDelta) > 0x28f) {
+                const Fixed distance = soft3d::Length(positionDelta);
                 const Vec3 normalized = soft3d::Normalize(positionDelta);
                 targetStep = soft3d::Scale(targetDelta,
                     soft3d::FixedDivide(directFollowSpeed, distance));

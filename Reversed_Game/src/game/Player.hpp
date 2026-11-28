@@ -299,6 +299,7 @@ private:
     bool SelectGunTarget(soft3d::GameUnit* target) const;
     int32_t GetGunDamage(int32_t targetIndex, soft3d::GameUnit* target) const;
     void RestoreHiddenState();
+    bool ActionFirstDown(int action) const;
     bool ActionDown(int action) const;
     bool ActionClick(int action) const;
     bool ActionPress(int action) const;

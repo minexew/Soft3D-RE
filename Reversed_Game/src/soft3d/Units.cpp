@@ -981,9 +981,9 @@ void Things::SubmitRenderables(RenderQueues& queues)
         const bool visibleLeaf = currentLeaf < 0 || bsp == nullptr ||
             (static_cast<std::size_t>(currentLeaf) < bsp->GetLeaves().size() &&
              bsp->GetLeaves()[currentLeaf].cluster == bsp->GetCurrentCluster());
-        const uint32_t blendMode = primaryObject != nullptr
-            ? primaryObject->GetMaterialBlendMode(0) : 0;
-        if (blendMode != 0 || visibleLeaf) {
+        const soft3d::ObjectRenderMode renderMode = primaryObject != nullptr
+            ? primaryObject->GetRenderMode() : soft3d::ObjectRenderMode::Normal;
+        if (renderMode != soft3d::ObjectRenderMode::Normal || visibleLeaf) {
             VisUnit::SubmitRenderables(queues);
         }
     } else if (alternateObject != nullptr) {
@@ -1033,7 +1033,7 @@ void Things::Update()
         alternateObject->SetModelMatrix(primaryObject->GetModelMatrix());
     }
     if (primaryObject != nullptr) {
-        position = primaryObject->GetWorldBounds().minimum;
+        collisionBounds = primaryObject->GetWorldBounds();
     }
 }
 
@@ -1558,7 +1558,7 @@ const UnitQueryResult& GameUnitManager::QueryBounds(const ObjectBounds& bounds, 
     }
     for (int index = first; index < last; ++index) {
         for (GameUnit* unit = buckets[index].first; unit != nullptr; unit = unit->nextUnit) {
-            if (unit == excluded) {
+            if (unit == excluded || (bucket == -1 && !unit->visible)) {
                 continue;
             }
             GameUnit* hit = unit->QueryBounds(bounds);
